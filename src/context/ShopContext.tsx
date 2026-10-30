@@ -1,0 +1,461 @@
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { Product, CartItem, Order, CustomerDetails, OrderStatus, PaymentMethod, OrderPaymentDetails } from '../types';
+import { INITIAL_PRODUCTS, INITIAL_ORDERS } from '../data/products';
+import { db, auth, handleFirestoreError, OperationType } from '../firebase';
+import { collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+
+interface ShopContextType {
+  products: Product[];
+  cart: CartItem[];
+  orders: Order[];
+  isCartOpen: boolean;
+  setIsCartOpen: (open: boolean) => void;
+  isSearchOpen: boolean;
+  setIsSearchOpen: (open: boolean) => void;
+  isCheckoutOpen: boolean;
+  setIsCheckoutOpen: (open: boolean) => void;
+  toast: string | null;
+  showToast: (msg: string) => void;
+  compareProductIds: [string, string];
+  setCompareProductA: (id: string) => void;
+  setCompareProductB: (id: string) => void;
+  swapCompareProducts: () => void;
+  addToCompare: (id: string) => void;
+  addToCart: (
+    product: Product, 
+    quantity?: number, 
+    options?: { selectedColor?: string; selectedColorHex?: string; selectedDesign?: string }
+  ) => void;
+  updateCartQuantity: (productId: string, quantity: number) => void;
+  removeFromCart: (productId: string) => void;
+  clearCart: () => void;
+  cartSubtotal: number;
+  cartCount: number;
+  createOrder: (
+    customer: CustomerDetails, 
+    paymentMethod: PaymentMethod, 
+    paymentDetails?: OrderPaymentDetails
+  ) => Promise<Order>;
+  updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
+  addProduct: (product: Product) => void;
+  updateProduct: (product: Product) => void;
+  deleteProduct: (id: string) => void;
+  resetDefaultCatalog: () => void;
+  formatPKR: (amount: number) => string;
+  generateWhatsAppOrderUrl: (customer?: CustomerDetails) => string;
+}
+
+const ShopContext = createContext<ShopContextType | undefined>(undefined);
+
+export const formatPKR = (amount: number): string => {
+  return `₨ ${amount.toLocaleString('en-PK')}`;
+};
+
+export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  // Products state with localStorage persistence
+  const [products, setProducts] = useState<Product[]>(() => {
+    try {
+      const saved = localStorage.getItem('niaz_products_v2');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return INITIAL_PRODUCTS;
+  });
+
+  // Cart state
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('niaz_cart_v2');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return [];
+  });
+
+  // Orders state
+  const [orders, setOrders] = useState<Order[]>(() => {
+    try {
+      const saved = localStorage.getItem('niaz_orders_v2');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return INITIAL_ORDERS;
+  });
+
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+
+  // Compare Fabrics state (Two unstitched fabric IDs)
+  const [compareProductIds, setCompareProductIds] = useState<[string, string]>(() => {
+    try {
+      const saved = localStorage.getItem('niaz_compare_v1');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length === 2 && parsed[0] && parsed[1]) {
+          return [parsed[0], parsed[1]];
+        }
+      }
+    } catch {
+      // fallback
+    }
+    return ['nch-001', 'nch-002'];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('niaz_compare_v1', JSON.stringify(compareProductIds));
+    } catch (e) {
+      console.error('Failed to save compare state:', e);
+    }
+  }, [compareProductIds]);
+
+  const setCompareProductA = (id: string) => {
+    setCompareProductIds((prev) => [id, prev[1]]);
+  };
+
+  const setCompareProductB = (id: string) => {
+    setCompareProductIds((prev) => [prev[0], id]);
+  };
+
+  const swapCompareProducts = () => {
+    setCompareProductIds((prev) => [prev[1], prev[0]]);
+  };
+
+  const addToCompare = (id: string) => {
+    setCompareProductIds((prev) => {
+      if (prev[0] === id) return prev;
+      return [prev[0], id];
+    });
+    showToast('Fabric loaded into comparison');
+  };
+
+  // Sync products to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('niaz_products_v2', JSON.stringify(products));
+    } catch (e) {
+      console.error('Failed to save products:', e);
+    }
+  }, [products]);
+
+  // Sync cart to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('niaz_cart_v2', JSON.stringify(cart));
+    } catch (e) {
+      console.error('Failed to save cart:', e);
+    }
+  }, [cart]);
+
+  // Sync orders to localStorage & listen to Firestore collection
+  useEffect(() => {
+    try {
+      localStorage.setItem('niaz_orders_v2', JSON.stringify(orders));
+    } catch (e) {
+      console.error('Failed to save orders:', e);
+    }
+  }, [orders]);
+
+  // Real-time Firestore sync for orders
+  useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
+    try {
+      const ordersCol = collection(db, 'orders');
+      unsubscribe = onSnapshot(
+        ordersCol,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const remoteOrders: Order[] = [];
+            snapshot.forEach((docSnap) => {
+              remoteOrders.push(docSnap.data() as Order);
+            });
+            // Merge remote with initial default orders ensuring no duplicates
+            setOrders((prev) => {
+              const map = new Map<string, Order>();
+              prev.forEach((o) => map.set(o.id, o));
+              remoteOrders.forEach((o) => map.set(o.id, o));
+              return Array.from(map.values()).sort(
+                (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+              );
+            });
+          }
+        },
+        (error) => {
+          handleFirestoreError(error, OperationType.GET, 'orders');
+        }
+      );
+    } catch (err) {
+      console.warn('Firestore orders subscription unavailable, using local persistence.');
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, []);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => {
+      setToast((prev) => (prev === msg ? null : prev));
+    }, 3200);
+  };
+
+  const addToCart = (
+    product: Product,
+    quantity = 1,
+    options?: { selectedColor?: string; selectedColorHex?: string; selectedDesign?: string }
+  ) => {
+    const chosenColor = options?.selectedColor || product.color;
+    const chosenColorHex = options?.selectedColorHex || product.colorHex;
+    const chosenDesign = options?.selectedDesign || (product.designOptions?.[0]?.name || 'Standard Cut');
+
+    setCart((prev) => {
+      const existingIndex = prev.findIndex(
+        (item) =>
+          item.product.id === product.id &&
+          item.selectedColor === chosenColor &&
+          item.selectedDesign === chosenDesign
+      );
+      if (existingIndex > -1) {
+        const next = [...prev];
+        next[existingIndex] = {
+          ...next[existingIndex],
+          quantity: next[existingIndex].quantity + quantity,
+        };
+        return next;
+      }
+      return [
+        ...prev,
+        {
+          product,
+          quantity,
+          selectedColor: chosenColor,
+          selectedColorHex: chosenColorHex,
+          selectedDesign: chosenDesign,
+        },
+      ];
+    });
+    showToast(`Added ${quantity} × ${product.title} (${chosenColor}) to bag`);
+    setIsCartOpen(true);
+  };
+
+  const updateCartQuantity = (productId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(productId);
+      return;
+    }
+    setCart((prev) =>
+      prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item))
+    );
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart((prev) => prev.filter((item) => item.product.id !== productId));
+    showToast('Removed item from shopping bag');
+  };
+
+  const clearCart = () => {
+    setCart([]);
+  };
+
+  const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const createOrder = async (
+    customer: CustomerDetails,
+    paymentMethod: PaymentMethod,
+    paymentDetails?: OrderPaymentDetails
+  ): Promise<Order> => {
+    const newOrder: Order = {
+      id: `NCH-1977-${Math.floor(1000 + Math.random() * 9000)}`,
+      date: new Date().toISOString(),
+      customer,
+      items: [...cart],
+      subtotal: cartSubtotal,
+      shipping: 0,
+      total: cartSubtotal,
+      status: 'Pending',
+      paymentMethod,
+      paymentDetails,
+    };
+
+    // Save to local state
+    setOrders((prev) => [newOrder, ...prev]);
+
+    // Save to Firestore
+    try {
+      const orderRef = doc(db, 'orders', newOrder.id);
+      await setDoc(orderRef, {
+        ...newOrder,
+        userId: auth.currentUser?.uid || null,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, `orders/${newOrder.id}`);
+    }
+
+    clearCart();
+    setIsCartOpen(false);
+    showToast(`Order #${newOrder.id} registered successfully via ${paymentMethod}!`);
+    return newOrder;
+  };
+
+  const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
+    setOrders((prev) =>
+      prev.map((ord) => (ord.id === orderId ? { ...ord, status } : ord))
+    );
+
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await updateDoc(orderRef, { status });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, `orders/${orderId}`);
+    }
+
+    showToast(`Order ${orderId} updated to ${status}`);
+  };
+
+  const addProduct = (product: Product) => {
+    setProducts((prev) => [product, ...prev]);
+    showToast(`Added product "${product.title}" to catalog`);
+  };
+
+  const updateProduct = (product: Product) => {
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? product : p))
+    );
+    showToast(`Updated product "${product.title}"`);
+  };
+
+  const deleteProduct = (id: string) => {
+    setProducts((prev) => {
+      const updated = prev.filter((p) => p.id !== id);
+      try {
+        localStorage.setItem('niaz_products_v2', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to sync deleted product to localStorage:', e);
+      }
+      return updated;
+    });
+
+    try {
+      deleteDoc(doc(db, 'products', id)).catch(() => {
+        // silent fallback if item was local only
+      });
+    } catch {
+      // ignore
+    }
+
+    showToast('Fabric removed from inventory catalog');
+  };
+
+  const resetDefaultCatalog = () => {
+    setProducts(INITIAL_PRODUCTS);
+    setOrders(INITIAL_ORDERS);
+    showToast('Catalog & orders restored to heritage defaults');
+  };
+
+  const generateWhatsAppOrderUrl = (customer?: CustomerDetails): string => {
+    const phoneNumber = '923346565636'; // Official Niaz Cloth House WhatsApp (0334-6565636)
+    const lines = [
+      '✨ *NIAZ CLOTH HOUSE (Since 1970 - Dress To Impress)* ✨',
+      '📍 *Paris Bazaar, Committee Chowk, Rawalpindi*',
+      '📞 *Call / WhatsApp: 0334-6565636*',
+      'Assalam-o-Alaikum, I would like to place an order from your unstitched catalog:',
+      '',
+      '📦 *ORDER SUMMARY:*',
+      ...cart.map(
+        (item, idx) =>
+          `${idx + 1}. ${item.product.title}\n   • Fabric: ${item.product.fabric}\n   • Qty: ${item.quantity}\n   • Price: ${formatPKR(item.product.price * item.quantity)}`
+      ),
+      '',
+      `💰 *Total Amount:* ${formatPKR(cartSubtotal)}`,
+      '🚚 *Payment Method:* Cash on Delivery / Direct Bank Transfer',
+    ];
+
+    if (customer && customer.fullName) {
+      lines.push(
+        '',
+        '👤 *CUSTOMER DETAILS:*',
+        `• Name: ${customer.fullName}`,
+        `• Phone: ${customer.phone}`,
+        `• City: ${customer.city}`,
+        `• Address: ${customer.address}`,
+        customer.notes ? `• Special Instructions: ${customer.notes}` : ''
+      );
+    }
+
+    lines.push(
+      '',
+      'Please confirm fabric availability and delivery time. JazakAllah Khair.'
+    );
+
+    const message = encodeURIComponent(lines.filter(Boolean).join('\n'));
+    return `https://wa.me/${phoneNumber}?text=${message}`;
+  };
+
+  return (
+    <ShopContext.Provider
+      value={{
+        products,
+        cart,
+        orders,
+        isCartOpen,
+        setIsCartOpen,
+        isSearchOpen,
+        setIsSearchOpen,
+        isCheckoutOpen,
+        setIsCheckoutOpen,
+        toast,
+        showToast,
+        addToCart,
+        updateCartQuantity,
+        removeFromCart,
+        clearCart,
+        cartSubtotal,
+        cartCount,
+        createOrder,
+        updateOrderStatus,
+        addProduct,
+        updateProduct,
+        deleteProduct,
+        resetDefaultCatalog,
+        formatPKR,
+        generateWhatsAppOrderUrl,
+        compareProductIds,
+        setCompareProductA,
+        setCompareProductB,
+        swapCompareProducts,
+        addToCompare,
+      }}
+    >
+      {children}
+      {/* Toast Notification Container */}
+      {toast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1C1917] text-[#FAF8F5] px-5 py-3 rounded-none shadow-xl border-l-2 border-[#8C4830] transition-all transform animate-in fade-in slide-in-from-bottom-2 duration-200"
+        >
+          <span className="text-xs uppercase tracking-widest text-[#D4A373] font-medium font-sans">
+            Niaz Notice
+          </span>
+          <span className="text-xs text-white/90 font-sans">{toast}</span>
+        </div>
+      )}
+    </ShopContext.Provider>
+  );
+};
+
+export const useShop = () => {
+  const context = useContext(ShopContext);
+  if (!context) {
+    throw new Error('useShop must be used within a ShopProvider');
+  }
+  return context;
+};

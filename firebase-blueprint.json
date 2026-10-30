@@ -1,0 +1,132 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "Registered patron profile authenticated via Firebase Google Sign-In",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "Firebase Auth UID" },
+        "email": { "type": "string", "description": "Customer email" },
+        "displayName": { "type": "string", "description": "Customer full name" },
+        "photoURL": { "type": "string", "description": "Avatar photo URL" },
+        "phone": { "type": "string", "description": "Primary phone number" },
+        "city": { "type": "string", "description": "Default delivery city in Pakistan" },
+        "createdAt": { "type": "string", "description": "Profile creation timestamp" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Unstitched fabric customer order placed via Cash-on-Delivery or WhatsApp",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Unique Order ID e.g. NCH-1977-1042" },
+        "userId": { "type": "string", "description": "UID of ordering patron if signed in" },
+        "customer": {
+          "type": "object",
+          "description": "Shipping details of the patron"
+        },
+        "items": {
+          "type": "array",
+          "description": "List of unstitched fabrics ordered"
+        },
+        "subtotal": { "type": "number", "description": "Subtotal in PKR" },
+        "shipping": { "type": "number", "description": "Shipping fee in PKR" },
+        "total": { "type": "number", "description": "Grand total in PKR" },
+        "status": {
+          "type": "string",
+          "enum": ["Pending", "Processing", "Shipped", "Delivered"],
+          "description": "Order dispatch stage"
+        },
+        "paymentMethod": {
+          "type": "string",
+          "enum": ["Cash on Delivery", "WhatsApp Direct"],
+          "description": "Selected checkout gateway"
+        },
+        "createdAt": { "type": "string", "description": "Order creation timestamp" }
+      },
+      "required": ["id", "customer", "items", "total", "status", "paymentMethod"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "Verified patron testimonial and fabric rating",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Review ID" },
+        "productId": { "type": "string", "description": "Referenced fabric ID" },
+        "authorName": { "type": "string", "description": "Name of customer" },
+        "city": { "type": "string", "description": "Customer city in Pakistan" },
+        "rating": { "type": "number", "description": "Rating score from 1 to 5" },
+        "comment": { "type": "string", "description": "Review body" },
+        "createdAt": { "type": "string", "description": "Review date" }
+      },
+      "required": ["id", "authorName", "rating", "comment"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "Authentic unstitched fabric product cut or suit piece",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Product SKU ID" },
+        "title": { "type": "string", "description": "Product title" },
+        "fabric": { "type": "string", "description": "Fabric type" },
+        "gender": { "type": "string", "description": "Gender classification" },
+        "price": { "type": "number", "description": "Price in PKR" },
+        "inStock": { "type": "boolean", "description": "Inventory stock status" }
+      },
+      "required": ["id", "title", "fabric", "price", "inStock"]
+    },
+    "VideoGeneration": {
+      "title": "VideoGeneration",
+      "description": "Veo 3 cinematic unstitched fabric video runway preview",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Generation ID" },
+        "prompt": { "type": "string", "description": "Fabric prompt in motion" },
+        "aspectRatio": { "type": "string", "enum": ["16:9", "9:16"], "description": "Video aspect ratio" },
+        "videoUrl": { "type": "string", "description": "Stream or download URL" },
+        "createdAt": { "type": "string", "description": "Generation timestamp" }
+      },
+      "required": ["id", "prompt", "aspectRatio"]
+    },
+    "ChatConsultation": {
+      "title": "ChatConsultation",
+      "description": "Patron fabric inquiries and AI Concierge consultation logs",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Consultation ID" },
+        "userId": { "type": "string", "description": "Patron UID or guest token" },
+        "messagesCount": { "type": "number", "description": "Total messages" },
+        "lastTopic": { "type": "string", "description": "Summary topic" },
+        "createdAt": { "type": "string", "description": "Creation timestamp" }
+      },
+      "required": ["id", "messagesCount"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "Product",
+      "description": "Catalog of authentic unstitched fabrics"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Individual customer profile documents restricted to owner"
+    },
+    "/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Customer unstitched orders accessible by customer or admin"
+    },
+    "/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Publicly readable reviews with authenticated creation"
+    },
+    "/videoGenerations/{videoId}": {
+      "schema": "VideoGeneration",
+      "description": "Patron fabric runway videos generated with Veo 3"
+    },
+    "/consultations/{consultationId}": {
+      "schema": "ChatConsultation",
+      "description": "Patron fabric concierge conversation sessions"
+    }
+  }
+}

@@ -1,0 +1,79 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Global Default Deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email == 'uzairaliuzairali640@gmail.com' ||
+        request.auth.token.email == 'admin@nch.com' ||
+        request.auth.token.email == 'admin@niazclothhouse.com'
+      );
+    }
+
+    // Users Collection
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Orders Collection
+    match /orders/{orderId} {
+      // Anyone can create an order (supports Cash on Delivery & WhatsApp checkout)
+      allow create: if request.resource.data.id is string
+                    && request.resource.data.total is number;
+      // Anyone can look up a single order by its exact ID (Order Tracking)
+      allow get: if true;
+      // Listing all orders restricted to store admin or authenticated account owner
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      // Status updates reserved for store admin
+      allow update, delete: if isAdmin();
+    }
+
+    // Connection verification document
+    match /test/connection {
+      allow read: if true;
+    }
+
+    // Customer Reviews Collection (associated with products)
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if request.resource.data.productId is string
+                    && request.resource.data.rating is number
+                    && request.resource.data.rating >= 1
+                    && request.resource.data.rating <= 5;
+      allow update, delete: if isAdmin();
+    }
+
+    // Products Collection (Unstitched Fabrics Catalog)
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Video Generations (Veo 3 unstitched fabric runway visualizations)
+    match /videoGenerations/{videoId} {
+      allow read: if true;
+      allow create: if true;
+      allow delete: if isAdmin();
+    }
+
+    // Consultations & Chat Inquiries Collection
+    match /consultations/{consultationId} {
+      allow read: if true;
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+  }
+}

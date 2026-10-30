@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Homepage -->
+  <url>
+    <loc>https://nch.com/</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/hero_niaz_luxury_fabric_1791569218384.jpg</image:loc>
+      <image:title>Niaz Cloth House - Authentic Pakistani Unstitched Fabrics Since 1970</image:title>
+    </image:image>
+  </url>
+
+  <!-- Category & Collection Pages -->
+  <url>
+    <loc>https://nch.com/collections/men-summer</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/product_mens_latha_cotton_1791569254348.jpg</image:loc>
+      <image:title>Men's Summer Unstitched Fabrics - Egyptian Cotton Latha and Pure Boski Silk</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/collections/men-winter</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/khaadi_mens_boski_display_1791657195697.jpg</image:loc>
+      <image:title>Men's Winter Unstitched Suiting - Kamalia Handloom Khaddar and Raw Karandi</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/collections/women-summer</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/product_womens_lawn_chiffon_1791569231005.jpg</image:loc>
+      <image:title>Women's Summer Lawn and Chiffon - 3-Piece Designer Unstitched Suits</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/collections/women-winter</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/shop</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/location</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+
+  <!-- Product Pages -->
+  <url>
+    <loc>https://nch.com/product/authentic-8-pound-pure-boski-silk</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/product_mens_pure_boski_1791569243386.jpg</image:loc>
+      <image:title>Authentic 8-Pound Pure Boski Silk Unstitched Fabric</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/royal-egyptian-latha-cotton</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/product_mens_latha_cotton_1791569254348.jpg</image:loc>
+      <image:title>Royal Egyptian Latha Cotton Super 120s Unstitched Suiting</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/gul-e-firdaus-embroidered-lawn-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/product_womens_lawn_chiffon_1791569231005.jpg</image:loc>
+      <image:title>Gul-e-Firdaus Embroidered Lawn 3-Piece Suit</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/bagh-e-kashmir-embroidered-chiffon-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/imperial-6-pound-summer-boski-silk</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/handloom-raw-karandi-mens-suiting</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+    <image:image>
+      <image:loc>https://nch.com/src/assets/images/khaadi_mens_boski_display_1791657195697.jpg</image:loc>
+      <image:title>Handloom Raw Karandi Men Suiting</image:title>
+    </image:image>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/swiss-voile-schiffli-embroidered-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/zari-banarasi-silk-jacquard-festive-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/presidential-egyptian-giza-cotton-latha</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/traditional-hand-spun-kamalia-khaddar</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/mehtaab-shadow-work-embroidered-lawn-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/royal-heirloom-10-pound-gold-seal-boski-silk</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/kashmiri-pashmina-wool-shawl-ensemble-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/product/koh-e-noor-heavy-handloom-winter-khaddar-3-piece</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.85</priority>
+  </url>
+
+  <!-- Legal & Customer Care Policy Pages -->
+  <url>
+    <loc>https://nch.com/privacy-policy</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/terms-and-conditions</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/cookie-policy</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <url>
+    <loc>https://nch.com/refund-policy</loc>
+    <lastmod>2026-10-14</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+</urlset>

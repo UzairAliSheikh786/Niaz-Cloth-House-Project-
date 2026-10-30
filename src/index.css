@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --font-serif: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --color-gold: #D4AF37;
+  --color-gold-hover: #C5A028;
+  --color-gold-light: #F7E7B4;
+  --color-charcoal: #1F1F1F;
+  --color-charcoal-dark: #141414;
+  --color-charcoal-muted: #2E2E2E;
+  --color-ivory: #FAF9F6;
+  --color-ivory-surface: #F4F1EA;
+  --color-border-subtle: #EAE6DF;
+}
+
+:root {
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  color-scheme: light;
+}
+
+html {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  position: relative;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #FAF9F6;
+  color: #1F1F1F;
+  touch-action: pan-y;
+  -webkit-overflow-scrolling: touch;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: none;
+  position: relative;
+  min-height: 100vh;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Prevent unwanted horizontal drift from media */
+img, video, canvas, svg {
+  max-width: 100%;
+}
+
+/* Native-like smooth mobile touch feel */
+a, button, [role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* Prevent iOS Safari auto-zoom on form inputs which causes horizontal shift */
+@media (max-width: 640px) {
+  input[type="text"],
+  input[type="tel"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: 'Playfair Display', Georgia, serif;
+}
+
+/* Custom subtle scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF9F6;
+}
+::-webkit-scrollbar-thumb {
+  background: #D4AF37;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #1F1F1F;
+}
