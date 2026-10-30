@@ -40,8 +40,8 @@ export const FloatingWhatsAppButton: React.FC = () => {
             isHovered ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-2'
           }`}
         >
-          <div className="bg-[#1C1917] text-[#FAF8F5] text-xs py-2 px-3.5 shadow-xl border border-white/10 whitespace-nowrap space-y-0.5 text-right">
-            <span className="font-semibold block text-[#D4A373] text-[11px] uppercase tracking-wider">
+          <div className="bg-[#1C1917] text-[#F8FAFC] text-xs py-2 px-3.5 shadow-xl border border-white/10 whitespace-nowrap space-y-0.5 text-right">
+            <span className="font-semibold block text-[#38BDF8] text-[11px] uppercase tracking-wider">
               Niaz Cloth House Support
             </span>
             <span className="block text-[11px] text-white/90 font-mono">
@@ -61,11 +61,11 @@ export const FloatingWhatsAppButton: React.FC = () => {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           aria-label="Chat with Niaz Cloth House Customer Service on WhatsApp (0334-6565636)"
-          className="group flex items-center gap-2.5 bg-[#4A5D4E] hover:bg-[#3D4D40] active:bg-[#354338] text-[#FAF8F5] p-3 sm:px-4 sm:py-3 rounded-full shadow-[0_10px_25px_-5px_rgba(74,93,78,0.45)] hover:shadow-[0_15px_30px_-5px_rgba(74,93,78,0.6)] transition-all duration-300 border border-[#647B69]/40 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4A5D4E]"
+          className="group flex items-center gap-2.5 bg-[#4A5D4E] hover:bg-[#3D4D40] active:bg-[#354338] text-[#F8FAFC] p-3 sm:px-4 sm:py-3 rounded-full shadow-[0_10px_25px_-5px_rgba(74,93,78,0.45)] hover:shadow-[0_15px_30px_-5px_rgba(74,93,78,0.6)] transition-all duration-300 border border-[#647B69]/40 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#4A5D4E]"
         >
           {/* Official WhatsApp Vector Icon */}
           <svg
-            className="w-6 h-6 fill-current shrink-0 text-[#FAF8F5] group-hover:scale-105 transition-transform"
+            className="w-6 h-6 fill-current shrink-0 text-[#F8FAFC] group-hover:scale-105 transition-transform"
             viewBox="0 0 24 24"
             aria-hidden="true"
           >
@@ -74,10 +74,10 @@ export const FloatingWhatsAppButton: React.FC = () => {
 
           {/* Label on tablet/desktop */}
           <div className="hidden sm:flex flex-col text-left leading-tight">
-            <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-[#FAF8F5]/80">
+            <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-[#F8FAFC]/80">
               Customer Desk
             </span>
-            <span className="text-xs font-bold text-[#FAF8F5] tracking-wide">
+            <span className="text-xs font-bold text-[#F8FAFC] tracking-wide">
               0334-6565636
             </span>
           </div>

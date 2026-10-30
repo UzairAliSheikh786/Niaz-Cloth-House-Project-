@@ -50,11 +50,11 @@ export const MapsGroundingAssistant: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-[#E7E0D8] p-5 sm:p-6 shadow-xs space-y-4">
+    <div className="bg-white border border-[#E2E8F0] p-5 sm:p-6 shadow-xs space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#E7E0D8]">
+      <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-[#8C4830]/10 text-[#8C4830]">
+          <div className="p-2 bg-[#0284C7]/10 text-[#0284C7]">
             <Compass className="w-5 h-5" />
           </div>
           <div>
@@ -91,7 +91,7 @@ export const MapsGroundingAssistant: React.FC = () => {
                 setQuery(q);
                 handleAskMaps(q);
               }}
-              className="text-[11px] px-2.5 py-1 bg-[#FAF8F5] border border-[#E7E0D8] hover:border-[#8C4830] text-[#1C1917] transition-colors text-left"
+              className="text-[11px] px-2.5 py-1 bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7] text-[#1C1917] transition-colors text-left"
             >
               {q}
             </button>
@@ -113,13 +113,13 @@ export const MapsGroundingAssistant: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Ask about directions from Islamabad, Ring Road, metro routes, or parking..."
-            className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E7E0D8] text-xs focus:border-[#8C4830] focus:bg-white focus:outline-none transition-colors"
+            className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-xs focus:border-[#0284C7] focus:bg-white focus:outline-none transition-colors"
           />
         </div>
         <button
           type="submit"
           disabled={isLoading || !query.trim()}
-          className="px-4 py-2.5 bg-[#8C4830] hover:bg-[#703623] disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 shrink-0"
+          className="px-4 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 shrink-0"
         >
           {isLoading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
           <span>{isLoading ? 'Routing...' : 'Ask Maps'}</span>

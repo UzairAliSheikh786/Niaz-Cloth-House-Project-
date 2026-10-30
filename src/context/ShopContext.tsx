@@ -55,7 +55,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Products state with localStorage persistence
   const [products, setProducts] = useState<Product[]>(() => {
     try {
-      const saved = localStorage.getItem('niaz_products_v2');
+      const saved = localStorage.getItem('nch_products_v3');
       if (saved) return JSON.parse(saved);
     } catch {
       // fallback
@@ -137,7 +137,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Sync products to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('niaz_products_v2', JSON.stringify(products));
+      localStorage.setItem('nch_products_v3', JSON.stringify(products));
     } catch (e) {
       console.error('Failed to save products:', e);
     }
@@ -336,7 +336,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setProducts((prev) => {
       const updated = prev.filter((p) => p.id !== id);
       try {
-        localStorage.setItem('niaz_products_v2', JSON.stringify(updated));
+        localStorage.setItem('nch_products_v3', JSON.stringify(updated));
       } catch (e) {
         console.error('Failed to sync deleted product to localStorage:', e);
       }
@@ -440,9 +440,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         <div
           role="status"
           aria-live="polite"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1C1917] text-[#FAF8F5] px-5 py-3 rounded-none shadow-xl border-l-2 border-[#8C4830] transition-all transform animate-in fade-in slide-in-from-bottom-2 duration-200"
+          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-[#1C1917] text-[#F8FAFC] px-5 py-3 rounded-none shadow-xl border-l-2 border-[#0284C7] transition-all transform animate-in fade-in slide-in-from-bottom-2 duration-200"
         >
-          <span className="text-xs uppercase tracking-widest text-[#D4A373] font-medium font-sans">
+          <span className="text-xs uppercase tracking-widest text-[#38BDF8] font-medium font-sans">
             Niaz Notice
           </span>
           <span className="text-xs text-white/90 font-sans">{toast}</span>

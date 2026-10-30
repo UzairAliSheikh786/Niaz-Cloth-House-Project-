@@ -64,11 +64,11 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
   };
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen py-10 sm:py-14 font-sans text-[#1C1917]">
+    <div className="w-full bg-[#F8FAFC] min-h-screen py-10 sm:py-14 font-sans text-[#1C1917]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-10">
         
         {/* Breadcrumb & Legal Header */}
-        <div className="border-b border-[#E7E0D8] pb-6">
+        <div className="border-b border-[#E2E8F0] pb-6">
           <div className="mb-4">
             <Breadcrumbs
               items={[
@@ -113,17 +113,17 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
               <button
                 type="button"
                 onClick={handlePrint}
-                className="px-3.5 py-2 bg-white border border-[#E7E0D8] hover:border-[#8C4830] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors shadow-xs"
+                className="px-3.5 py-2 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors shadow-xs"
                 title="Print policy document"
               >
-                <Printer className="w-3.5 h-3.5 text-[#8C4830]" />
+                <Printer className="w-3.5 h-3.5 text-[#0284C7]" />
                 <span>Print Document</span>
               </button>
 
               <button
                 type="button"
                 onClick={triggerCookieModal}
-                className="px-4 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm"
+                className="px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm"
               >
                 <Cookie className="w-3.5 h-3.5" />
                 <span>Cookie Settings</span>
@@ -135,14 +135,14 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         {/* 4-Tab Navigation Selector */}
         <nav
           aria-label="Policy Navigation Tabs"
-          className="flex items-center border-b border-[#E7E0D8] overflow-x-auto scrollbar-none gap-2 sm:gap-4"
+          className="flex items-center border-b border-[#E2E8F0] overflow-x-auto scrollbar-none gap-2 sm:gap-4"
         >
           <button
             type="button"
             onClick={() => handleTabChange('privacy')}
             className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
               activeTab === 'privacy'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
@@ -155,7 +155,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             onClick={() => handleTabChange('terms')}
             className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
               activeTab === 'terms'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
@@ -168,7 +168,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             onClick={() => handleTabChange('cookies')}
             className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
               activeTab === 'cookies'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
@@ -181,7 +181,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             onClick={() => handleTabChange('refund')}
             className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
               activeTab === 'refund'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
@@ -194,8 +194,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         {/* TAB 1: PRIVACY POLICY (DPDP ACT & GDPR COMPLIANT) */}
         {/* ============================================================ */}
         {activeTab === 'privacy' && (
-          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E7E0D8] shadow-xs">
-            <header className="border-b border-[#E7E0D8] pb-6 space-y-2">
+          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E2E8F0] shadow-xs">
+            <header className="border-b border-[#E2E8F0] pb-6 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold">
                   DPDP Act (2023/2024 Standards)
@@ -216,8 +216,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             </header>
 
             {/* Quick Summary Callout */}
-            <div className="p-4 bg-[#FAF8F5] border-l-4 border-[#8C4830] text-xs space-y-2 leading-relaxed">
-              <h3 className="font-bold text-[#8C4830] flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+            <div className="p-4 bg-[#F8FAFC] border-l-4 border-[#0284C7] text-xs space-y-2 leading-relaxed">
+              <h3 className="font-bold text-[#0284C7] flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
                 <ShieldCheck className="w-4 h-4" />
                 <span>Our Clear Privacy Commitment</span>
               </h3>
@@ -228,13 +228,13 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 1: Data Controller / Fiduciary Identity */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 1. Data Fiduciary & Identity
               </h3>
               <p>
                 For the purposes of the <strong>Digital Personal Data Protection (DPDP) Act</strong>, the <strong>General Data Protection Regulation (GDPR)</strong>, and Pakistani electronic commerce regulations, the Data Fiduciary (Controller) is:
               </p>
-              <div className="p-4 bg-[#FAF8F5] border border-[#E7E0D8] grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-sans">
                 <div>
                   <span className="text-[#1C1917]/60 block font-semibold text-[10px] uppercase">Legal Trade Entity:</span>
                   <strong className="text-[#1C1917]">Niaz Cloth House (Established 1977)</strong>
@@ -245,7 +245,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                 </div>
                 <div>
                   <span className="text-[#1C1917]/60 block font-semibold text-[10px] uppercase">Official Helpline:</span>
-                  <span className="font-mono text-[#8C4830] font-bold">0334-6565636</span>
+                  <span className="font-mono text-[#0284C7] font-bold">0334-6565636</span>
                 </div>
                 <div>
                   <span className="text-[#1C1917]/60 block font-semibold text-[10px] uppercase">Official Privacy Email:</span>
@@ -256,7 +256,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 2: Necessary Data We Collect (Data Minimization) */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 2. Categories of Personal Data Collected (Data Minimization Principle)
               </h3>
               <p>
@@ -283,23 +283,23 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 3: Lawful Basis for Processing */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 3. Lawful Basis for Processing
               </h3>
               <p>
                 Under the DPDP framework, we process your personal data under the following legitimate grounds:
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <div className="p-3.5 bg-[#FAF8F5] border border-[#E7E0D8]">
-                  <strong className="text-[#8C4830] block mb-1">Contractual Fulfillment</strong>
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <strong className="text-[#0284C7] block mb-1">Contractual Fulfillment</strong>
                   <p className="text-[#1C1917]/75">Processing necessary to package, dispatch, and deliver your unstitched suits via national courier services.</p>
                 </div>
-                <div className="p-3.5 bg-[#FAF8F5] border border-[#E7E0D8]">
-                  <strong className="text-[#8C4830] block mb-1">Explicit Consent</strong>
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <strong className="text-[#0284C7] block mb-1">Explicit Consent</strong>
                   <p className="text-[#1C1917]/75">Where you opt-in to WhatsApp customer support or accept functional and analytical cookie preferences.</p>
                 </div>
-                <div className="p-3.5 bg-[#FAF8F5] border border-[#E7E0D8]">
-                  <strong className="text-[#8C4830] block mb-1">Statutory Compliance</strong>
+                <div className="p-3.5 bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <strong className="text-[#0284C7] block mb-1">Statutory Compliance</strong>
                   <p className="text-[#1C1917]/75">Maintaining tax, invoice, and commercial records in accordance with Pakistani commercial statutes.</p>
                 </div>
               </div>
@@ -307,26 +307,26 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 4: Data Principal Rights under DPDP Act */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 4. Your Rights as a Data Principal
               </h3>
               <p>
                 As a valued customer and Data Principal, you possess clear rights over your personal data:
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-3 bg-white border border-[#E7E0D8] space-y-1">
+                <div className="p-3 bg-white border border-[#E2E8F0] space-y-1">
                   <strong className="text-[#1C1917] block font-serif">Right to Access & Summary</strong>
                   <p className="text-[#1C1917]/70">You may request a digital copy of all personal records and order histories held by Niaz Cloth House.</p>
                 </div>
-                <div className="p-3 bg-white border border-[#E7E0D8] space-y-1">
+                <div className="p-3 bg-white border border-[#E2E8F0] space-y-1">
                   <strong className="text-[#1C1917] block font-serif">Right to Correction & Rectification</strong>
                   <p className="text-[#1C1917]/70">You may update incorrect delivery addresses, phone numbers, or account profiles at any time.</p>
                 </div>
-                <div className="p-3 bg-white border border-[#E7E0D8] space-y-1">
+                <div className="p-3 bg-white border border-[#E2E8F0] space-y-1">
                   <strong className="text-[#1C1917] block font-serif">Right to Erasure ('Right to be Forgotten')</strong>
                   <p className="text-[#1C1917]/70">You may demand the complete deletion of your customer profile, order history, and contact data once fulfillment is finalized.</p>
                 </div>
-                <div className="p-3 bg-white border border-[#E7E0D8] space-y-1">
+                <div className="p-3 bg-white border border-[#E2E8F0] space-y-1">
                   <strong className="text-[#1C1917] block font-serif">Right to Withdraw Consent</strong>
                   <p className="text-[#1C1917]/70">You may revoke consent for non-essential cookies or WhatsApp communication at any time with immediate effect.</p>
                 </div>
@@ -335,7 +335,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 5: Data Retention & Security */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 5. Data Retention & Cryptographic Security
               </h3>
               <p>
@@ -350,13 +350,13 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 6: Grievance Redressal Officer */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed pt-2">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 6. Grievance Redressal & Data Protection Officer
               </h3>
               <p>
                 In compliance with DPDP provisions, Niaz Cloth House has appointed a dedicated Grievance Officer. If you have concerns, requests for data deletion, or compliance queries:
               </p>
-              <div className="p-5 bg-[#FAF8F5] border border-[#E7E0D8] space-y-2 text-xs">
+              <div className="p-5 bg-[#F8FAFC] border border-[#E2E8F0] space-y-2 text-xs">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div>
                     <span className="text-[#1C1917]/60 block uppercase text-[10px] font-semibold">Grievance Officer:</span>
@@ -368,16 +368,16 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                   </div>
                   <div>
                     <span className="text-[#1C1917]/60 block uppercase text-[10px] font-semibold">Direct Email:</span>
-                    <a href="mailto:grievance@nch.com" className="text-[#8C4830] font-semibold hover:underline">
+                    <a href="mailto:grievance@nch.com" className="text-[#0284C7] font-semibold hover:underline">
                       grievance@nch.com
                     </a>
                   </div>
                   <div>
                     <span className="text-[#1C1917]/60 block uppercase text-[10px] font-semibold">Official Phone / WhatsApp:</span>
-                    <span className="font-mono text-[#8C4830] font-bold">0334-6565636</span>
+                    <span className="font-mono text-[#0284C7] font-bold">0334-6565636</span>
                   </div>
                 </div>
-                <p className="text-[11px] text-[#1C1917]/70 pt-2 border-t border-[#E7E0D8]">
+                <p className="text-[11px] text-[#1C1917]/70 pt-2 border-t border-[#E2E8F0]">
                   <strong>Statutory Response Timeline:</strong> All grievances are formally investigated and resolved within <strong>7 business days</strong> of receipt.
                 </p>
               </div>
@@ -389,8 +389,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         {/* TAB 2: TERMS & CONDITIONS (T&C) */}
         {/* ============================================================ */}
         {activeTab === 'terms' && (
-          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E7E0D8] shadow-xs">
-            <header className="border-b border-[#E7E0D8] pb-6 space-y-2">
+          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E2E8F0] shadow-xs">
+            <header className="border-b border-[#E2E8F0] pb-6 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-blue-100 text-blue-900 font-bold">
                   Commercial Agreement
@@ -411,8 +411,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             </header>
 
             {/* Crucial Unstitched Notice */}
-            <div className="p-4 bg-[#FAF8F5] border-l-4 border-[#8C4830] text-xs space-y-1.5 leading-relaxed">
-              <strong className="text-[#8C4830] block font-semibold uppercase text-[11px]">
+            <div className="p-4 bg-[#F8FAFC] border-l-4 border-[#0284C7] text-xs space-y-1.5 leading-relaxed">
+              <strong className="text-[#0284C7] block font-semibold uppercase text-[11px]">
                 Notice of Unstitched Fabric Nature (Not Tailor Made)
               </strong>
               <p>
@@ -422,24 +422,24 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 1: Ordering & Verification */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 1. Order Placement & Telephonic / WhatsApp Verification
               </h3>
               <p>
-                Orders placed via our website or directly through WhatsApp are subject to confirmation. Due to high demand for authentic unstitched pure Chinese Boski and Egyptian Giza Latha, our staff may contact you via WhatsApp or voice call at <strong>0334-6565636</strong> to verify your delivery address before courier dispatch.
+                Orders placed via our website or directly through WhatsApp are subject to confirmation. Due to high demand for authentic unstitched pure Chinese Boski and Wash and Wear Suiting, our staff may contact you via WhatsApp or voice call at <strong>0334-6565636</strong> to verify your delivery address before courier dispatch.
               </p>
             </section>
 
             {/* Section 2: Pricing & Payment Gateways */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 2. Pricing & Approved Payment Gateways
               </h3>
               <ul className="list-disc list-inside space-y-1.5 pl-2 text-xs">
                 <li><strong>Currency:</strong> All prices are displayed and billed in Pakistani Rupees (PKR) inclusive of domestic packaging.</li>
                 <li><strong>Cash on Delivery (COD):</strong> Payable in cash upon parcel handover to courier delivery personnel nationwide across Pakistan.</li>
                 <li><strong>Digital Wallets:</strong> Verified merchant transfers to official accounts:
-                  <ul className="list-none pl-4 pt-1 space-y-0.5 text-[11px] font-mono text-[#8C4830]">
+                  <ul className="list-none pl-4 pt-1 space-y-0.5 text-[11px] font-mono text-[#0284C7]">
                     <li>• EasyPaisa Account: <strong>0334-6565636</strong> (Title: Muhammad Niaz)</li>
                     <li>• JazzCash Account: <strong>0334-6565636</strong> (Title: Muhammad Niaz)</li>
                   </ul>
@@ -449,7 +449,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 3: Consumer Safeguards (Fabric Pre-Shrinkage & Screen Hue Variance) */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 3. Fabric Care Disclaimers & Risk Disclosures
               </h3>
               <div className="space-y-2 text-xs">
@@ -462,7 +462,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                   </p>
                 </div>
 
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
                   <strong className="text-[#1C1917] block font-semibold mb-0.5">
                     B. Digital Screen Hue & Color Variance:
                   </strong>
@@ -475,7 +475,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 4: Image Copyright & Intellectual Property */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 4. Image Copyright & Intellectual Property Protection
               </h3>
               <p>
@@ -485,7 +485,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 5: Governing Law & Jurisdiction */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 5. Governing Law & Jurisdiction
               </h3>
               <p>
@@ -499,8 +499,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         {/* TAB 3: COOKIES POLICY */}
         {/* ============================================================ */}
         {activeTab === 'cookies' && (
-          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E7E0D8] shadow-xs">
-            <header className="border-b border-[#E7E0D8] pb-6 space-y-2">
+          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E2E8F0] shadow-xs">
+            <header className="border-b border-[#E2E8F0] pb-6 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-emerald-100 text-emerald-800 font-bold">
                   Granular User Control
@@ -518,7 +518,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             </header>
 
             {/* Quick Management Trigger */}
-            <div className="p-4 bg-[#FAF8F5] border border-[#E7E0D8] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <strong className="text-sm font-serif text-[#1C1917] block">Manage Your Cookie Preferences Now</strong>
                 <p className="text-xs text-[#1C1917]/70 mt-0.5">Toggle optional performance and functional cookies at any time.</p>
@@ -526,7 +526,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
               <button
                 type="button"
                 onClick={triggerCookieModal}
-                className="px-4 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold uppercase tracking-wider transition-colors shrink-0"
+                className="px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors shrink-0"
               >
                 Open Cookie Settings
               </button>
@@ -534,7 +534,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 1: What Are Cookies */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 1. What Are Cookies and Local Storage?
               </h3>
               <p>
@@ -544,13 +544,13 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 2: Detailed Cookie Breakdown Table */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 2. Categories of Cookies Used
               </h3>
 
-              <div className="overflow-x-auto border border-[#E7E0D8]">
+              <div className="overflow-x-auto border border-[#E2E8F0]">
                 <table className="min-w-full text-xs text-left">
-                  <thead className="bg-[#FAF8F5] border-b border-[#E7E0D8] text-[11px] font-bold uppercase tracking-wider text-[#1C1917]">
+                  <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[11px] font-bold uppercase tracking-wider text-[#1C1917]">
                     <tr>
                       <th className="py-2.5 px-3">Cookie Category</th>
                       <th className="py-2.5 px-3">Purpose & Technical Usage</th>
@@ -558,7 +558,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                       <th className="py-2.5 px-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D8] text-[#1C1917]/80">
+                  <tbody className="divide-y divide-[#E2E8F0] text-[#1C1917]/80">
                     <tr>
                       <td className="py-3 px-3 font-semibold text-[#1C1917]">
                         Strictly Necessary
@@ -602,7 +602,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 3: Third Party Embeds (Google Maps) */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 3. Third-Party Embeds & Sandboxed iframes
               </h3>
               <p>
@@ -621,10 +621,10 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         {/* TAB 4: FABRIC ORDER & DISPATCH POLICY */}
         {/* ============================================================ */}
         {activeTab === 'refund' && (
-          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E7E0D8] shadow-xs">
-            <header className="border-b border-[#E7E0D8] pb-6 space-y-2">
+          <article className="space-y-8 bg-white p-6 sm:p-10 border border-[#E2E8F0] shadow-xs">
+            <header className="border-b border-[#E2E8F0] pb-6 space-y-2">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-[#8C4830]/10 text-[#8C4830] font-bold">
+                <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-[#0284C7]/10 text-[#0284C7] font-bold">
                   Fresh Cut Guarantee
                 </span>
                 <span className="text-[10px] font-mono uppercase px-2 py-0.5 bg-blue-100 text-blue-900 font-bold">
@@ -640,9 +640,9 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
             </header>
 
             {/* Policy Highlights Banner */}
-            <div className="p-5 bg-[#FAF8F5] border border-[#E7E0D8] grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div className="p-5 bg-[#F8FAFC] border border-[#E2E8F0] grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-[#8C4830]/10 text-[#8C4830] shrink-0">
+                <div className="p-2 bg-[#0284C7]/10 text-[#0284C7] shrink-0">
                   <ShieldCheck className="w-5 h-5" />
                 </div>
                 <div>
@@ -652,8 +652,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-[#8C4830]/10 text-[#8C4830] shrink-0">
-                  <Truck className="w-5 h-5 text-[#8C4830]" />
+                <div className="p-2 bg-[#0284C7]/10 text-[#0284C7] shrink-0">
+                  <Truck className="w-5 h-5 text-[#0284C7]" />
                 </div>
                 <div>
                   <strong className="block text-sm font-serif text-[#1C1917]">Nationwide Courier Delivery</strong>
@@ -662,8 +662,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="p-2 bg-[#8C4830]/10 text-[#8C4830] shrink-0">
-                  <Phone className="w-5 h-5 text-[#8C4830]" />
+                <div className="p-2 bg-[#0284C7]/10 text-[#0284C7] shrink-0">
+                  <Phone className="w-5 h-5 text-[#0284C7]" />
                 </div>
                 <div>
                   <strong className="block text-sm font-serif text-[#1C1917]">Direct Desk Support</strong>
@@ -674,11 +674,11 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 1: Custom-Cut Unstitched Textile Policy (No Returns) */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 1. Custom-Cut Unstitched Textile Terms (Final Sale)
               </h3>
               <p>
-                All unstitched fabrics (Boski silk, Egyptian Latha, Kamalia Khaddar, Karandi, and Lawn) are individually measured and cut from rolls specifically for your order. Because each piece is cut to custom customer orders:
+                All unstitched fabrics (Boski silk, Wash and Wear, Kamalia Khaddar, Karandi, and Lawn) are individually measured and cut from rolls specifically for your order. Because each piece is cut to custom customer orders:
               </p>
               <div className="p-4 bg-amber-50/70 border border-amber-200 text-amber-950 text-xs space-y-2">
                 <strong className="font-semibold block text-amber-900">
@@ -703,12 +703,12 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 2: Transit Damage & Discrepancy Replacement */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 2. Transit Damage & Discrepancy Replacement
               </h3>
               <div className="space-y-3 text-xs">
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#8C4830] text-white flex items-center justify-center font-bold text-xs shrink-0">1</span>
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-xs shrink-0">1</span>
                   <div>
                     <strong className="text-[#1C1917] block font-semibold">Immediate WhatsApp Notification (Within 24 Hours)</strong>
                     <p className="text-[#1C1917]/70 mt-0.5">
@@ -717,8 +717,8 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                   </div>
                 </div>
 
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-start gap-3">
-                  <span className="w-6 h-6 rounded-full bg-[#8C4830] text-white flex items-center justify-center font-bold text-xs shrink-0">2</span>
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] flex items-start gap-3">
+                  <span className="w-6 h-6 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-xs shrink-0">2</span>
                   <div>
                     <strong className="text-[#1C1917] block font-semibold">Prompt Exchange Dispatch</strong>
                     <p className="text-[#1C1917]/70 mt-0.5">
@@ -731,7 +731,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
 
             {/* Section 3: Nationwide Courier Delivery Terms */}
             <section className="space-y-3 text-xs sm:text-sm text-[#1C1917]/85 leading-relaxed">
-              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E7E0D8] pb-1">
+              <h3 className="font-serif text-lg font-bold text-[#1C1917] border-b border-[#E2E8F0] pb-1">
                 3. Courier Delivery & Tracking
               </h3>
               <p className="text-xs text-[#1C1917]/80">
@@ -742,9 +742,9 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         )}
 
         {/* Bottom Contact & Verification Help Strip */}
-        <div className="p-6 bg-white border border-[#E7E0D8] flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
+        <div className="p-6 bg-white border border-[#E2E8F0] flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-[#8C4830]/10 text-[#8C4830] rounded-full shrink-0">
+            <div className="p-2.5 bg-[#0284C7]/10 text-[#0284C7] rounded-full shrink-0">
               <Phone className="w-5 h-5" />
             </div>
             <div>
@@ -752,7 +752,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                 Have questions about our policies or orders?
               </span>
               <p className="text-[#1C1917]/70">
-                Call or WhatsApp our Paris Bazaar desk at <strong className="font-mono text-[#8C4830]">0334-6565636</strong> (Monday to Sunday 10am-9pm).
+                Call or WhatsApp our Paris Bazaar desk at <strong className="font-mono text-[#0284C7]">0334-6565636</strong> (Monday to Sunday 10am-9pm).
               </p>
             </div>
           </div>
@@ -764,7 +764,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
                 e.preventDefault();
                 navigateTo('location');
               }}
-              className="px-4 py-2 bg-[#FAF8F5] border border-[#E7E0D8] hover:border-[#8C4830] text-[#1C1917] font-semibold transition-colors"
+              className="px-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7] text-[#1C1917] font-semibold transition-colors"
             >
               Visit Store at 170 Paris Bazaar
             </a>

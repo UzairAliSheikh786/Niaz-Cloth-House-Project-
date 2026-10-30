@@ -1,50 +1,44 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Home as HomeIcon,
-  Layers,
+  Home as HomeIcon, 
+  Layers, 
+  Sun, 
+  Sparkles, 
+  MapPin, 
   Search, 
   ShoppingBag, 
-  Menu, 
-  X, 
   ShieldCheck, 
   User as UserIcon, 
-  LogOut, 
   ChevronDown, 
   ChevronRight,
-  Sun, 
-  Flame, 
-  MapPin, 
-  Sparkles, 
-  MessageCircle
+  Menu,
+  X,
+  LogOut,
+  MessageCircle,
+  Scissors,
+  Check
 } from 'lucide-react';
-import { useNavigation } from '../context/NavigationContext';
 import { useShop } from '../context/ShopContext';
+import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../context/AuthContext';
+import { WOMEN_EMBROIDERY_BRANDS, WOMEN_PRINTED_BRANDS, MENS_FABRICS } from '../types';
 
 export const Header: React.FC = () => {
-  const { currentPage, navigateTo, filterParams } = useNavigation();
   const { cartCount, setIsCartOpen, setIsSearchOpen, orders } = useShop();
+  const { currentPage, filterParams, navigateTo } = useNavigation();
   const { user, openAuthModal, logout } = useAuth();
-  
-  // Mobile / responsive sidebar toggle
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  // Submenu accordions inside sidebar
-  const [menExpanded, setMenExpanded] = useState(
-    currentPage === 'men-summer' || currentPage === 'men-winter' || filterParams.gender === 'Men'
-  );
-  const [womenExpanded, setWomenExpanded] = useState(
-    currentPage === 'women-summer' || currentPage === 'women-winter' || filterParams.gender === 'Women'
-  );
+  // Accordion state for submenus inside sidebar
+  const [menExpanded, setMenExpanded] = useState<boolean>(true);
+  const [womenExpanded, setWomenExpanded] = useState<boolean>(true);
+  const [embroideryBrandsExpanded, setEmbroideryBrandsExpanded] = useState<boolean>(false);
+  const [printedBrandsExpanded, setPrintedBrandsExpanded] = useState<boolean>(false);
+  
+  // Mobile drawer open state
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
 
-  // Close mobile sidebar on route change
-  useEffect(() => {
-    setMobileSidebarOpen(false);
-    setUserDropdownOpen(false);
-  }, [currentPage]);
-
-  // Keep men/women accordion expanded when browsing their collections
+  // Auto-expand based on active route
   useEffect(() => {
     if (currentPage === 'men-summer' || currentPage === 'men-winter' || filterParams.gender === 'Men') {
       setMenExpanded(true);
@@ -70,11 +64,11 @@ export const Header: React.FC = () => {
     ? orders.filter((o) => (o as any).userId === user.uid || o.customer.fullName.toLowerCase().includes((user.displayName || '').toLowerCase())).length
     : 0;
 
-  // Sidebar navigation items content
+  // Sidebar navigation items content with Cool Slate & Glacier Ice Blue styling
   const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#141414] text-[#FAF9F6] border-r border-[#262626] select-none">
+    <div className="flex flex-col h-full bg-[#0B132B] text-[#F8FAFC] border-r border-[#1E293B] select-none">
       {/* 1. Brand Logo / Wordmark Header */}
-      <div className="p-6 border-b border-[#262626] bg-[#121212] shrink-0">
+      <div className="p-6 border-b border-[#1E293B] bg-[#080E1E] shrink-0">
         <a
           href="/"
           onClick={(e) => {
@@ -85,23 +79,29 @@ export const Header: React.FC = () => {
           className="block group focus-visible:outline-none"
           aria-label="Niaz Cloth House Home"
         >
-          <span className="font-serif text-xl xl:text-2xl font-bold tracking-[0.18em] uppercase text-white group-hover:text-[#D4AF37] transition-colors leading-tight block">
+          <div className="flex items-center gap-2 mb-1">
+            <span className="w-2 h-2 rounded-full bg-[#38BDF8] animate-pulse" />
+            <span className="text-[10px] uppercase tracking-[0.24em] text-[#38BDF8] font-mono font-semibold">
+              Authentic Fabrics
+            </span>
+          </div>
+          <span className="font-serif text-xl xl:text-2xl font-bold tracking-[0.16em] uppercase text-white group-hover:text-[#38BDF8] transition-colors leading-tight block">
             Niaz Cloth
           </span>
-          <span className="font-serif text-lg xl:text-xl font-medium tracking-[0.24em] uppercase text-[#D4AF37] block -mt-0.5">
+          <span className="font-serif text-lg xl:text-xl font-medium tracking-[0.24em] uppercase text-[#38BDF8] block -mt-0.5">
             House
           </span>
-          <div className="w-12 h-[2px] bg-[#D4AF37] mt-2 group-hover:w-20 transition-all duration-300" />
-          <span className="text-[10px] uppercase tracking-[0.22em] text-white/50 font-sans block mt-2">
+          <div className="w-12 h-[2px] bg-[#38BDF8] mt-2 group-hover:w-20 transition-all duration-300" />
+          <span className="text-[10px] uppercase tracking-[0.22em] text-[#94A3B8] font-sans block mt-2">
             Paris Bazaar · Est. 1970
           </span>
         </a>
       </div>
 
       {/* 2. Primary Navigation Links (Navigators) */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-1.5 text-xs font-semibold tracking-wider uppercase font-sans">
-        <div className="px-3 pb-2 text-[10px] tracking-[0.2em] text-white/40 uppercase font-sans font-bold">
-          Navigation
+      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-1.5 text-xs font-semibold tracking-wider uppercase font-sans custom-scrollbar">
+        <div className="px-3 pb-2 text-[10px] tracking-[0.2em] text-[#64748B] uppercase font-sans font-bold">
+          Store Navigation
         </div>
 
         {/* Navigator: Home */}
@@ -114,20 +114,20 @@ export const Header: React.FC = () => {
           }}
           className={`flex items-center justify-between px-3.5 py-3 transition-all duration-150 rounded-none border-l-2 ${
             currentPage === 'home'
-              ? 'border-[#D4AF37] bg-white/[0.07] text-[#D4AF37] font-bold'
-              : 'border-transparent text-white/80 hover:text-white hover:bg-white/[0.04] hover:border-[#D4AF37]/50'
+              ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold shadow-xs'
+              : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
           }`}
         >
           <div className="flex items-center gap-3">
-            <HomeIcon className="w-4 h-4 text-[#D4AF37]" />
+            <HomeIcon className="w-4 h-4 text-[#38BDF8]" />
             <span>Home</span>
           </div>
           {currentPage === 'home' && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
           )}
         </a>
 
-        {/* Navigator: All Fabrics */}
+        {/* Navigator: All Fabrics Catalog */}
         <a
           href="/shop"
           onClick={(e) => {
@@ -136,146 +136,217 @@ export const Header: React.FC = () => {
             setMobileSidebarOpen(false);
           }}
           className={`flex items-center justify-between px-3.5 py-3 transition-all duration-150 rounded-none border-l-2 ${
-            currentPage === 'shop' && !filterParams.gender && !filterParams.craftType
-              ? 'border-[#D4AF37] bg-white/[0.07] text-[#D4AF37] font-bold'
-              : 'border-transparent text-white/80 hover:text-white hover:bg-white/[0.04] hover:border-[#D4AF37]/50'
+            currentPage === 'shop' && !filterParams.gender && !filterParams.craftType && !filterParams.fabric
+              ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold shadow-xs'
+              : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
           }`}
         >
           <div className="flex items-center gap-3">
-            <Layers className="w-4 h-4 text-[#D4AF37]" />
+            <Layers className="w-4 h-4 text-[#38BDF8]" />
             <span>All Fabrics</span>
           </div>
-          {currentPage === 'shop' && !filterParams.gender && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+          {currentPage === 'shop' && !filterParams.gender && !filterParams.craftType && !filterParams.fabric && (
+            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
           )}
         </a>
 
-        {/* Navigator: Men's Suiting (Accordion) */}
+        {/* Navigator: Men's Collection (Accordion) */}
         <div className="pt-1">
           <button
             type="button"
             onClick={() => setMenExpanded(!menExpanded)}
             className={`w-full flex items-center justify-between px-3.5 py-3 transition-all duration-150 border-l-2 text-left ${
-              currentPage === 'men-summer' || currentPage === 'men-winter' || filterParams.gender === 'Men'
-                ? 'border-[#D4AF37] bg-white/[0.07] text-[#D4AF37] font-bold'
-                : 'border-transparent text-white/80 hover:text-white hover:bg-white/[0.04] hover:border-[#D4AF37]/50'
+              filterParams.gender === 'Men' || currentPage === 'men-summer' || currentPage === 'men-winter'
+                ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold'
+                : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Sun className="w-4 h-4 text-[#D4AF37]" />
-              <span>Men's Suiting</span>
+              <Sun className="w-4 h-4 text-[#38BDF8]" />
+              <span>Men's Collection</span>
             </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-white/50 transition-transform duration-200 ${menExpanded ? 'rotate-180 text-[#D4AF37]' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform duration-200 ${menExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
           </button>
 
           {menExpanded && (
-            <div className="pl-6 pr-2 py-1.5 space-y-1 bg-black/20 border-l border-[#262626] ml-4 mt-1">
+            <div className="pl-4 pr-1 py-1.5 space-y-1 bg-[#070B16] border-l border-[#1E293B] ml-4 mt-1">
               <a
-                href="/collections/men-summer"
+                href="/shop?gender=Men"
                 onClick={(e) => {
                   e.preventDefault();
-                  navigateTo('men-summer');
+                  navigateTo('shop', { gender: 'Men', fabric: undefined });
                   setMobileSidebarOpen(false);
                 }}
-                className={`block px-3 py-2 text-[11px] font-medium tracking-wide normal-case transition-colors ${
-                  currentPage === 'men-summer'
-                    ? 'text-[#D4AF37] font-bold'
-                    : 'text-white/70 hover:text-white'
+                className={`block px-3 py-1.5 text-[11px] font-semibold tracking-wide normal-case transition-colors ${
+                  filterParams.gender === 'Men' && !filterParams.fabric
+                    ? 'text-[#38BDF8] font-bold'
+                    : 'text-[#94A3B8] hover:text-white'
                 }`}
               >
-                Summer (Egyptian Latha & Boski)
+                • All Men's Fabrics
               </a>
-              <a
-                href="/collections/men-winter"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo('men-winter');
-                  setMobileSidebarOpen(false);
-                }}
-                className={`block px-3 py-2 text-[11px] font-medium tracking-wide normal-case transition-colors ${
-                  currentPage === 'men-winter'
-                    ? 'text-[#D4AF37] font-bold'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                Winter (Khaddar, Karandi & 10lb)
-              </a>
+
+              {MENS_FABRICS.map((fabricName) => {
+                const isActive = filterParams.gender === 'Men' && filterParams.fabric === fabricName;
+                return (
+                  <a
+                    key={fabricName}
+                    href={`/shop?gender=Men&fabric=${encodeURIComponent(fabricName)}`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateTo('shop', { gender: 'Men', fabric: fabricName });
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`block px-3 py-1.5 text-[11px] font-medium tracking-wide normal-case transition-colors flex items-center justify-between ${
+                      isActive
+                        ? 'text-[#38BDF8] font-bold bg-[#38BDF8]/10'
+                        : 'text-[#CBD5E1] hover:text-white hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    <span>{fabricName}</span>
+                    {isActive && <Check className="w-3 h-3 text-[#38BDF8]" />}
+                  </a>
+                );
+              })}
             </div>
           )}
         </div>
 
-        {/* Navigator: Women's Festive (Accordion) */}
+        {/* Navigator: Women's Collection (Accordion) */}
         <div className="pt-1">
           <button
             type="button"
             onClick={() => setWomenExpanded(!womenExpanded)}
             className={`w-full flex items-center justify-between px-3.5 py-3 transition-all duration-150 border-l-2 text-left ${
-              currentPage === 'women-summer' || currentPage === 'women-winter' || filterParams.gender === 'Women'
-                ? 'border-[#D4AF37] bg-white/[0.07] text-[#D4AF37] font-bold'
-                : 'border-transparent text-white/80 hover:text-white hover:bg-white/[0.04] hover:border-[#D4AF37]/50'
+              filterParams.gender === 'Women' || currentPage === 'women-summer' || currentPage === 'women-winter'
+                ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold'
+                : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
             }`}
           >
             <div className="flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-[#D4AF37]" />
-              <span>Women's Festive</span>
+              <Sparkles className="w-4 h-4 text-[#38BDF8]" />
+              <span>Women's Collection</span>
             </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-white/50 transition-transform duration-200 ${womenExpanded ? 'rotate-180 text-[#D4AF37]' : ''}`} />
+            <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform duration-200 ${womenExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
           </button>
 
           {womenExpanded && (
-            <div className="pl-6 pr-2 py-1.5 space-y-1 bg-black/20 border-l border-[#262626] ml-4 mt-1">
+            <div className="pl-4 pr-1 py-1.5 space-y-1 bg-[#070B16] border-l border-[#1E293B] ml-4 mt-1">
               <a
-                href="/shop?gender=Women&craft=Embroidery"
+                href="/shop?gender=Women"
                 onClick={(e) => {
                   e.preventDefault();
-                  navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
+                  navigateTo('shop', { gender: 'Women', craftType: undefined, brand: undefined });
                   setMobileSidebarOpen(false);
                 }}
-                className="block px-3 py-2 text-[11px] font-medium tracking-wide normal-case text-white/70 hover:text-white transition-colors"
-              >
-                ★ Luxury Embroidered 3-Piece
-              </a>
-              <a
-                href="/shop?gender=Women&craft=Printed"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo('shop', { gender: 'Women', craftType: 'Printed' });
-                  setMobileSidebarOpen(false);
-                }}
-                className="block px-3 py-2 text-[11px] font-medium tracking-wide normal-case text-white/70 hover:text-white transition-colors"
-              >
-                ★ Printed Lawn (Bin Saeed, H.Z)
-              </a>
-              <a
-                href="/collections/women-summer"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo('women-summer');
-                  setMobileSidebarOpen(false);
-                }}
-                className={`block px-3 py-2 text-[11px] font-medium tracking-wide normal-case transition-colors ${
-                  currentPage === 'women-summer'
-                    ? 'text-[#D4AF37] font-bold'
-                    : 'text-white/70 hover:text-white'
+                className={`block px-3 py-1.5 text-[11px] font-semibold tracking-wide normal-case transition-colors ${
+                  filterParams.gender === 'Women' && !filterParams.craftType && !filterParams.brand
+                    ? 'text-[#38BDF8] font-bold'
+                    : 'text-[#94A3B8] hover:text-white'
                 }`}
               >
-                Summer Lawn & Chiffon
+                • All Women's Collection
               </a>
-              <a
-                href="/collections/women-winter"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo('women-winter');
-                  setMobileSidebarOpen(false);
-                }}
-                className={`block px-3 py-2 text-[11px] font-medium tracking-wide normal-case transition-colors ${
-                  currentPage === 'women-winter'
-                    ? 'text-[#D4AF37] font-bold'
-                    : 'text-white/70 hover:text-white'
-                }`}
-              >
-                Winter Banarasi Jacquard
-              </a>
+
+              {/* Embroidered Collection Link + Brands Dropdown */}
+              <div className="pt-1">
+                <div className="flex items-center justify-between px-3 py-1.5">
+                  <a
+                    href="/shop?gender=Women&craft=Embroidery"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand: undefined });
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`text-[11px] font-bold tracking-wide normal-case hover:text-white transition-colors ${
+                      filterParams.craftType === 'Embroidery' ? 'text-[#38BDF8]' : 'text-[#E2E8F0]'
+                    }`}
+                  >
+                    ★ Embroidered Collection
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setEmbroideryBrandsExpanded(!embroideryBrandsExpanded)}
+                    className="p-1 text-[#94A3B8] hover:text-[#38BDF8]"
+                    aria-label="Toggle Embroidered Brands"
+                  >
+                    <ChevronDown className={`w-3 h-3 transition-transform ${embroideryBrandsExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
+                  </button>
+                </div>
+
+                {embroideryBrandsExpanded && (
+                  <div className="pl-3 pr-1 py-1 space-y-1 bg-black/40 border-l border-[#1E293B] ml-3 text-[10px]">
+                    {WOMEN_EMBROIDERY_BRANDS.map((brand) => (
+                      <a
+                        key={brand}
+                        href={`/shop?gender=Women&brand=${encodeURIComponent(brand)}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigateTo('shop', { gender: 'Women', brand, craftType: 'Embroidery' });
+                          setMobileSidebarOpen(false);
+                        }}
+                        className={`block px-2 py-1 normal-case truncate transition-colors ${
+                          filterParams.brand === brand
+                            ? 'text-[#38BDF8] font-bold'
+                            : 'text-[#94A3B8] hover:text-white'
+                        }`}
+                      >
+                        {brand}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Printed Collection Link + Brands Dropdown */}
+              <div className="pt-1">
+                <div className="flex items-center justify-between px-3 py-1.5">
+                  <a
+                    href="/shop?gender=Women&craft=Printed"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      navigateTo('shop', { gender: 'Women', craftType: 'Printed', brand: undefined });
+                      setMobileSidebarOpen(false);
+                    }}
+                    className={`text-[11px] font-bold tracking-wide normal-case hover:text-white transition-colors ${
+                      filterParams.craftType === 'Printed' ? 'text-[#38BDF8]' : 'text-[#E2E8F0]'
+                    }`}
+                  >
+                    ★ Printed Collection
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setPrintedBrandsExpanded(!printedBrandsExpanded)}
+                    className="p-1 text-[#94A3B8] hover:text-[#38BDF8]"
+                    aria-label="Toggle Printed Brands"
+                  >
+                    <ChevronDown className={`w-3 h-3 transition-transform ${printedBrandsExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
+                  </button>
+                </div>
+
+                {printedBrandsExpanded && (
+                  <div className="pl-3 pr-1 py-1 space-y-1 bg-black/40 border-l border-[#1E293B] ml-3 text-[10px]">
+                    {WOMEN_PRINTED_BRANDS.map((brand) => (
+                      <a
+                        key={brand}
+                        href={`/shop?gender=Women&brand=${encodeURIComponent(brand)}`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          navigateTo('shop', { gender: 'Women', brand, craftType: 'Printed' });
+                          setMobileSidebarOpen(false);
+                        }}
+                        className={`block px-2 py-1 normal-case truncate transition-colors ${
+                          filterParams.brand === brand
+                            ? 'text-[#38BDF8] font-bold'
+                            : 'text-[#94A3B8] hover:text-white'
+                        }`}
+                      >
+                        {brand}
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -290,21 +361,21 @@ export const Header: React.FC = () => {
           }}
           className={`flex items-center justify-between px-3.5 py-3 transition-all duration-150 rounded-none border-l-2 ${
             currentPage === 'location'
-              ? 'border-[#D4AF37] bg-white/[0.07] text-[#D4AF37] font-bold'
-              : 'border-transparent text-white/80 hover:text-white hover:bg-white/[0.04] hover:border-[#D4AF37]/50'
+              ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold'
+              : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
           }`}
         >
           <div className="flex items-center gap-3">
-            <MapPin className="w-4 h-4 text-[#D4AF37]" />
+            <MapPin className="w-4 h-4 text-[#38BDF8]" />
             <span>Store Location</span>
           </div>
           {currentPage === 'location' && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#D4AF37]" />
+            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
           )}
         </a>
 
         {/* Section Divider */}
-        <div className="pt-4 pb-2 px-3 text-[10px] tracking-[0.2em] text-white/40 uppercase font-sans font-bold border-t border-[#262626]">
+        <div className="pt-4 pb-2 px-3 text-[10px] tracking-[0.2em] text-[#64748B] uppercase font-sans font-bold border-t border-[#1E293B]">
           Actions & Bag
         </div>
 
@@ -315,13 +386,13 @@ export const Header: React.FC = () => {
             setIsSearchOpen(true);
             setMobileSidebarOpen(false);
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 text-white/80 hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
+          className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
         >
           <div className="flex items-center gap-3">
-            <Search className="w-4 h-4 text-[#D4AF37]" />
+            <Search className="w-4 h-4 text-[#38BDF8]" />
             <span>Search Catalog</span>
           </div>
-          <span className="text-[10px] bg-white/10 text-white/60 px-1.5 py-0.5 font-mono">/</span>
+          <span className="text-[10px] bg-white/10 text-[#94A3B8] px-1.5 py-0.5 font-mono">/</span>
         </button>
 
         {/* Action: Shopping Bag */}
@@ -331,13 +402,13 @@ export const Header: React.FC = () => {
             setIsCartOpen(true);
             setMobileSidebarOpen(false);
           }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 text-white/80 hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
+          className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
         >
           <div className="flex items-center gap-3">
-            <ShoppingBag className="w-4 h-4 text-[#D4AF37]" />
+            <ShoppingBag className="w-4 h-4 text-[#38BDF8]" />
             <span>Shopping Bag</span>
           </div>
-          <span className="min-w-[20px] h-5 px-1.5 bg-[#D4AF37] text-[#141414] text-[11px] font-bold flex items-center justify-center tabular-nums">
+          <span className="min-w-[20px] h-5 px-1.5 bg-[#0284C7] text-white text-[11px] font-bold flex items-center justify-center tabular-nums shadow-xs">
             {cartCount}
           </span>
         </button>
@@ -348,21 +419,21 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 text-white/80 hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
+              className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
             >
               <div className="flex items-center gap-3 truncate">
-                <UserIcon className="w-4 h-4 text-[#D4AF37]" />
+                <UserIcon className="w-4 h-4 text-[#38BDF8]" />
                 <span className="truncate">{user.displayName || 'Customer'}</span>
               </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-white/50 transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
             </button>
 
             {userDropdownOpen && (
-              <div className="p-3 my-1 bg-black/40 border border-[#262626] text-xs space-y-2">
-                <p className="text-[11px] text-white/60 truncate">{user.email}</p>
-                <div className="flex justify-between text-[11px] text-white/70">
+              <div className="p-3 my-1 bg-black/40 border border-[#1E293B] text-xs space-y-2">
+                <p className="text-[11px] text-[#94A3B8] truncate">{user.email}</p>
+                <div className="flex justify-between text-[11px] text-[#CBD5E1]">
                   <span>Tracked Orders:</span>
-                  <strong className="text-[#D4AF37] font-mono">{userOrdersCount}</strong>
+                  <strong className="text-[#38BDF8] font-mono">{userOrdersCount}</strong>
                 </div>
                 <div className="pt-2 border-t border-white/10 flex items-center justify-between">
                   <button
@@ -370,7 +441,7 @@ export const Header: React.FC = () => {
                       openAuthModal('profile');
                       setMobileSidebarOpen(false);
                     }}
-                    className="text-[11px] text-[#D4AF37] hover:underline uppercase tracking-wider"
+                    className="text-[11px] text-[#38BDF8] hover:underline uppercase tracking-wider"
                   >
                     Profile
                   </button>
@@ -395,10 +466,10 @@ export const Header: React.FC = () => {
               openAuthModal('login');
               setMobileSidebarOpen(false);
             }}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 text-white/80 hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
+            className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
           >
             <div className="flex items-center gap-3">
-              <UserIcon className="w-4 h-4 text-[#D4AF37]" />
+              <UserIcon className="w-4 h-4 text-[#38BDF8]" />
               <span>Sign In / Register</span>
             </div>
             <ChevronRight className="w-3.5 h-3.5 text-white/40" />
@@ -416,15 +487,15 @@ export const Header: React.FC = () => {
             }}
             className={`flex items-center justify-between p-3 border transition-colors ${
               currentPage === 'admin'
-                ? 'bg-[#D4AF37] text-[#141414] border-[#D4AF37] font-bold'
-                : 'bg-black/50 hover:bg-[#D4AF37] text-white hover:text-[#141414] border-[#333333] hover:border-[#D4AF37]'
+                ? 'bg-[#0284C7] text-white border-[#38BDF8] font-bold shadow-md'
+                : 'bg-[#0F172A]/80 hover:bg-[#0284C7] text-[#E2E8F0] hover:text-white border-[#1E293B] hover:border-[#38BDF8]'
             }`}
           >
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#D4AF37] group-hover:text-[#141414]" />
+              <ShieldCheck className="w-4 h-4 text-[#38BDF8] group-hover:text-white" />
               <span className="text-xs font-bold tracking-wider uppercase">Admin Portal</span>
             </div>
-            <span className="text-[10px] bg-[#D4AF37]/20 text-[#D4AF37] px-1.5 py-0.5 font-bold font-mono">
+            <span className="text-[10px] bg-white/10 text-[#38BDF8] group-hover:text-white px-1.5 py-0.5 font-bold font-mono">
               STAFF
             </span>
           </a>
@@ -432,20 +503,20 @@ export const Header: React.FC = () => {
       </div>
 
       {/* 3. Sidebar Footer: Contact, Timings & Free Nationwide COD */}
-      <div className="p-4 border-t border-[#262626] bg-[#101010] space-y-2.5 shrink-0 text-xs">
+      <div className="p-4 border-t border-[#1E293B] bg-[#070B16] space-y-2.5 shrink-0 text-xs">
         <a
           href="https://wa.me/923346565636?text=Assalam-o-Alaikum%20Niaz%20Cloth%20House%2C%20I%20am%20inquiring%20about%20unstitched%20fabrics."
           target="_blank"
           rel="noreferrer"
-          className="w-full py-2.5 px-3 bg-[#1A1A1A] hover:bg-[#D4AF37] text-[#FAF9F6] hover:text-[#141414] font-semibold tracking-wider uppercase flex items-center justify-center gap-2 transition-colors border border-[#333333]"
+          className="w-full py-2.5 px-3 bg-[#1E293B] hover:bg-[#0284C7] text-white font-semibold tracking-wider uppercase flex items-center justify-center gap-2 transition-colors border border-[#334155] shadow-xs"
         >
-          <MessageCircle className="w-4 h-4 text-[#D4AF37]" />
+          <MessageCircle className="w-4 h-4 text-[#38BDF8]" />
           <span>WhatsApp 0334-6565636</span>
         </a>
 
-        <div className="text-[10px] text-white/50 space-y-1 text-center font-sans tracking-wide">
+        <div className="text-[10px] text-[#94A3B8] space-y-1 text-center font-sans tracking-wide">
           <div>MON–SUN 10:00 AM – 9:00 PM PKT</div>
-          <div className="text-[#D4AF37]/90 font-medium tracking-wider uppercase">FREE COD NATIONWIDE</div>
+          <div className="text-[#38BDF8] font-semibold tracking-wider uppercase">FREE COD NATIONWIDE</div>
         </div>
       </div>
     </div>
@@ -462,17 +533,17 @@ export const Header: React.FC = () => {
       </aside>
 
       {/* B. Sleek Top Navigation Bar on Mobile / Tablet (under lg) */}
-      <header className="lg:hidden sticky top-0 z-40 w-full bg-[#141414] text-white border-b border-[#262626] px-4 h-16 flex items-center justify-between">
+      <header className="lg:hidden sticky top-0 z-40 w-full bg-[#0B132B] text-white border-b border-[#1E293B] px-4 h-16 flex items-center justify-between">
         {/* Mobile Left: Menu Toggle Button & Wordmark */}
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setMobileSidebarOpen(true)}
             aria-label="Open navigation sidebar"
-            className="p-2 -ml-2 text-white hover:text-[#D4AF37] focus-visible:outline-none flex items-center gap-1.5"
+            className="p-2 -ml-2 text-white hover:text-[#38BDF8] focus-visible:outline-none flex items-center gap-1.5"
           >
             <Menu className="w-6 h-6" />
-            <span className="text-[11px] font-bold tracking-widest uppercase text-[#D4AF37]">Menu</span>
+            <span className="text-[11px] font-bold tracking-widest uppercase text-[#38BDF8]">Menu</span>
           </button>
 
           <a
@@ -491,7 +562,7 @@ export const Header: React.FC = () => {
         <div className="flex items-center gap-1.5 sm:gap-2">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="p-2 text-white/80 hover:text-[#D4AF37]"
+            className="p-2 text-[#CBD5E1] hover:text-[#38BDF8]"
             aria-label="Search catalog"
           >
             <Search className="w-5 h-5" />
@@ -499,12 +570,12 @@ export const Header: React.FC = () => {
 
           <button
             onClick={() => setIsCartOpen(true)}
-            className="relative p-2 text-white/80 hover:text-[#D4AF37]"
+            className="relative p-2 text-[#CBD5E1] hover:text-[#38BDF8]"
             aria-label={`Shopping bag with ${cartCount} items`}
           >
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[18px] h-4.5 px-1 bg-[#D4AF37] text-[#141414] text-[10px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-1 right-1 min-w-[18px] h-4.5 px-1 bg-[#0284C7] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                 {cartCount}
               </span>
             )}
@@ -512,7 +583,7 @@ export const Header: React.FC = () => {
 
           <button
             onClick={() => navigateTo('admin')}
-            className="px-2.5 py-1.5 bg-[#D4AF37] text-[#141414] text-[11px] font-bold tracking-wider uppercase flex items-center gap-1"
+            className="px-2.5 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-[11px] font-bold tracking-wider uppercase flex items-center gap-1"
             title="Open Admin Portal"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
@@ -536,7 +607,7 @@ export const Header: React.FC = () => {
             {/* Close button overlay */}
             <button
               onClick={() => setMobileSidebarOpen(false)}
-              className="absolute top-4 right-4 z-20 p-2 text-white/70 hover:text-[#D4AF37] bg-black/60 rounded-full"
+              className="absolute top-4 right-4 z-20 p-2 text-[#CBD5E1] hover:text-[#38BDF8] bg-black/60 rounded-full"
               aria-label="Close sidebar"
             >
               <X className="w-5 h-5" />

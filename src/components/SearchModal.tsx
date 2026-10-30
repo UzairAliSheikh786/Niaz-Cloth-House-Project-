@@ -68,14 +68,14 @@ export const SearchModal: React.FC = () => {
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-[#FAF8F5] max-w-2xl w-full border border-[#E7E0D8] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Search Input Bar */}
-        <div className="p-4 sm:p-5 border-b border-[#E7E0D8] flex items-center gap-3 bg-white">
-          <Search className="w-5 h-5 text-[#8C4830] shrink-0" />
+        <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center gap-3 bg-white">
+          <Search className="w-5 h-5 text-[#0284C7] shrink-0" />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search unstitched fabrics: Boski, Egyptian Latha, Lawn 3-Piece, Chiffon..."
+            placeholder="Search unstitched fabrics: Boski, Wash and Wear, Lawn 3-Piece, Chiffon..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full text-sm sm:text-base bg-transparent border-none focus:outline-none placeholder:text-[#1C1917]/65 text-[#1C1917]"
@@ -84,7 +84,7 @@ export const SearchModal: React.FC = () => {
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 text-[#1C1917]/70 hover:text-[#1C1917] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8C4830]"
+              className="p-1 text-[#1C1917]/70 hover:text-[#1C1917] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
               aria-label="Clear search query text"
             >
               <X className="w-4 h-4" />
@@ -93,7 +93,7 @@ export const SearchModal: React.FC = () => {
           <button
             onClick={() => setIsSearchOpen(false)}
             aria-label="Close search overlay"
-            className="text-xs px-2.5 py-1 bg-[#F5EFEB] text-[#1C1917] hover:bg-[#EAE2D8] transition-colors border border-[#E7E0D8] font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8C4830]"
+            className="text-xs px-2.5 py-1 bg-[#F5EFEB] text-[#1C1917] hover:bg-[#EAE2D8] transition-colors border border-[#E2E8F0] font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
           >
             ESC
           </button>
@@ -103,13 +103,13 @@ export const SearchModal: React.FC = () => {
         <div className="max-h-96 overflow-y-auto p-4 sm:p-5">
           {query.trim() === '' ? (
             <div className="space-y-4">
-              <div className="text-xs font-semibold uppercase tracking-widest text-[#8C4830]">
+              <div className="text-xs font-semibold uppercase tracking-widest text-[#0284C7]">
                 Suggested Textile Searches
               </div>
               <div className="flex flex-wrap gap-2">
                 {[
                   '8-Pound Pure Boski',
-                  'Egyptian Latha Super 120s',
+                  'Wash and Wear Super 120s',
                   'Embroidered Lawn 3-Piece',
                   'Pure Bamberg Chiffon',
                   'Handwoven Raw Karandi',
@@ -118,7 +118,7 @@ export const SearchModal: React.FC = () => {
                   <button
                     key={item}
                     onClick={() => setQuery(item)}
-                    className="text-xs px-3 py-1.5 bg-white border border-[#E7E0D8] text-[#1C1917]/80 hover:border-[#8C4830] hover:text-[#8C4830] transition-colors"
+                    className="text-xs px-3 py-1.5 bg-white border border-[#E2E8F0] text-[#1C1917]/80 hover:border-[#0284C7] hover:text-[#0284C7] transition-colors"
                   >
                     {item}
                   </button>
@@ -131,14 +131,14 @@ export const SearchModal: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="text-xs font-semibold text-[#8C4830] pb-1">
+              <div className="text-xs font-semibold text-[#0284C7] pb-1">
                 Found {filtered.length} fabric result{filtered.length > 1 ? 's' : ''}:
               </div>
               {filtered.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => handleSelectProduct(item.id)}
-                  className="flex items-center gap-3 p-2.5 bg-white hover:bg-[#F7F2ED] border border-[#E7E0D8]/60 cursor-pointer transition-colors group"
+                  className="flex items-center gap-3 p-2.5 bg-white hover:bg-[#F7F2ED] border border-[#E2E8F0]/60 cursor-pointer transition-colors group"
                 >
                   <img
                     src={item.primaryImage}
@@ -149,10 +149,10 @@ export const SearchModal: React.FC = () => {
                     className="w-12 h-12 object-cover bg-[#F2EDE7] shrink-0"
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-serif text-sm font-semibold text-[#1C1917] group-hover:text-[#8C4830] truncate">
+                    <h4 className="font-serif text-sm font-semibold text-[#1C1917] group-hover:text-[#0284C7] truncate">
                       {item.title}
                     </h4>
-                    <p className="text-xs text-[#8C4830] font-sans truncate">
+                    <p className="text-xs text-[#0284C7] font-sans truncate">
                       {item.gender} · {item.fabric} · {item.cutDetails.length}
                     </p>
                   </div>

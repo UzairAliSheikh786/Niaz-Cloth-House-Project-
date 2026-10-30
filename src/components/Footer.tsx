@@ -6,57 +6,55 @@ export const Footer: React.FC = () => {
   const { navigateTo } = useNavigation();
 
   return (
-    <footer className="bg-[#141414] text-[#FAF9F6] pt-16 pb-12 border-t border-black">
+    <footer className="bg-[#0B132B] text-[#F8FAFC] pt-16 pb-12 border-t border-[#1E293B]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Trust Badges Strip (Editorial Style) */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-[#2A2A2A] text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pb-12 border-b border-[#1E293B] text-sm">
           <div className="flex items-start gap-4">
-            <div className="p-2.5 bg-[#D4AF37]/15 text-[#D4AF37] shrink-0">
+            <div className="p-2.5 bg-[#0284C7]/20 text-[#38BDF8] shrink-0 border border-[#0284C7]/30">
               <Award className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-serif text-base font-semibold text-white tracking-wide">
                 Over 55 Years of Purity (Est. 1970)
               </h4>
-              <p className="text-white/60 text-xs mt-1 leading-relaxed">
-                Single-origin spun Chinese Boski and extra-long staple Egyptian Giza cotton with authenticated thread counts.
+              <p className="text-[#94A3B8] text-xs mt-1 leading-relaxed">
+                Authentic Wash & Wear, combed cotton, Kamalia Khaddar, Lelan, and pure Boski silk with certified yardage.
               </p>
             </div>
           </div>
 
           <div className="flex items-start gap-4">
-            <div className="p-2.5 bg-[#D4AF37]/15 text-[#D4AF37] shrink-0">
+            <div className="p-2.5 bg-[#0284C7]/20 text-[#38BDF8] shrink-0 border border-[#0284C7]/30">
               <Shield className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-serif text-base font-semibold text-white tracking-wide">
                 100% Unstitched Suit Guarantee
               </h4>
-              <p className="text-white/60 text-xs mt-1 leading-relaxed">
+              <p className="text-[#94A3B8] text-xs mt-1 leading-relaxed">
                 Full 4.5m cuts for gentlemen and 3-piece sets for ladies with generous double width (54" Bara Arz) for tailoring.
               </p>
             </div>
           </div>
 
           <div className="flex items-start gap-4">
-            <div className="p-2.5 bg-[#D4AF37]/15 text-[#D4AF37] shrink-0">
+            <div className="p-2.5 bg-[#0284C7]/20 text-[#38BDF8] shrink-0 border border-[#0284C7]/30">
               <MessageCircle className="w-5 h-5" />
             </div>
             <div>
               <h4 className="font-serif text-base font-semibold text-white tracking-wide">
                 WhatsApp Concierge & COD
               </h4>
-              <p className="text-white/60 text-xs mt-1 leading-relaxed">
-                Direct WhatsApp consultation with master fabric consultants, nationwide Cash-on-Delivery across all cities of Pakistan.
+              <p className="text-[#94A3B8] text-xs mt-1 leading-relaxed">
+                Direct WhatsApp consultation with fabric consultants, nationwide Cash-on-Delivery across all cities of Pakistan.
               </p>
             </div>
           </div>
         </div>
 
-
-
         {/* Navigation & Brand Directory */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 py-14 border-b border-[#38332E]">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-10 py-14 border-b border-[#1E293B]">
           {/* Brand Story Column */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex flex-col">
@@ -65,20 +63,20 @@ export const Footer: React.FC = () => {
                   Niaz Cloth House
                 </span>
               </div>
-              <span className="text-xs uppercase tracking-[0.2em] text-[#D4A373] font-medium mt-1">
-                Since 1970 · "Dress To Impress" · Ladies, Gents & Children Cloth Variety
+              <span className="text-xs uppercase tracking-[0.2em] text-[#38BDF8] font-medium mt-1 font-mono">
+                Since 1970 · "Dress To Impress" · Rawalpindi
               </span>
             </div>
-            <p className="text-sm text-white/70 max-w-md leading-relaxed">
-              Founded in 1970 by <strong>Haji Sh. Niaz Ahmed</strong>. Today, the family legacy is faithfully carried forward by his sons with the shop name proudly unchanged: <strong>Niaz Cloth House</strong>. We curate genuine Chinese Boski silk bolts, crisp Egyptian Latha cotton, Kamalia Khaddar, and fine unstitched lawns for Ladies, Gents &amp; Children.
+            <p className="text-sm text-[#94A3B8] max-w-md leading-relaxed">
+              Founded in 1970 by <strong>Haji Sh. Niaz Ahmed</strong>. Today, the family legacy is faithfully carried forward by his sons with the shop name proudly unchanged: <strong>Niaz Cloth House</strong>. We curate authentic Wash & Wear, combed cotton, Kamalia Khaddar, Lelan, pure Boski silk, and designer unstitched lawn collections.
             </p>
-            <div className="pt-2 text-xs text-white/60 space-y-1.5">
+            <div className="pt-2 text-xs text-[#94A3B8] space-y-1.5">
               <div className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 text-[#D4A373] shrink-0 mt-0.5" />
-                <span>Shop # 166-C, Paris Bazaar, Moti Bazar, Committee Chowk, Rawalpindi, 46000, Pakistan</span>
+                <MapPin className="w-4 h-4 text-[#38BDF8] shrink-0 mt-0.5" />
+                <span>Shop # 166-C / # 170 Paris Bazaar, Moti Bazar, Committee Chowk, Rawalpindi, 46000, Pakistan</span>
               </div>
               <div className="flex items-center gap-2">
-                <Clock className="w-4 h-4 text-[#D4A373] shrink-0" />
+                <Clock className="w-4 h-4 text-[#38BDF8] shrink-0" />
                 <span>Monday to Sunday: 10:00 AM – 9:00 PM PKT</span>
               </div>
             </div>
@@ -86,48 +84,48 @@ export const Footer: React.FC = () => {
 
           {/* Men's Collections */}
           <div className="md:col-span-2 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#D4A373]">
-              Men's Suiting
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#38BDF8] font-mono">
+              Men's Fabrics
             </p>
-            <ul className="space-y-2 text-sm text-white/75">
+            <ul className="space-y-2 text-sm text-[#CBD5E1]">
               <li>
                 <button
-                  onClick={() => navigateTo('men-summer')}
-                  className="hover:text-white transition-colors text-left font-medium text-[#D4A373]"
+                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' })}
+                  className="hover:text-white transition-colors text-left"
                 >
-                  Men's Summer Edition
+                  Wash & Wear Suiting
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('men-winter')}
-                  className="hover:text-white transition-colors text-left font-medium text-[#D4A373]"
+                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Cotton' })}
+                  className="hover:text-white transition-colors text-left"
                 >
-                  Men's Winter Edition
+                  Pure Combed Cotton
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Boski Silk' })}
-                  className="hover:text-white transition-colors"
+                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Khaddar' })}
+                  className="hover:text-white transition-colors text-left"
                 >
-                  8-Pound Pure Boski Silk
+                  Kamalia Khaddar
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Latha Cotton' })}
-                  className="hover:text-white transition-colors"
+                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Lelan' })}
+                  className="hover:text-white transition-colors text-left"
                 >
-                  Egyptian Giza Latha
+                  Textured Lelan
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Pure Khaddar' })}
-                  className="hover:text-white transition-colors"
+                  onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Boski' })}
+                  className="hover:text-white transition-colors text-left"
                 >
-                  Kamalia Handloom Khaddar
+                  Pure Boski Silk
                 </button>
               </li>
             </ul>
@@ -135,48 +133,48 @@ export const Footer: React.FC = () => {
 
           {/* Women's Collections */}
           <div className="md:col-span-2 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#D4A373]">
-              Women's Festive
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#38BDF8] font-mono">
+              Women's Ensembles
             </p>
             <ul className="space-y-2 text-sm text-white/75">
               <li>
                 <button
-                  onClick={() => navigateTo('women-summer')}
-                  className="hover:text-white transition-colors text-left font-medium text-[#D4A373]"
+                  onClick={() => navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' })}
+                  className="hover:text-white transition-colors text-left font-medium text-[#38BDF8]"
                 >
-                  Women's Summer Edition
+                  ★ Embroidered Collection
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('women-winter')}
-                  className="hover:text-white transition-colors text-left font-medium text-[#D4A373]"
+                  onClick={() => navigateTo('shop', { gender: 'Women', craftType: 'Printed' })}
+                  className="hover:text-white transition-colors text-left font-medium text-[#38BDF8]"
                 >
-                  Women's Winter Edition
+                  ★ Printed Collection
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('shop', { gender: 'Women', fabric: 'Luxury Lawn' })}
-                  className="hover:text-white transition-colors text-left"
+                  onClick={() => navigateTo('shop', { gender: 'Women', brand: 'Johara' })}
+                  className="hover:text-white transition-colors text-left text-sm text-[#CBD5E1]"
                 >
-                  80s Combed Lawn 3-Piece
+                  Johara & Bin Rashid
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('shop', { gender: 'Women', fabric: 'Embroidered Chiffon' })}
-                  className="hover:text-white transition-colors text-left"
+                  onClick={() => navigateTo('shop', { gender: 'Women', brand: 'Bin Saeed' })}
+                  className="hover:text-white transition-colors text-left text-sm text-[#CBD5E1]"
                 >
-                  Bamberg Chiffon Festive
+                  Bin Saeed & Safina Lawn
                 </button>
               </li>
               <li>
                 <button
-                  onClick={() => navigateTo('shop', { gender: 'Women', fabric: 'Silk Jacquard' })}
-                  className="hover:text-white transition-colors text-left"
+                  onClick={() => navigateTo('shop', { gender: 'Women', brand: 'Tawakkal' })}
+                  className="hover:text-white transition-colors text-left text-sm text-[#CBD5E1]"
                 >
-                  Banarasi Zari Jacquard
+                  Tawakkal & Bonanza Luxury
                 </button>
               </li>
             </ul>
@@ -184,7 +182,7 @@ export const Footer: React.FC = () => {
 
           {/* Legal & Trust Policies (DPDP & Consumer Rights) */}
           <div className="md:col-span-2 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#D4A373]">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#38BDF8]">
               Legal & Trust
             </p>
             <ul className="space-y-2 text-sm text-white/75">
@@ -223,7 +221,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => navigateTo('admin')}
-                  className="hover:text-white transition-colors text-left text-[#D4A373] font-medium flex items-center gap-1.5"
+                  className="hover:text-white transition-colors text-left text-[#38BDF8] font-medium flex items-center gap-1.5"
                 >
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>Store Admin Panel</span>
@@ -232,7 +230,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => window.dispatchEvent(new CustomEvent('openCookieSettings'))}
-                  className="text-xs text-[#D4A373] hover:underline transition-colors text-left flex items-center gap-1 pt-1"
+                  className="text-xs text-[#38BDF8] hover:underline transition-colors text-left flex items-center gap-1 pt-1"
                 >
                   <span>Cookie Settings</span>
                 </button>
@@ -242,7 +240,7 @@ export const Footer: React.FC = () => {
 
           {/* Concierge & Ordering */}
           <div className="md:col-span-3 space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-widest text-[#D4A373]">
+            <p className="text-xs font-semibold uppercase tracking-widest text-[#38BDF8]">
               Direct Orders & Support
             </p>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -278,7 +276,7 @@ export const Footer: React.FC = () => {
         {/* Helpful Customer Notices */}
         <div className="py-6 border-b border-[#38332E] grid grid-cols-1 md:grid-cols-3 gap-6 text-[11px] text-white/65 leading-relaxed font-sans">
           <div className="space-y-1">
-            <strong className="text-[#D4A373] block uppercase tracking-wider text-[10px]">
+            <strong className="text-[#38BDF8] block uppercase tracking-wider text-[10px]">
               Soak Cotton & Khaddar in Water (Tarr-Karna)
             </strong>
             <p>
@@ -287,7 +285,7 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="space-y-1">
-            <strong className="text-[#D4A373] block uppercase tracking-wider text-[10px]">
+            <strong className="text-[#38BDF8] block uppercase tracking-wider text-[10px]">
               Color Shade Note
             </strong>
             <p>
@@ -296,7 +294,7 @@ export const Footer: React.FC = () => {
           </div>
 
           <div className="space-y-1">
-            <strong className="text-[#D4A373] block uppercase tracking-wider text-[10px]">
+            <strong className="text-[#38BDF8] block uppercase tracking-wider text-[10px]">
               Fresh Cut from Rolls
             </strong>
             <p>
@@ -332,7 +330,7 @@ export const Footer: React.FC = () => {
               Cookies
             </button>
             <span aria-hidden="true">·</span>
-            <button onClick={() => navigateTo('location')} className="hover:text-white transition-colors text-[#D4A373] flex items-center gap-1">
+            <button onClick={() => navigateTo('location')} className="hover:text-white transition-colors text-[#38BDF8] flex items-center gap-1">
               <MapPin className="w-3 h-3" />
               <span>Shop # 166-C Paris Bazaar</span>
             </button>

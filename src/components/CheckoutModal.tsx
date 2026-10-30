@@ -326,20 +326,20 @@ export const CheckoutModal: React.FC = () => {
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-[#FAF8F5] max-w-2xl w-full border border-[#E7E0D8] shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 my-8">
+      <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 my-8">
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#E7E0D8] bg-[#F5EFEB]">
+        <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] bg-[#F5EFEB]">
           <div>
             <h2 className="font-serif text-xl font-bold text-[#1C1917]">
               {completedOrder ? 'Order Confirmed' : 'Checkout & Payment'}
             </h2>
-            <p className="text-xs text-[#8C4830] font-sans font-medium mt-0.5">
+            <p className="text-xs text-[#0284C7] font-sans font-medium mt-0.5">
               Niaz Cloth House · Original Unstitched Fabrics (Since 1977)
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 text-[#1C1917]/70 hover:text-[#1C1917] hover:bg-[#E7E0D8] transition-colors"
+            className="p-1.5 text-[#1C1917]/70 hover:text-[#1C1917] hover:bg-[#E2E8F0] transition-colors"
             aria-label="Close checkout modal"
           >
             <X className="w-5 h-5" />
@@ -354,7 +354,7 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-[#8C4830] font-semibold">
+              <span className="text-xs font-mono uppercase tracking-widest text-[#0284C7] font-semibold">
                 Order #{completedOrder.id}
               </span>
               <h3 className="font-serif text-2xl font-bold text-[#1C1917] mt-1">
@@ -407,17 +407,17 @@ export const CheckoutModal: React.FC = () => {
             )}
 
             {/* Receipt Summary Box */}
-            <div className="bg-white p-5 border border-[#E7E0D8] max-w-md mx-auto text-left text-xs space-y-2.5">
-              <div className="flex justify-between font-medium pb-2 border-b border-[#E7E0D8]">
+            <div className="bg-white p-5 border border-[#E2E8F0] max-w-md mx-auto text-left text-xs space-y-2.5">
+              <div className="flex justify-between font-medium pb-2 border-b border-[#E2E8F0]">
                 <span className="text-[#1C1917]/60">Destination:</span>
                 <span className="font-semibold text-[#1C1917]">{completedOrder.customer.city}, Pakistan</span>
               </div>
               <div className="flex justify-between font-medium">
                 <span className="text-[#1C1917]/60">Payment Method:</span>
-                <span className="font-semibold text-[#8C4830]">{completedOrder.paymentMethod}</span>
+                <span className="font-semibold text-[#0284C7]">{completedOrder.paymentMethod}</span>
               </div>
               {completedOrder.paymentDetails?.transactionId && completedOrder.paymentMethod !== 'Online Payment Gateway (Debit/Credit Card)' && (
-                <div className="flex justify-between font-medium bg-[#F9F6F0] p-2 border border-[#E7E0D8]">
+                <div className="flex justify-between font-medium bg-[#F9F6F0] p-2 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/70">Transaction ID (TID):</span>
                   <span className="font-mono font-bold text-[#1C1917]">{completedOrder.paymentDetails.transactionId}</span>
                 </div>
@@ -426,7 +426,7 @@ export const CheckoutModal: React.FC = () => {
                 <span className="text-[#1C1917]/60">Suits Ordered:</span>
                 <span>{completedOrder.items.reduce((s, i) => s + i.quantity, 0)} Unstitched Ensemble(s)</span>
               </div>
-              <div className="flex justify-between font-bold text-sm pt-2.5 border-t border-[#E7E0D8] text-[#8C4830]">
+              <div className="flex justify-between font-bold text-sm pt-2.5 border-t border-[#E2E8F0] text-[#0284C7]">
                 <span>Total Amount:</span>
                 <span className="font-mono">{formatPKR(completedOrder.total)}</span>
               </div>
@@ -436,10 +436,10 @@ export const CheckoutModal: React.FC = () => {
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="w-full sm:w-auto px-4 py-2.5 bg-white border border-[#E7E0D8] hover:border-[#8C4830] text-[#1C1917] text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+                className="w-full sm:w-auto px-4 py-2.5 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-[#1C1917] text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-1.5 shadow-xs"
                 title="Print payment receipt"
               >
-                <Printer className="w-4 h-4 text-[#8C4830]" />
+                <Printer className="w-4 h-4 text-[#0284C7]" />
                 <span>Print Receipt</span>
               </button>
               <a
@@ -481,7 +481,7 @@ export const CheckoutModal: React.FC = () => {
             )}
 
             {/* Cart Summary Banner */}
-            <div className="bg-white p-3.5 border border-[#E7E0D8] flex items-center justify-between text-xs">
+            <div className="bg-white p-3.5 border border-[#E2E8F0] flex items-center justify-between text-xs">
               <div>
                 <span className="text-[#1C1917]/70">Order Value: </span>
                 <span className="font-semibold text-[#1C1917]">
@@ -490,7 +490,7 @@ export const CheckoutModal: React.FC = () => {
               </div>
               <div className="text-right">
                 <span className="text-[11px] text-[#1C1917]/60 mr-2">Total:</span>
-                <span className="font-mono font-bold text-base text-[#8C4830] tabular-nums">
+                <span className="font-mono font-bold text-base text-[#0284C7] tabular-nums">
                   {formatPKR(cartSubtotal)}
                 </span>
               </div>
@@ -516,7 +516,7 @@ export const CheckoutModal: React.FC = () => {
                   className={`p-2.5 text-left border transition-all col-span-2 sm:col-span-1 lg:col-span-1 ${
                     paymentMethod === 'Online Payment Gateway (Debit/Credit Card)'
                       ? 'border-[#1D4ED8] bg-blue-50/50 ring-1 ring-[#1D4ED8]'
-                      : 'border-[#E7E0D8] bg-[#FAF8F5] hover:bg-white'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -535,13 +535,13 @@ export const CheckoutModal: React.FC = () => {
                   onClick={() => setPaymentMethod('Cash on Delivery')}
                   className={`p-2.5 text-left border transition-all ${
                     paymentMethod === 'Cash on Delivery'
-                      ? 'border-[#8C4830] bg-white ring-1 ring-[#8C4830]'
-                      : 'border-[#E7E0D8] bg-[#FAF8F5] hover:bg-white'
+                      ? 'border-[#0284C7] bg-white ring-1 ring-[#0284C7]'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <Banknote className="w-4 h-4 text-[#8C4830]" />
-                    {paymentMethod === 'Cash on Delivery' && <Check className="w-3.5 h-3.5 text-[#8C4830]" />}
+                    <Banknote className="w-4 h-4 text-[#0284C7]" />
+                    {paymentMethod === 'Cash on Delivery' && <Check className="w-3.5 h-3.5 text-[#0284C7]" />}
                   </div>
                   <div className="font-semibold text-xs text-[#1C1917]">Cash on Delivery</div>
                   <div className="text-[10px] text-[#1C1917]/60 mt-0.5">Pay rider at door</div>
@@ -554,7 +554,7 @@ export const CheckoutModal: React.FC = () => {
                   className={`p-2.5 text-left border transition-all ${
                     paymentMethod === 'EasyPaisa'
                       ? 'border-[#009E49] bg-white ring-1 ring-[#009E49]'
-                      : 'border-[#E7E0D8] bg-[#FAF8F5] hover:bg-white'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -574,7 +574,7 @@ export const CheckoutModal: React.FC = () => {
                   className={`p-2.5 text-left border transition-all ${
                     paymentMethod === 'JazzCash'
                       ? 'border-[#DE1F27] bg-white ring-1 ring-[#DE1F27]'
-                      : 'border-[#E7E0D8] bg-[#FAF8F5] hover:bg-white'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
@@ -593,13 +593,13 @@ export const CheckoutModal: React.FC = () => {
                   onClick={() => setPaymentMethod('Direct Bank Transfer')}
                   className={`p-2.5 text-left border transition-all ${
                     paymentMethod === 'Direct Bank Transfer'
-                      ? 'border-[#8C4830] bg-white ring-1 ring-[#8C4830]'
-                      : 'border-[#E7E0D8] bg-[#FAF8F5] hover:bg-white'
+                      ? 'border-[#0284C7] bg-white ring-1 ring-[#0284C7]'
+                      : 'border-[#E2E8F0] bg-[#F8FAFC] hover:bg-white'
                   }`}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <Building2 className="w-4 h-4 text-[#8C4830]" />
-                    {paymentMethod === 'Direct Bank Transfer' && <Check className="w-3.5 h-3.5 text-[#8C4830]" />}
+                    <Building2 className="w-4 h-4 text-[#0284C7]" />
+                    {paymentMethod === 'Direct Bank Transfer' && <Check className="w-3.5 h-3.5 text-[#0284C7]" />}
                   </div>
                   <div className="font-semibold text-xs text-[#1C1917]">Bank Transfer</div>
                   <div className="text-[10px] text-[#1C1917]/60 mt-0.5">Meezan IBAN</div>
@@ -821,7 +821,7 @@ export const CheckoutModal: React.FC = () => {
                         placeholder="03xx-xxxxxxx (Sender Mobile Number)"
                         value={walletNumber}
                         onChange={(e) => setWalletNumber(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#009E49] focus:outline-none"
+                        className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#009E49] focus:outline-none"
                       />
                     </div>
                     <div>
@@ -834,7 +834,7 @@ export const CheckoutModal: React.FC = () => {
                         placeholder="e.g. 1029384756 (or EP-1029384756)"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#009E49] focus:outline-none font-mono"
+                        className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#009E49] focus:outline-none font-mono"
                       />
                     </div>
                   </div>
@@ -941,7 +941,7 @@ export const CheckoutModal: React.FC = () => {
                         placeholder="03xx-xxxxxxx (Sender Mobile Number)"
                         value={walletNumber}
                         onChange={(e) => setWalletNumber(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#DE1F27] focus:outline-none"
+                        className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#DE1F27] focus:outline-none"
                       />
                     </div>
                     <div>
@@ -954,7 +954,7 @@ export const CheckoutModal: React.FC = () => {
                         placeholder="e.g. 8472910394 (or JC-8472910394)"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#DE1F27] focus:outline-none font-mono"
+                        className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#DE1F27] focus:outline-none font-mono"
                       />
                     </div>
                   </div>
@@ -977,9 +977,9 @@ export const CheckoutModal: React.FC = () => {
 
               {/* Direct Bank Transfer Instructions Card */}
               {paymentMethod === 'Direct Bank Transfer' && (
-                <div className="bg-[#FAF5EE] border border-[#8C4830]/30 p-4 space-y-3 animate-in fade-in">
+                <div className="bg-[#FAF5EE] border border-[#0284C7]/30 p-4 space-y-3 animate-in fade-in">
                   <div>
-                    <span className="text-xs font-bold text-[#8C4830] uppercase tracking-wider block">
+                    <span className="text-xs font-bold text-[#0284C7] uppercase tracking-wider block">
                       Meezan Bank Official Corporate Account
                     </span>
                     <p className="text-xs text-[#1C1917]/80 mt-0.5">
@@ -987,7 +987,7 @@ export const CheckoutModal: React.FC = () => {
                     </p>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-white p-3 border border-[#E7E0D8]">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-white p-3 border border-[#E2E8F0]">
                     <div>
                       <span className="text-[#1C1917]/60 block text-[11px]">Bank & Branch:</span>
                       <strong className="text-xs text-[#1C1917]">Meezan Bank Ltd (Committee Chowk)</strong>
@@ -1003,7 +1003,7 @@ export const CheckoutModal: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => handleCopy('PK12MEZN0001977012345678', 'bank-iban')}
-                          className="p-1 hover:bg-[#FAF8F5] text-[#8C4830] transition-colors"
+                          className="p-1 hover:bg-[#F8FAFC] text-[#0284C7] transition-colors"
                         >
                           {copiedField === 'bank-iban' ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
@@ -1021,7 +1021,7 @@ export const CheckoutModal: React.FC = () => {
                         placeholder="e.g. HBL / Tariq Mehmood"
                         value={accountTitle}
                         onChange={(e) => setAccountTitle(e.target.value)}
-                        className="w-full px-3 py-1.5 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                        className="w-full px-3 py-1.5 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                       />
                     </div>
                     <div>
@@ -1034,7 +1034,7 @@ export const CheckoutModal: React.FC = () => {
                         placeholder="e.g. RAAST-98765432"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
-                        className="w-full px-3 py-1.5 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none font-mono"
+                        className="w-full px-3 py-1.5 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none font-mono"
                       />
                     </div>
                   </div>
@@ -1043,14 +1043,14 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             {/* Delivery Customer Details & Destination Mode */}
-            <div className="space-y-3 pt-2 border-t border-[#E7E0D8]">
+            <div className="space-y-3 pt-2 border-t border-[#E2E8F0]">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#1C1917]">
                   Delivery Address & Destination
                 </label>
 
                 {/* Destination Selector Tabs */}
-                <div className="inline-flex rounded-sm bg-[#E7E0D8] p-0.5 text-xs">
+                <div className="inline-flex rounded-sm bg-[#E2E8F0] p-0.5 text-xs">
                   <button
                     type="button"
                     onClick={() => {
@@ -1119,7 +1119,7 @@ export const CheckoutModal: React.FC = () => {
                     placeholder="e.g. Tariq Mehmood"
                     value={formData.fullName}
                     onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                   />
                 </div>
 
@@ -1133,7 +1133,7 @@ export const CheckoutModal: React.FC = () => {
                     placeholder={destinationType === 'international' ? '+44 7911 123456 / +1 202 555 0123' : '0300-1234567'}
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                   />
                   <span className="text-[10px] text-[#1C1917]/60 block mt-0.5 font-sans">
                     Used strictly for courier arrival dispatch calls and tracking notices.
@@ -1149,7 +1149,7 @@ export const CheckoutModal: React.FC = () => {
                     placeholder={destinationType === 'international' ? '+44 7911 123456' : '0300-1234567'}
                     value={formData.whatsapp}
                     onChange={(e) => setFormData({ ...formData, whatsapp: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                   />
                   <span className="text-[10px] text-[#1C1917]/60 block mt-0.5 font-sans">
                     Optional. Used exclusively for courier tracking messages and stock notices.
@@ -1214,7 +1214,7 @@ export const CheckoutModal: React.FC = () => {
                     <select
                       value={formData.city}
                       onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                      className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                      className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                     >
                       {MAJOR_PAKISTANI_CITIES.map((c) => (
                         <option key={c} value={c}>
@@ -1235,7 +1235,7 @@ export const CheckoutModal: React.FC = () => {
                     placeholder={destinationType === 'international' ? "Apartment/House #, Street name, Area/Subdistrict..." : "House / Apartment #, Street #, Sector / Mohallah / Area..."}
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                   />
                 </div>
 
@@ -1248,19 +1248,19 @@ export const CheckoutModal: React.FC = () => {
                     placeholder="e.g. Gift box / call before delivery / continuous bolt cut..."
                     value={formData.notes}
                     onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                    className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                    className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#0284C7] focus:outline-none"
                   />
                 </div>
 
                 {/* Explicit DPDP / Consumer Form Consent Checkbox */}
-                <div className="sm:col-span-2 pt-3 pb-1 border-t border-[#E7E0D8]">
+                <div className="sm:col-span-2 pt-3 pb-1 border-t border-[#E2E8F0]">
                   <label className="flex items-start gap-2.5 cursor-pointer text-xs text-[#1C1917]/85 font-sans group">
                     <input
                       type="checkbox"
                       required
                       checked={consentAgreed}
                       onChange={(e) => setConsentAgreed(e.target.checked)}
-                      className="mt-0.5 w-4 h-4 text-[#8C4830] rounded border-[#E7E0D8] focus:ring-[#8C4830] cursor-pointer"
+                      className="mt-0.5 w-4 h-4 text-[#0284C7] rounded border-[#E2E8F0] focus:ring-[#0284C7] cursor-pointer"
                       aria-label="Consent to Terms, Privacy Policy, and Refund Policy"
                     />
                     <span className="leading-snug">
@@ -1271,7 +1271,7 @@ export const CheckoutModal: React.FC = () => {
                           navigateTo('terms');
                           setIsCheckoutOpen(false);
                         }}
-                        className="text-[#8C4830] underline font-semibold hover:text-[#703623]"
+                        className="text-[#0284C7] underline font-semibold hover:text-[#0369A1]"
                       >
                         Terms & Conditions
                       </button>
@@ -1282,7 +1282,7 @@ export const CheckoutModal: React.FC = () => {
                           navigateTo('privacy');
                           setIsCheckoutOpen(false);
                         }}
-                        className="text-[#8C4830] underline font-semibold hover:text-[#703623]"
+                        className="text-[#0284C7] underline font-semibold hover:text-[#0369A1]"
                       >
                         Privacy Policy (DPDP Act)
                       </button>
@@ -1293,7 +1293,7 @@ export const CheckoutModal: React.FC = () => {
                           navigateTo('refund');
                           setIsCheckoutOpen(false);
                         }}
-                        className="text-[#8C4830] underline font-semibold hover:text-[#703623]"
+                        className="text-[#0284C7] underline font-semibold hover:text-[#0369A1]"
                       >
                         Order & Dispatch Policy
                       </button>
@@ -1305,9 +1305,9 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             {/* Bottom Actions */}
-            <div className="pt-3 border-t border-[#E7E0D8] flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="pt-3 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-2 text-[11px] text-[#1C1917]/70">
-                <Truck className="w-4 h-4 text-[#8C4830]" />
+                <Truck className="w-4 h-4 text-[#0284C7]" />
                 <span>Nationwide Shipping · Tracked Delivery</span>
               </div>
 
@@ -1328,7 +1328,7 @@ export const CheckoutModal: React.FC = () => {
                   className={`flex-1 sm:flex-none px-5 py-2.5 text-white text-xs font-semibold tracking-wider uppercase transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 shadow-sm ${
                     paymentMethod === 'Online Payment Gateway (Debit/Credit Card)'
                       ? 'bg-[#1D4ED8] hover:bg-[#1E40AF]'
-                      : 'bg-[#8C4830] hover:bg-[#703623]'
+                      : 'bg-[#0284C7] hover:bg-[#0369A1]'
                   }`}
                 >
                   {isSubmitting ? (

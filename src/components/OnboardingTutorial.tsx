@@ -38,13 +38,13 @@ const ONBOARDING_STEPS: OnboardingStep[] = [
   },
   {
     badge: 'Popular Fabrics',
-    title: 'Pure Boski, Egyptian Latha & Khaddar',
+    title: 'Pure Boski, Wash and Wear & Khaddar',
     subtitle: '100% Pure Natural Fabrics with Guaranteed Quality',
     description:
-      'We test every roll to make sure you get 100% genuine cloth without mixed synthetic polyester. From original Chinese mulberry Boski silk to Egyptian Giza cotton, choose the best cloth for your shalwar kameez.',
+      'We test every roll to make sure you get 100% genuine cloth without mixed synthetic polyester. From original Chinese mulberry Boski silk to combed cotton, choose the best cloth for your shalwar kameez.',
     highlights: [
       { title: 'Chinese Boski Silk', detail: 'Original 6lb summer, 8lb all-season, and 10lb winter weights' },
-      { title: 'Egyptian Cotton Latha', detail: 'Superfine combed cotton with crisp finish for Friday prayers' },
+      { title: 'Combed Cotton Latha', detail: 'Superfine combed cotton with crisp finish for Friday prayers' },
       { title: 'Kamalia Khaddar & Karandi', detail: 'Traditional handspun warm textures for winter' },
     ],
     tag: 'Step 2 of 4',
@@ -129,15 +129,15 @@ export const OnboardingTutorial: React.FC = () => {
       aria-modal="true"
       aria-labelledby="onboarding-modal-title"
     >
-      <div className="bg-[#FAF8F5] max-w-lg w-full border border-[#E7E0D8] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200">
+      <div className="bg-[#F8FAFC] max-w-lg w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200">
         {/* Header Ribbon */}
-        <div className="bg-[#1C1917] text-[#FAF8F5] p-5 border-b border-[#38332E] flex items-center justify-between">
+        <div className="bg-[#1C1917] text-[#F8FAFC] p-5 border-b border-[#38332E] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-[#8C4830]/30 border border-[#D4A373]/60 flex items-center justify-center text-[#D4A373]">
+            <div className="w-8 h-8 rounded-full bg-[#0284C7]/30 border border-[#38BDF8]/60 flex items-center justify-center text-[#38BDF8]">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#D4A373] block">
+              <span className="text-[10px] uppercase font-mono tracking-widest text-[#38BDF8] block">
                 {step.badge}
               </span>
               <h2 id="onboarding-modal-title" className="font-serif text-base font-bold text-white">
@@ -156,12 +156,12 @@ export const OnboardingTutorial: React.FC = () => {
         </div>
 
         {/* Step Progress Bar */}
-        <div className="w-full bg-[#E7E0D8] h-1 flex">
+        <div className="w-full bg-[#E2E8F0] h-1 flex">
           {ONBOARDING_STEPS.map((_, idx) => (
             <div
               key={idx}
               className={`h-full flex-1 transition-all duration-300 ${
-                idx <= currentStep ? 'bg-[#8C4830]' : 'bg-transparent'
+                idx <= currentStep ? 'bg-[#0284C7]' : 'bg-transparent'
               }`}
             />
           ))}
@@ -183,9 +183,9 @@ export const OnboardingTutorial: React.FC = () => {
             {step.highlights.map((h, i) => (
               <div
                 key={i}
-                className="p-3 bg-white border border-[#E7E0D8] flex items-start gap-3 shadow-2xs"
+                className="p-3 bg-white border border-[#E2E8F0] flex items-start gap-3 shadow-2xs"
               >
-                <div className="w-5 h-5 rounded-full bg-[#F5EFEB] text-[#8C4830] flex items-center justify-center shrink-0 mt-0.5">
+                <div className="w-5 h-5 rounded-full bg-[#F5EFEB] text-[#0284C7] flex items-center justify-center shrink-0 mt-0.5">
                   <Check className="w-3 h-3 stroke-2" />
                 </div>
                 <div>
@@ -197,7 +197,7 @@ export const OnboardingTutorial: React.FC = () => {
           </div>
 
           {/* Controls */}
-          <div className="pt-4 border-t border-[#E7E0D8] flex items-center justify-between">
+          <div className="pt-4 border-t border-[#E2E8F0] flex items-center justify-between">
             <div className="text-xs font-mono text-[#1C1917]/50">
               {step.tag}
             </div>
@@ -217,7 +217,7 @@ export const OnboardingTutorial: React.FC = () => {
               <button
                 type="button"
                 onClick={handleNext}
-                className="py-2 px-4 bg-[#8C4830] hover:bg-[#703623] active:bg-[#5C2B1B] text-white text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 shadow-2xs"
+                className="py-2 px-4 bg-[#0284C7] hover:bg-[#0369A1] active:bg-[#075985] text-white text-xs font-semibold tracking-wide transition-colors flex items-center gap-1.5 shadow-2xs"
               >
                 <span>{currentStep === ONBOARDING_STEPS.length - 1 ? 'Explore Catalog' : 'Next'}</span>
                 <ArrowRight className="w-3.5 h-3.5" />

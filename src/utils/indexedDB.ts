@@ -34,7 +34,7 @@ export const SEED_REVIEWS: ProductReview[] = [
   },
   {
     id: 'seed-rev-003',
-    productId: 'nch-002', // Egyptian Latha Cotton
+    productId: 'nch-002', // Wash and Wear Suiting
     authorName: 'Advocate Malik Daniyal',
     authorCity: 'Rawalpindi',
     rating: 5,
@@ -45,12 +45,12 @@ export const SEED_REVIEWS: ProductReview[] = [
   },
   {
     id: 'seed-rev-004',
-    productId: 'nch-002', // Egyptian Latha Cotton
+    productId: 'nch-002', // Wash and Wear Suiting
     authorName: 'Dr. Kamran Akram',
     authorCity: 'Islamabad',
     rating: 4,
     title: 'Very cool in hot summer',
-    comment: 'Pure combed Egyptian Giza cotton. Does not yellow after washing and stays crisp throughout the day. Parcel arrived in 24 hours in F-7.',
+    comment: 'Pure combed combed cotton. Does not yellow after washing and stays crisp throughout the day. Parcel arrived in 24 hours in F-7.',
     createdAt: new Date(Date.now() - 18 * 86400000).toISOString(),
     verifiedBuyer: true,
   },

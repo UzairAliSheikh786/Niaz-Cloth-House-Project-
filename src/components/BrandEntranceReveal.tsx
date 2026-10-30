@@ -62,25 +62,25 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
     >
       {/* Background Left & Right Sliding Curtains */}
       <div
-        className={`absolute inset-y-0 left-0 w-1/2 bg-[#0B0908] border-r border-[#D4A373]/20 ${
+        className={`absolute inset-y-0 left-0 w-1/2 bg-[#0B0908] border-r border-[#38BDF8]/20 ${
           isExiting ? 'animate-curtain-left' : ''
         }`}
       />
       <div
-        className={`absolute inset-y-0 right-0 w-1/2 bg-[#0B0908] border-l border-[#D4A373]/20 ${
+        className={`absolute inset-y-0 right-0 w-1/2 bg-[#0B0908] border-l border-[#38BDF8]/20 ${
           isExiting ? 'animate-curtain-right' : ''
         }`}
       />
 
       {/* Decorative Gold Ambient Radial Light Glow */}
-      <div className="absolute w-[600px] h-[600px] rounded-full bg-[#8C4830]/25 blur-[140px] pointer-events-none -top-24 -left-24 animate-pulse" />
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#D4A373]/20 blur-[120px] pointer-events-none -bottom-24 -right-24" />
+      <div className="absolute w-[600px] h-[600px] rounded-full bg-[#0284C7]/25 blur-[140px] pointer-events-none -top-24 -left-24 animate-pulse" />
+      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#38BDF8]/20 blur-[120px] pointer-events-none -bottom-24 -right-24" />
 
       {/* Heritage Silk Weave Pattern Overlay */}
       <div
         className="absolute inset-0 opacity-10 pointer-events-none"
         style={{
-          backgroundImage: `radial-gradient(#D4A373 1px, transparent 1px), radial-gradient(#D4A373 1px, transparent 1px)`,
+          backgroundImage: `radial-gradient(#38BDF8 1px, transparent 1px), radial-gradient(#38BDF8 1px, transparent 1px)`,
           backgroundSize: '36px 36px',
           backgroundPosition: '0 0, 18px 18px',
         }}
@@ -94,21 +94,21 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
       >
         {/* Heritage Monogram Seal - Drops in with Gold Accent */}
         <div className="animate-brand-from-side flex items-center justify-center mb-1">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-[#D4A373]/60 bg-gradient-to-b from-[#1C1613] to-[#0D0A08] flex items-center justify-center shadow-2xl animate-pulse-gold relative">
-            <span className="font-serif text-2xl sm:text-3xl font-black text-[#D4A373] tracking-tighter">
+          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-[#38BDF8]/60 bg-gradient-to-b from-[#1C1613] to-[#0D0A08] flex items-center justify-center shadow-2xl animate-pulse-gold relative">
+            <span className="font-serif text-2xl sm:text-3xl font-black text-[#38BDF8] tracking-tighter">
               NCH
             </span>
-            <div className="absolute -inset-1 rounded-full border border-[#D4A373]/20 animate-spin" style={{ animationDuration: '24s' }} />
+            <div className="absolute -inset-1 rounded-full border border-[#38BDF8]/20 animate-spin" style={{ animationDuration: '24s' }} />
           </div>
         </div>
 
         {/* Top Kicker - Glides in from Top Right */}
         <div className="animate-brand-from-right flex items-center gap-3">
-          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-r from-transparent to-[#D4A373]" />
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.35em] text-[#D4A373] font-semibold font-sans">
+          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-r from-transparent to-[#38BDF8]" />
+          <span className="text-[11px] sm:text-xs uppercase tracking-[0.35em] text-[#38BDF8] font-semibold font-sans">
             Haute Couture Unstitched Fabrics · Established 1970
           </span>
-          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-l from-transparent to-[#D4A373]" />
+          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-l from-transparent to-[#38BDF8]" />
         </div>
 
         {/* The Iconic Brand Name: Comes Out Dramatically from the Screen Side! */}
@@ -121,18 +121,18 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
         </div>
 
         {/* Golden Silk Filament Divider - Draws across smoothly */}
-        <div className="w-48 sm:w-96 h-[2px] bg-gradient-to-r from-transparent via-[#D4A373] to-transparent animate-thread-draw" />
+        <div className="w-48 sm:w-96 h-[2px] bg-gradient-to-r from-transparent via-[#38BDF8] to-transparent animate-thread-draw" />
 
         {/* Subtitle & Paris Bazaar Location - Glides in from Right Screen Side */}
         <div className="animate-brand-from-right space-y-2 max-w-xl">
           <p className="font-serif italic text-base sm:text-2xl text-white/95">
             "Dress To Impress"
           </p>
-          <p className="text-xs sm:text-sm text-[#FAF8F5]/70 tracking-widest font-sans uppercase">
+          <p className="text-xs sm:text-sm text-[#F8FAFC]/70 tracking-widest font-sans uppercase">
             Shop #170 Paris Bazaar · Committee Chowk · Rawalpindi
           </p>
-          <p className="text-[11px] text-[#D4A373]/80 font-mono tracking-wider pt-1">
-            Pure Chinese Boski · Egyptian Latha · Kamalia Khaddar · Raw Karandi
+          <p className="text-[11px] text-[#38BDF8]/80 font-mono tracking-wider pt-1">
+            Pure Chinese Boski · Wash and Wear · Kamalia Khaddar · Raw Karandi
           </p>
         </div>
 
@@ -144,7 +144,7 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
               e.stopPropagation();
               handleDismiss();
             }}
-            className="group px-7 py-3.5 bg-[#8C4830] hover:bg-[#a25439] text-white text-xs font-semibold tracking-[0.25em] uppercase transition-all duration-300 shadow-2xl inline-flex items-center gap-3 border border-[#D4A373]/50 hover:scale-105 active:scale-95"
+            className="group px-7 py-3.5 bg-[#0284C7] hover:bg-[#a25439] text-white text-xs font-semibold tracking-[0.25em] uppercase transition-all duration-300 shadow-2xl inline-flex items-center gap-3 border border-[#38BDF8]/50 hover:scale-105 active:scale-95"
           >
             <span>Enter Boutique</span>
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />

@@ -260,9 +260,9 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
       aria-modal="true"
       aria-labelledby="whatsapp-sync-title"
     >
-      <div className="bg-[#FAF8F5] max-w-4xl w-full border border-[#E7E0D8] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
+      <div className="bg-[#F8FAFC] max-w-4xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
         {/* Header Ribbon with WhatsApp Brand Emerald Accent */}
-        <div className="bg-[#1C1917] text-[#FAF8F5] p-4 sm:p-5 border-b border-[#38332E] flex items-center justify-between shrink-0">
+        <div className="bg-[#1C1917] text-[#F8FAFC] p-4 sm:p-5 border-b border-[#38332E] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-[#25D366]/20 border border-[#25D366]/60 flex items-center justify-center text-[#25D366] shrink-0">
               <Share2 className="w-5 h-5" />
@@ -315,7 +315,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                   className={`p-2.5 text-left border transition-all ${
                     format === 'full-digest'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
-                      : 'border-[#E7E0D8] bg-white hover:bg-[#FAF8F5]'
+                      : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
                   <div className="font-bold text-[#1C1917] flex items-center justify-between">
@@ -333,7 +333,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                   className={`p-2.5 text-left border transition-all ${
                     format === 'segmented-batches'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
-                      : 'border-[#E7E0D8] bg-white hover:bg-[#FAF8F5]'
+                      : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
                   <div className="font-bold text-[#1C1917] flex items-center justify-between">
@@ -351,7 +351,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                   className={`p-2.5 text-left border transition-all ${
                     format === 'single-card'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
-                      : 'border-[#E7E0D8] bg-white hover:bg-[#FAF8F5]'
+                      : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
                   <div className="font-bold text-[#1C1917] flex items-center justify-between">
@@ -369,7 +369,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                   className={`p-2.5 text-left border transition-all ${
                     format === 'meta-csv'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
-                      : 'border-[#E7E0D8] bg-white hover:bg-[#FAF8F5]'
+                      : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
                   <div className="font-bold text-[#1C1917] flex items-center justify-between">
@@ -396,7 +396,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'all'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#1C1917]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
                     All Fabrics ({products.length})
@@ -407,7 +407,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'in-stock'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#1C1917]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
                     In Stock Only ({products.filter((p) => p.inStock).length})
@@ -418,7 +418,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'men'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#1C1917]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
                     Men's Suiting ({products.filter((p) => p.gender === 'Men').length})
@@ -429,7 +429,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'women'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#1C1917]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
                     Women's All ({products.filter((p) => p.gender === 'Women').length})
@@ -439,8 +439,8 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     onClick={() => setFilterMode('women-embroidery')}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'women-embroidery'
-                        ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#8C4830]'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#0284C7]'
                     }`}
                   >
                     ★ Embroidery Brands ({products.filter((p) => p.gender === 'Women' && p.craftType === 'Embroidery').length})
@@ -450,8 +450,8 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     onClick={() => setFilterMode('women-printed')}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'women-printed'
-                        ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#8C4830]'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#0284C7]'
                     }`}
                   >
                     ★ Printed Brands ({products.filter((p) => p.gender === 'Women' && p.craftType === 'Printed').length})
@@ -466,7 +466,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                 <select
                   value={selectedSingleId}
                   onChange={(e) => setSelectedSingleId(e.target.value)}
-                  className="w-full text-xs py-2 px-3 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#25D366]"
+                  className="w-full text-xs py-2 px-3 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#25D366]"
                 >
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
@@ -479,7 +479,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
 
             {/* 3. Batch Controls (if segmented) */}
             {format === 'segmented-batches' && (
-              <div className="p-3.5 bg-white border border-[#E7E0D8] space-y-3 text-xs">
+              <div className="p-3.5 bg-white border border-[#E2E8F0] space-y-3 text-xs">
                 <div className="flex items-center justify-between">
                   <span className="font-semibold text-[#1C1917]">Batch Navigator</span>
                   <span className="text-[11px] text-[#25D366] font-bold">
@@ -492,7 +492,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     type="button"
                     disabled={safeBatchIndex === 0}
                     onClick={() => setActiveBatchIndex((prev) => Math.max(0, prev - 1))}
-                    className="p-1.5 border border-[#E7E0D8] hover:bg-[#FAF8F5] disabled:opacity-30"
+                    className="p-1.5 border border-[#E2E8F0] hover:bg-[#F8FAFC] disabled:opacity-30"
                   >
                     <ArrowLeft className="w-4 h-4" />
                   </button>
@@ -506,7 +506,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                         className={`px-2 py-1 text-[11px] font-mono border transition-colors shrink-0 ${
                           idx === safeBatchIndex
                             ? 'bg-[#25D366] text-white border-[#25D366] font-bold'
-                            : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#1C1917]'
+                            : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                         }`}
                       >
                         Part {b.batchNumber}
@@ -518,13 +518,13 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                     type="button"
                     disabled={safeBatchIndex >= batches.length - 1}
                     onClick={() => setActiveBatchIndex((prev) => Math.min(batches.length - 1, prev + 1))}
-                    className="p-1.5 border border-[#E7E0D8] hover:bg-[#FAF8F5] disabled:opacity-30"
+                    className="p-1.5 border border-[#E2E8F0] hover:bg-[#F8FAFC] disabled:opacity-30"
                   >
                     <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] text-[#1C1917]/60 pt-1 border-t border-[#E7E0D8]/60">
+                <div className="flex items-center justify-between text-[11px] text-[#1C1917]/60 pt-1 border-t border-[#E2E8F0]/60">
                   <span>Batch Size:</span>
                   <div className="flex items-center gap-1.5">
                     {[3, 4, 6].map((size) => (
@@ -564,13 +564,13 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                   value={targetPhone}
                   onChange={(e) => setTargetPhone(e.target.value)}
                   placeholder="0334-6565636 or 923346565636"
-                  className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#25D366] font-mono"
+                  className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#25D366] font-mono"
                 />
               </div>
             </div>
 
             {/* 5. Additional Options */}
-            <div className="p-3 bg-white border border-[#E7E0D8] space-y-2 text-xs">
+            <div className="p-3 bg-white border border-[#E2E8F0] space-y-2 text-xs">
               <span className="font-semibold text-[#1C1917] block text-[11px] uppercase tracking-wider">
                 Message Content Options
               </span>
@@ -611,7 +611,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                 <button
                   type="button"
                   onClick={handleCopy}
-                  className="px-2.5 py-1 text-xs border border-[#E7E0D8] bg-white hover:bg-[#FAF8F5] text-[#1C1917] flex items-center gap-1.5 transition-colors font-medium shadow-2xs"
+                  className="px-2.5 py-1 text-xs border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#1C1917] flex items-center gap-1.5 transition-colors font-medium shadow-2xs"
                   title="Copy formatted message"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
@@ -621,7 +621,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                 <button
                   type="button"
                   onClick={handleDownloadFile}
-                  className="px-2.5 py-1 text-xs border border-[#E7E0D8] bg-white hover:bg-[#FAF8F5] text-[#1C1917] flex items-center gap-1.5 transition-colors font-medium shadow-2xs"
+                  className="px-2.5 py-1 text-xs border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#1C1917] flex items-center gap-1.5 transition-colors font-medium shadow-2xs"
                   title="Download catalog file"
                 >
                   <Download className="w-3.5 h-3.5" />
@@ -666,9 +666,9 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
         </div>
 
         {/* Footer: Recent Sync Audit Strip */}
-        <div className="bg-[#F5EFEB] p-3 px-4 sm:px-6 border-t border-[#E7E0D8] flex flex-col sm:flex-row items-center justify-between text-xs gap-2 shrink-0">
+        <div className="bg-[#F5EFEB] p-3 px-4 sm:px-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between text-xs gap-2 shrink-0">
           <div className="flex items-center gap-2 text-[#1C1917]/70">
-            <Clock className="w-3.5 h-3.5 text-[#8C4830]" />
+            <Clock className="w-3.5 h-3.5 text-[#0284C7]" />
             <span>
               Recent Sync by <strong>{syncHistory[0]?.adminName || 'Haji Niaz Ahmad'}</strong>:{' '}
               {syncHistory[0] ? new Date(syncHistory[0].timestamp).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Ready'}

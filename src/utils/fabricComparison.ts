@@ -21,11 +21,11 @@ export interface CuratedComparisonPair {
 export const CURATED_COMPARISONS: CuratedComparisonPair[] = [
   {
     id: 'boski-vs-latha',
-    title: 'Pure Boski Silk vs Egyptian Latha Cotton',
-    subtitle: 'Soft Chinese silk fall vs Crisp Egyptian cotton collar and cuff press.',
+    title: 'Pure Boski Silk vs Wash and Wear Suiting',
+    subtitle: 'Soft Chinese silk fall vs Crisp combed cotton collar and cuff press.',
     badge: "Men's Summer & Festive",
     productAId: 'nch-001', // 8-Pound Boski Silk
-    productBId: 'nch-002', // Egyptian Latha Cotton
+    productBId: 'nch-002', // Wash and Wear Suiting
   },
   {
     id: 'khaddar-vs-karandi',
@@ -97,7 +97,7 @@ export function getFabricSeasonalSpec(product: Product): SeasonalSpec {
         breathability: 'Very High',
         insulation: 'Cooling / Airy',
         bestOccasions: ['Executive Daytime Wear', 'Daily Jummah Prayers', 'Formal Summer Gatherings'],
-        climateVerdict: 'Long-staple Egyptian cotton absorbs perspiration rapidly while holding a crisp, starched collar line under scorching heat.',
+        climateVerdict: 'Long-staple combed cotton absorbs perspiration rapidly while holding a crisp, starched collar line under scorching heat.',
       };
     }
     if (fabricLower.includes('lawn')) {

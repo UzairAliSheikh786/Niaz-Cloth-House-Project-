@@ -17,6 +17,10 @@ const port = 3000;
 
 app.use(express.json());
 
+// Explicit static handlers for image assets (works in both local, preview, and production)
+app.use('/images', express.static(path.resolve(__dirname, 'public', 'images')));
+app.use('/src/assets/images', express.static(path.resolve(__dirname, 'public', 'images')));
+
 // Serve static XML sitemap with correct XML MIME type and cache policy
 app.get('/sitemap.xml', (_req: Request, res: Response) => {
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');

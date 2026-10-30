@@ -95,11 +95,11 @@ export const CookieConsent: React.FC = () => {
         <aside
           role="region"
           aria-label="Cookie and Privacy Consent Banner"
-          className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6 bg-white/95 backdrop-blur-md border-t border-[#E7E0D8] shadow-2xl transition-all duration-300 animate-in slide-in-from-bottom-6"
+          className="fixed bottom-0 inset-x-0 z-50 p-4 sm:p-6 bg-white/95 backdrop-blur-md border-t border-[#E2E8F0] shadow-2xl transition-all duration-300 animate-in slide-in-from-bottom-6"
         >
           <div className="max-w-7xl mx-auto flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
             <div className="flex items-start gap-3.5 max-w-4xl">
-              <div className="p-2.5 bg-[#8C4830]/10 text-[#8C4830] shrink-0 mt-0.5" aria-hidden="true">
+              <div className="p-2.5 bg-[#0284C7]/10 text-[#0284C7] shrink-0 mt-0.5" aria-hidden="true">
                 <Cookie className="w-5 h-5" />
               </div>
               <div className="space-y-1">
@@ -118,7 +118,7 @@ export const CookieConsent: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigateTo('cookies')}
-                    className="text-[#8C4830] hover:text-[#703623] underline font-medium"
+                    className="text-[#0284C7] hover:text-[#0369A1] underline font-medium"
                   >
                     Read Cookies Policy
                   </button>
@@ -126,7 +126,7 @@ export const CookieConsent: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => navigateTo('privacy')}
-                    className="text-[#8C4830] hover:text-[#703623] underline font-medium"
+                    className="text-[#0284C7] hover:text-[#0369A1] underline font-medium"
                   >
                     DPDP Privacy Notice
                   </button>
@@ -139,17 +139,17 @@ export const CookieConsent: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="px-3.5 py-2 border border-[#E7E0D8] bg-white hover:border-[#8C4830] text-[#1C1917] text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#8C4830] focus-visible:outline-none"
+                className="px-3.5 py-2 border border-[#E2E8F0] bg-white hover:border-[#0284C7] text-[#1C1917] text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
                 aria-label="Customize Cookie Preferences"
               >
-                <Settings className="w-3.5 h-3.5 text-[#8C4830]" />
+                <Settings className="w-3.5 h-3.5 text-[#0284C7]" />
                 <span>Preferences</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleRejectNonEssential}
-                className="px-4 py-2 border border-[#1C1917]/30 bg-white hover:bg-[#F5EFEB] text-[#1C1917] text-xs font-semibold uppercase tracking-wider transition-colors focus-visible:ring-2 focus-visible:ring-[#8C4830] focus-visible:outline-none"
+                className="px-4 py-2 border border-[#1C1917]/30 bg-white hover:bg-[#F5EFEB] text-[#1C1917] text-xs font-semibold uppercase tracking-wider transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
                 aria-label="Reject non-essential cookies"
               >
                 Only Necessary
@@ -158,7 +158,7 @@ export const CookieConsent: React.FC = () => {
               <button
                 type="button"
                 onClick={handleAcceptAll}
-                className="px-5 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-[#8C4830] focus-visible:outline-none"
+                className="px-5 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
                 aria-label="Accept all cookies"
               >
                 Accept All
@@ -176,12 +176,12 @@ export const CookieConsent: React.FC = () => {
           aria-labelledby="cookie-preferences-title"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200"
         >
-          <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-[#E7E0D8] shadow-2xl p-6 space-y-6">
+          <div className="bg-white max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-[#E2E8F0] shadow-2xl p-6 space-y-6">
             {/* Header */}
-            <div className="flex items-start justify-between pb-4 border-b border-[#E7E0D8]">
+            <div className="flex items-start justify-between pb-4 border-b border-[#E2E8F0]">
               <div>
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#8C4830]" />
+                  <ShieldCheck className="w-5 h-5 text-[#0284C7]" />
                   <h2 id="cookie-preferences-title" className="font-serif text-lg font-bold text-[#1C1917]">
                     Cookie & Data Consent Preferences
                   </h2>
@@ -193,7 +193,7 @@ export const CookieConsent: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-[#1C1917]/60 hover:text-[#1C1917] hover:bg-[#FAF8F5] transition-colors focus-visible:ring-2 focus-visible:ring-[#8C4830] focus-visible:outline-none"
+                className="p-1.5 text-[#1C1917]/60 hover:text-[#1C1917] hover:bg-[#F8FAFC] transition-colors focus-visible:ring-2 focus-visible:ring-[#0284C7] focus-visible:outline-none"
                 aria-label="Close preferences modal"
               >
                 <X className="w-5 h-5" />
@@ -203,7 +203,7 @@ export const CookieConsent: React.FC = () => {
             {/* Granular Categories */}
             <div className="space-y-4 text-xs font-sans">
               {/* Category 1: Strictly Necessary */}
-              <div className="p-4 bg-[#FAF8F5] border border-[#E7E0D8] space-y-2">
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] space-y-2">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-[#1C1917]">1. Strictly Necessary Cookies</span>
@@ -218,7 +218,7 @@ export const CookieConsent: React.FC = () => {
               </div>
 
               {/* Category 2: Functional & Preferences */}
-              <div className="p-4 bg-white border border-[#E7E0D8] space-y-2">
+              <div className="p-4 bg-white border border-[#E2E8F0] space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="font-bold text-sm text-[#1C1917]">2. Functional & Filter Preferences</span>
@@ -232,7 +232,7 @@ export const CookieConsent: React.FC = () => {
                       className="sr-only peer"
                       aria-label="Toggle Functional and Filter Preferences"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#8C4830] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8C4830]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#0284C7] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0284C7]"></div>
                   </label>
                 </div>
                 <p className="text-[#1C1917]/75 leading-relaxed">
@@ -241,7 +241,7 @@ export const CookieConsent: React.FC = () => {
               </div>
 
               {/* Category 3: Analytical Performance */}
-              <div className="p-4 bg-white border border-[#E7E0D8] space-y-2">
+              <div className="p-4 bg-white border border-[#E2E8F0] space-y-2">
                 <div className="flex items-center justify-between">
                   <div>
                     <span className="font-bold text-sm text-[#1C1917]">3. Performance & Usage Analytics</span>
@@ -255,7 +255,7 @@ export const CookieConsent: React.FC = () => {
                       className="sr-only peer"
                       aria-label="Toggle Performance and Usage Analytics"
                     />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#8C4830] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#8C4830]"></div>
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-[#0284C7] rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#0284C7]"></div>
                   </label>
                 </div>
                 <p className="text-[#1C1917]/75 leading-relaxed">
@@ -265,14 +265,14 @@ export const CookieConsent: React.FC = () => {
             </div>
 
             {/* Footer Actions */}
-            <div className="pt-4 border-t border-[#E7E0D8] flex flex-wrap items-center justify-between gap-3">
+            <div className="pt-4 border-t border-[#E2E8F0] flex flex-wrap items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={() => {
                   navigateTo('privacy');
                   setIsModalOpen(false);
                 }}
-                className="text-xs text-[#8C4830] hover:underline flex items-center gap-1 font-medium"
+                className="text-xs text-[#0284C7] hover:underline flex items-center gap-1 font-medium"
               >
                 <span>Read Full Privacy Notice</span>
                 <ExternalLink className="w-3.5 h-3.5" />
@@ -289,7 +289,7 @@ export const CookieConsent: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleSaveCustom}
-                  className="px-5 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm"
+                  className="px-5 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Save Preferences
                 </button>

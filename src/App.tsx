@@ -29,13 +29,13 @@ const AppContent: React.FC = () => {
   const { currentPage } = useNavigation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FAF8F5] text-[#1C1917] w-full max-w-full overflow-x-hidden relative">
+    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0F172A] w-full max-w-full overflow-x-hidden relative">
       {/* Central Technical SEO & Schema Head Engine */}
       <SEOHead />
       {/* WCAG Accessibility Skip Link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#8C4830] focus:text-white focus:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white text-xs font-semibold uppercase tracking-wider"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#0284C7] focus:text-white focus:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white text-xs font-semibold uppercase tracking-wider"
       >
         Skip to main content
       </a>

@@ -1,14 +1,27 @@
 export type Gender = 'Men' | 'Women' | 'Unisex';
 
 export type FabricType = 
+  | 'Wash & Wear'
+  | 'Cotton'
+  | 'Khaddar'
+  | 'Lelan'
+  | 'Boski'
   | 'Boski Silk'
-  | 'Latha Cotton'
   | 'Luxury Lawn'
   | 'Embroidered Chiffon'
-  | 'Handwoven Karandi'
   | 'Swiss Voile'
   | 'Silk Jacquard'
-  | 'Pure Khaddar';
+  | 'Handwoven Karandi';
+
+export const MENS_FABRICS = [
+  'Wash & Wear',
+  'Cotton',
+  'Khaddar',
+  'Lelan',
+  'Boski',
+] as const;
+
+export type MensFabric = (typeof MENS_FABRICS)[number];
 
 export interface FabricCare {
   washing: string;

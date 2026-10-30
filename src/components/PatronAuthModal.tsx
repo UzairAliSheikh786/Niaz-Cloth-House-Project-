@@ -287,17 +287,17 @@ export const PatronAuthModal: React.FC = () => {
         role="dialog"
         aria-modal="true"
         aria-labelledby="auth-modal-title"
-        className={`bg-white w-full border border-[#E7E0D8] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 ${
+        className={`bg-white w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 ${
           authModalView === 'profile' || authModalView === 'forgot'
             ? 'max-w-lg'
             : 'max-w-4xl'
         }`}
       >
         {/* Top Header Strip */}
-        <div className="bg-[#1C1917] text-[#FAF8F5] p-4 sm:p-5 border-b border-[#38332E] flex items-center justify-between">
+        <div className="bg-[#1C1917] text-[#F8FAFC] p-4 sm:p-5 border-b border-[#38332E] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-[#8C4830]/30 border border-[#D4A373]/50 flex items-center justify-center shrink-0">
-              <Lock className="w-4 h-4 text-[#D4A373]" />
+            <div className="w-9 h-9 rounded-full bg-[#0284C7]/30 border border-[#38BDF8]/50 flex items-center justify-center shrink-0">
+              <Lock className="w-4 h-4 text-[#38BDF8]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -364,7 +364,7 @@ export const PatronAuthModal: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="customer@example.com"
-                    className="w-full text-xs py-2 pl-9 pr-3 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                    className="w-full text-xs py-2 pl-9 pr-3 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                   />
                 </div>
               </div>
@@ -372,7 +372,7 @@ export const PatronAuthModal: React.FC = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full py-2.5 px-4 bg-[#8C4830] hover:bg-[#703623] active:bg-[#5C2B1B] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
+                className="w-full py-2.5 px-4 bg-[#0284C7] hover:bg-[#0369A1] active:bg-[#075985] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 {isLoading ? (
                   <RefreshCw className="w-4 h-4 animate-spin" />
@@ -381,11 +381,11 @@ export const PatronAuthModal: React.FC = () => {
                 )}
               </button>
 
-              <div className="pt-3 border-t border-[#E7E0D8] text-center text-xs">
+              <div className="pt-3 border-t border-[#E2E8F0] text-center text-xs">
                 <button
                   type="button"
                   onClick={() => openAuthModal('login')}
-                  className="text-[#8C4830] font-semibold hover:underline"
+                  className="text-[#0284C7] font-semibold hover:underline"
                 >
                   ← Back to Portal Selection
                 </button>
@@ -400,15 +400,15 @@ export const PatronAuthModal: React.FC = () => {
         {authModalView === 'profile' && user && (
           <div className="p-6 space-y-5">
             {/* Profile Card */}
-            <div className="flex items-center gap-3.5 pb-4 border-b border-[#E7E0D8]">
+            <div className="flex items-center gap-3.5 pb-4 border-b border-[#E2E8F0]">
               {user.photoURL ? (
                 <img
                   src={user.photoURL}
                   alt={user.displayName || 'Customer'}
-                  className="w-12 h-12 rounded-full object-cover border border-[#E7E0D8]"
+                  className="w-12 h-12 rounded-full object-cover border border-[#E2E8F0]"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-[#8C4830] text-white flex items-center justify-center text-lg font-serif font-bold">
+                <div className="w-12 h-12 rounded-full bg-[#0284C7] text-white flex items-center justify-center text-lg font-serif font-bold">
                   {(user.displayName || 'C')[0]}
                 </div>
               )}
@@ -426,7 +426,7 @@ export const PatronAuthModal: React.FC = () => {
             </div>
 
             {/* Email Verification Banner */}
-            <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-center justify-between text-xs">
+            <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
                 {user.emailVerified ? (
                   <>
@@ -446,7 +446,7 @@ export const PatronAuthModal: React.FC = () => {
                   type="button"
                   onClick={handleResendVerification}
                   disabled={isLoading}
-                  className="text-[11px] font-semibold text-[#8C4830] hover:underline"
+                  className="text-[11px] font-semibold text-[#0284C7] hover:underline"
                 >
                   Resend Email
                 </button>
@@ -466,7 +466,7 @@ export const PatronAuthModal: React.FC = () => {
                   value={editPhone}
                   onChange={(e) => setEditPhone(e.target.value)}
                   placeholder="0334-6565636"
-                  className="w-full py-2 px-3 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917]"
+                  className="w-full py-2 px-3 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917]"
                 />
               </div>
 
@@ -477,7 +477,7 @@ export const PatronAuthModal: React.FC = () => {
                   value={editCity}
                   onChange={(e) => setEditCity(e.target.value)}
                   placeholder="Rawalpindi"
-                  className="w-full py-2 px-3 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917]"
+                  className="w-full py-2 px-3 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917]"
                 />
               </div>
 
@@ -491,9 +491,9 @@ export const PatronAuthModal: React.FC = () => {
             </form>
 
             {/* Quick Staff Switch Button */}
-            <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-center justify-between text-xs">
+            <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-[#8C4830]" />
+                <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
                 <span className="text-[#1C1917]/80">Store Administrator or Staff?</span>
               </div>
               <button
@@ -502,18 +502,18 @@ export const PatronAuthModal: React.FC = () => {
                   closeAuthModal();
                   navigateTo('admin');
                 }}
-                className="text-[#8C4830] font-bold hover:underline"
+                className="text-[#0284C7] font-bold hover:underline"
               >
                 Open Admin Panel →
               </button>
             </div>
 
             {/* Actions & Sign Out */}
-            <div className="pt-3 border-t border-[#E7E0D8] space-y-2">
+            <div className="pt-3 border-t border-[#E2E8F0] space-y-2">
               <button
                 type="button"
                 onClick={logout}
-                className="w-full py-2 px-3 border border-[#E7E0D8] hover:bg-[#FAF8F5] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2 px-3 border border-[#E2E8F0] hover:bg-[#F8FAFC] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 transition-colors"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span>Sign Out</span>
@@ -561,17 +561,17 @@ export const PatronAuthModal: React.FC = () => {
         {/* VIEW C: SIDE-BY-SIDE DUAL PORTAL (CUSTOMER & ADMIN) */}
         {/* ======================================================== */}
         {(authModalView === 'login' || authModalView === 'signup') && (
-          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#E7E0D8]">
+          <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[#E2E8F0]">
             
             {/* ---------------------------------------------------- */}
             {/* SIDE 1 (LEFT): CUSTOMER / USER PORTAL */}
             {/* ---------------------------------------------------- */}
-            <div className="p-5 sm:p-6 bg-[#FAF8F5]/60 flex flex-col justify-between space-y-4">
+            <div className="p-5 sm:p-6 bg-[#F8FAFC]/60 flex flex-col justify-between space-y-4">
               <div>
                 {/* Customer Header Tag */}
-                <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-[#8C4830]/10 text-[#8C4830] rounded-sm">
+                    <div className="p-1.5 bg-[#0284C7]/10 text-[#0284C7] rounded-sm">
                       <ShoppingBag className="w-4 h-4" />
                     </div>
                     <div>
@@ -580,7 +580,7 @@ export const PatronAuthModal: React.FC = () => {
                       </h4>
                     </div>
                   </div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#8C4830]/10 text-[#8C4830]">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#0284C7]/10 text-[#0284C7]">
                     Shoppers
                   </span>
                 </div>
@@ -590,7 +590,7 @@ export const PatronAuthModal: React.FC = () => {
                 </p>
 
                 {/* Customer Mode Tabs: Sign In vs Sign Up */}
-                <div className="flex border border-[#E7E0D8] bg-white mt-4 p-0.5">
+                <div className="flex border border-[#E2E8F0] bg-white mt-4 p-0.5">
                   <button
                     type="button"
                     onClick={() => {
@@ -599,7 +599,7 @@ export const PatronAuthModal: React.FC = () => {
                     }}
                     className={`flex-1 py-1.5 text-xs font-semibold transition-colors ${
                       customerAuthMode === 'signin'
-                        ? 'bg-[#8C4830] text-white shadow-2xs'
+                        ? 'bg-[#0284C7] text-white shadow-2xs'
                         : 'text-[#1C1917]/70 hover:text-[#1C1917]'
                     }`}
                   >
@@ -613,7 +613,7 @@ export const PatronAuthModal: React.FC = () => {
                     }}
                     className={`flex-1 py-1.5 text-xs font-semibold transition-colors ${
                       customerAuthMode === 'signup'
-                        ? 'bg-[#8C4830] text-white shadow-2xs'
+                        ? 'bg-[#0284C7] text-white shadow-2xs'
                         : 'text-[#1C1917]/70 hover:text-[#1C1917]'
                     }`}
                   >
@@ -627,7 +627,7 @@ export const PatronAuthModal: React.FC = () => {
                     type="button"
                     onClick={signInWithGoogle}
                     disabled={isLoading}
-                    className="w-full py-2 px-3 bg-white hover:bg-[#FAF8F5] border border-[#E7E0D8] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 transition-colors shadow-2xs"
+                    className="w-full py-2 px-3 bg-white hover:bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 transition-colors shadow-2xs"
                   >
                     <svg className="w-4 h-4" viewBox="0 0 24 24">
                       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -640,8 +640,8 @@ export const PatronAuthModal: React.FC = () => {
                 </div>
 
                 <div className="relative flex items-center justify-center my-3.5">
-                  <div className="border-t border-[#E7E0D8] w-full" />
-                  <span className="bg-[#FAF8F5] px-2 text-[10px] uppercase tracking-wider text-[#1C1917]/50 font-bold absolute">
+                  <div className="border-t border-[#E2E8F0] w-full" />
+                  <span className="bg-[#F8FAFC] px-2 text-[10px] uppercase tracking-wider text-[#1C1917]/50 font-bold absolute">
                     Or with Email
                   </span>
                 </div>
@@ -661,7 +661,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="customer@example.com"
-                          className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                       </div>
                     </div>
@@ -672,7 +672,7 @@ export const PatronAuthModal: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => openAuthModal('forgot')}
-                          className="text-[11px] text-[#8C4830] hover:underline"
+                          className="text-[11px] text-[#0284C7] hover:underline"
                         >
                           Forgot password?
                         </button>
@@ -685,7 +685,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="••••••••"
-                          className="w-full text-xs py-2 pl-9 pr-9 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 pl-9 pr-9 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                         <button
                           type="button"
@@ -700,7 +700,7 @@ export const PatronAuthModal: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-2.5 px-4 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
+                      className="w-full py-2.5 px-4 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
                     >
                       {isLoading ? (
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -724,7 +724,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="e.g. Tariq Mehmood"
-                          className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                       </div>
                     </div>
@@ -741,7 +741,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="tariq@example.com"
-                          className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                       </div>
                     </div>
@@ -759,7 +759,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           placeholder="Create password"
-                          className="w-full text-xs py-2 pl-9 pr-9 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 pl-9 pr-9 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                         <button
                           type="button"
@@ -781,7 +781,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           placeholder="0334-6565636"
-                          className="w-full text-xs py-2 px-2.5 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 px-2.5 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                       </div>
 
@@ -794,7 +794,7 @@ export const PatronAuthModal: React.FC = () => {
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
                           placeholder="Rawalpindi"
-                          className="w-full text-xs py-2 px-2.5 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                          className="w-full text-xs py-2 px-2.5 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                         />
                       </div>
                     </div>
@@ -802,7 +802,7 @@ export const PatronAuthModal: React.FC = () => {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full py-2.5 px-4 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
+                      className="w-full py-2.5 px-4 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
                     >
                       {isLoading ? (
                         <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -815,7 +815,7 @@ export const PatronAuthModal: React.FC = () => {
               </div>
 
               {/* Bottom Customer Guarantee */}
-              <div className="pt-2 text-[11px] text-[#1C1917]/60 flex items-center gap-1.5 border-t border-[#E7E0D8]">
+              <div className="pt-2 text-[11px] text-[#1C1917]/60 flex items-center gap-1.5 border-t border-[#E2E8F0]">
                 <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <span>Nationwide Cash on Delivery (COD) across all cities of Pakistan</span>
               </div>
@@ -827,9 +827,9 @@ export const PatronAuthModal: React.FC = () => {
             <div className="p-5 sm:p-6 bg-white flex flex-col justify-between space-y-4">
               <div>
                 {/* Admin Header Tag */}
-                <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <div className="flex items-center gap-2">
-                    <div className="p-1.5 bg-[#1C1917] text-[#D4A373] rounded-sm">
+                    <div className="p-1.5 bg-[#1C1917] text-[#38BDF8] rounded-sm">
                       <ShieldCheck className="w-4 h-4" />
                     </div>
                     <div>
@@ -838,7 +838,7 @@ export const PatronAuthModal: React.FC = () => {
                       </h4>
                     </div>
                   </div>
-                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#1C1917] text-[#D4A373]">
+                  <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 bg-[#1C1917] text-[#38BDF8]">
                     Staff Only
                   </span>
                 </div>
@@ -869,7 +869,7 @@ export const PatronAuthModal: React.FC = () => {
                         value={adminUsername}
                         onChange={(e) => setAdminUsername(e.target.value)}
                         placeholder="admin"
-                        className="w-full text-xs py-2 pl-9 pr-3 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830] font-mono"
+                        className="w-full text-xs py-2 pl-9 pr-3 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7] font-mono"
                       />
                     </div>
                   </div>
@@ -885,7 +885,7 @@ export const PatronAuthModal: React.FC = () => {
                           setAdminUsername('admin');
                           setAdminPassword('Niaz1977#');
                         }}
-                        className="text-[10px] text-[#8C4830] hover:underline font-semibold"
+                        className="text-[10px] text-[#0284C7] hover:underline font-semibold"
                         title="Fill demo store credentials"
                       >
                         Auto-fill Credentials
@@ -899,7 +899,7 @@ export const PatronAuthModal: React.FC = () => {
                         value={adminPassword}
                         onChange={(e) => setAdminPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full text-xs py-2 pl-9 pr-9 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830] font-mono"
+                        className="w-full text-xs py-2 pl-9 pr-9 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7] font-mono"
                       />
                       <button
                         type="button"
@@ -915,13 +915,13 @@ export const PatronAuthModal: React.FC = () => {
                   <button
                     type="submit"
                     disabled={adminIsLoading}
-                    className="w-full py-2.5 px-4 bg-[#1C1917] hover:bg-[#8C4830] active:bg-[#703623] text-white text-xs font-bold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
+                    className="w-full py-2.5 px-4 bg-[#1C1917] hover:bg-[#0284C7] active:bg-[#0369A1] text-white text-xs font-bold tracking-wide transition-colors flex items-center justify-center gap-2 disabled:opacity-50 shadow-xs"
                   >
                     {adminIsLoading ? (
                       <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     ) : (
                       <>
-                        <ShieldCheck className="w-4 h-4 text-[#D4A373]" />
+                        <ShieldCheck className="w-4 h-4 text-[#38BDF8]" />
                         <span>Sign In as Admin & Open Panel →</span>
                       </>
                     )}
@@ -932,15 +932,15 @@ export const PatronAuthModal: React.FC = () => {
                     type="button"
                     onClick={handleQuickAdminLogin}
                     disabled={adminIsLoading}
-                    className="w-full py-2 px-3 bg-[#FAF8F5] hover:bg-[#F2ECE5] border border-[#8C4830]/30 text-xs font-semibold text-[#8C4830] flex items-center justify-center gap-1.5 transition-colors"
+                    className="w-full py-2 px-3 bg-[#F8FAFC] hover:bg-[#F2ECE5] border border-[#0284C7]/30 text-xs font-semibold text-[#0284C7] flex items-center justify-center gap-1.5 transition-colors"
                   >
-                    <Sparkles className="w-3.5 h-3.5 text-[#8C4830]" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
                     <span>⚡ 1-Click Fast Admin Sign In (Demo)</span>
                   </button>
                 </form>
 
                 {/* Default Credentials Notice */}
-                <div className="mt-4 p-2.5 bg-[#FAF8F5] border border-[#E7E0D8] text-[11px] text-[#1C1917]/70 space-y-1">
+                <div className="mt-4 p-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[11px] text-[#1C1917]/70 space-y-1">
                   <div className="flex items-center justify-between font-mono text-[10px]">
                     <span>Username: <strong>admin</strong></span>
                     <span>Password: <strong>Niaz1977#</strong></span>
@@ -952,8 +952,8 @@ export const PatronAuthModal: React.FC = () => {
               </div>
 
               {/* Bottom Admin Feature Highlights */}
-              <div className="pt-2 text-[11px] text-[#1C1917]/60 flex items-center gap-1.5 border-t border-[#E7E0D8]">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#8C4830] shrink-0" />
+              <div className="pt-2 text-[11px] text-[#1C1917]/60 flex items-center gap-1.5 border-t border-[#E2E8F0]">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
                 <span>Full access to Inventory, Orders Board & WhatsApp catalog</span>
               </div>
             </div>

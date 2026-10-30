@@ -333,7 +333,7 @@ export const AdminPage: React.FC = () => {
     newArrival: true,
     rating: 5.0,
     reviewsCount: 1,
-    primaryImage: '/src/assets/images/product_mens_pure_boski_1791569243386.jpg',
+    primaryImage: '/images/product_mens_pure_boski_1791569243386.jpg',
     description: 'Master unstitched Pakistani fabric cut.',
     cutDetails: {
       length: '4.5 Standard Meters',
@@ -347,7 +347,7 @@ export const AdminPage: React.FC = () => {
     weaveType: 'Sateen / Boski Weave',
     weaveTypeCategory: 'Sateen / Boski Weave',
     color: 'Ivory Cream',
-    colorHex: '#FAF8F5',
+    colorHex: '#F8FAFC',
     care: {
       washing: 'Dry clean recommended.',
       shrinkage: 'Pre-treated.',
@@ -394,9 +394,9 @@ export const AdminPage: React.FC = () => {
       newArrival: true,
       rating: 5.0,
       reviewsCount: 1,
-      primaryImage: newProductForm.primaryImage || '/src/assets/images/product_mens_pure_boski_1791569243386.jpg',
+      primaryImage: newProductForm.primaryImage || '/images/product_mens_pure_boski_1791569243386.jpg',
       galleryImages: [
-        newProductForm.primaryImage || '/src/assets/images/product_mens_pure_boski_1791569243386.jpg',
+        newProductForm.primaryImage || '/images/product_mens_pure_boski_1791569243386.jpg',
       ],
       description: newProductForm.description || '',
       cutDetails: newProductForm.cutDetails || {
@@ -411,7 +411,7 @@ export const AdminPage: React.FC = () => {
       weaveType: newProductForm.weaveType || 'Plain Weave',
       weaveTypeCategory: newProductForm.weaveTypeCategory || 'Plain Weave',
       color: newProductForm.color || 'Ivory Cream',
-      colorHex: newProductForm.colorHex || '#FAF8F5',
+      colorHex: newProductForm.colorHex || '#F8FAFC',
       care: newProductForm.care || {
         washing: 'Dry clean recommended.',
         shrinkage: 'Zero.',
@@ -439,9 +439,9 @@ export const AdminPage: React.FC = () => {
   // ==========================================
   if (isVerifyingSession) {
     return (
-      <div className="w-full bg-[#FAF8F5] min-h-[75vh] flex flex-col items-center justify-center p-6 text-center">
-        <div className="w-8 h-8 border-2 border-[#8C4830] border-t-transparent rounded-full animate-spin mb-4" />
-        <span className="text-xs uppercase tracking-widest text-[#8C4830] font-semibold">
+      <div className="w-full bg-[#F8FAFC] min-h-[75vh] flex flex-col items-center justify-center p-6 text-center">
+        <div className="w-8 h-8 border-2 border-[#0284C7] border-t-transparent rounded-full animate-spin mb-4" />
+        <span className="text-xs uppercase tracking-widest text-[#0284C7] font-semibold">
           Verifying Staff Authentication
         </span>
         <p className="text-xs text-[#1C1917]/60 mt-1">
@@ -456,14 +456,14 @@ export const AdminPage: React.FC = () => {
   // ==========================================
   if (!currentAdmin) {
     return (
-      <div className="w-full bg-[#FAF8F5] min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white border border-[#E7E0D8] shadow-xl p-6 sm:p-8 space-y-6">
+      <div className="w-full bg-[#F8FAFC] min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
+        <div className="max-w-md w-full bg-white border border-[#E2E8F0] shadow-xl p-6 sm:p-8 space-y-6">
           {/* Brand & Security Header */}
-          <div className="text-center space-y-2 border-b border-[#E7E0D8] pb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#8C4830]/10 text-[#8C4830] rounded-full mx-auto">
+          <div className="text-center space-y-2 border-b border-[#E2E8F0] pb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#0284C7]/10 text-[#0284C7] rounded-full mx-auto">
               <Lock className="w-6 h-6" />
             </div>
-            <div className="text-[11px] uppercase tracking-widest text-[#8C4830] font-sans font-bold">
+            <div className="text-[11px] uppercase tracking-widest text-[#0284C7] font-sans font-bold">
               Niaz Cloth House · Paris Bazaar
             </div>
             <h1 className="font-serif text-2xl font-bold text-[#1C1917]">
@@ -505,7 +505,7 @@ export const AdminPage: React.FC = () => {
                   if (authError) setAuthError('');
                 }}
                 placeholder="e.g. admin"
-                className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917] focus:bg-white focus:outline-none focus:border-[#8C4830] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:bg-white focus:outline-none focus:border-[#0284C7] transition-colors"
               />
             </div>
 
@@ -525,12 +525,12 @@ export const AdminPage: React.FC = () => {
                     if (authError) setAuthError('');
                   }}
                   placeholder="Enter administrator password"
-                  className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917] focus:bg-white focus:outline-none focus:border-[#8C4830] pr-10 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:bg-white focus:outline-none focus:border-[#0284C7] pr-10 transition-colors"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-[#1C1917]/40 hover:text-[#1C1917] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8C4830]"
+                  className="absolute right-3 top-2.5 text-[#1C1917]/40 hover:text-[#1C1917] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
                   title={showPassword ? 'Hide password' : 'Show password'}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
@@ -540,12 +540,12 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Development Environment Credential Helper */}
-            <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-center justify-between text-[11px]">
+            <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-[11px]">
               <div>
                 <span className="text-[#1C1917]/70 block font-sans">
                   Development Credentials (from .env):
                 </span>
-                <span className="font-mono text-[#8C4830] font-semibold">
+                <span className="font-mono text-[#0284C7] font-semibold">
                   admin / Niaz1977#
                 </span>
               </div>
@@ -556,7 +556,7 @@ export const AdminPage: React.FC = () => {
                   setLoginPassword('Niaz1977#');
                   if (authError) setAuthError('');
                 }}
-                className="px-2.5 py-1 bg-white border border-[#E7E0D8] hover:border-[#8C4830] text-[11px] font-semibold text-[#1C1917] transition-colors shadow-2xs"
+                className="px-2.5 py-1 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-[11px] font-semibold text-[#1C1917] transition-colors shadow-2xs"
               >
                 Auto Fill
               </button>
@@ -565,7 +565,7 @@ export const AdminPage: React.FC = () => {
             <button
               type="submit"
               disabled={isAuthenticating}
-              className="w-full py-3 bg-[#8C4830] hover:bg-[#703623] disabled:bg-[#8C4830]/70 text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm"
+              className="w-full py-3 bg-[#0284C7] hover:bg-[#0369A1] disabled:bg-[#0284C7]/70 text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm"
             >
               {isAuthenticating ? (
                 <>
@@ -596,13 +596,13 @@ export const AdminPage: React.FC = () => {
   // VIEW: AUTHENTICATED STAFF DASHBOARD
   // ==========================================
   return (
-    <div className="w-full max-w-full overflow-x-hidden bg-[#FAF8F5] min-h-screen py-8 sm:py-14">
+    <div className="w-full max-w-full overflow-x-hidden bg-[#F8FAFC] min-h-screen py-8 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 w-full max-w-full min-w-0">
         {/* Header Bar with Active Admin Credentials Profile */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#E7E0D8] gap-4">
+        <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#E2E8F0] gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-widest text-[#8C4830] font-sans font-semibold">
+              <span className="text-xs uppercase tracking-widest text-[#0284C7] font-sans font-semibold">
                 Internal Control Center
               </span>
               <span className="inline-flex items-center gap-1 bg-[#4A5D4E]/10 text-[#4A5D4E] text-[10px] px-2 py-0.5 rounded-full font-semibold">
@@ -621,13 +621,13 @@ export const AdminPage: React.FC = () => {
           {/* Active Admin Profile & Control Actions */}
           <div className="flex flex-wrap items-center gap-3">
             {/* Admin Badge with Explicit Logged-in Username */}
-            <div className="bg-white border border-[#E7E0D8] p-2 sm:px-3 sm:py-1.5 flex items-center gap-2.5 shadow-2xs">
-              <div className="w-8 h-8 rounded-full bg-[#8C4830] text-white flex items-center justify-center font-bold text-xs shrink-0">
+            <div className="bg-white border border-[#E2E8F0] p-2 sm:px-3 sm:py-1.5 flex items-center gap-2.5 shadow-2xs">
+              <div className="w-8 h-8 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-xs shrink-0">
                 {currentAdmin.fullName.charAt(0)}
               </div>
               <div className="text-left text-xs leading-tight">
                 <span className="font-semibold text-[#1C1917] block">
-                  {currentAdmin.fullName} <span className="text-[#8C4830] font-mono text-[11px] font-bold">(@{currentAdmin.username})</span>
+                  {currentAdmin.fullName} <span className="text-[#0284C7] font-mono text-[11px] font-bold">(@{currentAdmin.username})</span>
                 </span>
                 <span className="text-[10px] text-emerald-700 font-medium flex items-center gap-1 mt-0.5">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block animate-pulse"></span>
@@ -638,10 +638,10 @@ export const AdminPage: React.FC = () => {
 
             <button
               onClick={() => setIsStaffModalOpen(true)}
-              className="px-3 py-2 bg-white border border-[#E7E0D8] hover:border-[#8C4830] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
               title="Admin account security & password settings"
             >
-              <KeyRound className="w-3.5 h-3.5 text-[#8C4830]" />
+              <KeyRound className="w-3.5 h-3.5 text-[#0284C7]" />
               <span>Change Password</span>
             </button>
 
@@ -651,7 +651,7 @@ export const AdminPage: React.FC = () => {
                   resetDefaultCatalog();
                 }
               }}
-              className="px-3 py-2 bg-white border border-[#E7E0D8] hover:border-[#8C4830] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
               title="Restore default test products & orders"
             >
               <RotateCcw className="w-3.5 h-3.5" />
@@ -660,7 +660,7 @@ export const AdminPage: React.FC = () => {
 
             <button
               onClick={handleLogout}
-              className="px-3.5 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors uppercase tracking-wider"
+              className="px-3.5 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors uppercase tracking-wider"
               title="End admin session and lock portal"
             >
               <LogOut className="w-3.5 h-3.5" />
@@ -670,12 +670,12 @@ export const AdminPage: React.FC = () => {
         </div>
 
         {/* Portal Tabs */}
-        <div className="flex border-b border-[#E7E0D8] gap-4 sm:gap-8 overflow-x-auto scrollbar-none">
+        <div className="flex border-b border-[#E2E8F0] gap-4 sm:gap-8 overflow-x-auto scrollbar-none">
           <button
             onClick={() => setActiveTab('inventory')}
             className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'inventory'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
             }`}
           >
@@ -687,7 +687,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('orders')}
             className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'orders'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
             }`}
           >
@@ -699,7 +699,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('users')}
             className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'users'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
             }`}
           >
@@ -711,7 +711,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('audit')}
             className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'audit'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
             }`}
           >
@@ -723,11 +723,11 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('performance')}
             className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'performance'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
             }`}
           >
-            <Gauge className="w-4 h-4 text-[#D4A373]" />
+            <Gauge className="w-4 h-4 text-[#38BDF8]" />
             <span>Database Indexes, Caching & Load Testing</span>
           </button>
 
@@ -735,7 +735,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('feedback')}
             className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'feedback'
-                ? 'border-[#8C4830] text-[#8C4830]'
+                ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
             }`}
           >
@@ -759,7 +759,7 @@ export const AdminPage: React.FC = () => {
         {/* TAB 1: INVENTORY MANAGEMENT */}
         {activeTab === 'inventory' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 border border-[#E7E0D8]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 border border-[#E2E8F0]">
               {/* Search */}
               <div className="relative w-full sm:w-80">
                 <Search className="w-4 h-4 absolute left-3 top-3 text-[#1C1917]/40" />
@@ -768,7 +768,7 @@ export const AdminPage: React.FC = () => {
                   placeholder="Filter by title, fabric, weave, weight..."
                   value={searchProductQuery}
                   onChange={(e) => setSearchProductQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 text-xs border border-[#E7E0D8] bg-[#FAF8F5] focus:outline-none focus:border-[#8C4830]"
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-[#E2E8F0] bg-[#F8FAFC] focus:outline-none focus:border-[#0284C7]"
                 />
               </div>
 
@@ -790,7 +790,7 @@ export const AdminPage: React.FC = () => {
                 {/* Add Product Button */}
                 <button
                   onClick={() => setIsAddModalOpen(true)}
-                  className="w-full sm:w-auto px-4 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-1.5"
+                  className="w-full sm:w-auto px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-1.5"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Add New Unstitched Fabric</span>
@@ -799,9 +799,9 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Products Table */}
-            <div className="bg-white border border-[#E7E0D8] overflow-x-auto shadow-xs w-full max-w-full">
+            <div className="bg-white border border-[#E2E8F0] overflow-x-auto shadow-xs w-full max-w-full">
               <table className="w-full text-left text-xs min-w-[640px]">
-                <thead className="bg-[#F5EFEB] border-b border-[#E7E0D8] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold">
+                <thead className="bg-[#F5EFEB] border-b border-[#E2E8F0] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold">
                   <tr>
                     <th className="py-3 px-4">Fabric Details</th>
                     <th className="py-3 px-4">Category</th>
@@ -811,9 +811,9 @@ export const AdminPage: React.FC = () => {
                     <th className="py-3 px-4 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#E7E0D8]">
+                <tbody className="divide-y divide-[#E2E8F0]">
                   {filteredInventory.map((item) => (
-                    <tr key={item.id} className="hover:bg-[#FAF8F5] transition-colors">
+                    <tr key={item.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="py-3 px-4 flex items-center gap-3">
                         <img
                           src={item.primaryImage}
@@ -821,15 +821,15 @@ export const AdminPage: React.FC = () => {
                           width={44}
                           height={44}
                           referrerPolicy="no-referrer"
-                          className="w-11 h-11 object-cover bg-[#F2EDE7] shrink-0 border border-[#E7E0D8]"
+                          className="w-11 h-11 object-cover bg-[#F2EDE7] shrink-0 border border-[#E2E8F0]"
                         />
                         <div className="min-w-0">
                           <p className="font-serif font-bold text-sm text-[#1C1917] truncate max-w-xs">
                             {item.title}
                           </p>
-                          <p className="text-[11px] text-[#8C4830] font-sans flex items-center gap-1.5 flex-wrap">
+                          <p className="text-[11px] text-[#0284C7] font-sans flex items-center gap-1.5 flex-wrap">
                             {item.brand && (
-                              <span className="font-bold uppercase tracking-wider text-[10px] bg-[#FAF8F5] border border-[#8C4830]/40 px-1 py-0.2">
+                              <span className="font-bold uppercase tracking-wider text-[10px] bg-[#F8FAFC] border border-[#0284C7]/40 px-1 py-0.2">
                                 {item.brand}
                               </span>
                             )}
@@ -916,7 +916,7 @@ export const AdminPage: React.FC = () => {
         {/* TAB 2: ORDER MANAGEMENT */}
         {activeTab === 'orders' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 border border-[#E7E0D8]">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 border border-[#E2E8F0]">
               <span className="text-xs font-semibold text-[#1C1917]">
                 Filter by Dispatch Status:
               </span>
@@ -927,8 +927,8 @@ export const AdminPage: React.FC = () => {
                     onClick={() => setOrderStatusFilter(status)}
                     className={`px-3 py-1.5 text-xs font-semibold border transition-colors ${
                       orderStatusFilter === status
-                        ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#8C4830]'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#0284C7]'
                     }`}
                   >
                     {status}
@@ -939,16 +939,16 @@ export const AdminPage: React.FC = () => {
 
             <div className="space-y-4">
               {filteredOrders.length === 0 ? (
-                <div className="p-12 text-center bg-white border border-[#E7E0D8] text-xs text-[#1C1917]/60">
+                <div className="p-12 text-center bg-white border border-[#E2E8F0] text-xs text-[#1C1917]/60">
                   No orders found for status "{orderStatusFilter}".
                 </div>
               ) : (
                 filteredOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="bg-white border border-[#E7E0D8] p-5 shadow-xs space-y-4 text-xs"
+                    className="bg-white border border-[#E2E8F0] p-5 shadow-xs space-y-4 text-xs"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E7E0D8] pb-3">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
                       <div>
                         <span className="font-mono font-bold text-sm text-[#1C1917]">
                           {order.id}
@@ -965,7 +965,7 @@ export const AdminPage: React.FC = () => {
                           onChange={(e) =>
                             updateOrderStatus(order.id, e.target.value as OrderStatus)
                           }
-                          className="py-1 px-2 border border-[#E7E0D8] bg-[#FAF8F5] text-xs font-semibold text-[#8C4830] focus:outline-none"
+                          className="py-1 px-2 border border-[#E2E8F0] bg-[#F8FAFC] text-xs font-semibold text-[#0284C7] focus:outline-none"
                         >
                           <option value="Pending">Pending</option>
                           <option value="Processing">Processing</option>
@@ -1001,7 +1001,7 @@ export const AdminPage: React.FC = () => {
                               <span className="text-[#1C1917]">
                                 {it.product.title} (x{it.quantity})
                               </span>
-                              <span className="font-mono tabular-nums text-[#8C4830]">
+                              <span className="font-mono tabular-nums text-[#0284C7]">
                                 {formatPKR(it.product.price * it.quantity)}
                               </span>
                             </li>
@@ -1010,7 +1010,7 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       {/* Payment & Dispatch Actions */}
-                      <div className="bg-[#FAF8F5] p-3 border border-[#E7E0D8] flex flex-col justify-between">
+                      <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0] flex flex-col justify-between">
                         <div>
                           <div className="flex justify-between items-start mb-1 gap-2">
                             <span className="text-[#1C1917]/60 shrink-0">Payment:</span>
@@ -1027,7 +1027,7 @@ export const AdminPage: React.FC = () => {
                           </div>
 
                           {order.paymentDetails?.authCode && (
-                            <div className="text-[10px] font-mono text-slate-600 flex justify-between bg-white p-1 border border-[#E7E0D8] my-1">
+                            <div className="text-[10px] font-mono text-slate-600 flex justify-between bg-white p-1 border border-[#E2E8F0] my-1">
                               <span>Auth Ref:</span>
                               <strong className="text-blue-900">{order.paymentDetails.authCode}</strong>
                             </div>
@@ -1035,13 +1035,13 @@ export const AdminPage: React.FC = () => {
 
                           <div className="flex justify-between items-center font-bold text-sm mt-1.5">
                             <span>Total Payable:</span>
-                            <span className="font-mono text-[#8C4830] tabular-nums">
+                            <span className="font-mono text-[#0284C7] tabular-nums">
                               {formatPKR(order.total)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-[#E7E0D8] flex gap-2">
+                        <div className="pt-2 border-t border-[#E2E8F0] flex gap-2">
                           <a
                             href={`https://wa.me/${order.customer.whatsapp?.replace(/[^0-9]/g, '') || '923346565636'}?text=Assalam-o-Alaikum%20${encodeURIComponent(order.customer.fullName)}%2C%20your%20order%20${order.id}%20from%20Niaz%20Cloth%20House%20is%20${order.status.toLowerCase()}.`}
                             target="_blank"
@@ -1065,14 +1065,14 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'users' && (
           <div className="space-y-6">
             {/* Active Session Spotlight */}
-            <div className="bg-white border-2 border-[#8C4830]/40 p-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E7E0D8]">
+            <div className="bg-white border-2 border-[#0284C7]/40 p-6 shadow-sm">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#8C4830] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  <div className="w-12 h-12 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-lg shadow-sm">
                     {currentAdmin.fullName.charAt(0)}
                   </div>
                   <div>
-                    <span className="text-[11px] uppercase tracking-widest text-[#8C4830] font-bold block">
+                    <span className="text-[11px] uppercase tracking-widest text-[#0284C7] font-bold block">
                       Currently Logged-In User Profile
                     </span>
                     <h3 className="font-serif text-xl font-bold text-[#1C1917]">
@@ -1090,16 +1090,16 @@ export const AdminPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 text-xs">
-                <div className="bg-[#FAF8F5] p-3 border border-[#E7E0D8]">
+                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
                     Logged-In Username
                   </span>
-                  <span className="font-mono font-bold text-sm text-[#8C4830] mt-0.5 block">
+                  <span className="font-mono font-bold text-sm text-[#0284C7] mt-0.5 block">
                     @{currentAdmin.username}
                   </span>
                 </div>
 
-                <div className="bg-[#FAF8F5] p-3 border border-[#E7E0D8]">
+                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
                     Email Address
                   </span>
@@ -1108,7 +1108,7 @@ export const AdminPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="bg-[#FAF8F5] p-3 border border-[#E7E0D8]">
+                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
                     Designated Portal Role
                   </span>
@@ -1117,7 +1117,7 @@ export const AdminPage: React.FC = () => {
                   </span>
                 </div>
 
-                <div className="bg-[#FAF8F5] p-3 border border-[#E7E0D8]">
+                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
                     Session Security
                   </span>
@@ -1129,11 +1129,11 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Staff & Admin Users List */}
-            <div className="bg-white border border-[#E7E0D8] p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E7E0D8]">
+            <div className="bg-white border border-[#E2E8F0] p-5 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2E8F0]">
                 <div>
                   <h4 className="font-serif text-base font-bold text-[#1C1917] flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#8C4830]" />
+                    <Users className="w-4 h-4 text-[#0284C7]" />
                     <span>Registered Store Staff & Administrator Accounts</span>
                   </h4>
                   <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
@@ -1142,7 +1142,7 @@ export const AdminPage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => setIsStaffModalOpen(true)}
-                  className="px-3 py-1.5 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold transition-colors flex items-center gap-1.5 self-start sm:self-auto"
+                  className="px-3 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold transition-colors flex items-center gap-1.5 self-start sm:self-auto"
                 >
                   <KeyRound className="w-3.5 h-3.5" />
                   <span>Update Account Password</span>
@@ -1151,7 +1151,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs min-w-[550px]">
-                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E7E0D8]">
+                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
                     <tr>
                       <th className="py-2.5 px-3">Staff Name</th>
                       <th className="py-2.5 px-3">Username</th>
@@ -1160,23 +1160,23 @@ export const AdminPage: React.FC = () => {
                       <th className="py-2.5 px-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D8]">
+                  <tbody className="divide-y divide-[#E2E8F0]">
                     {adminUsers.map((user) => {
                       const isCurrent = user.username === currentAdmin.username || (currentAdmin.id && user.id === currentAdmin.id);
                       return (
-                        <tr key={user.id} className={isCurrent ? 'bg-[#8C4830]/5 font-medium' : 'hover:bg-[#FAF8F5]'}>
+                        <tr key={user.id} className={isCurrent ? 'bg-[#0284C7]/5 font-medium' : 'hover:bg-[#F8FAFC]'}>
                           <td className="py-2.5 px-3 flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#8C4830] text-white flex items-center justify-center font-bold text-[10px]">
+                            <div className="w-6 h-6 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-[10px]">
                               {user.fullName.charAt(0)}
                             </div>
                             <span className="text-[#1C1917]">{user.fullName}</span>
                             {isCurrent && (
-                              <span className="text-[10px] px-1.5 py-0.5 bg-[#8C4830] text-white font-sans font-semibold rounded-xs">
+                              <span className="text-[10px] px-1.5 py-0.5 bg-[#0284C7] text-white font-sans font-semibold rounded-xs">
                                 You
                               </span>
                             )}
                           </td>
-                          <td className="py-2.5 px-3 font-mono font-semibold text-[#8C4830]">
+                          <td className="py-2.5 px-3 font-mono font-semibold text-[#0284C7]">
                             @{user.username}
                           </td>
                           <td className="py-2.5 px-3 text-[#1C1917]/80 font-sans">
@@ -1200,7 +1200,7 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Customer User Profiles Directory */}
-            <div className="bg-white border border-[#E7E0D8] p-5 space-y-4">
+            <div className="bg-white border border-[#E2E8F0] p-5 space-y-4">
               <div>
                 <h4 className="font-serif text-base font-bold text-[#1C1917]">
                   Customer Accounts & Delivery Order Contacts
@@ -1212,7 +1212,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs min-w-[600px]">
-                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E7E0D8]">
+                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
                     <tr>
                       <th className="py-2.5 px-3">Customer Full Name</th>
                       <th className="py-2.5 px-3">Contact Phone</th>
@@ -1221,12 +1221,12 @@ export const AdminPage: React.FC = () => {
                       <th className="py-2.5 px-3">Last Payment Method</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D8]">
+                  <tbody className="divide-y divide-[#E2E8F0]">
                     {Array.from(new Set(orders.map((o) => o.customer.fullName))).map((customerName) => {
                       const customerOrders = orders.filter((o) => o.customer.fullName === customerName);
                       const latestOrder = customerOrders[0];
                       return (
-                        <tr key={customerName} className="hover:bg-[#FAF8F5]">
+                        <tr key={customerName} className="hover:bg-[#F8FAFC]">
                           <td className="py-2.5 px-3 font-semibold text-[#1C1917]">
                             {customerName}
                           </td>
@@ -1236,7 +1236,7 @@ export const AdminPage: React.FC = () => {
                           <td className="py-2.5 px-3 text-[#1C1917]/80">
                             {latestOrder.customer.city}, {latestOrder.customer.country || 'Pakistan'}
                           </td>
-                          <td className="py-2.5 px-3 font-semibold text-[#8C4830]">
+                          <td className="py-2.5 px-3 font-semibold text-[#0284C7]">
                             {customerOrders.length} order(s)
                           </td>
                           <td className="py-2.5 px-3 text-[11px] text-[#1C1917]/70">
@@ -1256,11 +1256,11 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'audit' && (
           <div className="space-y-6">
             {/* Database Backup & Recovery Box (NFR-12) */}
-            <div className="bg-white border border-[#E7E0D8] p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E7E0D8]">
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
                 <div>
                   <h4 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
-                    <Download className="w-5 h-5 text-[#8C4830]" />
+                    <Download className="w-5 h-5 text-[#0284C7]" />
                     <span>Database Backup & Disaster Recovery (NFR-12)</span>
                   </h4>
                   <p className="text-xs text-[#1C1917]/70 font-sans mt-1">
@@ -1290,7 +1290,7 @@ export const AdminPage: React.FC = () => {
                       URL.revokeObjectURL(url);
                       showToast('Database JSON backup downloaded successfully');
                     }}
-                    className="px-4 py-2 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5"
                   >
                     <Download className="w-4 h-4" />
                     <span>Export JSON Backup</span>
@@ -1299,15 +1299,15 @@ export const AdminPage: React.FC = () => {
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs">
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Total Fabrics Backed Up</span>
                   <span className="font-bold text-base text-[#1C1917] mt-0.5 block">{products.length} Products</span>
                 </div>
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Total Orders Recorded</span>
                   <span className="font-bold text-base text-[#1C1917] mt-0.5 block">{orders.length} Orders</span>
                 </div>
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Audit Status</span>
                   <span className="font-bold text-base text-emerald-700 mt-0.5 block">100% Consistent</span>
                 </div>
@@ -1315,7 +1315,7 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Audit & Event Log (NFR-18) */}
-            <div className="bg-white border border-[#E7E0D8] p-6 space-y-4">
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
               <div>
                 <h4 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-emerald-700" />
@@ -1328,7 +1328,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs min-w-[550px]">
-                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E7E0D8]">
+                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
                     <tr>
                       <th className="py-2.5 px-3">Timestamp (PKT)</th>
                       <th className="py-2.5 px-3">Event Type</th>
@@ -1336,26 +1336,26 @@ export const AdminPage: React.FC = () => {
                       <th className="py-2.5 px-3">Status / Outcome</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D8]">
-                    <tr className="hover:bg-[#FAF8F5]">
+                  <tbody className="divide-y divide-[#E2E8F0]">
+                    <tr className="hover:bg-[#F8FAFC]">
                       <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-15 10:00 PKT</td>
                       <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Staff Authentication</td>
-                      <td className="py-2.5 px-3 font-mono text-[#8C4830]">@{currentAdmin.username}</td>
+                      <td className="py-2.5 px-3 font-mono text-[#0284C7]">@{currentAdmin.username}</td>
                       <td className="py-2.5 px-3 text-emerald-700 font-semibold">Success (TLS 1.3)</td>
                     </tr>
-                    <tr className="hover:bg-[#FAF8F5]">
+                    <tr className="hover:bg-[#F8FAFC]">
                       <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-15 09:45 PKT</td>
                       <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Sitemap Generation</td>
                       <td className="py-2.5 px-3 text-[#1C1917]/70">Technical SEO Engine</td>
                       <td className="py-2.5 px-3 text-emerald-700 font-semibold">22 URLs Indexed</td>
                     </tr>
-                    <tr className="hover:bg-[#FAF8F5]">
+                    <tr className="hover:bg-[#F8FAFC]">
                       <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-14 19:35 PKT</td>
                       <td className="py-2.5 px-3 font-semibold text-[#1C1917]">3D Secure Payment Verification</td>
                       <td className="py-2.5 px-3 text-[#1C1917]/70">Customer Checkout</td>
                       <td className="py-2.5 px-3 text-emerald-700 font-semibold">Authorized & Settled</td>
                     </tr>
-                    <tr className="hover:bg-[#FAF8F5]">
+                    <tr className="hover:bg-[#F8FAFC]">
                       <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-14 18:20 PKT</td>
                       <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Failed Login Attempt</td>
                       <td className="py-2.5 px-3 font-mono text-red-700">@unknown_guest</td>
@@ -1372,10 +1372,10 @@ export const AdminPage: React.FC = () => {
         {activeTab === 'performance' && (
           <div className="space-y-6">
             {/* Executive Status Header */}
-            <div className="bg-white border border-[#E7E0D8] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="bg-white border border-[#E2E8F0] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Gauge className="w-5 h-5 text-[#8C4830]" />
+                  <Gauge className="w-5 h-5 text-[#0284C7]" />
                   <h3 className="font-serif text-lg font-bold text-[#1C1917]">
                     Database Indexes, Caching & Load Testing Engine
                   </h3>
@@ -1390,7 +1390,7 @@ export const AdminPage: React.FC = () => {
                   type="button"
                   onClick={fetchPerformanceData}
                   disabled={isLoadingPerf}
-                  className="px-3 py-1.5 bg-[#FAF8F5] hover:bg-[#F2EDE7] text-[#1C1917] border border-[#E7E0D8] text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  className="px-3 py-1.5 bg-[#F8FAFC] hover:bg-[#F2EDE7] text-[#1C1917] border border-[#E2E8F0] text-xs font-semibold flex items-center gap-1.5 transition-colors"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isLoadingPerf ? 'animate-spin' : ''}`} />
                   <span>Refresh Metrics</span>
@@ -1398,7 +1398,7 @@ export const AdminPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={handlePurgeServerCache}
-                  className="px-3 py-1.5 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+                  className="px-3 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
                 >
                   <Zap className="w-3.5 h-3.5" />
                   <span>Purge Cache</span>
@@ -1409,8 +1409,8 @@ export const AdminPage: React.FC = () => {
             {/* Quick Metrics 3-Card Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Card 1: Database Indexes */}
-              <div className="bg-white p-4 border border-[#E7E0D8] shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-[#8C4830]">
+              <div className="bg-white p-4 border border-[#E2E8F0] shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-[#0284C7]">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#1C1917]/60">Firestore Database</span>
                   <Database className="w-4 h-4" />
                 </div>
@@ -1428,7 +1428,7 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Card 2: Cache Health */}
-              <div className="bg-white p-4 border border-[#E7E0D8] shadow-xs space-y-2">
+              <div className="bg-white p-4 border border-[#E2E8F0] shadow-xs space-y-2">
                 <div className="flex items-center justify-between text-[#4A5D4E]">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#1C1917]/60">Multi-Tier Cache</span>
                   <Cpu className="w-4 h-4" />
@@ -1447,8 +1447,8 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Card 3: Load Testing Throughput */}
-              <div className="bg-white p-4 border border-[#E7E0D8] shadow-xs space-y-2">
-                <div className="flex items-center justify-between text-[#8C4830]">
+              <div className="bg-white p-4 border border-[#E2E8F0] shadow-xs space-y-2">
+                <div className="flex items-center justify-between text-[#0284C7]">
                   <span className="text-[10px] font-bold uppercase tracking-wider text-[#1C1917]/60">Benchmark Engine</span>
                   <Activity className="w-4 h-4" />
                 </div>
@@ -1467,11 +1467,11 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* SECTION 1: INTERACTIVE LOAD TESTING BENCHMARK RUNNER */}
-            <div className="bg-white border border-[#E7E0D8] p-5 shadow-xs space-y-5">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E7E0D8] gap-2">
+            <div className="bg-white border border-[#E2E8F0] p-5 shadow-xs space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E2E8F0] gap-2">
                 <div>
                   <h4 className="font-serif text-base font-bold text-[#1C1917] flex items-center gap-2">
-                    <Activity className="w-4 h-4 text-[#8C4830]" />
+                    <Activity className="w-4 h-4 text-[#0284C7]" />
                     <span>Live Load Testing & Concurrency Benchmarker</span>
                   </h4>
                   <p className="text-xs text-[#1C1917]/70 mt-0.5">
@@ -1484,7 +1484,7 @@ export const AdminPage: React.FC = () => {
                     type="button"
                     onClick={handleExecuteLoadTest}
                     disabled={isRunningTest}
-                    className="px-4 py-2 bg-[#8C4830] hover:bg-[#703623] active:bg-[#5C2B1B] text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
+                    className="px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] active:bg-[#075985] text-white text-xs font-semibold flex items-center gap-2 shadow-sm transition-all disabled:opacity-50"
                   >
                     {isRunningTest ? (
                       <>
@@ -1502,13 +1502,13 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Load Test Config Controls */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#FAF8F5] p-3.5 border border-[#E7E0D8] text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 bg-[#F8FAFC] p-3.5 border border-[#E2E8F0] text-xs">
                 <div>
                   <label className="block font-semibold text-[#1C1917] mb-1">Target Workload Profile</label>
                   <select
                     value={testTarget}
                     onChange={(e: any) => setTestTarget(e.target.value)}
-                    className="w-full py-1.5 px-2 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                    className="w-full py-1.5 px-2 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                   >
                     <option value="cached-catalog">Cached Catalog (High Speed Memory)</option>
                     <option value="api-orders">Order API (Transactional Read)</option>
@@ -1521,7 +1521,7 @@ export const AdminPage: React.FC = () => {
                   <select
                     value={testConcurrency}
                     onChange={(e) => setTestConcurrency(Number(e.target.value))}
-                    className="w-full py-1.5 px-2 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                    className="w-full py-1.5 px-2 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                   >
                     <option value={5}>5 Concurrent Visitors</option>
                     <option value={10}>10 Concurrent Visitors</option>
@@ -1534,7 +1534,7 @@ export const AdminPage: React.FC = () => {
                   <select
                     value={testTotal}
                     onChange={(e) => setTestTotal(Number(e.target.value))}
-                    className="w-full py-1.5 px-2 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                    className="w-full py-1.5 px-2 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                   >
                     <option value={25}>25 Requests (Fast check)</option>
                     <option value={50}>50 Requests (Standard benchmark)</option>
@@ -1579,7 +1579,7 @@ export const AdminPage: React.FC = () => {
 
                     <div className="bg-white p-2.5 border border-emerald-200">
                       <span className="text-[10px] text-[#1C1917]/60 block uppercase font-bold">Cache Interceptions</span>
-                      <strong className="text-base text-[#8C4830]">+{lastRunResult.cacheStats.deltaHits} hits</strong>
+                      <strong className="text-base text-[#0284C7]">+{lastRunResult.cacheStats.deltaHits} hits</strong>
                       <span className="text-[10px] text-[#1C1917]/70 block mt-0.5">Bypassed DB roundtrip</span>
                     </div>
                   </div>
@@ -1590,35 +1590,35 @@ export const AdminPage: React.FC = () => {
             {/* SECTION 2: MULTI-TIER CACHING ARCHITECTURE */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Server Cache Container */}
-              <div className="bg-white border border-[#E7E0D8] p-5 shadow-xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+              <div className="bg-white border border-[#E2E8F0] p-5 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <div className="flex items-center gap-2">
-                    <Server className="w-4 h-4 text-[#8C4830]" />
+                    <Server className="w-4 h-4 text-[#0284C7]" />
                     <h4 className="font-serif text-sm font-bold text-[#1C1917]">Server-Side In-Memory Cache (LRU/TTL)</h4>
                   </div>
                   <button
                     type="button"
                     onClick={handlePurgeServerCache}
-                    className="text-[11px] text-[#8C4830] hover:underline font-semibold"
+                    className="text-[11px] text-[#0284C7] hover:underline font-semibold"
                   >
                     Purge All
                   </button>
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Cache Hit Ratio:</span>
                     <strong className="font-mono text-emerald-800">{cacheStats?.hitRatioPercent ?? 100}%</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Accumulated Hits:</span>
                     <strong className="font-mono text-[#1C1917]">{cacheStats?.hits ?? 0} requests</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Active Cached Keys:</span>
                     <strong className="font-mono text-[#1C1917]">{cacheStats?.activeKeysCount ?? 0} keys</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Memory Footprint Estimate:</span>
                     <strong className="font-mono text-[#1C1917]">{cacheStats?.memoryEstimateKb ?? 1} KB</strong>
                   </div>
@@ -1633,7 +1633,7 @@ export const AdminPage: React.FC = () => {
                     <span className="text-[10px] uppercase font-bold text-[#1C1917]/60 block mb-1">Active Cache Keys</span>
                     <div className="flex flex-wrap gap-1">
                       {cacheStats.cachedKeys.map((k: string, i: number) => (
-                        <span key={i} className="text-[10px] font-mono bg-[#FAF8F5] border border-[#E7E0D8] px-1.5 py-0.5 text-[#1C1917]">
+                        <span key={i} className="text-[10px] font-mono bg-[#F8FAFC] border border-[#E2E8F0] px-1.5 py-0.5 text-[#1C1917]">
                           {k}
                         </span>
                       ))}
@@ -1643,8 +1643,8 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Client Cache Container */}
-              <div className="bg-white border border-[#E7E0D8] p-5 shadow-xs space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+              <div className="bg-white border border-[#E2E8F0] p-5 shadow-xs space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                   <div className="flex items-center gap-2">
                     <Cpu className="w-4 h-4 text-[#4A5D4E]" />
                     <h4 className="font-serif text-sm font-bold text-[#1C1917]">Browser Client Cache (LocalStorage + Memory)</h4>
@@ -1652,26 +1652,26 @@ export const AdminPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleClearClientCache}
-                    className="text-[11px] text-[#8C4830] hover:underline font-semibold"
+                    className="text-[11px] text-[#0284C7] hover:underline font-semibold"
                   >
                     Clear Client Cache
                   </button>
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Client Storage Tier:</span>
                     <strong className="font-mono text-emerald-800">Active (TTL 300s)</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Stale-While-Revalidate:</span>
                     <strong className="font-mono text-emerald-800">Enabled</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Cached Catalog Products:</span>
                     <strong className="font-mono text-[#1C1917]">{products.length} unstitched fabrics</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E7E0D8]/60">
+                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="text-[#1C1917]/70">Cached Orders & Tokens:</span>
                     <strong className="font-mono text-[#1C1917]">{orders.length} orders saved</strong>
                   </div>
@@ -1681,22 +1681,22 @@ export const AdminPage: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] text-[11px] text-[#1C1917]/75 leading-relaxed">
+                <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] text-[11px] text-[#1C1917]/75 leading-relaxed">
                   Client cache prevents unnecessary repeat network calls when navigating between fabric details, catalog filters, and store locations.
                 </div>
               </div>
             </div>
 
             {/* SECTION 3: FIRESTORE DATABASE INDEXES */}
-            <div className="bg-white border border-[#E7E0D8] p-5 shadow-xs space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E7E0D8] gap-2">
+            <div className="bg-white border border-[#E2E8F0] p-5 shadow-xs space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E2E8F0] gap-2">
                 <div>
                   <h4 className="font-serif text-base font-bold text-[#1C1917] flex items-center gap-2">
-                    <Database className="w-4 h-4 text-[#8C4830]" />
+                    <Database className="w-4 h-4 text-[#0284C7]" />
                     <span>Firestore Composite Database Indexes</span>
                   </h4>
                   <p className="text-xs text-[#1C1917]/70 mt-0.5">
-                    Defined in <code className="font-mono text-[#8C4830]">firestore.indexes.json</code> for zero-latency multi-field queries.
+                    Defined in <code className="font-mono text-[#0284C7]">firestore.indexes.json</code> for zero-latency multi-field queries.
                   </p>
                 </div>
 
@@ -1706,9 +1706,9 @@ export const AdminPage: React.FC = () => {
               </div>
 
               {/* Indexes Table */}
-              <div className="overflow-x-auto border border-[#E7E0D8]">
+              <div className="overflow-x-auto border border-[#E2E8F0]">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FAF8F5] text-[#1C1917]/70 font-semibold uppercase tracking-wider text-[10px] border-b border-[#E7E0D8]">
+                  <thead className="bg-[#F8FAFC] text-[#1C1917]/70 font-semibold uppercase tracking-wider text-[10px] border-b border-[#E2E8F0]">
                     <tr>
                       <th className="py-2.5 px-3">Collection Group</th>
                       <th className="py-2.5 px-3">Composite Fields & Ordering</th>
@@ -1717,12 +1717,12 @@ export const AdminPage: React.FC = () => {
                       <th className="py-2.5 px-3">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D8]">
+                  <tbody className="divide-y divide-[#E2E8F0]">
                     {dbIndexes?.indexes && dbIndexes.indexes.length > 0 ? (
                       dbIndexes.indexes.map((idx: any, i: number) => (
-                        <tr key={i} className="hover:bg-[#FAF8F5] transition-colors">
+                        <tr key={i} className="hover:bg-[#F8FAFC] transition-colors">
                           <td className="py-2.5 px-3 font-semibold text-[#1C1917]">
-                            <span className="font-mono bg-[#8C4830]/10 text-[#8C4830] px-1.5 py-0.5 rounded-xs">
+                            <span className="font-mono bg-[#0284C7]/10 text-[#0284C7] px-1.5 py-0.5 rounded-xs">
                               {idx.collectionGroup}
                             </span>
                           </td>
@@ -1758,7 +1758,7 @@ export const AdminPage: React.FC = () => {
 
               {/* Optimization Notes */}
               {dbIndexes?.optimizationNotes && (
-                <div className="bg-[#FAF8F5] p-3.5 border border-[#E7E0D8] space-y-1.5">
+                <div className="bg-[#F8FAFC] p-3.5 border border-[#E2E8F0] space-y-1.5">
                   <span className="text-[11px] font-bold text-[#1C1917] block">Production Architecture Notes:</span>
                   <ul className="list-disc list-inside text-xs text-[#1C1917]/75 space-y-1">
                     {dbIndexes.optimizationNotes.map((note: string, idx: number) => (
@@ -1778,8 +1778,8 @@ export const AdminPage: React.FC = () => {
           <div className="space-y-8 animate-fadeIn">
             {/* Top Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              <div className="p-5 bg-white border border-[#E7E0D8]">
-                <div className="flex items-center justify-between text-[#8C4830] mb-2">
+              <div className="p-5 bg-white border border-[#E2E8F0]">
+                <div className="flex items-center justify-between text-[#0284C7] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#1C1917]/70">
                     Total Customer Reviews
                   </span>
@@ -1793,8 +1793,8 @@ export const AdminPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="p-5 bg-white border border-[#E7E0D8]">
-                <div className="flex items-center justify-between text-[#8C4830] mb-2">
+              <div className="p-5 bg-white border border-[#E2E8F0]">
+                <div className="flex items-center justify-between text-[#0284C7] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#1C1917]/70">
                     Average Store Rating
                   </span>
@@ -1811,12 +1811,12 @@ export const AdminPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="p-5 bg-white border border-[#E7E0D8]">
-                <div className="flex items-center justify-between text-[#8C4830] mb-2">
+              <div className="p-5 bg-white border border-[#E2E8F0]">
+                <div className="flex items-center justify-between text-[#0284C7] mb-2">
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#1C1917]/70">
                     Newsletter Subscribers
                   </span>
-                  <Mail className="w-4 h-4 text-[#8C4830]" />
+                  <Mail className="w-4 h-4 text-[#0284C7]" />
                 </div>
                 <div className="font-mono text-3xl font-bold text-[#1C1917]">
                   {newsletterSubscribers.length}
@@ -1826,7 +1826,7 @@ export const AdminPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="p-5 bg-white border border-[#E7E0D8] flex flex-col justify-between">
+              <div className="p-5 bg-white border border-[#E2E8F0] flex flex-col justify-between">
                 <div>
                   <span className="text-xs font-semibold uppercase tracking-wider text-[#1C1917]/70 block mb-1">
                     IndexedDB Sync
@@ -1842,34 +1842,34 @@ export const AdminPage: React.FC = () => {
                     refreshData();
                     showToast('Synced data from browser IndexedDB.');
                   }}
-                  className="mt-3 py-1.5 px-3 bg-[#FAF8F5] border border-[#E7E0D8] hover:border-[#8C4830] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-1.5 transition-colors"
+                  className="mt-3 py-1.5 px-3 bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-1.5 transition-colors"
                 >
-                  <RefreshCw className="w-3 h-3 text-[#8C4830]" />
+                  <RefreshCw className="w-3 h-3 text-[#0284C7]" />
                   <span>Reload from IndexedDB</span>
                 </button>
               </div>
             </div>
 
             {/* Newsletter Subscribers Table */}
-            <div className="bg-white border border-[#E7E0D8] p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E7E0D8] gap-2">
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E2E8F0] gap-2">
                 <div>
                   <h3 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
-                    <Mail className="w-5 h-5 text-[#8C4830]" />
+                    <Mail className="w-5 h-5 text-[#0284C7]" />
                     <span>Email Newsletter Subscribers</span>
                   </h3>
                   <p className="text-xs text-[#1C1917]/65 mt-0.5">
                     Customers who subscribed to seasonal fabric launches via the footer form.
                   </p>
                 </div>
-                <span className="text-xs font-mono text-[#8C4830] font-semibold bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                <span className="text-xs font-mono text-[#0284C7] font-semibold bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                   {newsletterSubscribers.length} Registered Email{newsletterSubscribers.length !== 1 ? 's' : ''}
                 </span>
               </div>
 
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs">
-                  <thead className="bg-[#FAF8F5] border-b border-[#E7E0D8] text-[#1C1917]/70 font-semibold uppercase tracking-wider text-[10px]">
+                  <thead className="bg-[#F8FAFC] border-b border-[#E2E8F0] text-[#1C1917]/70 font-semibold uppercase tracking-wider text-[10px]">
                     <tr>
                       <th className="py-2.5 px-3">Subscriber Email</th>
                       <th className="py-2.5 px-3">Name</th>
@@ -1878,9 +1878,9 @@ export const AdminPage: React.FC = () => {
                       <th className="py-2.5 px-3">Storage Status</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E0D8]/60">
+                  <tbody className="divide-y divide-[#E2E8F0]/60">
                     {newsletterSubscribers.map((sub) => (
-                      <tr key={sub.email} className="hover:bg-[#FAF8F5]/60">
+                      <tr key={sub.email} className="hover:bg-[#F8FAFC]/60">
                         <td className="py-3 px-3 font-mono font-medium text-[#1C1917]">
                           {sub.email}
                         </td>
@@ -1918,8 +1918,8 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Customer Reviews Table */}
-            <div className="bg-white border border-[#E7E0D8] p-6 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E7E0D8] gap-2">
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E2E8F0] gap-2">
                 <div>
                   <h3 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
                     <Star className="w-5 h-5 text-amber-500 fill-amber-500" />
@@ -1929,7 +1929,7 @@ export const AdminPage: React.FC = () => {
                     Ratings and feedback left by customers on unstitched fabric products.
                   </p>
                 </div>
-                <span className="text-xs font-mono text-[#8C4830] font-semibold bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                <span className="text-xs font-mono text-[#0284C7] font-semibold bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                   {allReviews.length} Review{allReviews.length !== 1 ? 's' : ''} in IndexedDB
                 </span>
               </div>
@@ -1940,7 +1940,7 @@ export const AdminPage: React.FC = () => {
                   return (
                     <div
                       key={rev.id}
-                      className="p-4 bg-[#FAF8F5] border border-[#E7E0D8] space-y-2 hover:border-[#8C4830]/40 transition-colors"
+                      className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] space-y-2 hover:border-[#0284C7]/40 transition-colors"
                     >
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                         <div className="flex items-center gap-2 flex-wrap">
@@ -1948,7 +1948,7 @@ export const AdminPage: React.FC = () => {
                             {targetProduct ? targetProduct.title : rev.productId}
                           </span>
                           <span className="text-gray-400">·</span>
-                          <span className="font-semibold text-xs text-[#8C4830]">
+                          <span className="font-semibold text-xs text-[#0284C7]">
                             {rev.authorName} ({rev.authorCity || 'Pakistan'})
                           </span>
                           {rev.verifiedBuyer && (
@@ -2001,10 +2001,10 @@ export const AdminPage: React.FC = () => {
         {/* MODAL: CHANGE ADMIN PASSWORD & SECURITY */}
         {isStaffModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white max-w-md w-full border border-[#E7E0D8] shadow-2xl p-6 relative">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+            <div className="bg-white max-w-md w-full border border-[#E2E8F0] shadow-2xl p-6 relative">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
-                  <KeyRound className="w-4 h-4 text-[#8C4830]" />
+                  <KeyRound className="w-4 h-4 text-[#0284C7]" />
                   <span>Update Admin Password</span>
                 </h3>
                 <button onClick={() => setIsStaffModalOpen(false)}>
@@ -2020,7 +2020,7 @@ export const AdminPage: React.FC = () => {
                     required
                     value={changeOldPassword}
                     onChange={(e) => setChangeOldPassword(e.target.value)}
-                    className="w-full px-3 py-2 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917]"
+                    className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917]"
                   />
                 </div>
 
@@ -2032,21 +2032,21 @@ export const AdminPage: React.FC = () => {
                     value={changeNewPassword}
                     onChange={(e) => setChangeNewPassword(e.target.value)}
                     placeholder="Min 6 characters"
-                    className="w-full px-3 py-2 bg-[#FAF8F5] border border-[#E7E0D8] text-[#1C1917]"
+                    className="w-full px-3 py-2 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917]"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-[#E7E0D8] flex justify-end gap-2">
+                <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setIsStaffModalOpen(false)}
-                    className="px-4 py-2 bg-[#FAF8F5] border border-[#E7E0D8] text-xs font-semibold"
+                    className="px-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#8C4830] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#703623]"
+                    className="px-5 py-2 bg-[#0284C7] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#0369A1]"
                   >
                     Save New Password
                   </button>
@@ -2059,8 +2059,8 @@ export const AdminPage: React.FC = () => {
         {/* MODAL: ADD NEW FABRIC PRODUCT */}
         {isAddModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-[#FAF8F5] max-w-lg w-full border border-[#E7E0D8] shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+            <div className="bg-[#F8FAFC] max-w-lg w-full border border-[#E2E8F0] shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-serif text-lg font-bold text-[#1C1917]">
                   Add New Unstitched Fabric
                 </h3>
@@ -2078,7 +2078,7 @@ export const AdminPage: React.FC = () => {
                     value={newProductForm.title}
                     onChange={(e) => setNewProductForm({ ...newProductForm, title: e.target.value })}
                     placeholder="e.g. Imperial 8-Pound Pure Boski Silk"
-                    className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                   />
                 </div>
 
@@ -2088,7 +2088,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={newProductForm.gender}
                       onChange={(e) => setNewProductForm({ ...newProductForm, gender: e.target.value as Gender })}
-                      className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     >
                       <option value="Men">Men's Unstitched</option>
                       <option value="Women">Women's Unstitched</option>
@@ -2100,7 +2100,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={newProductForm.fabric}
                       onChange={(e) => setNewProductForm({ ...newProductForm, fabric: e.target.value as FabricType })}
-                      className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     >
                       <option value="Boski Silk">Boski Silk</option>
                       <option value="Latha Cotton">Latha Cotton</option>
@@ -2127,7 +2127,7 @@ export const AdminPage: React.FC = () => {
                           weaveType: e.target.value,
                         })
                       }
-                      className="w-full px-2 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-2 py-2 bg-white border border-[#E2E8F0]"
                     >
                       <option value="Plain Weave">Plain Weave</option>
                       <option value="Sateen / Boski Weave">Sateen / Boski</option>
@@ -2150,7 +2150,7 @@ export const AdminPage: React.FC = () => {
                           fabricWeight: `${e.target.value} (160 GSM)`,
                         })
                       }
-                      className="w-full px-2 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-2 py-2 bg-white border border-[#E2E8F0]"
                     >
                       <option value="Ultra-Lightweight">Ultra-Light</option>
                       <option value="Lightweight">Lightweight</option>
@@ -2170,7 +2170,7 @@ export const AdminPage: React.FC = () => {
                           threadCount: e.target.value,
                         })
                       }
-                      className="w-full px-2 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-2 py-2 bg-white border border-[#E2E8F0]"
                     >
                       <option value="Coarse / Traditional (30s-40s)">30s-40s Coarse</option>
                       <option value="High Count (60s-80s)">60s-80s High</option>
@@ -2188,7 +2188,7 @@ export const AdminPage: React.FC = () => {
                       required
                       value={newProductForm.price}
                       onChange={(e) => setNewProductForm({ ...newProductForm, price: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     />
                   </div>
 
@@ -2203,7 +2203,7 @@ export const AdminPage: React.FC = () => {
                           cutDetails: { ...newProductForm.cutDetails!, length: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     />
                   </div>
                 </div>
@@ -2214,21 +2214,21 @@ export const AdminPage: React.FC = () => {
                     rows={2}
                     value={newProductForm.description}
                     onChange={(e) => setNewProductForm({ ...newProductForm, description: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-[#E7E0D8] flex justify-end gap-2">
+                <div className="pt-3 border-t border-[#E2E8F0] flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={() => setIsAddModalOpen(false)}
-                    className="px-4 py-2 bg-[#FAF8F5] border border-[#E7E0D8] text-xs font-semibold"
+                    className="px-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-semibold"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#8C4830] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#703623]"
+                    className="px-5 py-2 bg-[#0284C7] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#0369A1]"
                   >
                     Save Fabric
                   </button>
@@ -2241,8 +2241,8 @@ export const AdminPage: React.FC = () => {
         {/* MODAL: EDIT PRODUCT */}
         {editingProduct && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-[#FAF8F5] max-w-lg w-full border border-[#E7E0D8] shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+            <div className="bg-[#F8FAFC] max-w-lg w-full border border-[#E2E8F0] shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-serif text-lg font-bold text-[#1C1917]">
                   Edit: {editingProduct.title}
                 </h3>
@@ -2258,7 +2258,7 @@ export const AdminPage: React.FC = () => {
                     type="text"
                     value={editingProduct.title}
                     onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                   />
                 </div>
 
@@ -2269,7 +2269,7 @@ export const AdminPage: React.FC = () => {
                       type="number"
                       value={editingProduct.price}
                       onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     />
                   </div>
 
@@ -2278,7 +2278,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={editingProduct.inStock ? 'yes' : 'no'}
                       onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.value === 'yes' })}
-                      className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     >
                       <option value="yes">Yes - Available</option>
                       <option value="no">No - Out of Stock</option>
@@ -2293,7 +2293,7 @@ export const AdminPage: React.FC = () => {
                       type="text"
                       value={editingProduct.weaveType || ''}
                       onChange={(e) => setEditingProduct({ ...editingProduct, weaveType: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-[#E7E0D8]"
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0]"
                     />
                   </div>
                   <div>
@@ -2302,7 +2302,7 @@ export const AdminPage: React.FC = () => {
                       type="text"
                       value={editingProduct.fabricWeight || ''}
                       onChange={(e) => setEditingProduct({ ...editingProduct, fabricWeight: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-[#E7E0D8]"
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0]"
                     />
                   </div>
                   <div>
@@ -2311,7 +2311,7 @@ export const AdminPage: React.FC = () => {
                       type="text"
                       value={editingProduct.threadCount || ''}
                       onChange={(e) => setEditingProduct({ ...editingProduct, threadCount: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-[#E7E0D8]"
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0]"
                     />
                   </div>
                 </div>
@@ -2327,11 +2327,11 @@ export const AdminPage: React.FC = () => {
                         cutDetails: { ...editingProduct.cutDetails, length: e.target.value },
                       })
                     }
-                    className="w-full px-3 py-2 bg-white border border-[#E7E0D8]"
+                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                   />
                 </div>
 
-                <div className="pt-3 border-t border-[#E7E0D8] flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
                   <button
                     type="button"
                     onClick={() => {
@@ -2349,13 +2349,13 @@ export const AdminPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setEditingProduct(null)}
-                      className="px-4 py-2 bg-[#FAF8F5] border border-[#E7E0D8] text-xs font-semibold"
+                      className="px-4 py-2 bg-[#F8FAFC] border border-[#E2E8F0] text-xs font-semibold"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-[#8C4830] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#703623]"
+                      className="px-5 py-2 bg-[#0284C7] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#0369A1]"
                     >
                       Update Fabric
                     </button>
@@ -2369,7 +2369,7 @@ export const AdminPage: React.FC = () => {
         {/* MODAL: DELETE PRODUCT CONFIRMATION (Bypasses blocked browser dialogs) */}
         {productToDelete && (
           <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-white max-w-md w-full border border-[#E7E0D8] shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-white max-w-md w-full border border-[#E2E8F0] shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-start gap-3.5">
                 <div className="p-3 bg-rose-50 text-rose-600 rounded-full shrink-0">
                   <Trash2 className="w-5 h-5" />
@@ -2384,11 +2384,11 @@ export const AdminPage: React.FC = () => {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#E7E0D8] flex items-center justify-end gap-2.5 text-xs">
+              <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2.5 text-xs">
                 <button
                   type="button"
                   onClick={() => setProductToDelete(null)}
-                  className="px-4 py-2 bg-[#FAF8F5] hover:bg-[#F2ECE5] text-[#1C1917] border border-[#E7E0D8] font-semibold transition-colors cursor-pointer"
+                  className="px-4 py-2 bg-[#F8FAFC] hover:bg-[#F2ECE5] text-[#1C1917] border border-[#E2E8F0] font-semibold transition-colors cursor-pointer"
                 >
                   Cancel
                 </button>

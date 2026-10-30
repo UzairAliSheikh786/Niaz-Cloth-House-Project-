@@ -108,14 +108,15 @@ export const ShopPage: React.FC = () => {
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   const fabricOptions: FabricType[] = [
-    'Boski Silk',
-    'Latha Cotton',
+    'Wash & Wear',
+    'Cotton',
+    'Khaddar',
+    'Lelan',
+    'Boski',
     'Luxury Lawn',
     'Embroidered Chiffon',
-    'Handwoven Karandi',
     'Swiss Voile',
     'Silk Jacquard',
-    'Pure Khaddar',
   ];
 
   const fabricWeightOptions: FabricWeightCategory[] = [
@@ -401,31 +402,31 @@ export const ShopPage: React.FC = () => {
     if (selectedGender === 'Men' && selectedSeason === 'Summer') {
       return {
         title: "Men's Summer Unstitched Collection",
-        subtitle: 'Super 120s/140s Egyptian Giza Latha Cotton & Featherweight 6-Pound Chinese Boski Silk.',
+        subtitle: "Wash & Wear wrinkle-resistant suiting, crisp combed cotton, and breathable summer Boski silk.",
       };
     }
     if (selectedGender === 'Men' && selectedSeason === 'Winter') {
       return {
         title: "Men's Winter Unstitched Collection",
-        subtitle: 'Authentic Kamalia Handloom Khaddar, Raw Spun Karandi & 10-Pound Gold-Seal Chinese Boski.',
+        subtitle: "Authentic Kamalia handloom Khaddar, warm Lelan, and heavy 10-pound gold-seal Boski silk.",
       };
     }
     if (selectedGender === 'Women' && selectedSeason === 'Summer') {
       return {
         title: "Women's Summer Unstitched Collection",
-        subtitle: 'Superfine 80s Combed Lawn 3-Piece, Pure Crinkle Chiffon Dupattas & Swiss Voile Schiffli.',
+        subtitle: 'Superfine combed lawn 3-piece, pure crinkle chiffon dupattas & printed summer lawn.',
       };
     }
     if (selectedGender === 'Women' && selectedSeason === 'Winter') {
       return {
         title: "Women's Winter Unstitched Collection",
-        subtitle: 'Banarasi Silk Jacquard Festive, Kashmiri Pashmina Wool Shawls & Heavy Winter Khaddar.',
+        subtitle: 'Banarasi silk jacquard festive, Kashmiri pashmina wool shawls & heavy winter khaddar.',
       };
     }
     if (selectedGender === 'Men') {
       return {
         title: "Men's Unstitched Suiting Collection",
-        subtitle: '100% Pure Chinese Boski Silk, Egyptian Latha Cotton, Handloom Karandi & Kamalia Khaddar.',
+        subtitle: 'Wash & Wear, Combed Cotton, Kamalia Khaddar, Lelan & Pure Boski Silk.',
       };
     }
     if (selectedGender === 'Women') {
@@ -478,15 +479,15 @@ export const ShopPage: React.FC = () => {
   }, [currentPage, selectedGender, selectedSeason, selectedBrand, selectedCraft, headerInfo.title]);
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen pb-14">
+    <div className="w-full bg-[#F8FAFC] min-h-screen pb-14">
       {/* Crawlable Breadcrumbs Header */}
-      <div className="border-b border-[#E7E0D8] bg-[#F5EFEB]/50">
+      <div className="border-b border-[#E2E8F0] bg-[#F5EFEB]/50">
         <Breadcrumbs items={breadcrumbItems} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         {/* Catalog Header Title */}
-        <div className="border-b border-[#E7E0D8] pb-6 mb-8">
+        <div className="border-b border-[#E2E8F0] pb-6 mb-8">
 
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
@@ -502,9 +503,9 @@ export const ShopPage: React.FC = () => {
             <div className="flex items-center gap-3 lg:hidden">
               <button
                 onClick={() => setMobileFiltersOpen(true)}
-                className="flex-1 py-2.5 px-4 bg-white border border-[#E7E0D8] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 shadow-xs"
+                className="flex-1 py-2.5 px-4 bg-white border border-[#E2E8F0] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 shadow-xs"
               >
-                <SlidersHorizontal className="w-4 h-4 text-[#8C4830]" />
+                <SlidersHorizontal className="w-4 h-4 text-[#0284C7]" />
                 <span>Filters {hasActiveFilters ? '• Active' : ''}</span>
               </button>
 
@@ -512,7 +513,7 @@ export const ShopPage: React.FC = () => {
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 aria-label="Sort products by"
-                className="py-2.5 px-3 bg-white border border-[#E7E0D8] text-xs text-[#1C1917] focus:outline-none"
+                className="py-2.5 px-3 bg-white border border-[#E2E8F0] text-xs text-[#1C1917] focus:outline-none"
               >
                 <option value="featured">Featured First</option>
                 <option value="price-asc">Price: Low to High</option>
@@ -523,7 +524,7 @@ export const ShopPage: React.FC = () => {
           </div>
 
           {/* Quick Category Bar: Summer & Winter in Men & Women + Embroidery & Printed */}
-          <div className="mt-6 pt-4 border-t border-[#E7E0D8]/60 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="mt-6 pt-4 border-t border-[#E2E8F0]/60 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             <span className="text-xs font-semibold uppercase tracking-wider text-[#1C1917]/60 shrink-0 mr-1">
               Collections:
             </span>
@@ -537,7 +538,7 @@ export const ShopPage: React.FC = () => {
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'All' && selectedSeason === 'All' && selectedCraft === 'All' && selectedBrand === 'All'
                   ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               All Unstitched
@@ -550,8 +551,8 @@ export const ShopPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'Women' && selectedCraft === 'Embroidery' && selectedBrand === 'All'
-                  ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               ★ Women's Embroidery Brands
@@ -564,8 +565,8 @@ export const ShopPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'Women' && selectedCraft === 'Printed' && selectedBrand === 'All'
-                  ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               ★ Women's Printed Brands
@@ -579,8 +580,8 @@ export const ShopPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'Men' && selectedSeason === 'Summer'
-                  ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               Men's Summer (Latha & Boski)
@@ -594,8 +595,8 @@ export const ShopPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'Men' && selectedSeason === 'Winter'
-                  ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               Men's Winter (Khaddar & Karandi)
@@ -609,8 +610,8 @@ export const ShopPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'Women' && selectedSeason === 'Summer' && selectedCraft === 'All'
-                  ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               Women's Summer (Lawn & Chiffon)
@@ -624,8 +625,8 @@ export const ShopPage: React.FC = () => {
               }}
               className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
                 selectedGender === 'Women' && selectedSeason === 'Winter' && selectedCraft === 'All'
-                  ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E7E0D8] hover:border-[#8C4830]'
+                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
+                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
               }`}
             >
               Women's Winter (Jacquard & Shawls)
@@ -635,8 +636,8 @@ export const ShopPage: React.FC = () => {
 
         {/* Real-time Search Engine Input Bar on Catalog */}
         <div className="mb-8">
-          <div className="relative bg-white border border-[#E7E0D8] shadow-xs flex items-center">
-            <div className="pl-4 pr-2 text-[#8C4830]">
+          <div className="relative bg-white border border-[#E2E8F0] shadow-xs flex items-center">
+            <div className="pl-4 pr-2 text-[#0284C7]">
               <Search className="w-4 h-4" />
             </div>
             <input
@@ -651,7 +652,7 @@ export const ShopPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setSearchQuery('')}
-                className="pr-4 text-[#1C1917]/70 hover:text-[#1C1917] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#8C4830]"
+                className="pr-4 text-[#1C1917]/70 hover:text-[#1C1917] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
                 aria-label="Clear search input"
                 title="Clear search query"
               >
@@ -665,16 +666,16 @@ export const ShopPage: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* Desktop Sidebar Filters */}
           <aside className="hidden lg:block lg:col-span-1 space-y-7">
-            <div className="bg-[#FAF8F5] p-5 border border-[#E7E0D8] space-y-6 sticky top-28 max-h-[85vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+            <div className="bg-[#F8FAFC] p-5 border border-[#E2E8F0] space-y-6 sticky top-28 max-h-[85vh] overflow-y-auto">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-                  <Filter className="w-4 h-4 text-[#8C4830]" />
+                  <Filter className="w-4 h-4 text-[#0284C7]" />
                   <span>Advanced Filters</span>
                 </div>
                 {hasActiveFilters && (
                   <button
                     onClick={resetFilters}
-                    className="text-xs text-[#8C4830] hover:underline flex items-center gap-1"
+                    className="text-xs text-[#0284C7] hover:underline flex items-center gap-1"
                   >
                     <RotateCcw className="w-3 h-3" />
                     <span>Reset All</span>
@@ -683,14 +684,14 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 0A. Women's Suit Brand / Mill Filter */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('brand')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Tag className="w-3.5 h-3.5 text-[#8C4830]" />
+                    <Tag className="w-3.5 h-3.5 text-[#0284C7]" />
                     <span>Women's Brand / Mill</span>
                   </span>
                   {openSections.brand ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -698,7 +699,7 @@ export const ShopPage: React.FC = () => {
                 {openSections.brand && (
                   <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
                     <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedBrand === 'All' ? 'font-semibold text-[#8C4830]' : ''}>
+                      <span className={selectedBrand === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
                         All Brands & Mills
                       </span>
                       <input
@@ -706,12 +707,12 @@ export const ShopPage: React.FC = () => {
                         name="brand"
                         checked={selectedBrand === 'All'}
                         onChange={() => setSelectedBrand('All')}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
 
                     {/* Embroidery Brands Header */}
-                    <div className="pt-2 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#8C4830] bg-[#F5EFEB]/70">
+                    <div className="pt-2 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#0284C7] bg-[#F5EFEB]/70">
                       ★ Embroidery Brands
                     </div>
                     {WOMEN_EMBROIDERY_BRANDS.map((brandName) => {
@@ -721,7 +722,7 @@ export const ShopPage: React.FC = () => {
                           key={`desktop-emb-${brandName}`}
                           className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                         >
-                          <span className={selectedBrand === brandName ? 'font-semibold text-[#8C4830]' : ''}>
+                          <span className={selectedBrand === brandName ? 'font-semibold text-[#0284C7]' : ''}>
                             {brandName}
                           </span>
                           <div className="flex items-center gap-1.5">
@@ -736,7 +737,7 @@ export const ShopPage: React.FC = () => {
                                 setSelectedBrand(brandName);
                                 setSelectedGender('Women');
                               }}
-                              className="accent-[#8C4830]"
+                              className="accent-[#0284C7]"
                             />
                           </div>
                         </label>
@@ -744,7 +745,7 @@ export const ShopPage: React.FC = () => {
                     })}
 
                     {/* Printed Brands Header */}
-                    <div className="pt-2.5 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#8C4830] bg-[#F5EFEB]/70">
+                    <div className="pt-2.5 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#0284C7] bg-[#F5EFEB]/70">
                       ★ Printed Brands
                     </div>
                     {WOMEN_PRINTED_BRANDS.map((brandName) => {
@@ -754,7 +755,7 @@ export const ShopPage: React.FC = () => {
                           key={`desktop-prt-${brandName}`}
                           className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                         >
-                          <span className={selectedBrand === brandName ? 'font-semibold text-[#8C4830]' : ''}>
+                          <span className={selectedBrand === brandName ? 'font-semibold text-[#0284C7]' : ''}>
                             {brandName}
                           </span>
                           <div className="flex items-center gap-1.5">
@@ -769,7 +770,7 @@ export const ShopPage: React.FC = () => {
                                 setSelectedBrand(brandName);
                                 setSelectedGender('Women');
                               }}
-                              className="accent-[#8C4830]"
+                              className="accent-[#0284C7]"
                             />
                           </div>
                         </label>
@@ -780,14 +781,14 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 0B. Craft Technique Filter */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('craft')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#8C4830]" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
                     <span>Suit Craft Technique</span>
                   </span>
                   {openSections.craft ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -799,7 +800,7 @@ export const ShopPage: React.FC = () => {
                         key={craft}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedCraft === craft ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedCraft === craft ? 'font-semibold text-[#0284C7]' : ''}>
                           {craft === 'All' ? 'All Suit Techniques' : `${craft} Suits`}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -813,7 +814,7 @@ export const ShopPage: React.FC = () => {
                             name="craft"
                             checked={selectedCraft === craft}
                             onChange={() => setSelectedCraft(craft)}
-                            className="accent-[#8C4830]"
+                            className="accent-[#0284C7]"
                           />
                         </div>
                       </label>
@@ -823,14 +824,14 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 1. Fabric Weight Filter (NEW) */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('weight')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#8C4830]" />
+                    <Activity className="w-3.5 h-3.5 text-[#0284C7]" />
                     <span>Fabric Weight (GSM)</span>
                   </span>
                   {openSections.weight ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -838,7 +839,7 @@ export const ShopPage: React.FC = () => {
                 {openSections.weight && (
                   <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
                     <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedFabricWeight === 'All' ? 'font-semibold text-[#8C4830]' : ''}>
+                      <span className={selectedFabricWeight === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
                         All Fabric Weights
                       </span>
                       <input
@@ -846,7 +847,7 @@ export const ShopPage: React.FC = () => {
                         name="fabricWeight"
                         checked={selectedFabricWeight === 'All'}
                         onChange={() => setSelectedFabricWeight('All')}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                     {fabricWeightOptions.map((weight) => (
@@ -854,7 +855,7 @@ export const ShopPage: React.FC = () => {
                         key={weight}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedFabricWeight === weight ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedFabricWeight === weight ? 'font-semibold text-[#0284C7]' : ''}>
                           {weight}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -866,7 +867,7 @@ export const ShopPage: React.FC = () => {
                             name="fabricWeight"
                             checked={selectedFabricWeight === weight}
                             onChange={() => setSelectedFabricWeight(weight)}
-                            className="accent-[#8C4830]"
+                            className="accent-[#0284C7]"
                           />
                         </div>
                       </label>
@@ -876,14 +877,14 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 2. Thread Count Filter (NEW) */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('threadCount')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#8C4830]" />
+                    <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
                     <span>Thread & Yarn Count</span>
                   </span>
                   {openSections.threadCount ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -891,7 +892,7 @@ export const ShopPage: React.FC = () => {
                 {openSections.threadCount && (
                   <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
                     <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedThreadCount === 'All' ? 'font-semibold text-[#8C4830]' : ''}>
+                      <span className={selectedThreadCount === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
                         All Thread Counts
                       </span>
                       <input
@@ -899,7 +900,7 @@ export const ShopPage: React.FC = () => {
                         name="threadCount"
                         checked={selectedThreadCount === 'All'}
                         onChange={() => setSelectedThreadCount('All')}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                     {threadCountOptions.map((thread) => (
@@ -907,7 +908,7 @@ export const ShopPage: React.FC = () => {
                         key={thread}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedThreadCount === thread ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedThreadCount === thread ? 'font-semibold text-[#0284C7]' : ''}>
                           {thread}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -919,7 +920,7 @@ export const ShopPage: React.FC = () => {
                             name="threadCount"
                             checked={selectedThreadCount === thread}
                             onChange={() => setSelectedThreadCount(thread)}
-                            className="accent-[#8C4830]"
+                            className="accent-[#0284C7]"
                           />
                         </div>
                       </label>
@@ -929,14 +930,14 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 3. Weave Type Filter (NEW) */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('weave')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span className="flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-[#8C4830]" />
+                    <Layers className="w-3.5 h-3.5 text-[#0284C7]" />
                     <span>Weave Structure</span>
                   </span>
                   {openSections.weave ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -944,7 +945,7 @@ export const ShopPage: React.FC = () => {
                 {openSections.weave && (
                   <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
                     <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedWeaveType === 'All' ? 'font-semibold text-[#8C4830]' : ''}>
+                      <span className={selectedWeaveType === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
                         All Weave Structures
                       </span>
                       <input
@@ -952,7 +953,7 @@ export const ShopPage: React.FC = () => {
                         name="weaveType"
                         checked={selectedWeaveType === 'All'}
                         onChange={() => setSelectedWeaveType('All')}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                     {weaveTypeOptions.map((weave) => (
@@ -960,7 +961,7 @@ export const ShopPage: React.FC = () => {
                         key={weave}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedWeaveType === weave ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedWeaveType === weave ? 'font-semibold text-[#0284C7]' : ''}>
                           {weave}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -972,7 +973,7 @@ export const ShopPage: React.FC = () => {
                             name="weaveType"
                             checked={selectedWeaveType === weave}
                             onChange={() => setSelectedWeaveType(weave)}
-                            className="accent-[#8C4830]"
+                            className="accent-[#0284C7]"
                           />
                         </div>
                       </label>
@@ -982,11 +983,11 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 4. Gender Filter */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('gender')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span>Category / Gender</span>
                   {openSections.gender ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -998,7 +999,7 @@ export const ShopPage: React.FC = () => {
                         key={gender}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedGender === gender ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedGender === gender ? 'font-semibold text-[#0284C7]' : ''}>
                           {gender === 'All' ? 'All Suiting' : `${gender}'s Unstitched`}
                         </span>
                         <input
@@ -1006,7 +1007,7 @@ export const ShopPage: React.FC = () => {
                           name="gender"
                           checked={selectedGender === gender}
                           onChange={() => setSelectedGender(gender)}
-                          className="accent-[#8C4830]"
+                          className="accent-[#0284C7]"
                         />
                       </label>
                     ))}
@@ -1015,11 +1016,11 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 5. Fabric Type Filter */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('fabric')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span>Fabric Material</span>
                   {openSections.fabric ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1027,7 +1028,7 @@ export const ShopPage: React.FC = () => {
                 {openSections.fabric && (
                   <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80 max-h-48 overflow-y-auto pr-1">
                     <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedFabric === 'All' ? 'font-semibold text-[#8C4830]' : ''}>
+                      <span className={selectedFabric === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
                         All Fabrics
                       </span>
                       <input
@@ -1035,7 +1036,7 @@ export const ShopPage: React.FC = () => {
                         name="fabric"
                         checked={selectedFabric === 'All'}
                         onChange={() => setSelectedFabric('All')}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                     {fabricOptions.map((fabric) => (
@@ -1043,7 +1044,7 @@ export const ShopPage: React.FC = () => {
                         key={fabric}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedFabric === fabric ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedFabric === fabric ? 'font-semibold text-[#0284C7]' : ''}>
                           {fabric}
                         </span>
                         <div className="flex items-center gap-1.5">
@@ -1055,7 +1056,7 @@ export const ShopPage: React.FC = () => {
                             name="fabric"
                             checked={selectedFabric === fabric}
                             onChange={() => setSelectedFabric(fabric)}
-                            className="accent-[#8C4830]"
+                            className="accent-[#0284C7]"
                           />
                         </div>
                       </label>
@@ -1065,11 +1066,11 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 6. Season Filter */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-4">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
                 <button
                   type="button"
                   onClick={() => toggleSection('season')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#8C4830]"
+                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
                 >
                   <span>Season Collection</span>
                   {openSections.season ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -1081,7 +1082,7 @@ export const ShopPage: React.FC = () => {
                         key={season}
                         className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
                       >
-                        <span className={selectedSeason === season ? 'font-semibold text-[#8C4830]' : ''}>
+                        <span className={selectedSeason === season ? 'font-semibold text-[#0284C7]' : ''}>
                           {season === 'All' ? 'All Seasons' : `${season} Edition`}
                         </span>
                         <input
@@ -1089,7 +1090,7 @@ export const ShopPage: React.FC = () => {
                           name="season"
                           checked={selectedSeason === season}
                           onChange={() => setSelectedSeason(season)}
-                          className="accent-[#8C4830]"
+                          className="accent-[#0284C7]"
                         />
                       </label>
                     ))}
@@ -1101,7 +1102,7 @@ export const ShopPage: React.FC = () => {
               <div className="space-y-2.5">
                 <div className="flex justify-between items-center text-xs">
                   <span className="font-bold uppercase tracking-wider text-[#1C1917]">Max Price</span>
-                  <span className="font-mono font-semibold text-[#8C4830] tabular-nums">
+                  <span className="font-mono font-semibold text-[#0284C7] tabular-nums">
                     {formatPKR(maxPrice)}
                   </span>
                 </div>
@@ -1112,7 +1113,7 @@ export const ShopPage: React.FC = () => {
                   step={500}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-[#8C4830] cursor-pointer"
+                  className="w-full accent-[#0284C7] cursor-pointer"
                 />
                 <div className="flex justify-between text-[11px] text-[#1C1917]/50 font-mono">
                   <span>₨ 5,000</span>
@@ -1121,13 +1122,13 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* 8. In-Stock Toggle */}
-              <div className="pt-2 border-t border-[#E7E0D8]">
+              <div className="pt-2 border-t border-[#E2E8F0]">
                 <label className="flex items-center gap-2 cursor-pointer text-xs text-[#1C1917]">
                   <input
                     type="checkbox"
                     checked={inStockOnly}
                     onChange={(e) => setInStockOnly(e.target.checked)}
-                    className="accent-[#8C4830]"
+                    className="accent-[#0284C7]"
                   />
                   <span>Show In-Stock Fabrics Only</span>
                 </label>
@@ -1138,7 +1139,7 @@ export const ShopPage: React.FC = () => {
           {/* Product Grid Area */}
           <main className="lg:col-span-3 space-y-6">
             {/* Desktop Sort & Count Bar */}
-            <div className="hidden lg:flex items-center justify-between pb-3 border-b border-[#E7E0D8] text-xs">
+            <div className="hidden lg:flex items-center justify-between pb-3 border-b border-[#E2E8F0] text-xs">
               <span className="text-[#1C1917]/70 font-sans">
                 Showing <strong className="text-[#1C1917]">{filteredProducts.length}</strong> of{' '}
                 {products.length} unstitched fabrics
@@ -1150,7 +1151,7 @@ export const ShopPage: React.FC = () => {
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
                   aria-label="Sort products by"
-                  className="py-1.5 px-3 bg-white border border-[#E7E0D8] text-xs text-[#1C1917] focus:outline-none"
+                  className="py-1.5 px-3 bg-white border border-[#E2E8F0] text-xs text-[#1C1917] focus:outline-none"
                 >
                   <option value="featured">Featured Collection</option>
                   <option value="price-asc">Price: Low to High</option>
@@ -1162,16 +1163,16 @@ export const ShopPage: React.FC = () => {
 
             {/* Active Filters Clean Badges */}
             {hasActiveFilters && (
-              <div className="flex flex-wrap items-center gap-2 text-xs text-[#1C1917]/80 bg-white p-3 border border-[#E7E0D8]">
-                <span className="font-semibold text-[#8C4830] mr-1">Active Filters:</span>
+              <div className="flex flex-wrap items-center gap-2 text-xs text-[#1C1917]/80 bg-white p-3 border border-[#E2E8F0]">
+                <span className="font-semibold text-[#0284C7] mr-1">Active Filters:</span>
                 
                 {searchQuery && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Search: "{searchQuery}"</span>
                     <button
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1179,12 +1180,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedBrand !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Brand: {selectedBrand}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedBrand('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1192,12 +1193,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedCraft !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Craft: {selectedCraft}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedCraft('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1205,12 +1206,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedFabricWeight !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Weight: {selectedFabricWeight}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedFabricWeight('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1218,12 +1219,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedThreadCount !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Thread: {selectedThreadCount}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedThreadCount('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1231,12 +1232,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedWeaveType !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Weave: {selectedWeaveType}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedWeaveType('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1244,12 +1245,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedGender !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Gender: {selectedGender}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedGender('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1257,12 +1258,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedFabric !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Fabric: {selectedFabric}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedFabric('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1270,12 +1271,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {selectedSeason !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Season: {selectedSeason}</span>
                     <button
                       type="button"
                       onClick={() => setSelectedSeason('All')}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1283,12 +1284,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {maxPrice < 30000 && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>Under {formatPKR(maxPrice)}</span>
                     <button
                       type="button"
                       onClick={() => setMaxPrice(30000)}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1296,12 +1297,12 @@ export const ShopPage: React.FC = () => {
                 )}
 
                 {inStockOnly && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-2.5 py-1 border border-[#E7E0D8]">
+                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
                     <span>In-Stock Only</span>
                     <button
                       type="button"
                       onClick={() => setInStockOnly(false)}
-                      className="text-[#1C1917]/60 hover:text-[#8C4830]"
+                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1311,7 +1312,7 @@ export const ShopPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="text-xs text-[#8C4830] font-semibold underline hover:text-[#703623] ml-auto"
+                  className="text-xs text-[#0284C7] font-semibold underline hover:text-[#0369A1] ml-auto"
                 >
                   Clear All
                 </button>
@@ -1320,8 +1321,8 @@ export const ShopPage: React.FC = () => {
 
             {/* Empty State */}
             {filteredProducts.length === 0 ? (
-              <div className="py-20 text-center bg-white border border-[#E7E0D8] space-y-4">
-                <div className="w-12 h-12 mx-auto bg-[#F5EFEB] flex items-center justify-center text-[#8C4830]">
+              <div className="py-20 text-center bg-white border border-[#E2E8F0] space-y-4">
+                <div className="w-12 h-12 mx-auto bg-[#F5EFEB] flex items-center justify-center text-[#0284C7]">
                   <Filter className="w-6 h-6" />
                 </div>
                 <h3 className="font-serif text-lg font-bold text-[#1C1917]">
@@ -1332,7 +1333,7 @@ export const ShopPage: React.FC = () => {
                 </p>
                 <button
                   onClick={resetFilters}
-                  className="px-5 py-2.5 bg-[#8C4830] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#703623] transition-colors"
+                  className="px-5 py-2.5 bg-[#0284C7] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#0369A1] transition-colors"
                 >
                   Reset All Filters
                 </button>
@@ -1359,9 +1360,9 @@ export const ShopPage: React.FC = () => {
             className="fixed inset-0 bg-black/50"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[#FAF8F5] p-5 shadow-2xl flex flex-col justify-between overflow-y-auto">
+          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[#F8FAFC] p-5 shadow-2xl flex flex-col justify-between overflow-y-auto">
             <div className="space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
                 <h3 className="font-serif text-lg font-bold text-[#1C1917]">Filter Catalog</h3>
                 <button
                   onClick={() => setMobileFiltersOpen(false)}
@@ -1372,7 +1373,7 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* Mobile Brand / Mill */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917] block">Women's Brand / Mill</span>
                 <div className="space-y-1 text-xs max-h-40 overflow-y-auto pr-1">
                   <label className="flex justify-between p-1">
@@ -1382,10 +1383,10 @@ export const ShopPage: React.FC = () => {
                       name="m-brand"
                       checked={selectedBrand === 'All'}
                       onChange={() => setSelectedBrand('All')}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
-                  <div className="text-[10px] font-bold text-[#8C4830] pt-1">Embroidery Brands</div>
+                  <div className="text-[10px] font-bold text-[#0284C7] pt-1">Embroidery Brands</div>
                   {WOMEN_EMBROIDERY_BRANDS.map((b) => (
                     <label key={`m-emb-${b}`} className="flex justify-between p-1">
                       <span>{b}</span>
@@ -1397,11 +1398,11 @@ export const ShopPage: React.FC = () => {
                           setSelectedBrand(b);
                           setSelectedGender('Women');
                         }}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
-                  <div className="text-[10px] font-bold text-[#8C4830] pt-1">Printed Brands</div>
+                  <div className="text-[10px] font-bold text-[#0284C7] pt-1">Printed Brands</div>
                   {WOMEN_PRINTED_BRANDS.map((b) => (
                     <label key={`m-prt-${b}`} className="flex justify-between p-1">
                       <span>{b}</span>
@@ -1413,7 +1414,7 @@ export const ShopPage: React.FC = () => {
                           setSelectedBrand(b);
                           setSelectedGender('Women');
                         }}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
@@ -1421,7 +1422,7 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* Mobile Craft Technique */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917] block">Suit Craft Technique</span>
                 <div className="space-y-1 text-xs">
                   {['All', 'Embroidery', 'Printed'].map((c) => (
@@ -1432,7 +1433,7 @@ export const ShopPage: React.FC = () => {
                         name="m-craft"
                         checked={selectedCraft === c}
                         onChange={() => setSelectedCraft(c)}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
@@ -1440,7 +1441,7 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* Mobile Fabric Weight */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917] block">Fabric Weight (GSM)</span>
                 <div className="space-y-1 text-xs">
                   <label className="flex justify-between p-1">
@@ -1450,7 +1451,7 @@ export const ShopPage: React.FC = () => {
                       name="m-weight"
                       checked={selectedFabricWeight === 'All'}
                       onChange={() => setSelectedFabricWeight('All')}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
                   {fabricWeightOptions.map((w) => (
@@ -1461,7 +1462,7 @@ export const ShopPage: React.FC = () => {
                         name="m-weight"
                         checked={selectedFabricWeight === w}
                         onChange={() => setSelectedFabricWeight(w)}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
@@ -1469,7 +1470,7 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* Mobile Thread Count */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917] block">Thread & Yarn Count</span>
                 <div className="space-y-1 text-xs">
                   <label className="flex justify-between p-1">
@@ -1479,7 +1480,7 @@ export const ShopPage: React.FC = () => {
                       name="m-thread"
                       checked={selectedThreadCount === 'All'}
                       onChange={() => setSelectedThreadCount('All')}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
                   {threadCountOptions.map((tc) => (
@@ -1490,7 +1491,7 @@ export const ShopPage: React.FC = () => {
                         name="m-thread"
                         checked={selectedThreadCount === tc}
                         onChange={() => setSelectedThreadCount(tc)}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
@@ -1498,7 +1499,7 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* Mobile Weave Type */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917] block">Weave Structure</span>
                 <div className="space-y-1 text-xs">
                   <label className="flex justify-between p-1">
@@ -1508,7 +1509,7 @@ export const ShopPage: React.FC = () => {
                       name="m-weave"
                       checked={selectedWeaveType === 'All'}
                       onChange={() => setSelectedWeaveType('All')}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
                   {weaveTypeOptions.map((wt) => (
@@ -1519,7 +1520,7 @@ export const ShopPage: React.FC = () => {
                         name="m-weave"
                         checked={selectedWeaveType === wt}
                         onChange={() => setSelectedWeaveType(wt)}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
@@ -1527,7 +1528,7 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {/* Mobile Season */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917]">Season</span>
                 {['All', 'Summer', 'Winter'].map((s) => (
                   <label key={s} className="flex justify-between text-xs p-1">
@@ -1537,14 +1538,14 @@ export const ShopPage: React.FC = () => {
                       name="m-season"
                       checked={selectedSeason === s}
                       onChange={() => setSelectedSeason(s)}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
                 ))}
               </div>
 
               {/* Mobile Gender */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917]">Gender</span>
                 {['All', 'Men', 'Women'].map((g) => (
                   <label key={g} className="flex justify-between text-xs p-1">
@@ -1554,14 +1555,14 @@ export const ShopPage: React.FC = () => {
                       name="m-gender"
                       checked={selectedGender === g}
                       onChange={() => setSelectedGender(g)}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
                 ))}
               </div>
 
               {/* Mobile Fabric */}
-              <div className="space-y-2 border-b border-[#E7E0D8]/70 pb-3">
+              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
                 <span className="text-xs font-bold uppercase text-[#1C1917]">Fabric Material</span>
                 <div className="space-y-1 text-xs max-h-36 overflow-y-auto">
                   <label className="flex justify-between p-1">
@@ -1571,7 +1572,7 @@ export const ShopPage: React.FC = () => {
                       name="m-fabric"
                       checked={selectedFabric === 'All'}
                       onChange={() => setSelectedFabric('All')}
-                      className="accent-[#8C4830]"
+                      className="accent-[#0284C7]"
                     />
                   </label>
                   {fabricOptions.map((f) => (
@@ -1582,7 +1583,7 @@ export const ShopPage: React.FC = () => {
                         name="m-fabric"
                         checked={selectedFabric === f}
                         onChange={() => setSelectedFabric(f)}
-                        className="accent-[#8C4830]"
+                        className="accent-[#0284C7]"
                       />
                     </label>
                   ))}
@@ -1601,15 +1602,15 @@ export const ShopPage: React.FC = () => {
                   step={500}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-[#8C4830]"
+                  className="w-full accent-[#0284C7]"
                 />
               </div>
             </div>
 
-            <div className="pt-6 border-t border-[#E7E0D8] space-y-2">
+            <div className="pt-6 border-t border-[#E2E8F0] space-y-2">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full py-3 bg-[#8C4830] text-white text-xs font-semibold uppercase tracking-wider"
+                className="w-full py-3 bg-[#0284C7] text-white text-xs font-semibold uppercase tracking-wider"
               >
                 Apply Filters ({filteredProducts.length})
               </button>
@@ -1631,7 +1632,7 @@ export const ShopPage: React.FC = () => {
           role="dialog"
           aria-modal="true"
         >
-          <div className="bg-[#FAF8F5] max-w-2xl w-full border border-[#E7E0D8] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
             <button
               onClick={() => setQuickViewProduct(null)}
               className="absolute top-4 right-4 z-10 p-1.5 bg-white/80 hover:bg-white text-[#1C1917] rounded-full"
@@ -1653,7 +1654,7 @@ export const ShopPage: React.FC = () => {
 
               <div className="p-6 flex flex-col justify-between space-y-4">
                 <div>
-                  <div className="text-xs text-[#8C4830] font-sans font-semibold mb-1">
+                  <div className="text-xs text-[#0284C7] font-sans font-semibold mb-1">
                     {quickViewProduct.gender} · {quickViewProduct.fabric}
                   </div>
                   <h3 className="font-serif text-xl font-bold text-[#1C1917]">
@@ -1667,7 +1668,7 @@ export const ShopPage: React.FC = () => {
                   </p>
                   
                   {/* Detailed technical specifications in quick view */}
-                  <div className="mt-3 p-3 bg-white border border-[#E7E0D8] text-xs space-y-1">
+                  <div className="mt-3 p-3 bg-white border border-[#E2E8F0] text-xs space-y-1">
                     <p><strong>Cut Length:</strong> {quickViewProduct.cutDetails.length}</p>
                     <p><strong>Fabric Width:</strong> {quickViewProduct.cutDetails.width}</p>
                     {quickViewProduct.weaveType && (
@@ -1688,7 +1689,7 @@ export const ShopPage: React.FC = () => {
                       addToCart(quickViewProduct, 1);
                       setQuickViewProduct(null);
                     }}
-                    className="w-full py-2.5 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Add to Bag</span>
@@ -1700,7 +1701,7 @@ export const ShopPage: React.FC = () => {
                       setQuickViewProduct(null);
                       navigateTo('product-detail', { id });
                     }}
-                    className="w-full py-2 bg-transparent hover:bg-[#F2ECE5] text-[#1C1917] text-xs font-semibold tracking-wide border border-[#E7E0D8] transition-colors flex items-center justify-center gap-1"
+                    className="w-full py-2 bg-transparent hover:bg-[#F2ECE5] text-[#1C1917] text-xs font-semibold tracking-wide border border-[#E2E8F0] transition-colors flex items-center justify-center gap-1"
                   >
                     <span>View Complete Fabric Specs</span>
                     <ArrowUpRight className="w-3.5 h-3.5" />

@@ -50,7 +50,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
               {isLast ? (
                 <span
                   aria-current="page"
-                  className="font-semibold text-[#8C4830] truncate max-w-[200px] sm:max-w-xs"
+                  className="font-semibold text-[#0284C7] truncate max-w-[200px] sm:max-w-xs"
                 >
                   {item.name}
                 </span>
@@ -77,7 +77,7 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
                       navigateTo('women-winter');
                     }
                   }}
-                  className="hover:text-[#8C4830] transition-colors flex items-center gap-1 hover:underline"
+                  className="hover:text-[#0284C7] transition-colors flex items-center gap-1 hover:underline"
                 >
                   {index === 0 && <Home className="w-3.5 h-3.5" aria-hidden="true" />}
                   <span>{item.name}</span>

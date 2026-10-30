@@ -90,21 +90,21 @@ export const ComparePage: React.FC = () => {
   };
 
   return (
-    <div className="w-full bg-[#FAF8F5] min-h-screen py-8 sm:py-12 border-b border-[#E7E0D8]">
+    <div className="w-full bg-[#F8FAFC] min-h-screen py-8 sm:py-12 border-b border-[#E2E8F0]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="text-xs text-[#1C1917]/60 flex items-center gap-2">
           <button 
             onClick={() => navigateTo('home')} 
-            className="hover:text-[#8C4830] transition-colors"
+            className="hover:text-[#0284C7] transition-colors"
           >
             Home
           </button>
           <span>/</span>
           <button 
             onClick={() => navigateTo('shop')} 
-            className="hover:text-[#8C4830] transition-colors"
+            className="hover:text-[#0284C7] transition-colors"
           >
             All Fabrics
           </button>
@@ -113,10 +113,10 @@ export const ComparePage: React.FC = () => {
         </nav>
 
         {/* Page Header */}
-        <div className="border-b border-[#E7E0D8] pb-6">
+        <div className="border-b border-[#E2E8F0] pb-6">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
             <div>
-              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-[#8C4830] font-bold mb-2">
+              <div className="inline-flex items-center gap-1.5 text-xs uppercase tracking-widest text-[#0284C7] font-bold mb-2">
                 <Scale className="w-4 h-4" />
                 <span>Side-by-Side Fabric Comparison</span>
               </div>
@@ -131,16 +131,16 @@ export const ComparePage: React.FC = () => {
             {/* Quick Swap Control */}
             <button
               onClick={swapCompareProducts}
-              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-[#F4ECE3] text-[#1C1917] border border-[#E7E0D8] text-xs font-semibold shadow-xs transition-colors self-start md:self-end"
+              className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white hover:bg-[#F4ECE3] text-[#1C1917] border border-[#E2E8F0] text-xs font-semibold shadow-xs transition-colors self-start md:self-end"
               title="Swap Fabric A and Fabric B"
             >
-              <ArrowLeftRight className="w-4 h-4 text-[#8C4830]" />
+              <ArrowLeftRight className="w-4 h-4 text-[#0284C7]" />
               <span>Swap Positions</span>
             </button>
           </div>
 
           {/* Quick-Select Popular Pairs */}
-          <div className="mt-6 pt-5 border-t border-[#E7E0D8]/60">
+          <div className="mt-6 pt-5 border-t border-[#E2E8F0]/60">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-[#1C1917]/60 block mb-2.5">
               Popular Comparisons:
             </span>
@@ -155,13 +155,13 @@ export const ComparePage: React.FC = () => {
                     onClick={() => handleLoadCuratedPair(curated.productAId, curated.productBId)}
                     className={`text-left p-3 border transition-all text-xs flex flex-col justify-between ${
                       isActive 
-                        ? 'bg-[#8C4830] text-white border-[#8C4830] shadow-xs' 
-                        : 'bg-white hover:bg-[#F2ECE5] text-[#1C1917] border-[#E7E0D8]'
+                        ? 'bg-[#0284C7] text-white border-[#0284C7] shadow-xs' 
+                        : 'bg-white hover:bg-[#F2ECE5] text-[#1C1917] border-[#E2E8F0]'
                     }`}
                   >
                     <div>
                       <span className={`text-[10px] font-bold uppercase tracking-wider block mb-1 ${
-                        isActive ? 'text-[#FAF8F5]/80' : 'text-[#8C4830]'
+                        isActive ? 'text-[#F8FAFC]/80' : 'text-[#0284C7]'
                       }`}>
                         {curated.badge}
                       </span>
@@ -187,7 +187,7 @@ export const ComparePage: React.FC = () => {
           <div className="hidden md:flex absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10">
             <button
               onClick={swapCompareProducts}
-              className="w-10 h-10 rounded-full bg-[#1C1917] hover:bg-[#8C4830] text-white flex items-center justify-center shadow-lg transition-colors border-2 border-white"
+              className="w-10 h-10 rounded-full bg-[#1C1917] hover:bg-[#0284C7] text-white flex items-center justify-center shadow-lg transition-colors border-2 border-white"
               title="Swap Fabrics"
             >
               <ArrowLeftRight className="w-4 h-4" />
@@ -195,15 +195,15 @@ export const ComparePage: React.FC = () => {
           </div>
 
           {/* Slot A Card */}
-          <div className="bg-white border-2 border-[#8C4830]/30 p-5 shadow-xs flex flex-col justify-between">
+          <div className="bg-white border-2 border-[#0284C7]/30 p-5 shadow-xs flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-3">
-                <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#8C4830] text-white">
+                <span className="text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 bg-[#0284C7] text-white">
                   Fabric A
                 </span>
                 <button
                   onClick={() => setSelectorModalSlot('A')}
-                  className="text-xs text-[#8C4830] hover:underline font-semibold flex items-center gap-1"
+                  className="text-xs text-[#0284C7] hover:underline font-semibold flex items-center gap-1"
                 >
                   <span>Change Fabric</span>
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -214,10 +214,10 @@ export const ComparePage: React.FC = () => {
                 <img
                   src={productA.primaryImage}
                   alt={productA.title}
-                  className="w-24 h-28 object-cover bg-[#F2EDE7] border border-[#E7E0D8] shrink-0"
+                  className="w-24 h-28 object-cover bg-[#F2EDE7] border border-[#E2E8F0] shrink-0"
                 />
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] text-[#8C4830] font-bold uppercase tracking-wider block">
+                  <span className="text-[10px] text-[#0284C7] font-bold uppercase tracking-wider block">
                     {productA.brand || productA.gender} · {productA.season || 'All Season'}
                   </span>
                   <h3 className="font-serif text-base sm:text-lg font-bold text-[#1C1917] leading-snug line-clamp-2">
@@ -233,17 +233,17 @@ export const ComparePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-[#E7E0D8] flex items-center gap-2">
+            <div className="mt-5 pt-4 border-t border-[#E2E8F0] flex items-center gap-2">
               <button
                 onClick={() => addToCart(productA, 1)}
-                className="flex-1 py-2 px-3 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
+                className="flex-1 py-2 px-3 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
               >
                 <ShoppingBag className="w-3.5 h-3.5" />
                 <span>Add to Bag</span>
               </button>
               <button
                 onClick={() => navigateTo('product-detail', { id: productA.id, slug: productA.slug })}
-                className="py-2 px-3 bg-[#FAF8F5] hover:bg-[#F2ECE5] text-[#1C1917] border border-[#E7E0D8] text-xs font-medium transition-colors"
+                className="py-2 px-3 bg-[#F8FAFC] hover:bg-[#F2ECE5] text-[#1C1917] border border-[#E2E8F0] text-xs font-medium transition-colors"
                 title="View Full Product Page"
               >
                 Details
@@ -269,7 +269,7 @@ export const ComparePage: React.FC = () => {
                 </span>
                 <button
                   onClick={() => setSelectorModalSlot('B')}
-                  className="text-xs text-[#8C4830] hover:underline font-semibold flex items-center gap-1"
+                  className="text-xs text-[#0284C7] hover:underline font-semibold flex items-center gap-1"
                 >
                   <span>Change Fabric</span>
                   <ChevronDown className="w-3.5 h-3.5" />
@@ -280,10 +280,10 @@ export const ComparePage: React.FC = () => {
                 <img
                   src={productB.primaryImage}
                   alt={productB.title}
-                  className="w-24 h-28 object-cover bg-[#F2EDE7] border border-[#E7E0D8] shrink-0"
+                  className="w-24 h-28 object-cover bg-[#F2EDE7] border border-[#E2E8F0] shrink-0"
                 />
                 <div className="space-y-1 min-w-0">
-                  <span className="text-[10px] text-[#8C4830] font-bold uppercase tracking-wider block">
+                  <span className="text-[10px] text-[#0284C7] font-bold uppercase tracking-wider block">
                     {productB.brand || productB.gender} · {productB.season || 'All Season'}
                   </span>
                   <h3 className="font-serif text-base sm:text-lg font-bold text-[#1C1917] leading-snug line-clamp-2">
@@ -299,7 +299,7 @@ export const ComparePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="mt-5 pt-4 border-t border-[#E7E0D8] flex items-center gap-2">
+            <div className="mt-5 pt-4 border-t border-[#E2E8F0] flex items-center gap-2">
               <button
                 onClick={() => addToCart(productB, 1)}
                 className="flex-1 py-2 px-3 bg-[#1C1917] hover:bg-[#2A2622] text-white text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors"
@@ -309,7 +309,7 @@ export const ComparePage: React.FC = () => {
               </button>
               <button
                 onClick={() => navigateTo('product-detail', { id: productB.id, slug: productB.slug })}
-                className="py-2 px-3 bg-[#FAF8F5] hover:bg-[#F2ECE5] text-[#1C1917] border border-[#E7E0D8] text-xs font-medium transition-colors"
+                className="py-2 px-3 bg-[#F8FAFC] hover:bg-[#F2ECE5] text-[#1C1917] border border-[#E2E8F0] text-xs font-medium transition-colors"
                 title="View Full Product Page"
               >
                 Details
@@ -328,9 +328,9 @@ export const ComparePage: React.FC = () => {
         </div>
 
         {/* Quick Price Difference Callout Banner */}
-        <div className="bg-white border border-[#E7E0D8] p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+        <div className="bg-white border border-[#E2E8F0] p-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2.5">
-            <span className="p-1.5 bg-[#8C4830]/10 text-[#8C4830] shrink-0">
+            <span className="p-1.5 bg-[#0284C7]/10 text-[#0284C7] shrink-0">
               <Sparkles className="w-4 h-4" />
             </span>
             <div>
@@ -356,10 +356,10 @@ export const ComparePage: React.FC = () => {
         </div>
 
         {/* SECTION 1: RECOMMENDED SEASONAL USAGE & WEATHER SUITABILITY */}
-        <div className="bg-white border border-[#E7E0D8] shadow-xs overflow-hidden">
+        <div className="bg-white border border-[#E2E8F0] shadow-xs overflow-hidden">
           <div className="bg-[#1C1917] text-white px-5 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Sun className="w-4 h-4 text-[#D4A373]" />
+              <Sun className="w-4 h-4 text-[#38BDF8]" />
               <h2 className="font-serif text-sm font-bold tracking-wide">
                 1. Recommended Seasonal Usage & Weather Suitability
               </h2>
@@ -367,13 +367,13 @@ export const ComparePage: React.FC = () => {
             <span className="text-[11px] text-white/70">Pakistani Climate Guide</span>
           </div>
 
-          <div className="divide-y divide-[#E7E0D8] text-xs">
+          <div className="divide-y divide-[#E2E8F0] text-xs">
             {/* Best Season */}
             <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Recommended Season
               </div>
-              <div className="md:px-4 font-medium text-[#8C4830] flex items-center gap-1.5">
+              <div className="md:px-4 font-medium text-[#0284C7] flex items-center gap-1.5">
                 {specA.seasonLabel.toLowerCase().includes('winter') ? <Flame className="w-3.5 h-3.5" /> : <Sun className="w-3.5 h-3.5" />}
                 <span>{specA.seasonLabel}</span>
               </div>
@@ -384,8 +384,8 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Recommended Temperature */}
-            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#FAF8F5]/50">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#F8FAFC]/50">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Best Temperature Range
               </div>
               <div className="md:px-4 font-mono font-medium text-[#1C1917]">
@@ -398,7 +398,7 @@ export const ComparePage: React.FC = () => {
 
             {/* Breathability */}
             <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Breathability & Airflow
               </div>
               <div className="md:px-4 font-medium text-[#1C1917]">
@@ -414,8 +414,8 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Insulation / Warmth */}
-            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#FAF8F5]/50">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#F8FAFC]/50">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Warmth & Thickness
               </div>
               <div className="md:px-4 text-[#1C1917]/80">
@@ -428,13 +428,13 @@ export const ComparePage: React.FC = () => {
 
             {/* Best Occasions */}
             <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-start">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4 pt-1">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4 pt-1">
                 Best Occasions
               </div>
               <div className="md:px-4 space-y-1">
                 {specA.bestOccasions.map((occ, i) => (
                   <div key={i} className="flex items-center gap-1.5 text-[#1C1917]/80">
-                    <Check className="w-3 h-3 text-[#8C4830] shrink-0" />
+                    <Check className="w-3 h-3 text-[#0284C7] shrink-0" />
                     <span>{occ}</span>
                   </div>
                 ))}
@@ -442,7 +442,7 @@ export const ComparePage: React.FC = () => {
               <div className="md:px-4 space-y-1">
                 {specB.bestOccasions.map((occ, i) => (
                   <div key={i} className="flex items-center gap-1.5 text-[#1C1917]/80">
-                    <Check className="w-3 h-3 text-[#8C4830] shrink-0" />
+                    <Check className="w-3 h-3 text-[#0284C7] shrink-0" />
                     <span>{occ}</span>
                   </div>
                 ))}
@@ -450,8 +450,8 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Weather Verdict */}
-            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-start bg-[#FAF8F5]/50">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-start bg-[#F8FAFC]/50">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4 pt-1">
                 Weather Performance
               </div>
               <div className="md:px-4 text-[#1C1917]/80 leading-relaxed">
@@ -465,10 +465,10 @@ export const ComparePage: React.FC = () => {
         </div>
 
         {/* SECTION 2: CLOTH & TAILORING SPECIFICATIONS */}
-        <div className="bg-white border border-[#E7E0D8] shadow-xs overflow-hidden">
+        <div className="bg-white border border-[#E2E8F0] shadow-xs overflow-hidden">
           <div className="bg-[#1C1917] text-white px-5 py-3.5 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Scissors className="w-4 h-4 text-[#D4A373]" />
+              <Scissors className="w-4 h-4 text-[#38BDF8]" />
               <h2 className="font-serif text-sm font-bold tracking-wide">
                 2. Cloth Specifications & Sizing
               </h2>
@@ -476,10 +476,10 @@ export const ComparePage: React.FC = () => {
             <span className="text-[11px] text-white/70">Unstitched Details</span>
           </div>
 
-          <div className="divide-y divide-[#E7E0D8] text-xs">
+          <div className="divide-y divide-[#E2E8F0] text-xs">
             {/* Fabric Material */}
             <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Fabric Material / Type
               </div>
               <div className="md:px-4 font-bold text-[#1C1917]">
@@ -491,8 +491,8 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Suit Pieces / Cut Details */}
-            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#FAF8F5]/50">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#F8FAFC]/50">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Suit Length & Pieces
               </div>
               <div className="md:px-4 text-[#1C1917]">
@@ -507,7 +507,7 @@ export const ComparePage: React.FC = () => {
 
             {/* Weight Grade */}
             <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Fabric Weight & Count
               </div>
               <div className="md:px-4 text-[#1C1917]/90">
@@ -521,8 +521,8 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Weave Style */}
-            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#FAF8F5]/50">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-center bg-[#F8FAFC]/50">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4">
                 Weave Texture
               </div>
               <div className="md:px-4 text-[#1C1917]/80">
@@ -535,7 +535,7 @@ export const ComparePage: React.FC = () => {
 
             {/* Pre-Wash (Tarr-Karna) */}
             <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-start">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4 pt-1">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4 pt-1">
                 Soaking (Tarr-Karna) Guide
               </div>
               <div className="md:px-4 text-[#1C1917]/80 leading-relaxed">
@@ -547,8 +547,8 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Washing Instructions */}
-            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-start bg-[#FAF8F5]/50">
-              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E7E0D8] pr-4 pt-1">
+            <div className="grid grid-cols-1 md:grid-cols-3 p-4 gap-2 items-start bg-[#F8FAFC]/50">
+              <div className="font-semibold text-[#1C1917] md:border-r md:border-[#E2E8F0] pr-4 pt-1">
                 Washing & Ironing Care
               </div>
               <div className="md:px-4 text-[#1C1917]/80 space-y-1">
@@ -564,17 +564,17 @@ export const ComparePage: React.FC = () => {
         </div>
 
         {/* SECTION 3: SHOPKEEPER VERDICT & PRACTICAL RECOMMENDATION */}
-        <div className="bg-[#FAF8F5] border-2 border-[#8C4830] p-6 shadow-xs space-y-3">
-          <div className="flex items-center gap-2 text-[#8C4830] font-bold text-sm">
-            <Sparkles className="w-5 h-5 text-[#8C4830]" />
+        <div className="bg-[#F8FAFC] border-2 border-[#0284C7] p-6 shadow-xs space-y-3">
+          <div className="flex items-center gap-2 text-[#0284C7] font-bold text-sm">
+            <Sparkles className="w-5 h-5 text-[#0284C7]" />
             <h3 className="font-serif text-base sm:text-lg">Our Shopkeeper Recommendation:</h3>
           </div>
           <p className="text-sm text-[#1C1917] leading-relaxed">
             {verdictText}
           </p>
-          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-[#1C1917]/80 border-t border-[#8C4830]/20">
+          <div className="pt-2 flex flex-wrap items-center gap-4 text-xs text-[#1C1917]/80 border-t border-[#0284C7]/20">
             <div className="flex items-center gap-1.5">
-              <ShieldCheck className="w-4 h-4 text-[#8C4830]" />
+              <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
               <span>100% Genuine Fabric Guarantee</span>
             </div>
             <div className="flex items-center gap-1.5">
@@ -597,7 +597,7 @@ export const ComparePage: React.FC = () => {
           role="dialog"
           aria-label="Select Fabric for Comparison"
         >
-          <div className="bg-white w-full max-w-2xl max-h-[85vh] border border-[#E7E0D8] shadow-2xl flex flex-col overflow-hidden">
+          <div className="bg-white w-full max-w-2xl max-h-[85vh] border border-[#E2E8F0] shadow-2xl flex flex-col overflow-hidden">
             {/* Modal Header */}
             <div className="bg-[#1C1917] text-white p-4 flex items-center justify-between shrink-0">
               <div>
@@ -617,7 +617,7 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Search & Filter Controls */}
-            <div className="p-3.5 bg-[#FAF8F5] border-b border-[#E7E0D8] space-y-2.5 shrink-0">
+            <div className="p-3.5 bg-[#F8FAFC] border-b border-[#E2E8F0] space-y-2.5 shrink-0">
               <div className="relative">
                 <Search className="w-4 h-4 text-[#1C1917]/40 absolute left-3 top-2.5" />
                 <input
@@ -625,7 +625,7 @@ export const ComparePage: React.FC = () => {
                   value={searchFilter}
                   onChange={(e) => setSearchFilter(e.target.value)}
                   placeholder="Search Boski, Latha, Khaddar, Bin Saeed, Lawn..."
-                  className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E7E0D8] text-[#1C1917] focus:outline-none focus:border-[#8C4830]"
+                  className="w-full text-xs py-2 pl-9 pr-3 bg-white border border-[#E2E8F0] text-[#1C1917] focus:outline-none focus:border-[#0284C7]"
                   autoFocus
                 />
               </div>
@@ -639,8 +639,8 @@ export const ComparePage: React.FC = () => {
                     onClick={() => setGenderFilter(gender)}
                     className={`px-3 py-1 text-xs font-semibold transition-colors ${
                       genderFilter === gender
-                        ? 'bg-[#8C4830] text-white'
-                        : 'bg-white text-[#1C1917]/70 hover:text-[#1C1917] border border-[#E7E0D8]'
+                        ? 'bg-[#0284C7] text-white'
+                        : 'bg-white text-[#1C1917]/70 hover:text-[#1C1917] border border-[#E2E8F0]'
                     }`}
                   >
                     {gender === 'All' ? 'All Collections' : gender + "'s"}
@@ -650,7 +650,7 @@ export const ComparePage: React.FC = () => {
             </div>
 
             {/* Product List */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-2 divide-y divide-[#E7E0D8]">
+            <div className="flex-1 overflow-y-auto p-4 space-y-2 divide-y divide-[#E2E8F0]">
               {selectableProducts.length === 0 ? (
                 <div className="py-12 text-center text-xs text-[#1C1917]/60">
                   No fabrics found matching your search. Try another name.
@@ -665,17 +665,17 @@ export const ComparePage: React.FC = () => {
                     <div
                       key={p.id}
                       className={`pt-2.5 first:pt-0 flex items-center justify-between gap-3 p-2 transition-colors ${
-                        isCurrent ? 'bg-[#8C4830]/5' : 'hover:bg-[#FAF8F5]'
+                        isCurrent ? 'bg-[#0284C7]/5' : 'hover:bg-[#F8FAFC]'
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <img
                           src={p.primaryImage}
                           alt={p.title}
-                          className="w-12 h-14 object-cover bg-[#F2EDE7] border border-[#E7E0D8] shrink-0"
+                          className="w-12 h-14 object-cover bg-[#F2EDE7] border border-[#E2E8F0] shrink-0"
                         />
                         <div className="min-w-0">
-                          <span className="text-[10px] text-[#8C4830] font-semibold uppercase tracking-wider block">
+                          <span className="text-[10px] text-[#0284C7] font-semibold uppercase tracking-wider block">
                             {p.gender} · {p.fabric}
                           </span>
                           <strong className="text-xs font-serif text-[#1C1917] block truncate">
@@ -693,7 +693,7 @@ export const ComparePage: React.FC = () => {
                         className={`px-3 py-1.5 text-xs font-semibold shrink-0 transition-colors ${
                           isCurrent
                             ? 'bg-zinc-200 text-zinc-500 cursor-not-allowed'
-                            : 'bg-[#8C4830] hover:bg-[#703623] text-white'
+                            : 'bg-[#0284C7] hover:bg-[#0369A1] text-white'
                         }`}
                       >
                         {isCurrent ? 'Selected' : 'Select'}

@@ -41,7 +41,7 @@ export const SearchGroundingAssistant: React.FC = () => {
       setResult(
         'Authentic Chinese Boski in Pakistan is graded by silk bolt weight: 6-pound (light summer), 8-pound (standard luxury all-season, ~PKR 14,000–16,000), and 10-pound (heavy bridal/formal). ' +
         '100% natural Chinese Boski is woven from continuous mulberry silk filaments featuring a natural creamy pearl sheen, cool fluid drape, and high tensile softness. ' +
-        'Pure Egyptian Giza Latha cotton requires pre-shrinking (Tarr-Karna) in cold water for 2 hours before tailoring cutting.'
+        'Pure Wash and Wear cotton requires pre-shrinking (Tarr-Karna) in cold water for 2 hours before tailoring cutting.'
       );
     } finally {
       setIsLoading(false);
@@ -49,11 +49,11 @@ export const SearchGroundingAssistant: React.FC = () => {
   };
 
   return (
-    <div className="bg-white border border-[#E7E0D8] p-5 sm:p-6 shadow-xs space-y-4">
+    <div className="bg-white border border-[#E2E8F0] p-5 sm:p-6 shadow-xs space-y-4">
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#E7E0D8]">
+      <div className="flex items-start justify-between gap-3 pb-3 border-b border-[#E2E8F0]">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 bg-[#8C4830]/10 text-[#8C4830]">
+          <div className="p-2 bg-[#0284C7]/10 text-[#0284C7]">
             <Globe className="w-5 h-5" />
           </div>
           <div>
@@ -71,7 +71,7 @@ export const SearchGroundingAssistant: React.FC = () => {
           </div>
         </div>
 
-        <span className="text-[10px] font-mono font-bold text-[#8C4830] bg-[#FAF8F5] px-2 py-1 border border-[#E7E0D8] shrink-0">
+        <span className="text-[10px] font-mono font-bold text-[#0284C7] bg-[#F8FAFC] px-2 py-1 border border-[#E2E8F0] shrink-0">
           Gemini 3.8 Flash
         </span>
       </div>
@@ -90,7 +90,7 @@ export const SearchGroundingAssistant: React.FC = () => {
                 setQuery(q);
                 handleAskSearch(q);
               }}
-              className="text-[11px] px-2.5 py-1 bg-[#FAF8F5] border border-[#E7E0D8] hover:border-[#8C4830] text-[#1C1917] transition-colors text-left"
+              className="text-[11px] px-2.5 py-1 bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7] text-[#1C1917] transition-colors text-left"
             >
               {q}
             </button>
@@ -112,13 +112,13 @@ export const SearchGroundingAssistant: React.FC = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Ask about silk thread counts, khaddar weaving techniques, or current Boski prices..."
-            className="w-full px-3.5 py-2.5 bg-[#FAF8F5] border border-[#E7E0D8] text-xs focus:border-[#8C4830] focus:bg-white focus:outline-none transition-colors"
+            className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-xs focus:border-[#0284C7] focus:bg-white focus:outline-none transition-colors"
           />
         </div>
         <button
           type="submit"
           disabled={isLoading || !query.trim()}
-          className="px-4 py-2.5 bg-[#8C4830] hover:bg-[#703623] disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 shrink-0"
+          className="px-4 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] disabled:opacity-50 text-white text-xs font-semibold uppercase tracking-wider transition-colors inline-flex items-center gap-1.5 shrink-0"
         >
           {isLoading ? <Sparkles className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
           <span>{isLoading ? 'Researching...' : 'Search Market'}</span>

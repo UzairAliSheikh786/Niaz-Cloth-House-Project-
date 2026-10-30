@@ -107,7 +107,7 @@ export function generateFullCatalogMessage(products: Product[], options?: Partia
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
     `💡 *To Order via WhatsApp:*`,
     `Reply with the *SKU / Code* or *Title* along with your City & Delivery Address.`,
-    `✨ *Niaz Cloth House — Pure Chinese Boski Silk & Egyptian Latha Cotton Since 1970.*`,
+    `✨ *Niaz Cloth House — Pure Chinese Boski Silk & Wash and Wear Suiting Since 1970.*`,
   ].join('\n');
 
   return `${header}\n\n${itemsText}\n\n${footer}`;
