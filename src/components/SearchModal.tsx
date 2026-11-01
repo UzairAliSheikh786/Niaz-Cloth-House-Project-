@@ -45,55 +45,52 @@ export const SearchModal: React.FC = () => {
         return (
           p.title.toLowerCase().includes(q) ||
           p.fabric.toLowerCase().includes(q) ||
+          (p.brand && p.brand.toLowerCase().includes(q)) ||
           p.collection.toLowerCase().includes(q) ||
           p.gender.toLowerCase().includes(q) ||
           p.subtitle.toLowerCase().includes(q) ||
-          p.description.toLowerCase().includes(q) ||
-          (p.fabricWeight && p.fabricWeight.toLowerCase().includes(q)) ||
-          (p.threadCount && p.threadCount.toLowerCase().includes(q)) ||
-          (p.weaveType && p.weaveType.toLowerCase().includes(q)) ||
-          (p.color && p.color.toLowerCase().includes(q))
+          p.description.toLowerCase().includes(q)
         );
       })
     : [];
 
-  const handleSelectProduct = (id: string) => {
+  const handleSelectProduct = (id: string, slug?: string) => {
     setIsSearchOpen(false);
-    navigateTo('product-detail', { id });
+    navigateTo('product-detail', { id, slug });
   };
 
   return (
     <div
-      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-24 px-4"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-xs flex items-start justify-center pt-16 sm:pt-24 px-4 select-none"
       role="dialog"
       aria-modal="true"
     >
-      <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      <div className="bg-white max-w-2xl w-full border border-neutral-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Search Input Bar */}
-        <div className="p-4 sm:p-5 border-b border-[#E2E8F0] flex items-center gap-3 bg-white">
-          <Search className="w-5 h-5 text-[#0284C7] shrink-0" />
+        <div className="p-4 sm:p-5 border-b border-neutral-200 flex items-center gap-3 bg-white">
+          <Search className="w-5 h-5 text-black shrink-0" />
           <input
             ref={inputRef}
             type="text"
-            placeholder="Search unstitched fabrics: Boski, Wash and Wear, Lawn 3-Piece, Chiffon..."
+            placeholder="Search suits: Johara, Bin Rashid, Wash & Wear, Boski, Lawn..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full text-sm sm:text-base bg-transparent border-none focus:outline-none placeholder:text-[#1C1917]/65 text-[#1C1917]"
-            aria-label="Search catalog by unstitched fabric name, collection, or cut"
+            className="w-full text-sm sm:text-base bg-transparent border-none focus:outline-none placeholder:text-neutral-400 text-black font-medium"
+            aria-label="Search catalog"
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="p-1 text-[#1C1917]/70 hover:text-[#1C1917] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
-              aria-label="Clear search query text"
+              className="p-1 text-neutral-400 hover:text-black transition-colors"
+              aria-label="Clear search"
             >
               <X className="w-4 h-4" />
             </button>
           )}
           <button
             onClick={() => setIsSearchOpen(false)}
-            aria-label="Close search overlay"
-            className="text-xs px-2.5 py-1 bg-[#F5EFEB] text-[#1C1917] hover:bg-[#EAE2D8] transition-colors border border-[#E2E8F0] font-medium focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
+            aria-label="Close search"
+            className="text-[11px] px-2.5 py-1 bg-neutral-100 text-neutral-700 hover:text-black hover:bg-neutral-200 transition-colors font-bold uppercase tracking-wider"
           >
             ESC
           </button>
@@ -103,22 +100,24 @@ export const SearchModal: React.FC = () => {
         <div className="max-h-96 overflow-y-auto p-4 sm:p-5">
           {query.trim() === '' ? (
             <div className="space-y-4">
-              <div className="text-xs font-semibold uppercase tracking-widest text-[#0284C7]">
-                Suggested Textile Searches
+              <div className="text-[11px] font-bold uppercase tracking-widest text-neutral-400">
+                Popular Searches
               </div>
               <div className="flex flex-wrap gap-2">
                 {[
-                  '8-Pound Pure Boski',
-                  'Wash and Wear Super 120s',
-                  'Embroidered Lawn 3-Piece',
-                  'Pure Bamberg Chiffon',
-                  'Handwoven Raw Karandi',
-                  'Swiss Voile Schiffli',
+                  'Johara Embroidered',
+                  'Bin Rashid Lawn',
+                  'Tawakkal 3-Piece',
+                  'Bin Saeed Printed',
+                  'Men Wash & Wear',
+                  'Pure Chinese Boski',
+                  'Kamalia Khaddar',
+                  'Textured Lelan',
                 ].map((item) => (
                   <button
                     key={item}
                     onClick={() => setQuery(item)}
-                    className="text-xs px-3 py-1.5 bg-white border border-[#E2E8F0] text-[#1C1917]/80 hover:border-[#0284C7] hover:text-[#0284C7] transition-colors"
+                    className="text-xs px-3 py-1.5 bg-neutral-100 hover:bg-black hover:text-white text-neutral-800 transition-all font-medium"
                   >
                     {item}
                   </button>
@@ -126,41 +125,46 @@ export const SearchModal: React.FC = () => {
               </div>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="py-8 text-center text-xs text-[#1C1917]/60">
-              No unstitched fabric found matching "{query}". Try searching for Boski, Latha, Lawn, or Chiffon.
+            <div className="py-8 text-center text-xs text-neutral-500">
+              No suits found matching "{query}". Try searching by brand (e.g. Johara, Tawakkal, Bin Saeed) or fabric (Wash & Wear, Boski).
             </div>
           ) : (
             <div className="space-y-2">
-              <div className="text-xs font-semibold text-[#0284C7] pb-1">
-                Found {filtered.length} fabric result{filtered.length > 1 ? 's' : ''}:
+              <div className="text-[11px] font-bold uppercase tracking-wider text-neutral-400 pb-1">
+                Found {filtered.length} Suit{filtered.length > 1 ? 's' : ''}:
               </div>
               {filtered.map((item) => (
                 <div
                   key={item.id}
-                  onClick={() => handleSelectProduct(item.id)}
-                  className="flex items-center gap-3 p-2.5 bg-white hover:bg-[#F7F2ED] border border-[#E2E8F0]/60 cursor-pointer transition-colors group"
+                  onClick={() => handleSelectProduct(item.id, item.slug)}
+                  className="flex items-center gap-3 p-2.5 bg-white hover:bg-neutral-50 border border-neutral-200 cursor-pointer transition-colors group"
                 >
                   <img
                     src={item.primaryImage}
-                    alt={`${item.title} unstitched ${item.fabric} suit fabric`}
+                    alt={`${item.title}`}
                     width={48}
-                    height={48}
-                    referrerPolicy="no-referrer"
-                    className="w-12 h-12 object-cover bg-[#F2EDE7] shrink-0"
+                    height={64}
+                    className="w-12 h-16 object-cover bg-neutral-100 shrink-0"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+                    }}
                   />
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-serif text-sm font-semibold text-[#1C1917] group-hover:text-[#0284C7] truncate">
+                    <span className="text-[10px] font-bold tracking-wider uppercase text-neutral-500 block">
+                      {item.brand || item.gender}
+                    </span>
+                    <h4 className="font-semibold text-xs text-black group-hover:underline truncate">
                       {item.title}
                     </h4>
-                    <p className="text-xs text-[#0284C7] font-sans truncate">
-                      {item.gender} · {item.fabric} · {item.cutDetails.length}
+                    <p className="text-[11px] text-neutral-500 truncate">
+                      {item.fabric} · {item.cutDetails.length}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-mono text-xs font-bold text-[#1C1917] tabular-nums">
+                    <div className="text-xs font-black text-black">
                       {formatPKR(item.price)}
                     </div>
-                    <span className="text-[10px] text-[#4A5D4E] font-medium">In Stock</span>
+                    <span className="text-[10px] text-emerald-700 font-semibold uppercase">In Stock</span>
                   </div>
                 </div>
               ))}

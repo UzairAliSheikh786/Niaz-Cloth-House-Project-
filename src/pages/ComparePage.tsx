@@ -84,7 +84,7 @@ export const ComparePage: React.FC = () => {
 
   const createWhatsAppInquiryUrl = (prod: Product) => {
     const text = encodeURIComponent(
-      `Assalam-o-Alaikum Niaz Cloth House, I am inquiring about the unstitched suit:\n\n*${prod.title}* (${prod.fabric})\nPrice: ₨ ${prod.price.toLocaleString('en-PK')}\n\nCould you please advise if this is in stock for delivery?`
+      `Hello Niaz Cloth House, I am inquiring about the unstitched suit:\n\n*${prod.title}* (${prod.fabric})\nPrice: ₨ ${prod.price.toLocaleString('en-PK')}\n\nCould you please advise if this is in stock for delivery?`
     );
     return `https://wa.me/923346565636?text=${text}`;
   };

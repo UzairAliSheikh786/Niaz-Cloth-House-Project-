@@ -1,1345 +1,501 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
-  Filter, 
   SlidersHorizontal, 
   X, 
   RotateCcw, 
   Search, 
-  ShoppingBag, 
-  ArrowUpRight, 
-  Layers, 
-  Activity, 
-  Sparkles,
-  ChevronDown,
-  ChevronUp,
-  Tag
+  LayoutGrid, 
+  Grid3X3, 
+  Grid2X2, 
+  Square,
+  ChevronDown, 
+  ChevronUp, 
+  Check, 
+  Phone,
+  Flame,
+  ArrowRight
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { 
   Product, 
-  FabricType, 
-  FabricWeightCategory, 
-  ThreadCountCategory, 
-  WeaveTypeCategory,
-  WOMEN_EMBROIDERY_BRANDS,
-  WOMEN_PRINTED_BRANDS 
+  WOMEN_EMBROIDERY_BRANDS, 
+  WOMEN_PRINTED_BRANDS, 
+  MENS_FABRICS 
 } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs, BreadcrumbItem } from '../components/Breadcrumbs';
+import { QuickViewModal } from '../components/QuickViewModal';
 
 export const ShopPage: React.FC = () => {
-  const { products, addToCart } = useShop();
+  const { products } = useShop();
   const { filterParams, navigateTo, currentPage } = useNavigation();
 
-  // Resolve initial state based on route or filterParams
-  const getInitialGender = () => {
-    if (currentPage === 'men-summer' || currentPage === 'men-winter') return 'Men';
-    if (currentPage === 'women-summer' || currentPage === 'women-winter') return 'Women';
-    return filterParams.gender || 'All';
-  };
-
-  const getInitialSeason = () => {
-    if (currentPage === 'men-summer' || currentPage === 'women-summer') return 'Summer';
-    if (currentPage === 'men-winter' || currentPage === 'women-winter') return 'Winter';
-    return filterParams.season || 'All';
-  };
+  // Quick View Modal State
+  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
   // Filter States
   const [searchQuery, setSearchQuery] = useState<string>(filterParams.search || '');
-  const [selectedGender, setSelectedGender] = useState<string>(getInitialGender);
+  const [selectedGender, setSelectedGender] = useState<string>(filterParams.gender || 'All');
   const [selectedFabric, setSelectedFabric] = useState<string>(filterParams.fabric || 'All');
-  const [selectedSeason, setSelectedSeason] = useState<string>(getInitialSeason);
   const [selectedBrand, setSelectedBrand] = useState<string>(filterParams.brand || 'All');
   const [selectedCraft, setSelectedCraft] = useState<string>(filterParams.craftType || 'All');
-  const [selectedFabricWeight, setSelectedFabricWeight] = useState<string>(filterParams.fabricWeight || 'All');
-  const [selectedThreadCount, setSelectedThreadCount] = useState<string>(filterParams.threadCount || 'All');
-  const [selectedWeaveType, setSelectedWeaveType] = useState<string>(filterParams.weaveType || 'All');
-  const [maxPrice, setMaxPrice] = useState<number>(30000);
-  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating' | 'weight'>('featured');
+  const [priceRange, setPriceRange] = useState<string>('All');
+  const [sortBy, setSortBy] = useState<'featured' | 'price-asc' | 'price-desc' | 'rating' | 'newest'>('featured');
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  
+  // Limelight Grid View Columns: 1 (single mobile stack), 2, 3, or 4
+  const [gridCols, setGridCols] = useState<1 | 2 | 3 | 4>(4);
 
-  // Accordion toggle states for sidebar sections
+  // Accordion state for filter groups
   const [openSections, setOpenSections] = useState<{ [key: string]: boolean }>({
-    brand: true,
-    craft: true,
     gender: true,
-    season: true,
+    craft: true,
+    brands: true,
     fabric: true,
-    weight: false,
-    threadCount: false,
-    weave: false,
     price: true,
   });
 
-  const toggleSection = (section: string) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  const toggleSection = (sec: string) => {
+    setOpenSections((prev) => ({ ...prev, [sec]: !prev[sec] }));
   };
 
-  // Sync state when route or navigation filter parameters change
+  // Sync state when filterParams or route change
   useEffect(() => {
-    if (currentPage === 'men-summer') {
-      setSelectedGender('Men');
-      setSelectedSeason('Summer');
-    } else if (currentPage === 'men-winter') {
-      setSelectedGender('Men');
-      setSelectedSeason('Winter');
-    } else if (currentPage === 'women-summer') {
-      setSelectedGender('Women');
-      setSelectedSeason('Summer');
-    } else if (currentPage === 'women-winter') {
-      setSelectedGender('Women');
-      setSelectedSeason('Winter');
-    } else {
-      if (filterParams.gender !== undefined) setSelectedGender(filterParams.gender);
-      if (filterParams.season !== undefined) setSelectedSeason(filterParams.season);
-      if (filterParams.fabric !== undefined) setSelectedFabric(filterParams.fabric);
-      if (filterParams.brand !== undefined) setSelectedBrand(filterParams.brand);
-      if (filterParams.craftType !== undefined) setSelectedCraft(filterParams.craftType);
-      if (filterParams.fabricWeight !== undefined) setSelectedFabricWeight(filterParams.fabricWeight);
-      if (filterParams.threadCount !== undefined) setSelectedThreadCount(filterParams.threadCount);
-      if (filterParams.weaveType !== undefined) setSelectedWeaveType(filterParams.weaveType);
-      if (filterParams.search !== undefined) setSearchQuery(filterParams.search);
-    }
-  }, [currentPage, filterParams]);
+    if (filterParams.gender !== undefined) setSelectedGender(filterParams.gender);
+    if (filterParams.fabric !== undefined) setSelectedFabric(filterParams.fabric);
+    if (filterParams.brand !== undefined) setSelectedBrand(filterParams.brand);
+    if (filterParams.craftType !== undefined) setSelectedCraft(filterParams.craftType);
+    if (filterParams.search !== undefined) setSearchQuery(filterParams.search);
+  }, [filterParams]);
 
-  // Quick View Product state
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  // Combined Brands List
+  const allBrands = useMemo(() => {
+    return Array.from(new Set([...WOMEN_EMBROIDERY_BRANDS, ...WOMEN_PRINTED_BRANDS]));
+  }, []);
 
-  const fabricOptions: FabricType[] = [
-    'Wash & Wear',
-    'Cotton',
-    'Khaddar',
-    'Lelan',
-    'Boski',
-    'Luxury Lawn',
-    'Embroidered Chiffon',
-    'Swiss Voile',
-    'Silk Jacquard',
-  ];
-
-  const fabricWeightOptions: FabricWeightCategory[] = [
-    'Ultra-Lightweight',
-    'Lightweight',
-    'Medium Weight',
-    'Heavy Weight',
-  ];
-
-  const threadCountOptions: ThreadCountCategory[] = [
-    'Coarse / Traditional (30s-40s)',
-    'High Count (60s-80s)',
-    'Superfine (100s-120s)',
-    'Royal Grade (140s+)',
-  ];
-
-  const weaveTypeOptions: WeaveTypeCategory[] = [
-    'Plain Weave',
-    'Sateen / Boski Weave',
-    'Cambric / Lawn Weave',
-    'Chiffon / Crepe Weave',
-    'Jacquard Weave',
-    'Handloom Textured Weave',
-    'Twill Weave',
-  ];
-
-  // Real-time instant filtering engine
+  // Filter logic
   const filteredProducts = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+    return products.filter((p) => {
+      // Search
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchTitle = p.title.toLowerCase().includes(q);
+        const matchBrand = (p.brand || '').toLowerCase().includes(q);
+        const matchFabric = p.fabric.toLowerCase().includes(q);
+        const matchSubtitle = (p.subtitle || '').toLowerCase().includes(q);
+        if (!matchTitle && !matchBrand && !matchFabric && !matchSubtitle) return false;
+      }
 
-    return products
-      .filter((p) => {
-        // Real-time search query matching
-        if (q) {
-          const matchTitle = p.title.toLowerCase().includes(q);
-          const matchFabric = p.fabric.toLowerCase().includes(q);
-          const matchDesc = p.description.toLowerCase().includes(q);
-          const matchSub = p.subtitle.toLowerCase().includes(q);
-          const matchCollection = p.collection.toLowerCase().includes(q);
-          const matchId = p.id.toLowerCase().includes(q);
-          const matchColor = p.color.toLowerCase().includes(q);
-          const matchWeight = p.fabricWeight ? p.fabricWeight.toLowerCase().includes(q) : false;
-          const matchThread = p.threadCount ? p.threadCount.toLowerCase().includes(q) : false;
-          const matchWeave = p.weaveType ? p.weaveType.toLowerCase().includes(q) : false;
-          const matchWeightGrade = p.weightGrade ? p.weightGrade.toLowerCase().includes(q) : false;
-          const matchBrand = p.brand ? p.brand.toLowerCase().includes(q) : false;
-          const matchCraft = p.craftType ? p.craftType.toLowerCase().includes(q) : false;
+      // Gender
+      if (selectedGender !== 'All' && p.gender !== selectedGender) return false;
 
-          if (
-            !matchTitle &&
-            !matchFabric &&
-            !matchDesc &&
-            !matchSub &&
-            !matchCollection &&
-            !matchId &&
-            !matchColor &&
-            !matchWeight &&
-            !matchThread &&
-            !matchWeave &&
-            !matchWeightGrade &&
-            !matchBrand &&
-            !matchCraft
-          ) {
-            return false;
-          }
-        }
+      // Craft (Embroidery vs Printed)
+      if (selectedCraft !== 'All' && p.craftType !== selectedCraft) return false;
 
-        // Gender / Category filter
-        if (selectedGender !== 'All' && p.gender !== selectedGender) return false;
+      // Fabric
+      if (selectedFabric !== 'All' && p.fabric !== selectedFabric) return false;
 
-        // Brand filter
-        if (selectedBrand !== 'All' && p.brand !== selectedBrand) return false;
+      // Brand
+      if (selectedBrand !== 'All' && p.brand !== selectedBrand) return false;
 
-        // Craft technique filter (Embroidery vs Printed)
-        if (selectedCraft !== 'All' && p.craftType !== selectedCraft) return false;
+      // In stock
+      if (inStockOnly && !p.inStock) return false;
 
-        // Fabric type filter
-        if (selectedFabric !== 'All' && p.fabric !== selectedFabric) return false;
+      // Sale only
+      if (filterParams.saleOnly && !(p.originalPrice && p.originalPrice > p.price)) return false;
 
-        // Season filter
-        if (selectedSeason !== 'All') {
-          if (selectedSeason === 'Summer' && p.season !== 'Summer' && p.season !== 'All Season') return false;
-          if (selectedSeason === 'Winter' && p.season !== 'Winter' && p.season !== 'All Season') return false;
-        }
+      // New arrivals only
+      if (filterParams.newArrivalsOnly && !p.newArrival) return false;
 
-        // Fabric Weight filter
-        if (selectedFabricWeight !== 'All') {
-          if (p.fabricWeightCategory !== selectedFabricWeight) return false;
-        }
+      // Price brackets
+      if (priceRange === 'under-4000' && p.price >= 4000) return false;
+      if (priceRange === '4000-7000' && (p.price < 4000 || p.price > 7000)) return false;
+      if (priceRange === '7000-12000' && (p.price < 7000 || p.price > 12000)) return false;
+      if (priceRange === 'above-12000' && p.price <= 12000) return false;
 
-        // Thread Count filter
-        if (selectedThreadCount !== 'All') {
-          if (p.threadCountCategory !== selectedThreadCount) return false;
-        }
+      return true;
+    }).sort((a, b) => {
+      if (sortBy === 'price-asc') return a.price - b.price;
+      if (sortBy === 'price-desc') return b.price - a.price;
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'newest') return (b.newArrival ? 1 : 0) - (a.newArrival ? 1 : 0);
+      return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+    });
+  }, [products, searchQuery, selectedGender, selectedCraft, selectedFabric, selectedBrand, inStockOnly, priceRange, sortBy]);
 
-        // Weave Type filter
-        if (selectedWeaveType !== 'All') {
-          if (p.weaveTypeCategory !== selectedWeaveType) return false;
-        }
-
-        // Price filter
-        if (p.price > maxPrice) return false;
-
-        // In-stock filter
-        if (inStockOnly && !p.inStock) return false;
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'price-asc') return a.price - b.price;
-        if (sortBy === 'price-desc') return b.price - a.price;
-        if (sortBy === 'rating') return b.rating - a.rating;
-        return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
-      });
-  }, [
-    products,
-    searchQuery,
-    selectedGender,
-    selectedBrand,
-    selectedCraft,
-    selectedFabric,
-    selectedSeason,
-    selectedFabricWeight,
-    selectedThreadCount,
-    selectedWeaveType,
-    maxPrice,
-    inStockOnly,
-    sortBy,
-  ]);
-
-  // Compute live counts for each filter category
-  const counts = useMemo(() => {
-    const calcCount = (predicate: (p: Product) => boolean) => {
-      return products.filter(predicate).length;
-    };
-
-    return {
-      brand: (b: string) => calcCount((p) => p.brand === b),
-      craft: (c: string) => calcCount((p) => p.craftType === c),
-      weight: (weightCat: string) => calcCount((p) => p.fabricWeightCategory === weightCat),
-      thread: (threadCat: string) => calcCount((p) => p.threadCountCategory === threadCat),
-      weave: (weaveCat: string) => calcCount((p) => p.weaveTypeCategory === weaveCat),
-      fabric: (fab: string) => calcCount((p) => p.fabric === fab),
-      gender: (g: string) => calcCount((p) => p.gender === g),
-      season: (s: string) => calcCount((p) => p.season === s || p.season === 'All Season'),
-    };
-  }, [products]);
-
-  const resetFilters = () => {
-    setSearchQuery('');
-    setSelectedGender('All');
-    setSelectedBrand('All');
-    setSelectedCraft('All');
-    setSelectedFabric('All');
-    setSelectedSeason('All');
-    setSelectedFabricWeight('All');
-    setSelectedThreadCount('All');
-    setSelectedWeaveType('All');
-    setMaxPrice(30000);
-    setInStockOnly(false);
-    setSortBy('featured');
-  };
-
-  const hasActiveFilters =
-    searchQuery.trim() !== '' ||
+  // Has active filters
+  const hasActiveFilters = 
     selectedGender !== 'All' ||
-    selectedBrand !== 'All' ||
     selectedCraft !== 'All' ||
     selectedFabric !== 'All' ||
-    selectedSeason !== 'All' ||
-    selectedFabricWeight !== 'All' ||
-    selectedThreadCount !== 'All' ||
-    selectedWeaveType !== 'All' ||
-    maxPrice < 30000 ||
-    inStockOnly;
+    selectedBrand !== 'All' ||
+    priceRange !== 'All' ||
+    inStockOnly ||
+    searchQuery.trim().length > 0;
 
-  // Dynamic JSON-LD Schema reflecting active filters and matching products
-  useEffect(() => {
-    const scriptId = 'shop-catalog-jsonld';
-    let scriptElement = document.getElementById(scriptId) as HTMLScriptElement | null;
-
-    if (!scriptElement) {
-      scriptElement = document.createElement('script');
-      scriptElement.id = scriptId;
-      scriptElement.type = 'application/ld+json';
-      document.head.appendChild(scriptElement);
-    }
-
-    const jsonLdData = {
-      '@context': 'https://schema.org',
-      '@type': 'CollectionPage',
-      name: 'Niaz Cloth House | Unstitched Fabrics Catalog',
-      url: window.location.href,
-      description:
-        'Explore unstitched Pakistani fabrics with advanced filters for fabric weight, thread count, weave structure, and seasonal suiting since 1977.',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: {
-          '@type': 'EntryPoint',
-          urlTemplate: 'https://nch.com/shop?search={search_term_string}',
-        },
-        'query-input': 'required name=search_term_string',
-      },
-      mainEntity: {
-        '@type': 'ItemList',
-        numberOfItems: filteredProducts.length,
-        itemListElement: filteredProducts.map((p, idx) => ({
-          '@type': 'ListItem',
-          position: idx + 1,
-          item: {
-            '@type': 'Product',
-            name: p.title,
-            description: p.description,
-            image: p.primaryImage,
-            sku: p.id,
-            category: `${p.gender}'s Unstitched Fabric`,
-            material: p.fabric,
-            additionalProperty: [
-              {
-                '@type': 'PropertyValue',
-                name: 'Fabric Weight',
-                value: p.fabricWeight || p.weightGrade,
-              },
-              {
-                '@type': 'PropertyValue',
-                name: 'Thread Count',
-                value: p.threadCount || 'Standard Artisan Count',
-              },
-              {
-                '@type': 'PropertyValue',
-                name: 'Weave Type',
-                value: p.weaveType || 'Traditional Weave',
-              },
-              {
-                '@type': 'PropertyValue',
-                name: 'Cut Length',
-                value: p.cutDetails.length,
-              },
-            ],
-            offers: {
-              '@type': 'Offer',
-              price: p.price,
-              priceCurrency: 'PKR',
-              availability: p.inStock ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-              seller: {
-                '@type': 'Organization',
-                name: 'Niaz Cloth House Since 1977',
-              },
-            },
-          },
-        })),
-      },
-    };
-
-    scriptElement.textContent = JSON.stringify(jsonLdData);
-
-    return () => {
-      const el = document.getElementById(scriptId);
-      if (el) el.remove();
-    };
-  }, [filteredProducts, searchQuery, selectedFabricWeight, selectedThreadCount, selectedWeaveType]);
-
-  // Compute dynamic hero title and subtitle
-  const getHeaderInfo = () => {
-    if (searchQuery.trim()) {
-      return {
-        title: `Search: "${searchQuery}"`,
-        subtitle: `Showing ${filteredProducts.length} unstitched fabrics matching your technical search criteria.`,
-      };
-    }
-    if (selectedBrand !== 'All') {
-      return {
-        title: `${selectedBrand} Collection`,
-        subtitle: `Authentic unstitched 3-piece suits from ${selectedBrand} at Niaz Cloth House, Paris Bazaar Rawalpindi.`,
-      };
-    }
-    if (selectedCraft !== 'All') {
-      return {
-        title: `Women's ${selectedCraft} Suits`,
-        subtitle: `Pakistani unstitched 3-piece suits crafted with premium ${selectedCraft.toLowerCase()} techniques.`,
-      };
-    }
-    if (selectedGender === 'Men' && selectedSeason === 'Summer') {
-      return {
-        title: "Men's Summer Unstitched Collection",
-        subtitle: "Wash & Wear wrinkle-resistant suiting, crisp combed cotton, and breathable summer Boski silk.",
-      };
-    }
-    if (selectedGender === 'Men' && selectedSeason === 'Winter') {
-      return {
-        title: "Men's Winter Unstitched Collection",
-        subtitle: "Authentic Kamalia handloom Khaddar, warm Lelan, and heavy 10-pound gold-seal Boski silk.",
-      };
-    }
-    if (selectedGender === 'Women' && selectedSeason === 'Summer') {
-      return {
-        title: "Women's Summer Unstitched Collection",
-        subtitle: 'Superfine combed lawn 3-piece, pure crinkle chiffon dupattas & printed summer lawn.',
-      };
-    }
-    if (selectedGender === 'Women' && selectedSeason === 'Winter') {
-      return {
-        title: "Women's Winter Unstitched Collection",
-        subtitle: 'Banarasi silk jacquard festive, Kashmiri pashmina wool shawls & heavy winter khaddar.',
-      };
-    }
-    if (selectedGender === 'Men') {
-      return {
-        title: "Men's Unstitched Suiting Collection",
-        subtitle: 'Wash & Wear, Combed Cotton, Kamalia Khaddar, Lelan & Pure Boski Silk.',
-      };
-    }
-    if (selectedGender === 'Women') {
-      return {
-        title: "Women's Unstitched Collection",
-        subtitle: 'Pure 3-piece suits in combed lawn, chiffon, jacquard & warm winter shawls.',
-      };
-    }
-    if (selectedSeason === 'Summer') {
-      return {
-        title: 'Summer Unstitched Collection 2026',
-        subtitle: 'Breathable natural plant and silk fibers formulated to dissipate heat in peak subtropical weather.',
-      };
-    }
-    if (selectedSeason === 'Winter') {
-      return {
-        title: 'Winter Unstitched Collection 2026',
-        subtitle: 'Dense hand-spun natural cotton and raw silk slubs providing heirloom thermal insulation.',
-      };
-    }
-    return {
-      title: 'Unstitched Fabric Catalog',
-      subtitle: 'Authentic Pakistani unstitched bolts with advanced weave structure, weight grade, and thread count filters.',
-    };
+  const resetFilters = () => {
+    setSelectedGender('All');
+    setSelectedCraft('All');
+    setSelectedFabric('All');
+    setSelectedBrand('All');
+    setPriceRange('All');
+    setInStockOnly(false);
+    setSearchQuery('');
   };
 
-  const headerInfo = getHeaderInfo();
+  // Header Title
+  const getHeaderTitle = () => {
+    if (searchQuery.trim()) return `SEARCH: "${searchQuery}"`;
+    if (selectedBrand !== 'All') return `${selectedBrand.toUpperCase()} SUITS`;
+    if (selectedCraft === 'Embroidery') return "WOMEN'S EMBROIDERED COLLECTION";
+    if (selectedCraft === 'Printed') return "WOMEN'S PRINTED LAWN COLLECTION";
+    if (selectedFabric !== 'All') return `${selectedFabric.toUpperCase()} SUITING`;
+    if (selectedGender === 'Women') return "WOMEN'S UNSTITCHED COLLECTION";
+    if (selectedGender === 'Men') return "MEN'S SIGNATURE SUITING";
+    return "ALL UNSTITCHED FABRICS";
+  };
 
   const breadcrumbItems = useMemo<BreadcrumbItem[]>(() => {
     const items: BreadcrumbItem[] = [
       { name: 'Home', path: '/', page: 'home' },
-      { name: 'All Unstitched Fabrics', path: '/shop', page: 'shop' },
+      { name: 'All Suits', path: '/shop', page: 'shop' },
     ];
-    if (currentPage === 'men-summer') {
-      items.push({ name: "Men's Summer Suiting", path: '/collections/men-summer', page: 'men-summer' });
-    } else if (currentPage === 'men-winter') {
-      items.push({ name: "Men's Winter Suiting", path: '/collections/men-winter', page: 'men-winter' });
-    } else if (currentPage === 'women-summer') {
-      items.push({ name: "Women's Summer Festive", path: '/collections/women-summer', page: 'women-summer' });
-    } else if (currentPage === 'women-winter') {
-      items.push({ name: "Women's Winter Festive", path: '/collections/women-winter', page: 'women-winter' });
-    } else if (selectedBrand !== 'All') {
-      items.push({ name: `${selectedBrand} Suits`, path: '/shop', page: 'shop' });
-    } else if (selectedCraft !== 'All') {
-      items.push({ name: `${selectedCraft} Suits`, path: '/shop', page: 'shop' });
-    } else if (selectedGender !== 'All' || selectedSeason !== 'All') {
-      items.push({ name: headerInfo.title, path: '/shop', page: 'shop' });
+    if (selectedGender !== 'All') {
+      items.push({ name: selectedGender === 'Women' ? "Women" : "Men", path: '/shop', page: 'shop' });
+    }
+    if (selectedBrand !== 'All') {
+      items.push({ name: selectedBrand, path: '/shop', page: 'shop' });
     }
     return items;
-  }, [currentPage, selectedGender, selectedSeason, selectedBrand, selectedCraft, headerInfo.title]);
+  }, [selectedGender, selectedBrand]);
 
   return (
-    <div className="w-full bg-[#F8FAFC] min-h-screen pb-14">
-      {/* Crawlable Breadcrumbs Header */}
-      <div className="border-b border-[#E2E8F0] bg-[#F5EFEB]/50">
-        <Breadcrumbs items={breadcrumbItems} />
+    <div className="w-full bg-white min-h-screen select-none pb-16">
+      {/* 1. Breadcrumbs Strip */}
+      <div className="border-b border-neutral-200 bg-[#FAFAFA]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-        {/* Catalog Header Title */}
-        <div className="border-b border-[#E2E8F0] pb-6 mb-8">
-
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-            <div>
-              <h1 className="font-serif text-3xl sm:text-4xl font-bold text-[#1C1917]">
-                {headerInfo.title}
-              </h1>
-              <p className="text-xs sm:text-sm text-[#1C1917]/70 font-sans mt-1">
-                {headerInfo.subtitle}
-              </p>
-            </div>
-
-            {/* Mobile Filter Trigger */}
-            <div className="flex items-center gap-3 lg:hidden">
-              <button
-                onClick={() => setMobileFiltersOpen(true)}
-                className="flex-1 py-2.5 px-4 bg-white border border-[#E2E8F0] text-xs font-semibold text-[#1C1917] flex items-center justify-center gap-2 shadow-xs"
-              >
-                <SlidersHorizontal className="w-4 h-4 text-[#0284C7]" />
-                <span>Filters {hasActiveFilters ? '• Active' : ''}</span>
-              </button>
-
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                aria-label="Sort products by"
-                className="py-2.5 px-3 bg-white border border-[#E2E8F0] text-xs text-[#1C1917] focus:outline-none"
-              >
-                <option value="featured">Featured First</option>
-                <option value="price-asc">Price: Low to High</option>
-                <option value="price-desc">Price: High to Low</option>
-                <option value="rating">Highest Rated</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Quick Category Bar: Summer & Winter in Men & Women + Embroidery & Printed */}
-          <div className="mt-6 pt-4 border-t border-[#E2E8F0]/60 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <span className="text-xs font-semibold uppercase tracking-wider text-[#1C1917]/60 shrink-0 mr-1">
-              Collections:
-            </span>
-            <button
-              onClick={() => {
-                setSelectedGender('All');
-                setSelectedSeason('All');
-                setSelectedBrand('All');
-                setSelectedCraft('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'All' && selectedSeason === 'All' && selectedCraft === 'All' && selectedBrand === 'All'
-                  ? 'bg-[#1C1917] text-white border-[#1C1917]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              All Unstitched
-            </button>
-            <button
-              onClick={() => {
-                setSelectedGender('Women');
-                setSelectedCraft('Embroidery');
-                setSelectedBrand('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'Women' && selectedCraft === 'Embroidery' && selectedBrand === 'All'
-                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              ★ Women's Embroidery Brands
-            </button>
-            <button
-              onClick={() => {
-                setSelectedGender('Women');
-                setSelectedCraft('Printed');
-                setSelectedBrand('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'Women' && selectedCraft === 'Printed' && selectedBrand === 'All'
-                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              ★ Women's Printed Brands
-            </button>
-            <button
-              onClick={() => {
-                setSelectedGender('Men');
-                setSelectedSeason('Summer');
-                setSelectedCraft('All');
-                setSelectedBrand('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'Men' && selectedSeason === 'Summer'
-                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              Men's Summer (Latha & Boski)
-            </button>
-            <button
-              onClick={() => {
-                setSelectedGender('Men');
-                setSelectedSeason('Winter');
-                setSelectedCraft('All');
-                setSelectedBrand('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'Men' && selectedSeason === 'Winter'
-                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              Men's Winter (Khaddar & Karandi)
-            </button>
-            <button
-              onClick={() => {
-                setSelectedGender('Women');
-                setSelectedSeason('Summer');
-                setSelectedCraft('All');
-                setSelectedBrand('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'Women' && selectedSeason === 'Summer' && selectedCraft === 'All'
-                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              Women's Summer (Lawn & Chiffon)
-            </button>
-            <button
-              onClick={() => {
-                setSelectedGender('Women');
-                setSelectedSeason('Winter');
-                setSelectedCraft('All');
-                setSelectedBrand('All');
-              }}
-              className={`px-3 py-1.5 text-xs font-medium shrink-0 transition-colors border ${
-                selectedGender === 'Women' && selectedSeason === 'Winter' && selectedCraft === 'All'
-                  ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                  : 'bg-white text-[#1C1917]/80 border-[#E2E8F0] hover:border-[#0284C7]'
-              }`}
-            >
-              Women's Winter (Jacquard & Shawls)
-            </button>
-          </div>
+      <div className="max-w-7xl mx-auto px-2 min-[360px]:px-3 sm:px-6 lg:px-8 pt-6 sm:pt-8">
+        {/* 2. Limelight Catalog Header Bar */}
+        <div className="text-center mb-6 sm:mb-8 pb-4 sm:pb-6 border-b border-neutral-200 px-2">
+          <h1 className="font-sans font-black text-xl sm:text-3xl md:text-4xl tracking-[0.08em] sm:tracking-[0.16em] uppercase text-black mb-2 break-words">
+            {getHeaderTitle()}
+          </h1>
+          <p className="text-[11px] sm:text-xs text-neutral-500 uppercase tracking-widest font-semibold">
+            Showing {filteredProducts.length} of {products.length} Unstitched Items
+          </p>
         </div>
 
-        {/* Real-time Search Engine Input Bar on Catalog */}
-        <div className="mb-8">
-          <div className="relative bg-white border border-[#E2E8F0] shadow-xs flex items-center">
-            <div className="pl-4 pr-2 text-[#0284C7]">
-              <Search className="w-4 h-4" />
-            </div>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search unstitched collection by fabric weight (e.g. 220 GSM), thread count (120s, 140s), weave structure (Plain, Sateen, Twill), or fabric name..."
-              className="w-full py-3 pr-10 text-xs sm:text-sm bg-transparent border-none focus:outline-none text-[#1C1917] placeholder:text-[#1C1917]/65"
-              aria-label="Search unstitched catalog by keyword, fabric, weight, or weave"
-            />
-            {searchQuery && (
+        {/* 3. Limelight Control Strip: Filters Toggle, Active Tags, Grid Switcher & Sort Dropdown */}
+        <div className="flex items-center justify-between gap-2.5 pb-4 mb-6 border-b border-neutral-200 text-xs">
+          {/* Mobile Filter Button & Reset */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setMobileFiltersOpen(true)}
+              className="lg:hidden py-2 px-3 sm:py-2.5 sm:px-4 bg-black text-white font-bold tracking-wider sm:tracking-widest uppercase flex items-center gap-1.5 text-[11px] sm:text-xs shrink-0"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5" />
+              <span>Filters {hasActiveFilters ? '• Active' : ''}</span>
+            </button>
+
+            {hasActiveFilters && (
               <button
-                type="button"
-                onClick={() => setSearchQuery('')}
-                className="pr-4 text-[#1C1917]/70 hover:text-[#1C1917] transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
-                aria-label="Clear search input"
-                title="Clear search query"
+                onClick={resetFilters}
+                className="text-[11px] sm:text-xs font-semibold text-red-600 hover:text-black flex items-center gap-1 uppercase tracking-wider shrink-0"
               >
-                <X className="w-4 h-4" />
+                <RotateCcw className="w-3 h-3" />
+                <span className="hidden sm:inline">Clear All</span>
+                <span className="sm:hidden">Reset</span>
               </button>
             )}
           </div>
+
+          {/* Right Controls: Grid Column Switcher (Limelight feature) + Sort By */}
+          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+            {/* Grid Columns Switcher: 1 (stacked) or 2 on mobile, 2, 3, 4 on desktop */}
+            <div className="flex items-center border border-neutral-200 p-0.5 gap-0.5">
+              <button
+                type="button"
+                onClick={() => setGridCols(1)}
+                className={`p-1.5 transition-colors sm:hidden ${
+                  gridCols === 1 ? 'bg-black text-white' : 'text-neutral-500 hover:text-black'
+                }`}
+                title="Single Column Stacked View"
+                aria-label="1 Column Stacked View"
+              >
+                <Square className="w-3.5 h-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setGridCols(2)}
+                className={`p-1 sm:p-1.5 transition-colors ${
+                  gridCols === 2 ? 'bg-black text-white' : 'text-neutral-500 hover:text-black'
+                }`}
+                title="2 Columns Grid"
+                aria-label="2 Columns Grid"
+              >
+                <Grid2X2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setGridCols(3)}
+                className={`hidden sm:inline-flex p-1.5 transition-colors ${
+                  gridCols === 3 ? 'bg-black text-white' : 'text-neutral-500 hover:text-black'
+                }`}
+                title="3 Columns Grid"
+                aria-label="3 Columns Grid"
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setGridCols(4)}
+                className={`hidden md:inline-flex p-1.5 transition-colors ${
+                  gridCols === 4 ? 'bg-black text-white' : 'text-neutral-500 hover:text-black'
+                }`}
+                title="4 Columns Grid"
+                aria-label="4 Columns Grid"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Sort Dropdown */}
+            <div className="flex items-center gap-1 sm:gap-2">
+              <span className="text-neutral-500 uppercase tracking-wider text-[11px] font-semibold hidden md:inline">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="py-1.5 px-2 sm:py-2 sm:px-3 bg-white border border-neutral-200 text-[11px] sm:text-xs font-bold tracking-wider uppercase text-black focus:outline-none cursor-pointer max-w-[140px] sm:max-w-none"
+                aria-label="Sort products"
+              >
+                <option value="featured">Featured</option>
+                <option value="price-asc">Price: Low to High</option>
+                <option value="price-desc">Price: High to Low</option>
+                <option value="rating">Highest Rated</option>
+                <option value="newest">New Arrivals</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        {/* Main Layout: Sidebar Filters + Products Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block lg:col-span-1 space-y-7">
-            <div className="bg-[#F8FAFC] p-5 border border-[#E2E8F0] space-y-6 sticky top-28 max-h-[85vh] overflow-y-auto">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#1C1917]">
-                  <Filter className="w-4 h-4 text-[#0284C7]" />
-                  <span>Advanced Filters</span>
+        {/* 4. Main Catalog Content: Left Sidebar + Product Grid */}
+        <div className="flex items-start gap-8">
+          {/* Desktop Filter Sidebar (Limelight fast-fashion accordion style) */}
+          <aside className="hidden lg:block w-64 shrink-0 space-y-6 select-none pr-4">
+            {/* Department / Gender */}
+            <div className="border-b border-neutral-200 pb-5">
+              <button
+                onClick={() => toggleSection('gender')}
+                className="w-full flex items-center justify-between text-xs font-black tracking-widest uppercase text-black mb-3"
+              >
+                <span>Department</span>
+                {openSections.gender ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {openSections.gender && (
+                <div className="space-y-2 text-xs font-medium text-neutral-700">
+                  {['All', 'Women', 'Men'].map((g) => (
+                    <label key={g} className="flex items-center gap-2 cursor-pointer hover:text-black">
+                      <input
+                        type="radio"
+                        name="gender"
+                        checked={selectedGender === g}
+                        onChange={() => setSelectedGender(g)}
+                        className="accent-black"
+                      />
+                      <span>{g === 'All' ? 'All Collections' : g}</span>
+                    </label>
+                  ))}
                 </div>
-                {hasActiveFilters && (
-                  <button
-                    onClick={resetFilters}
-                    className="text-xs text-[#0284C7] hover:underline flex items-center gap-1"
-                  >
-                    <RotateCcw className="w-3 h-3" />
-                    <span>Reset All</span>
-                  </button>
-                )}
-              </div>
+              )}
+            </div>
 
-              {/* 0A. Women's Suit Brand / Mill Filter */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('brand')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Tag className="w-3.5 h-3.5 text-[#0284C7]" />
-                    <span>Women's Brand / Mill</span>
-                  </span>
-                  {openSections.brand ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.brand && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80 max-h-56 overflow-y-auto pr-1 scrollbar-thin">
-                    <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedBrand === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
-                        All Brands & Mills
-                      </span>
+            {/* Craft Type */}
+            <div className="border-b border-neutral-200 pb-5">
+              <button
+                onClick={() => toggleSection('craft')}
+                className="w-full flex items-center justify-between text-xs font-black tracking-widest uppercase text-black mb-3"
+              >
+                <span>Collection Craft</span>
+                {openSections.craft ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {openSections.craft && (
+                <div className="space-y-2 text-xs font-medium text-neutral-700">
+                  {[
+                    { label: 'All Crafts', val: 'All' },
+                    { label: 'Embroidered Collection', val: 'Embroidery' },
+                    { label: 'Printed Collection', val: 'Printed' },
+                  ].map((c) => (
+                    <label key={c.val} className="flex items-center gap-2 cursor-pointer hover:text-black">
                       <input
                         type="radio"
-                        name="brand"
-                        checked={selectedBrand === 'All'}
-                        onChange={() => setSelectedBrand('All')}
-                        className="accent-[#0284C7]"
+                        name="craft"
+                        checked={selectedCraft === c.val}
+                        onChange={() => setSelectedCraft(c.val)}
+                        className="accent-black"
                       />
+                      <span>{c.label}</span>
                     </label>
+                  ))}
+                </div>
+              )}
+            </div>
 
-                    {/* Embroidery Brands Header */}
-                    <div className="pt-2 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#0284C7] bg-[#F5EFEB]/70">
-                      ★ Embroidery Brands
-                    </div>
-                    {WOMEN_EMBROIDERY_BRANDS.map((brandName) => {
-                      const count = counts.brand(brandName);
-                      return (
-                        <label
-                          key={`desktop-emb-${brandName}`}
-                          className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                        >
-                          <span className={selectedBrand === brandName ? 'font-semibold text-[#0284C7]' : ''}>
-                            {brandName}
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                              ({count})
-                            </span>
-                            <input
-                              type="radio"
-                              name="brand"
-                              checked={selectedBrand === brandName}
-                              onChange={() => {
-                                setSelectedBrand(brandName);
-                                setSelectedGender('Women');
-                              }}
-                              className="accent-[#0284C7]"
-                            />
-                          </div>
-                        </label>
-                      );
-                    })}
-
-                    {/* Printed Brands Header */}
-                    <div className="pt-2.5 pb-1 px-1 text-[10px] font-bold uppercase tracking-wider text-[#0284C7] bg-[#F5EFEB]/70">
-                      ★ Printed Brands
-                    </div>
-                    {WOMEN_PRINTED_BRANDS.map((brandName) => {
-                      const count = counts.brand(brandName);
-                      return (
-                        <label
-                          key={`desktop-prt-${brandName}`}
-                          className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                        >
-                          <span className={selectedBrand === brandName ? 'font-semibold text-[#0284C7]' : ''}>
-                            {brandName}
-                          </span>
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                              ({count})
-                            </span>
-                            <input
-                              type="radio"
-                              name="brand"
-                              checked={selectedBrand === brandName}
-                              onChange={() => {
-                                setSelectedBrand(brandName);
-                                setSelectedGender('Women');
-                              }}
-                              className="accent-[#0284C7]"
-                            />
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* 0B. Craft Technique Filter */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('craft')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
-                    <span>Suit Craft Technique</span>
-                  </span>
-                  {openSections.craft ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.craft && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
-                    {['All', 'Embroidery', 'Printed'].map((craft) => (
-                      <label
-                        key={craft}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedCraft === craft ? 'font-semibold text-[#0284C7]' : ''}>
-                          {craft === 'All' ? 'All Suit Techniques' : `${craft} Suits`}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          {craft !== 'All' && (
-                            <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                              ({counts.craft(craft)})
-                            </span>
-                          )}
-                          <input
-                            type="radio"
-                            name="craft"
-                            checked={selectedCraft === craft}
-                            onChange={() => setSelectedCraft(craft)}
-                            className="accent-[#0284C7]"
-                          />
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 1. Fabric Weight Filter (NEW) */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('weight')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Activity className="w-3.5 h-3.5 text-[#0284C7]" />
-                    <span>Fabric Weight (GSM)</span>
-                  </span>
-                  {openSections.weight ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.weight && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
-                    <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedFabricWeight === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
-                        All Fabric Weights
-                      </span>
-                      <input
-                        type="radio"
-                        name="fabricWeight"
-                        checked={selectedFabricWeight === 'All'}
-                        onChange={() => setSelectedFabricWeight('All')}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                    {fabricWeightOptions.map((weight) => (
-                      <label
-                        key={weight}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedFabricWeight === weight ? 'font-semibold text-[#0284C7]' : ''}>
-                          {weight}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                            ({counts.weight(weight)})
-                          </span>
-                          <input
-                            type="radio"
-                            name="fabricWeight"
-                            checked={selectedFabricWeight === weight}
-                            onChange={() => setSelectedFabricWeight(weight)}
-                            className="accent-[#0284C7]"
-                          />
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 2. Thread Count Filter (NEW) */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('threadCount')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
-                    <span>Thread & Yarn Count</span>
-                  </span>
-                  {openSections.threadCount ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.threadCount && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
-                    <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedThreadCount === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
-                        All Thread Counts
-                      </span>
-                      <input
-                        type="radio"
-                        name="threadCount"
-                        checked={selectedThreadCount === 'All'}
-                        onChange={() => setSelectedThreadCount('All')}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                    {threadCountOptions.map((thread) => (
-                      <label
-                        key={thread}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedThreadCount === thread ? 'font-semibold text-[#0284C7]' : ''}>
-                          {thread}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                            ({counts.thread(thread)})
-                          </span>
-                          <input
-                            type="radio"
-                            name="threadCount"
-                            checked={selectedThreadCount === thread}
-                            onChange={() => setSelectedThreadCount(thread)}
-                            className="accent-[#0284C7]"
-                          />
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 3. Weave Type Filter (NEW) */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('weave')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span className="flex items-center gap-1.5">
-                    <Layers className="w-3.5 h-3.5 text-[#0284C7]" />
-                    <span>Weave Structure</span>
-                  </span>
-                  {openSections.weave ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.weave && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
-                    <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedWeaveType === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
-                        All Weave Structures
-                      </span>
-                      <input
-                        type="radio"
-                        name="weaveType"
-                        checked={selectedWeaveType === 'All'}
-                        onChange={() => setSelectedWeaveType('All')}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                    {weaveTypeOptions.map((weave) => (
-                      <label
-                        key={weave}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedWeaveType === weave ? 'font-semibold text-[#0284C7]' : ''}>
-                          {weave}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                            ({counts.weave(weave)})
-                          </span>
-                          <input
-                            type="radio"
-                            name="weaveType"
-                            checked={selectedWeaveType === weave}
-                            onChange={() => setSelectedWeaveType(weave)}
-                            className="accent-[#0284C7]"
-                          />
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 4. Gender Filter */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('gender')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span>Category / Gender</span>
-                  {openSections.gender ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.gender && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
-                    {['All', 'Men', 'Women'].map((gender) => (
-                      <label
-                        key={gender}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedGender === gender ? 'font-semibold text-[#0284C7]' : ''}>
-                          {gender === 'All' ? 'All Suiting' : `${gender}'s Unstitched`}
-                        </span>
-                        <input
-                          type="radio"
-                          name="gender"
-                          checked={selectedGender === gender}
-                          onChange={() => setSelectedGender(gender)}
-                          className="accent-[#0284C7]"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 5. Fabric Type Filter */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('fabric')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span>Fabric Material</span>
-                  {openSections.fabric ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.fabric && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80 max-h-48 overflow-y-auto pr-1">
-                    <label className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer">
-                      <span className={selectedFabric === 'All' ? 'font-semibold text-[#0284C7]' : ''}>
-                        All Fabrics
-                      </span>
+            {/* Fabric */}
+            <div className="border-b border-neutral-200 pb-5">
+              <button
+                onClick={() => toggleSection('fabric')}
+                className="w-full flex items-center justify-between text-xs font-black tracking-widest uppercase text-black mb-3"
+              >
+                <span>Fabric Type</span>
+                {openSections.fabric ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {openSections.fabric && (
+                <div className="space-y-2 text-xs font-medium text-neutral-700 max-h-48 overflow-y-auto pr-1">
+                  <label className="flex items-center gap-2 cursor-pointer hover:text-black">
+                    <input
+                      type="radio"
+                      name="fabric"
+                      checked={selectedFabric === 'All'}
+                      onChange={() => setSelectedFabric('All')}
+                      className="accent-black"
+                    />
+                    <span>All Fabrics</span>
+                  </label>
+                  {[...MENS_FABRICS, 'Luxury Lawn', 'Embroidered Chiffon', 'Silk Jacquard'].map((f) => (
+                    <label key={f} className="flex items-center gap-2 cursor-pointer hover:text-black">
                       <input
                         type="radio"
                         name="fabric"
-                        checked={selectedFabric === 'All'}
-                        onChange={() => setSelectedFabric('All')}
-                        className="accent-[#0284C7]"
+                        checked={selectedFabric === f}
+                        onChange={() => setSelectedFabric(f)}
+                        className="accent-black"
                       />
+                      <span>{f}</span>
                     </label>
-                    {fabricOptions.map((fabric) => (
-                      <label
-                        key={fabric}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedFabric === fabric ? 'font-semibold text-[#0284C7]' : ''}>
-                          {fabric}
-                        </span>
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-[10px] text-[#1C1917]/40 font-mono">
-                            ({counts.fabric(fabric)})
-                          </span>
-                          <input
-                            type="radio"
-                            name="fabric"
-                            checked={selectedFabric === fabric}
-                            onChange={() => setSelectedFabric(fabric)}
-                            className="accent-[#0284C7]"
-                          />
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 6. Season Filter */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-4">
-                <button
-                  type="button"
-                  onClick={() => toggleSection('season')}
-                  className="w-full flex items-center justify-between text-xs font-bold uppercase tracking-wider text-[#1C1917] hover:text-[#0284C7]"
-                >
-                  <span>Season Collection</span>
-                  {openSections.season ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                </button>
-                {openSections.season && (
-                  <div className="space-y-1 pt-1.5 text-xs text-[#1C1917]/80">
-                    {['All', 'Summer', 'Winter'].map((season) => (
-                      <label
-                        key={season}
-                        className="flex items-center justify-between p-1.5 hover:bg-[#F2ECE5] cursor-pointer"
-                      >
-                        <span className={selectedSeason === season ? 'font-semibold text-[#0284C7]' : ''}>
-                          {season === 'All' ? 'All Seasons' : `${season} Edition`}
-                        </span>
-                        <input
-                          type="radio"
-                          name="season"
-                          checked={selectedSeason === season}
-                          onChange={() => setSelectedSeason(season)}
-                          className="accent-[#0284C7]"
-                        />
-                      </label>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* 7. Price Range Slider */}
-              <div className="space-y-2.5">
-                <div className="flex justify-between items-center text-xs">
-                  <span className="font-bold uppercase tracking-wider text-[#1C1917]">Max Price</span>
-                  <span className="font-mono font-semibold text-[#0284C7] tabular-nums">
-                    {formatPKR(maxPrice)}
-                  </span>
+                  ))}
                 </div>
+              )}
+            </div>
+
+            {/* Brands */}
+            <div className="border-b border-neutral-200 pb-5">
+              <button
+                onClick={() => toggleSection('brands')}
+                className="w-full flex items-center justify-between text-xs font-black tracking-widest uppercase text-black mb-3"
+              >
+                <span>Brand</span>
+                {openSections.brands ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {openSections.brands && (
+                <div className="space-y-2 text-xs font-medium text-neutral-700 max-h-56 overflow-y-auto pr-1">
+                  <label className="flex items-center gap-2 cursor-pointer hover:text-black">
+                    <input
+                      type="radio"
+                      name="brand"
+                      checked={selectedBrand === 'All'}
+                      onChange={() => setSelectedBrand('All')}
+                      className="accent-black"
+                    />
+                    <span>All Brands</span>
+                  </label>
+                  {allBrands.map((b) => (
+                    <label key={b} className="flex items-center gap-2 cursor-pointer hover:text-black">
+                      <input
+                        type="radio"
+                        name="brand"
+                        checked={selectedBrand === b}
+                        onChange={() => setSelectedBrand(b)}
+                        className="accent-black"
+                      />
+                      <span>{b}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Price Brackets */}
+            <div className="border-b border-neutral-200 pb-5">
+              <button
+                onClick={() => toggleSection('price')}
+                className="w-full flex items-center justify-between text-xs font-black tracking-widest uppercase text-black mb-3"
+              >
+                <span>Price (PKR)</span>
+                {openSections.price ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              </button>
+              {openSections.price && (
+                <div className="space-y-2 text-xs font-medium text-neutral-700">
+                  {[
+                    { label: 'All Prices', val: 'All' },
+                    { label: 'Under PKR 4,000', val: 'under-4000' },
+                    { label: 'PKR 4,000 – PKR 7,000', val: '4000-7000' },
+                    { label: 'PKR 7,000 – PKR 12,000', val: '7000-12000' },
+                    { label: 'Above PKR 12,000', val: 'above-12000' },
+                  ].map((p) => (
+                    <label key={p.val} className="flex items-center gap-2 cursor-pointer hover:text-black">
+                      <input
+                        type="radio"
+                        name="price"
+                        checked={priceRange === p.val}
+                        onChange={() => setPriceRange(p.val)}
+                        className="accent-black"
+                      />
+                      <span>{p.label}</span>
+                    </label>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* In Stock Toggle */}
+            <div className="pt-1">
+              <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-black cursor-pointer">
                 <input
-                  type="range"
-                  min={5000}
-                  max={30000}
-                  step={500}
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-[#0284C7] cursor-pointer"
+                  type="checkbox"
+                  checked={inStockOnly}
+                  onChange={(e) => setInStockOnly(e.target.checked)}
+                  className="w-4 h-4 accent-black rounded-none"
                 />
-                <div className="flex justify-between text-[11px] text-[#1C1917]/50 font-mono">
-                  <span>₨ 5,000</span>
-                  <span>₨ 30,000</span>
-                </div>
-              </div>
-
-              {/* 8. In-Stock Toggle */}
-              <div className="pt-2 border-t border-[#E2E8F0]">
-                <label className="flex items-center gap-2 cursor-pointer text-xs text-[#1C1917]">
-                  <input
-                    type="checkbox"
-                    checked={inStockOnly}
-                    onChange={(e) => setInStockOnly(e.target.checked)}
-                    className="accent-[#0284C7]"
-                  />
-                  <span>Show In-Stock Fabrics Only</span>
-                </label>
-              </div>
+                <span>In Stock Only</span>
+              </label>
             </div>
           </aside>
 
           {/* Product Grid Area */}
-          <main className="lg:col-span-3 space-y-6">
-            {/* Desktop Sort & Count Bar */}
-            <div className="hidden lg:flex items-center justify-between pb-3 border-b border-[#E2E8F0] text-xs">
-              <span className="text-[#1C1917]/70 font-sans">
-                Showing <strong className="text-[#1C1917]">{filteredProducts.length}</strong> of{' '}
-                {products.length} unstitched fabrics
-              </span>
-
-              <div className="flex items-center gap-3">
-                <span className="text-[#1C1917]/60">Sort by:</span>
-                <select
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  aria-label="Sort products by"
-                  className="py-1.5 px-3 bg-white border border-[#E2E8F0] text-xs text-[#1C1917] focus:outline-none"
-                >
-                  <option value="featured">Featured Collection</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
-                  <option value="rating">Customer Rating</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Active Filters Clean Badges */}
-            {hasActiveFilters && (
-              <div className="flex flex-wrap items-center gap-2 text-xs text-[#1C1917]/80 bg-white p-3 border border-[#E2E8F0]">
-                <span className="font-semibold text-[#0284C7] mr-1">Active Filters:</span>
-                
-                {searchQuery && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Search: "{searchQuery}"</span>
-                    <button
-                      type="button"
-                      onClick={() => setSearchQuery('')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedBrand !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Brand: {selectedBrand}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedBrand('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedCraft !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Craft: {selectedCraft}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedCraft('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedFabricWeight !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Weight: {selectedFabricWeight}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedFabricWeight('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedThreadCount !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Thread: {selectedThreadCount}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedThreadCount('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedWeaveType !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Weave: {selectedWeaveType}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedWeaveType('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedGender !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Gender: {selectedGender}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedGender('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedFabric !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Fabric: {selectedFabric}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedFabric('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {selectedSeason !== 'All' && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Season: {selectedSeason}</span>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSeason('All')}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {maxPrice < 30000 && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>Under {formatPKR(maxPrice)}</span>
-                    <button
-                      type="button"
-                      onClick={() => setMaxPrice(30000)}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                {inStockOnly && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#F8FAFC] px-2.5 py-1 border border-[#E2E8F0]">
-                    <span>In-Stock Only</span>
-                    <button
-                      type="button"
-                      onClick={() => setInStockOnly(false)}
-                      className="text-[#1C1917]/60 hover:text-[#0284C7]"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </span>
-                )}
-
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="text-xs text-[#0284C7] font-semibold underline hover:text-[#0369A1] ml-auto"
-                >
-                  Clear All
-                </button>
-              </div>
-            )}
-
-            {/* Empty State */}
+          <main className="flex-1 min-w-0">
             {filteredProducts.length === 0 ? (
-              <div className="py-20 text-center bg-white border border-[#E2E8F0] space-y-4">
-                <div className="w-12 h-12 mx-auto bg-[#F5EFEB] flex items-center justify-center text-[#0284C7]">
-                  <Filter className="w-6 h-6" />
-                </div>
-                <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                  No matching unstitched fabrics found
+              <div className="text-center py-20 border border-neutral-200 bg-neutral-50 p-8">
+                <h3 className="font-sans font-black text-xl uppercase tracking-wider text-black mb-2">
+                  No Fabrics Found
                 </h3>
-                <p className="text-xs text-[#1C1917]/60 max-w-sm mx-auto leading-relaxed">
-                  No bolts match your exact combination of fabric weight, thread count, weave structure, or search term. Try resetting specific filters to view related varieties.
+                <p className="text-xs text-neutral-500 mb-6 max-w-md mx-auto">
+                  We could not find unstitched suits matching your active filters. Try broadening your criteria or reset all filters.
                 </p>
                 <button
                   onClick={resetFilters}
-                  className="px-5 py-2.5 bg-[#0284C7] text-white text-xs font-semibold uppercase tracking-wider hover:bg-[#0369A1] transition-colors"
+                  className="py-3 px-8 bg-black text-white text-xs font-bold tracking-widest uppercase hover:bg-neutral-800 transition-colors"
                 >
                   Reset All Filters
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div
+                className={`grid gap-2.5 sm:gap-4 lg:gap-6 ${
+                  gridCols === 1
+                    ? 'grid-cols-1 max-w-md mx-auto'
+                    : gridCols === 2
+                    ? 'grid-cols-1 min-[340px]:grid-cols-2'
+                    : gridCols === 3
+                    ? 'grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3'
+                    : 'grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+                }`}
+              >
                 {filteredProducts.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -1353,365 +509,130 @@ export const ShopPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile Drawer Filter */}
+      {/* 5. Mobile Filter Drawer (Limelight Fast-Fashion Slide-Over) */}
       {mobileFiltersOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden lg:hidden" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 lg:hidden">
           <div
-            className="fixed inset-0 bg-black/50"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="fixed inset-y-0 right-0 max-w-xs w-full bg-[#F8FAFC] p-5 shadow-2xl flex flex-col justify-between overflow-y-auto">
-            <div className="space-y-6">
-              <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                <h3 className="font-serif text-lg font-bold text-[#1C1917]">Filter Catalog</h3>
-                <button
-                  onClick={() => setMobileFiltersOpen(false)}
-                  className="p-1 text-[#1C1917]/70 hover:text-[#1C1917]"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
+          <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-white shadow-2xl flex flex-col z-50 p-6 overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-neutral-200 mb-6">
+              <span className="font-sans font-black text-sm uppercase tracking-widest text-black">
+                FILTERS & REFINEMENTS
+              </span>
+              <button
+                onClick={() => setMobileFiltersOpen(false)}
+                className="p-1 text-neutral-500 hover:text-black"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
 
-              {/* Mobile Brand / Mill */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917] block">Women's Brand / Mill</span>
-                <div className="space-y-1 text-xs max-h-40 overflow-y-auto pr-1">
-                  <label className="flex justify-between p-1">
-                    <span>All Brands</span>
-                    <input
-                      type="radio"
-                      name="m-brand"
-                      checked={selectedBrand === 'All'}
-                      onChange={() => setSelectedBrand('All')}
-                      className="accent-[#0284C7]"
-                    />
-                  </label>
-                  <div className="text-[10px] font-bold text-[#0284C7] pt-1">Embroidery Brands</div>
-                  {WOMEN_EMBROIDERY_BRANDS.map((b) => (
-                    <label key={`m-emb-${b}`} className="flex justify-between p-1">
-                      <span>{b}</span>
-                      <input
-                        type="radio"
-                        name="m-brand"
-                        checked={selectedBrand === b}
-                        onChange={() => {
-                          setSelectedBrand(b);
-                          setSelectedGender('Women');
-                        }}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                  <div className="text-[10px] font-bold text-[#0284C7] pt-1">Printed Brands</div>
-                  {WOMEN_PRINTED_BRANDS.map((b) => (
-                    <label key={`m-prt-${b}`} className="flex justify-between p-1">
-                      <span>{b}</span>
-                      <input
-                        type="radio"
-                        name="m-brand"
-                        checked={selectedBrand === b}
-                        onChange={() => {
-                          setSelectedBrand(b);
-                          setSelectedGender('Women');
-                        }}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Craft Technique */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917] block">Suit Craft Technique</span>
-                <div className="space-y-1 text-xs">
-                  {['All', 'Embroidery', 'Printed'].map((c) => (
-                    <label key={`m-craft-${c}`} className="flex justify-between p-1">
-                      <span>{c === 'All' ? 'All Techniques' : `${c} Suits`}</span>
-                      <input
-                        type="radio"
-                        name="m-craft"
-                        checked={selectedCraft === c}
-                        onChange={() => setSelectedCraft(c)}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Fabric Weight */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917] block">Fabric Weight (GSM)</span>
-                <div className="space-y-1 text-xs">
-                  <label className="flex justify-between p-1">
-                    <span>All Weights</span>
-                    <input
-                      type="radio"
-                      name="m-weight"
-                      checked={selectedFabricWeight === 'All'}
-                      onChange={() => setSelectedFabricWeight('All')}
-                      className="accent-[#0284C7]"
-                    />
-                  </label>
-                  {fabricWeightOptions.map((w) => (
-                    <label key={w} className="flex justify-between p-1">
-                      <span>{w}</span>
-                      <input
-                        type="radio"
-                        name="m-weight"
-                        checked={selectedFabricWeight === w}
-                        onChange={() => setSelectedFabricWeight(w)}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Thread Count */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917] block">Thread & Yarn Count</span>
-                <div className="space-y-1 text-xs">
-                  <label className="flex justify-between p-1">
-                    <span>All Thread Counts</span>
-                    <input
-                      type="radio"
-                      name="m-thread"
-                      checked={selectedThreadCount === 'All'}
-                      onChange={() => setSelectedThreadCount('All')}
-                      className="accent-[#0284C7]"
-                    />
-                  </label>
-                  {threadCountOptions.map((tc) => (
-                    <label key={tc} className="flex justify-between p-1">
-                      <span>{tc}</span>
-                      <input
-                        type="radio"
-                        name="m-thread"
-                        checked={selectedThreadCount === tc}
-                        onChange={() => setSelectedThreadCount(tc)}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Weave Type */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917] block">Weave Structure</span>
-                <div className="space-y-1 text-xs">
-                  <label className="flex justify-between p-1">
-                    <span>All Weaves</span>
-                    <input
-                      type="radio"
-                      name="m-weave"
-                      checked={selectedWeaveType === 'All'}
-                      onChange={() => setSelectedWeaveType('All')}
-                      className="accent-[#0284C7]"
-                    />
-                  </label>
-                  {weaveTypeOptions.map((wt) => (
-                    <label key={wt} className="flex justify-between p-1">
-                      <span>{wt}</span>
-                      <input
-                        type="radio"
-                        name="m-weave"
-                        checked={selectedWeaveType === wt}
-                        onChange={() => setSelectedWeaveType(wt)}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Mobile Season */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917]">Season</span>
-                {['All', 'Summer', 'Winter'].map((s) => (
-                  <label key={s} className="flex justify-between text-xs p-1">
-                    <span>{s === 'All' ? 'All Seasons' : `${s} Edition`}</span>
-                    <input
-                      type="radio"
-                      name="m-season"
-                      checked={selectedSeason === s}
-                      onChange={() => setSelectedSeason(s)}
-                      className="accent-[#0284C7]"
-                    />
-                  </label>
-                ))}
-              </div>
-
-              {/* Mobile Gender */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917]">Gender</span>
-                {['All', 'Men', 'Women'].map((g) => (
-                  <label key={g} className="flex justify-between text-xs p-1">
-                    <span>{g}</span>
+            {/* Department */}
+            <div className="mb-6">
+              <h4 className="text-xs font-black uppercase tracking-wider text-black mb-3">
+                Department
+              </h4>
+              <div className="space-y-2 text-xs">
+                {['All', 'Women', 'Men'].map((g) => (
+                  <label key={g} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
                       name="m-gender"
                       checked={selectedGender === g}
                       onChange={() => setSelectedGender(g)}
-                      className="accent-[#0284C7]"
+                      className="accent-black"
                     />
+                    <span>{g === 'All' ? 'All Collections' : g}</span>
                   </label>
                 ))}
               </div>
+            </div>
 
-              {/* Mobile Fabric */}
-              <div className="space-y-2 border-b border-[#E2E8F0]/70 pb-3">
-                <span className="text-xs font-bold uppercase text-[#1C1917]">Fabric Material</span>
-                <div className="space-y-1 text-xs max-h-36 overflow-y-auto">
-                  <label className="flex justify-between p-1">
-                    <span>All Fabrics</span>
+            {/* Craft */}
+            <div className="mb-6">
+              <h4 className="text-xs font-black uppercase tracking-wider text-black mb-3">
+                Craft Type
+              </h4>
+              <div className="space-y-2 text-xs">
+                {[
+                  { label: 'All Crafts', val: 'All' },
+                  { label: 'Embroidered Collection', val: 'Embroidery' },
+                  { label: 'Printed Collection', val: 'Printed' },
+                ].map((c) => (
+                  <label key={c.val} className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="m-craft"
+                      checked={selectedCraft === c.val}
+                      onChange={() => setSelectedCraft(c.val)}
+                      className="accent-black"
+                    />
+                    <span>{c.label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Fabric */}
+            <div className="mb-6">
+              <h4 className="text-xs font-black uppercase tracking-wider text-black mb-3">
+                Fabric Type
+              </h4>
+              <div className="space-y-2 text-xs max-h-40 overflow-y-auto">
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <input
+                    type="radio"
+                    name="m-fabric"
+                    checked={selectedFabric === 'All'}
+                    onChange={() => setSelectedFabric('All')}
+                    className="accent-black"
+                  />
+                  <span>All Fabrics</span>
+                </label>
+                {[...MENS_FABRICS, 'Luxury Lawn', 'Embroidered Chiffon', 'Silk Jacquard'].map((f) => (
+                  <label key={f} className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
                       name="m-fabric"
-                      checked={selectedFabric === 'All'}
-                      onChange={() => setSelectedFabric('All')}
-                      className="accent-[#0284C7]"
+                      checked={selectedFabric === f}
+                      onChange={() => setSelectedFabric(f)}
+                      className="accent-black"
                     />
+                    <span>{f}</span>
                   </label>
-                  {fabricOptions.map((f) => (
-                    <label key={f} className="flex justify-between p-1">
-                      <span>{f}</span>
-                      <input
-                        type="radio"
-                        name="m-fabric"
-                        checked={selectedFabric === f}
-                        onChange={() => setSelectedFabric(f)}
-                        className="accent-[#0284C7]"
-                      />
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              {/* Max Price */}
-              <div className="space-y-2">
-                <span className="text-xs font-bold uppercase text-[#1C1917]">
-                  Max Price: {formatPKR(maxPrice)}
-                </span>
-                <input
-                  type="range"
-                  min={5000}
-                  max={30000}
-                  step={500}
-                  value={maxPrice}
-                  onChange={(e) => setMaxPrice(Number(e.target.value))}
-                  className="w-full accent-[#0284C7]"
-                />
+                ))}
               </div>
             </div>
 
-            <div className="pt-6 border-t border-[#E2E8F0] space-y-2">
+            {/* Bottom Actions */}
+            <div className="pt-6 border-t border-neutral-200 mt-auto space-y-3">
               <button
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full py-3 bg-[#0284C7] text-white text-xs font-semibold uppercase tracking-wider"
+                className="w-full py-3 bg-black text-white text-xs font-bold tracking-widest uppercase"
               >
-                Apply Filters ({filteredProducts.length})
+                Apply Filters ({filteredProducts.length} Items)
               </button>
-              <button
-                onClick={resetFilters}
-                className="w-full py-2 bg-transparent text-xs text-[#1C1917]/70 underline"
-              >
-                Reset All Filters
-              </button>
+              {hasActiveFilters && (
+                <button
+                  onClick={resetFilters}
+                  className="w-full py-2 bg-neutral-100 text-neutral-800 text-xs font-semibold tracking-wider uppercase hover:bg-neutral-200"
+                >
+                  Reset All Filters
+                </button>
+              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Quick View Modal */}
-      {quickViewProduct && (
-        <div
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4"
-          role="dialog"
-          aria-modal="true"
-        >
-          <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
-            <button
-              onClick={() => setQuickViewProduct(null)}
-              className="absolute top-4 right-4 z-10 p-1.5 bg-white/80 hover:bg-white text-[#1C1917] rounded-full"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2">
-              <div className="aspect-[4/3] sm:aspect-auto bg-[#F2EDE7]">
-                <img
-                  src={quickViewProduct.primaryImage}
-                  alt={`${quickViewProduct.title} - ${quickViewProduct.fabric} unstitched suit fabric preview`}
-                  width={500}
-                  height={500}
-                  referrerPolicy="no-referrer"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-
-              <div className="p-6 flex flex-col justify-between space-y-4">
-                <div>
-                  <div className="text-xs text-[#0284C7] font-sans font-semibold mb-1">
-                    {quickViewProduct.gender} · {quickViewProduct.fabric}
-                  </div>
-                  <h3 className="font-serif text-xl font-bold text-[#1C1917]">
-                    {quickViewProduct.title}
-                  </h3>
-                  <div className="mt-2 font-mono text-lg font-bold text-[#1C1917] tabular-nums">
-                    {formatPKR(quickViewProduct.price)}
-                  </div>
-                  <p className="text-xs text-[#1C1917]/75 mt-3 leading-relaxed">
-                    {quickViewProduct.description}
-                  </p>
-                  
-                  {/* Detailed technical specifications in quick view */}
-                  <div className="mt-3 p-3 bg-white border border-[#E2E8F0] text-xs space-y-1">
-                    <p><strong>Cut Length:</strong> {quickViewProduct.cutDetails.length}</p>
-                    <p><strong>Fabric Width:</strong> {quickViewProduct.cutDetails.width}</p>
-                    {quickViewProduct.weaveType && (
-                      <p><strong>Weave Structure:</strong> {quickViewProduct.weaveType}</p>
-                    )}
-                    {quickViewProduct.fabricWeight && (
-                      <p><strong>Fabric Weight:</strong> {quickViewProduct.fabricWeight}</p>
-                    )}
-                    {quickViewProduct.threadCount && (
-                      <p><strong>Thread / Yarn Count:</strong> {quickViewProduct.threadCount}</p>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-2 pt-2">
-                  <button
-                    onClick={() => {
-                      addToCart(quickViewProduct, 1);
-                      setQuickViewProduct(null);
-                    }}
-                    className="w-full py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Bag</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      const id = quickViewProduct.id;
-                      setQuickViewProduct(null);
-                      navigateTo('product-detail', { id });
-                    }}
-                    className="w-full py-2 bg-transparent hover:bg-[#F2ECE5] text-[#1C1917] text-xs font-semibold tracking-wide border border-[#E2E8F0] transition-colors flex items-center justify-center gap-1"
-                  >
-                    <span>View Complete Fabric Specs</span>
-                    <ArrowUpRight className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* 6. Limelight Quick View Modal */}
+      <QuickViewModal
+        product={quickViewProduct}
+        isOpen={!!quickViewProduct}
+        onClose={() => setQuickViewProduct(null)}
+      />
     </div>
   );
 };

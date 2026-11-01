@@ -36,7 +36,7 @@ export const LocationPage: React.FC = () => {
   const storeLandline = '0334-6565636';
   const shopNumber = 'Shop # 170';
 
-  const whatsappUrl = 'https://wa.me/923346565636?text=Assalam-o-Alaikum%2C%20I%20am%20inquiring%20about%20unstitched%20fabrics%20at%20Niaz%20Cloth%20House.';
+  const whatsappUrl = 'https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House%2C%20I%20am%20inquiring%20about%20unstitched%20fabrics.';
   const googleMapsDirectionsUrl = 'https://www.google.com/maps/dir/?api=1&destination=Shop+170+Paris+Bazaar,+Moti+Bazar,+Committee+Chowk,+Rawalpindi';
   const googleMapsViewUrl = 'https://maps.google.com/?q=Shop+170+Paris+Bazaar,+Moti+Bazar,+Committee+Chowk,+Rawalpindi';
 
@@ -89,7 +89,7 @@ export const LocationPage: React.FC = () => {
               </p>
             </div>
 
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 flex-wrap">
               <button
                 type="button"
                 onClick={handleShare}

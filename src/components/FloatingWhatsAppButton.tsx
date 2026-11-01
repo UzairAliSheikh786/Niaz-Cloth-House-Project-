@@ -14,15 +14,15 @@ export const FloatingWhatsAppButton: React.FC = () => {
   const phoneNumber = '923346565636';
 
   // Construct message based on current page
-  let defaultMessage = 'Assalam-o-Alaikum Niaz Cloth House, I am inquiring about unstitched fabrics.';
+  let defaultMessage = 'Hello Niaz Cloth House, I am inquiring about your unstitched fabrics collection.';
 
   if (currentPage === 'product-detail' && productId) {
     const currentProduct = products.find((p) => p.id === productId || p.slug === productId);
     if (currentProduct) {
-      defaultMessage = `Assalam-o-Alaikum Niaz Cloth House, I am inquiring about *${currentProduct.title}* (₨ ${currentProduct.price.toLocaleString('en-PK')}). Please share available cuts and delivery time.`;
+      defaultMessage = `Hello Niaz Cloth House, I am inquiring about *${currentProduct.title}* (₨ ${currentProduct.price.toLocaleString('en-PK')}). Please share available cuts and international/domestic delivery details.`;
     }
   } else if (currentPage === 'location') {
-    defaultMessage = 'Assalam-o-Alaikum Niaz Cloth House, I am planning to visit your Paris Bazaar shop in Rawalpindi. Please share directions and timings.';
+    defaultMessage = 'Hello Niaz Cloth House, I am planning to visit your Paris Bazaar shop in Rawalpindi. Please share directions and store timings.';
   }
 
   const whatsappHref = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;

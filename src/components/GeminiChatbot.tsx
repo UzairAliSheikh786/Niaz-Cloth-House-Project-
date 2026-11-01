@@ -42,7 +42,7 @@ export const GeminiChatbot: React.FC = () => {
       {
         id: 'msg-welcome',
         role: 'model',
-        text: 'Assalam-o-Alaikum! Welcome to Niaz Cloth House (Shop 170 Paris Bazaar, Rawalpindi). I am your fabric assistant. Ask me anything about fabric cut length for your height, the difference between 6lb, 8lb, and 10lb Boski silk, or how to soak (Tarr-Karna) Cotton and Latha before giving it to your tailor.',
+        text: 'Welcome to Niaz Cloth House (Shop 170 Paris Bazaar, Rawalpindi). I am your fabric concierge. Ask me anything about fabric cuts for your height, the difference between 6lb, 8lb, and 10lb Boski silk, fabric care, or international shipping worldwide.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         modelUsed: 'gemini-3.8-flash',
       },

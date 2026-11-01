@@ -2,20 +2,17 @@
 
 @theme {
   --font-serif: 'Playfair Display', Georgia, serif;
-  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  --color-gold: #D4AF37;
-  --color-gold-hover: #C5A028;
-  --color-gold-light: #F7E7B4;
-  --color-charcoal: #1F1F1F;
-  --color-charcoal-dark: #141414;
-  --color-charcoal-muted: #2E2E2E;
-  --color-ivory: #FAF9F6;
-  --color-ivory-surface: #F4F1EA;
-  --color-border-subtle: #EAE6DF;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --color-brand-black: #111111;
+  --color-brand-charcoal: #222222;
+  --color-brand-gray: #666666;
+  --color-brand-light: #F7F7F7;
+  --color-brand-border: #E5E5E5;
+  --color-brand-red: #D32F2F;
 }
 
 :root {
-  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
 }
 
@@ -36,8 +33,8 @@ body {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-color: #FAF9F6;
-  color: #1F1F1F;
+  background-color: #FFFFFF;
+  color: #111111;
   touch-action: pan-y;
   -webkit-overflow-scrolling: touch;
 }

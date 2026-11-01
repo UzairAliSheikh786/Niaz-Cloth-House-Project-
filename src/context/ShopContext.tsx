@@ -30,7 +30,10 @@ interface ShopContextType {
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
   cartSubtotal: number;
+  cartTotal: number;
   cartCount: number;
+  wishlist: string[];
+  toggleWishlist: (productId: string) => void;
   createOrder: (
     customer: CustomerDetails, 
     paymentMethod: PaymentMethod, 
@@ -74,21 +77,99 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return [];
   });
 
-  // Orders state
+  // Orders state (Filtered of any legacy dummy data)
   const [orders, setOrders] = useState<Order[]>(() => {
     try {
       const saved = localStorage.getItem('niaz_orders_v2');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: Order[] = JSON.parse(saved);
+        const cleaned = parsed.filter(
+          (o) =>
+            o.id !== 'NCH-1977-1042' &&
+            o.id !== 'NCH-1977-1041' &&
+            o.id !== 'NCH-1977-1040' &&
+            o.customer?.fullName !== 'Tariq Mehmood' &&
+            o.customer?.fullName !== 'Amina Farooq' &&
+            o.customer?.fullName !== 'Usman Ghani'
+        );
+        localStorage.setItem('niaz_orders_v2', JSON.stringify(cleaned));
+        return cleaned;
+      }
     } catch {
       // fallback
     }
-    return INITIAL_ORDERS;
+    return [];
   });
+
+  // Real-time Firestore Orders Synchronization
+  useEffect(() => {
+    try {
+      const ordersCol = collection(db, 'orders');
+      const unsubscribe = onSnapshot(ordersCol, (snapshot) => {
+        if (!snapshot.empty) {
+          const remoteOrders = snapshot.docs.map((docSnap) => docSnap.data() as Order);
+          const cleaned = remoteOrders.filter(
+            (o) =>
+              o.id !== 'NCH-1977-1042' &&
+              o.id !== 'NCH-1977-1041' &&
+              o.id !== 'NCH-1977-1040' &&
+              o.customer?.fullName !== 'Tariq Mehmood' &&
+              o.customer?.fullName !== 'Amina Farooq' &&
+              o.customer?.fullName !== 'Usman Ghani'
+          );
+          cleaned.sort((a, b) => new Date(b.date || 0).getTime() - new Date(a.date || 0).getTime());
+          setOrders(cleaned);
+          try {
+            localStorage.setItem('niaz_orders_v2', JSON.stringify(cleaned));
+          } catch {
+            // ignore
+          }
+        }
+      }, (err) => {
+        console.warn('Real-time orders sync info:', err);
+      });
+      return () => unsubscribe();
+    } catch {
+      // fallback
+    }
+  }, []);
 
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
+
+  // Limelight Wishlist state
+  const [wishlist, setWishlist] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('nch_wishlist_v1');
+      if (saved) return JSON.parse(saved);
+    } catch {
+      // fallback
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('nch_wishlist_v1', JSON.stringify(wishlist));
+    } catch (e) {
+      console.error('Failed to save wishlist:', e);
+    }
+  }, [wishlist]);
+
+  const toggleWishlist = (productId: string) => {
+    setWishlist((prev) => {
+      const exists = prev.includes(productId);
+      if (exists) {
+        showToast('Suit removed from Wishlist');
+        return prev.filter((id) => id !== productId);
+      } else {
+        showToast('Suit saved to Wishlist');
+        return [...prev, productId];
+      }
+    });
+  };
 
   // Compare Fabrics state (Two unstitched fabric IDs)
   const [compareProductIds, setCompareProductIds] = useState<[string, string]>(() => {
@@ -321,14 +402,46 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const addProduct = (product: Product) => {
-    setProducts((prev) => [product, ...prev]);
+    setProducts((prev) => {
+      const updated = [product, ...prev];
+      try {
+        localStorage.setItem('nch_products_v3', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to sync added product to localStorage:', e);
+      }
+      return updated;
+    });
+
+    try {
+      setDoc(doc(db, 'products', product.id), product).catch((err) => {
+        console.warn('Firestore add product sync warning:', err);
+      });
+    } catch {
+      // local fallback
+    }
+
     showToast(`Added product "${product.title}" to catalog`);
   };
 
   const updateProduct = (product: Product) => {
-    setProducts((prev) =>
-      prev.map((p) => (p.id === product.id ? product : p))
-    );
+    setProducts((prev) => {
+      const updated = prev.map((p) => (p.id === product.id ? product : p));
+      try {
+        localStorage.setItem('nch_products_v3', JSON.stringify(updated));
+      } catch (e) {
+        console.error('Failed to sync updated product to localStorage:', e);
+      }
+      return updated;
+    });
+
+    try {
+      setDoc(doc(db, 'products', product.id), product).catch((err) => {
+        console.warn('Firestore update product sync warning:', err);
+      });
+    } catch {
+      // local fallback
+    }
+
     showToast(`Updated product "${product.title}"`);
   };
 
@@ -366,7 +479,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       '✨ *NIAZ CLOTH HOUSE (Since 1970 - Dress To Impress)* ✨',
       '📍 *Paris Bazaar, Committee Chowk, Rawalpindi*',
       '📞 *Call / WhatsApp: 0334-6565636*',
-      'Assalam-o-Alaikum, I would like to place an order from your unstitched catalog:',
+      'Hello Niaz Cloth House, I would like to place an order from your unstitched catalog:',
       '',
       '📦 *ORDER SUMMARY:*',
       ...cart.map(
@@ -418,7 +531,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromCart,
         clearCart,
         cartSubtotal,
+        cartTotal: cartSubtotal,
         cartCount,
+        wishlist,
+        toggleWishlist,
         createOrder,
         updateOrderStatus,
         addProduct,

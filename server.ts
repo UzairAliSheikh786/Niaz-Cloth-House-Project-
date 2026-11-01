@@ -15,7 +15,8 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const port = 3000;
 
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
 // Explicit static handlers for image assets (works in both local, preview, and production)
 app.use('/images', express.static(path.resolve(__dirname, 'public', 'images')));
@@ -591,6 +592,42 @@ app.post('/api/admin/logout', (_req: Request, res: Response) => {
     success: true,
     message: 'Admin session terminated successfully.',
   });
+});
+
+// 4. Admin Suit Photo Upload Endpoint (Saves to public/images for instant preview & persistence)
+app.post('/api/admin/upload-image', (req: Request, res: Response) => {
+  try {
+    const { imageData, filename } = req.body || {};
+    if (!imageData || typeof imageData !== 'string') {
+      return res.status(400).json({ error: 'No image data provided. Please select or paste a photo.' });
+    }
+
+    let ext = 'jpg';
+    let base64Content = imageData;
+    const match = imageData.match(/^data:image\/([a-zA-Z0-9+]+);base64,(.+)$/);
+    if (match) {
+      ext = match[1] === 'jpeg' ? 'jpg' : match[1];
+      base64Content = match[2];
+    }
+
+    const safeBase = (filename || 'suit')
+      .replace(/[^a-zA-Z0-9_-]/g, '_')
+      .slice(0, 30);
+    const newFileName = `${safeBase}_${Date.now()}.${ext}`;
+    const targetDir = path.resolve(__dirname, 'public', 'images');
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const targetPath = path.join(targetDir, newFileName);
+    fs.writeFileSync(targetPath, Buffer.from(base64Content, 'base64'));
+
+    const publicUrl = `/images/${newFileName}`;
+    return res.json({ success: true, url: publicUrl, filename: newFileName });
+  } catch (err: any) {
+    console.error('Image upload failed:', err);
+    return res.status(500).json({ error: 'Failed to save product image.' });
+  }
 });
 
 // Database Composite Indexes Endpoint (reads firestore.indexes.json)

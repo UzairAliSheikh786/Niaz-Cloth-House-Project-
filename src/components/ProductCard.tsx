@@ -1,9 +1,8 @@
-import React from 'react';
-import { ShoppingBag, ArrowUpRight, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { ShoppingBag, Heart, MessageCircle, Star, Eye } from 'lucide-react';
 import { Product } from '../types';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
-import { useReviews } from '../context/ReviewContext';
 
 interface ProductCardProps {
   product: Product;
@@ -11,11 +10,15 @@ interface ProductCardProps {
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
-  const { addToCart } = useShop();
+  const { addToCart, wishlist, toggleWishlist } = useShop();
   const { navigateTo } = useNavigation();
-  const { getProductStats } = useReviews();
 
-  const stats = getProductStats(product.id);
+  // Fallback image guarantee to prevent disappearing images on mobile/deployed preview
+  const fallbackImage = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+  const [currentImg, setCurrentImg] = useState<string>(product.primaryImage || fallbackImage);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const isFavorite = wishlist.includes(product.id);
   const productUrl = `/product/${product.slug}`;
 
   const handleCardClick = (e?: React.MouseEvent) => {
@@ -23,51 +26,99 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
     navigateTo('product-detail', { id: product.id, slug: product.slug });
   };
 
-  return (
-    <article className="group flex flex-col bg-white border border-[#E2E8F0] hover:border-[#38BDF8] transition-all duration-300 hover:shadow-xl rounded-none">
-      {/* Product Image Anchor */}
-      <a 
-        href={productUrl}
-        onClick={handleCardClick}
-        className="relative aspect-[4/3] w-full overflow-hidden bg-[#F1F5F9] cursor-pointer block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#0284C7]"
-        aria-label={`View ${product.title} fabric details`}
-      >
-        <img
-          src={product.primaryImage}
-          alt={`${product.title} - ${product.fabric} unstitched fabric in ${product.color} at Niaz Cloth House`}
-          width={600}
-          height={450}
-          loading="lazy"
-          decoding="async"
-          referrerPolicy="no-referrer"
-          className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
-          onError={(e) => {
-            (e.target as HTMLElement).style.display = 'none';
-          }}
-        />
+  // Determine badge
+  let badgeText = '';
+  let badgeType: 'default' | 'sale' | 'new' = 'default';
 
-        {/* Subtle Single Weight/Grade Badge */}
-        {product.weightGrade && (
-          <div className="absolute top-3 left-3 bg-[#0F172A]/90 text-white text-[10px] tracking-wider uppercase px-2.5 py-1 font-semibold border-l-2 border-[#38BDF8]">
-            {product.weightGrade}
+  if (product.originalPrice && product.originalPrice > product.price) {
+    const discountPercent = Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100);
+    badgeText = `-${discountPercent}%`;
+    badgeType = 'sale';
+  } else if (product.newArrival) {
+    badgeText = 'NEW';
+    badgeType = 'new';
+  } else if (product.craftType === 'Embroidery') {
+    badgeText = 'EMBROIDERED';
+  } else if (product.craftType === 'Printed') {
+    badgeText = 'PRINTED';
+  } else if (product.fabric === 'Wash & Wear') {
+    badgeText = 'WASH & WEAR';
+  } else if (product.fabric === 'Boski') {
+    badgeText = 'PURE BOSKI';
+  }
+
+  // Pre-formatted WhatsApp order link
+  const waMessage = encodeURIComponent(
+    `Hello Niaz Cloth House! I would like to order this suit:\n*${product.title}*\nBrand: ${product.brand || product.gender}\nFabric: ${product.fabric}\nPrice: ${formatPKR(product.price)}\nSKU: ${product.id}\nPlease confirm international/domestic delivery and availability.`
+  );
+  const waUrl = `https://wa.me/923346565636?text=${waMessage}`;
+
+  return (
+    <article 
+      className="group flex flex-col bg-white border border-neutral-200 hover:border-black transition-all duration-300 relative select-none w-full min-w-0"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      {/* 1. Image Container (Limelight 3:4 Fashion Portrait Ratio) */}
+      <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100">
+        <a 
+          href={productUrl}
+          onClick={handleCardClick}
+          className="block w-full h-full cursor-pointer focus:outline-none"
+          aria-label={`View ${product.title}`}
+        >
+          <img
+            src={currentImg}
+            alt={`${product.title} - ${product.fabric} unstitched fabric at Niaz Cloth House`}
+            width={600}
+            height={800}
+            loading="lazy"
+            decoding="async"
+            className="h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-105"
+            onError={() => {
+              if (currentImg !== fallbackImage) {
+                setCurrentImg(fallbackImage);
+              }
+            }}
+          />
+        </a>
+
+        {/* Limelight Corner Badge */}
+        {badgeText && (
+          <div className="absolute top-2 left-2 z-10 pointer-events-none">
+            <span
+              className={`text-[8px] sm:text-[9px] font-bold tracking-widest uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 leading-none shadow-xs ${
+                badgeType === 'sale'
+                  ? 'bg-red-600 text-white'
+                  : 'bg-black text-white'
+              }`}
+            >
+              {badgeText}
+            </span>
           </div>
         )}
 
-        {/* Quick Add Overlay on Hover */}
-        <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/75 via-black/45 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-between gap-2">
+        {/* Top Right Action Icons: Wishlist & Mobile Quick View */}
+        <div className="absolute top-2 right-2 z-10 flex flex-col gap-1.5">
+          {/* Wishlist Heart Button */}
           <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              addToCart(product, 1);
+              toggleWishlist(product.id);
             }}
-            className="flex-1 py-2 px-3 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-1.5 shadow-md"
+            className={`p-1.5 sm:p-2 rounded-full transition-all duration-200 ${
+              isFavorite 
+                ? 'bg-red-600 text-white shadow-md' 
+                : 'bg-white/90 text-neutral-700 hover:text-black hover:bg-white shadow-xs'
+            }`}
+            aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
           >
-            <ShoppingBag className="w-3.5 h-3.5" />
-            <span>Add to Bag</span>
+            <Heart className={`w-3.5 h-3.5 ${isFavorite ? 'fill-current' : ''}`} />
           </button>
 
+          {/* Quick View Button on Image (Visible on touch/mobile directly!) */}
           {onQuickView && (
             <button
               type="button"
@@ -76,109 +127,134 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
                 e.stopPropagation();
                 onQuickView(product);
               }}
-              className="p-2 bg-white/95 hover:bg-white text-[#0F172A] hover:text-[#0284C7] transition-colors"
-              title="Quick inspect fabric details"
+              className="p-1.5 sm:p-2 rounded-full bg-white/90 text-neutral-700 hover:text-black hover:bg-white shadow-xs transition-colors flex sm:hidden items-center justify-center"
+              aria-label="Quick View product"
+              title="Quick View"
             >
-              <ArrowUpRight className="w-4 h-4" />
+              <Eye className="w-3.5 h-3.5" />
             </button>
           )}
         </div>
-      </a>
 
-      {/* Product Information Box */}
-      <div className="p-4 sm:p-5 flex flex-col flex-grow justify-between bg-white">
-        <div>
-          {/* Unboxed Metadata (Zero-Pill Discipline) */}
-          <div className="flex items-center gap-1.5 text-xs text-[#64748B] font-sans font-medium mb-1.5 flex-wrap">
-            {product.brand ? (
-              <span className="font-bold text-[#0F172A] uppercase tracking-wider text-[11px]">{product.brand}</span>
-            ) : (
-              <span className="uppercase tracking-wider text-[11px] text-[#0284C7] font-semibold">{product.gender}</span>
+        {/* Desktop Slide-Up Action Bar on Hover */}
+        <div className="hidden sm:flex absolute inset-x-0 bottom-0 p-2.5 bg-gradient-to-t from-black/85 via-black/40 to-transparent flex-col gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                addToCart(product, 1);
+              }}
+              className="flex-1 py-2 px-2.5 bg-black hover:bg-neutral-800 text-white text-[10px] font-bold tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 shadow-md"
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              <span>Add to Bag</span>
+            </button>
+
+            {onQuickView && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onQuickView(product);
+                }}
+                className="p-2 bg-white hover:bg-neutral-100 text-black transition-colors"
+                title="Quick View"
+              >
+                <Eye className="w-3.5 h-3.5" />
+              </button>
             )}
-            {product.craftType && (
-              <>
-                <span aria-hidden="true" className="text-[#94A3B8]">·</span>
-                <span className="text-[#334155]">{product.craftType}</span>
-              </>
-            )}
-            <span aria-hidden="true" className="text-[#94A3B8]">·</span>
-            <span className="truncate text-[#475569]">{product.fabric}</span>
           </div>
 
-          {/* Product Title */}
-          <h3 className="font-serif text-base sm:text-lg font-bold text-[#0F172A] leading-snug">
-            <a
-              href={productUrl}
-              onClick={handleCardClick}
-              className="group-hover:text-[#0284C7] transition-colors cursor-pointer line-clamp-1"
-            >
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-1"
+          >
+            <MessageCircle className="w-3 h-3" />
+            <span>Order on WhatsApp</span>
+          </a>
+        </div>
+      </div>
+
+      {/* 2. Product Details (Clean Limelight Fast-Fashion Typography with zero overlapping) */}
+      <div className="p-2 min-[380px]:p-2.5 sm:p-3.5 flex flex-col flex-grow justify-between bg-white text-left min-w-0">
+        <div>
+          {/* Brand Kicker with Overflow Protection */}
+          <div className="flex items-center justify-between gap-1 mb-1">
+            <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.12em] sm:tracking-[0.14em] uppercase text-neutral-500 truncate max-w-[70%]">
+              {product.brand || product.gender}
+            </span>
+            {product.rating && (
+              <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] text-amber-500 font-bold shrink-0">
+                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400" />
+                <span>{product.rating.toFixed(1)}</span>
+              </div>
+            )}
+          </div>
+
+          {/* Title with Line Clamping */}
+          <h3 className="text-[11.5px] min-[360px]:text-xs sm:text-[13px] font-semibold text-neutral-900 group-hover:text-black line-clamp-1 leading-snug transition-colors">
+            <a href={productUrl} onClick={handleCardClick} title={product.title}>
               {product.title}
             </a>
           </h3>
 
-          {/* Subtitle / Weave Note */}
-          <p className="text-xs text-[#64748B] line-clamp-1 mt-1 font-sans">
-            {product.subtitle}
+          {/* Fabric / Pieces Subtitle */}
+          <p className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] text-neutral-500 truncate mt-0.5 font-normal">
+            {product.subtitle || `${product.fabric} · Unstitched`}
           </p>
-
-          {/* Average Rating Display */}
-          <div className="flex items-center gap-1.5 mt-2 text-xs">
-            <div className="flex items-center text-amber-500">
-              <Star className="w-3.5 h-3.5 fill-current" />
-            </div>
-            <span className="font-bold text-xs text-[#0F172A] font-mono">{stats.averageRating.toFixed(1)}</span>
-            <span className="text-[11px] text-[#94A3B8] font-sans">({stats.totalReviews})</span>
-          </div>
-
-          {/* Color Choices Indicator */}
-          {product.colorOptions && product.colorOptions.length > 0 && (
-            <div className="mt-3 pt-2.5 flex items-center justify-between gap-2 border-t border-[#F1F5F9]">
-              <div className="flex items-center gap-1.5">
-                {product.colorOptions.slice(0, 4).map((c, i) => (
-                  <span
-                    key={i}
-                    title={c.name}
-                    className="w-3 h-3 rounded-full border border-black/15 shrink-0 inline-block"
-                    style={{ backgroundColor: c.hex }}
-                  />
-                ))}
-                {product.colorOptions.length > 4 && (
-                  <span className="text-[10px] text-[#64748B] font-mono">
-                    +{product.colorOptions.length - 4}
-                  </span>
-                )}
-              </div>
-              <span className="text-[10px] text-[#64748B] font-sans">
-                {product.cutDetails?.length || '4.5m Cut'}
-              </span>
-            </div>
-          )}
         </div>
 
-        {/* Pricing Baseline & Primary Action */}
-        <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2">
-            <span className="text-base font-bold text-[#0F172A] font-mono tabular-nums">
+        {/* Pricing with Safe Flex Wrapping */}
+        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-neutral-100 flex items-baseline justify-between gap-1 flex-wrap">
+          <div className="flex items-baseline gap-1.5 flex-wrap">
+            <span className="text-xs sm:text-sm font-black text-black whitespace-nowrap">
               {formatPKR(product.price)}
             </span>
-            {product.originalPrice && (
-              <span className="text-xs text-[#94A3B8] line-through font-mono tabular-nums">
+            {product.originalPrice && product.originalPrice > product.price && (
+              <span className="text-[9.5px] sm:text-[11px] text-neutral-400 line-through whitespace-nowrap">
                 {formatPKR(product.originalPrice)}
               </span>
             )}
           </div>
+          <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-neutral-400 font-medium shrink-0">
+            Unstitched
+          </span>
+        </div>
+
+        {/* Mobile Quick Action Buttons (Touchscreens) */}
+        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-neutral-100 flex sm:hidden items-center gap-1">
+          {onQuickView && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onQuickView(product);
+              }}
+              className="flex-1 py-1.5 px-0.5 bg-neutral-100 hover:bg-neutral-200 text-black text-[9.5px] min-[360px]:text-[10px] font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1 transition-colors"
+            >
+              <Eye className="w-3 h-3" />
+              <span>Quick View</span>
+            </button>
+          )}
 
           <button
             type="button"
             onClick={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               addToCart(product, 1);
             }}
-            className="py-1.5 px-3 bg-[#0F172A] hover:bg-[#0284C7] text-white text-[11px] font-bold tracking-wider uppercase transition-colors inline-flex items-center gap-1 shadow-xs"
-            title="Add to shopping bag"
+            className="flex-1 py-1.5 px-0.5 bg-black text-white text-[9.5px] min-[360px]:text-[10px] font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1 transition-colors active:scale-95"
           >
             <ShoppingBag className="w-3 h-3" />
-            <span>Add</span>
+            <span>+ Bag</span>
           </button>
         </div>
       </div>

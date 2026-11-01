@@ -29,22 +29,22 @@ const AppContent: React.FC = () => {
   const { currentPage } = useNavigation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F8FAFC] text-[#0F172A] w-full max-w-full overflow-x-hidden relative">
+    <div className="min-h-screen flex flex-col bg-white text-[#111111] w-full max-w-full overflow-x-hidden relative">
       {/* Central Technical SEO & Schema Head Engine */}
       <SEOHead />
       {/* WCAG Accessibility Skip Link */}
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#0284C7] focus:text-white focus:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white text-xs font-semibold uppercase tracking-wider"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-black focus:text-white focus:shadow-2xl focus:outline-none focus:ring-2 focus:ring-white text-xs font-semibold uppercase tracking-wider"
       >
         Skip to main content
       </a>
 
-      {/* Sleek Vertical Luxury Sidebar / Navigation Menu */}
+      {/* Limelight-Style Top Navigation & Mega Header */}
       <Header />
 
-      {/* Main Page & Footer Container (Offset by vertical sidebar width on desktop) */}
-      <div className="flex-1 flex flex-col lg:pl-64 xl:pl-72 w-full min-w-0 transition-all duration-300">
+      {/* Main Page & Footer Container (Full Width Fast-Fashion Layout) */}
+      <div className="flex-1 flex flex-col w-full min-w-0">
         {/* Main Page View */}
         <main className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden relative" id="main-content" tabIndex={-1}>
           {currentPage === 'home' && <HomePage />}

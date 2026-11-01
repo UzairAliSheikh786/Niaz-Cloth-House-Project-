@@ -128,9 +128,9 @@ export const ProductDetailPage: React.FC = () => {
 
   const handleDirectWhatsAppBuy = () => {
     const message = [
-      `Assalam-o-Alaikum Niaz Cloth House,`,
+      `Hello Niaz Cloth House,`,
       ``,
-      `I would like to order this unstitched fabric from your online catalog:`,
+      `I would like to order this unstitched fabric from your catalog:`,
       `*Product:* ${product.title}`,
       `*Article Code:* ${product.id.toUpperCase()}`,
       `*Fabric:* ${product.fabric}`,
@@ -140,7 +140,7 @@ export const ProductDetailPage: React.FC = () => {
       `*Quantity:* ${quantity} suit(s)`,
       `*Total Price:* ${formatPKR(totalPrice)}`,
       ``,
-      `Please confirm stock availability and dispatch time for my city.`,
+      `Please confirm stock availability and shipping details.`,
     ].join('\n');
 
     const text = encodeURIComponent(message);
@@ -172,22 +172,24 @@ export const ProductDetailPage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full bg-[#FAF8F5] pb-14">
-      {/* Crawlable Breadcrumb Navigation & Schema */}
-      <div className="border-b border-[#E7E0D8] bg-[#F5EFEB]/50">
-        <Breadcrumbs items={breadcrumbItems} />
+    <div className="w-full bg-white pb-16">
+      {/* Crawlable Breadcrumb Navigation */}
+      <div className="border-b border-neutral-200 bg-[#FAFAFA]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
+          <Breadcrumbs items={breadcrumbItems} />
+        </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Navigation Action Bar */}
-        <div className="flex items-center justify-between pb-4 mb-6 border-b border-[#E7E0D8]">
+        <div className="flex items-center justify-between pb-4 mb-8 border-b border-neutral-200">
           <a
             href={returnPath}
             onClick={(e) => {
               e.preventDefault();
               navigateTo(returnRoute);
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#8C4830] hover:text-[#703623] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600 hover:text-black transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to {returnLabel}</span>
@@ -195,32 +197,34 @@ export const ProductDetailPage: React.FC = () => {
 
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 text-xs text-[#1C1917]/70 hover:text-[#1C1917] transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600 hover:text-black transition-colors"
             title="Share this fabric"
           >
             <Share2 className="w-4 h-4" />
-            <span>Share Link</span>
+            <span>Share</span>
           </button>
         </div>
 
         {/* PDP Main Grid: Gallery Left + Contiguous Purchase Module Right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Gallery Module (Left Column) */}
+          {/* Gallery Module (Left Column: Limelight 3:4 Portrait Ratio) */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="aspect-[4/3] w-full overflow-hidden bg-[#F2EDE7] border border-[#E7E0D8] relative group">
+            <div className="aspect-[3/4] w-full overflow-hidden bg-neutral-100 border border-neutral-200 relative group">
               <img
                 src={selectedImage}
                 alt={`${product.title} - ${product.fabric} unstitched suit fabric in ${selectedColor}`}
                 width={800}
-                height={600}
+                height={1067}
                 loading="eager"
                 fetchPriority="high"
                 decoding="sync"
-                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+                }}
               />
               {product.weightGrade && (
-                <div className="absolute top-4 left-4 bg-[#1C1917]/90 text-[#FAF8F5] text-xs font-sans tracking-widest uppercase px-3 py-1">
+                <div className="absolute top-4 left-4 bg-black/90 text-white text-[10px] font-sans tracking-widest uppercase px-3 py-1 font-bold">
                   {product.weightGrade}
                 </div>
               )}
@@ -508,7 +512,7 @@ export const ProductDetailPage: React.FC = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 <button
                   onClick={() =>
                     addToCart(product, quantity, {
@@ -517,75 +521,74 @@ export const ProductDetailPage: React.FC = () => {
                       selectedDesign: activeDesign?.name || 'Standard Cut',
                     })
                   }
-                  className="w-full py-3.5 px-6 bg-[#8C4830] hover:bg-[#703623] text-white text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-4 px-6 bg-black hover:bg-neutral-800 text-white text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-md active:scale-98"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>
-                    Add to Shopping Bag ({formatPKR(totalPrice)})
+                    Add to Bag · {formatPKR(totalPrice)}
                   </span>
                 </button>
 
                 <button
                   onClick={handleDirectWhatsAppBuy}
-                  className="w-full py-3 px-6 bg-[#4A5D4E] hover:bg-[#3d4d40] text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
                   <MessageCircle className="w-4 h-4" />
-                  <span>Instant Order on WhatsApp (0334-6565636)</span>
+                  <span>Order via WhatsApp (0334-6565636)</span>
                 </button>
-
               </div>
 
-              <div className="pt-2 flex items-center justify-between text-[11px] text-[#1C1917]/60">
+              <div className="pt-2 flex items-center justify-between text-[11px] text-neutral-500">
                 <div className="flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#8C4830]" />
-                  <span>Nationwide Courier COD Dispatch</span>
+                  <Truck className="w-3.5 h-3.5 text-black" />
+                  <span>Nationwide Express COD Dispatch</span>
                 </div>
-                <span>Dispatched within 24–48 Hours</span>
+                <span>Free Shipping over PKR 3,000</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Tabbed Technical & Care Specifications Accordion */}
-        <div id="product-tabs-section" className="mt-16 sm:mt-20 border-t border-[#E7E0D8] pt-12">
+        <div id="product-tabs-section" className="mt-16 sm:mt-20 border-t border-neutral-200 pt-12">
           {/* Tab Headers */}
-          <div className="flex border-b border-[#E7E0D8] gap-4 sm:gap-8 overflow-x-auto scrollbar-none pb-0.5">
+          <div className="flex border-b border-neutral-200 gap-4 sm:gap-8 overflow-x-auto scrollbar-none pb-0.5">
             <button
               onClick={() => setActiveTab('care')}
-              className={`pb-3 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'care'
-                  ? 'border-[#8C4830] text-[#8C4830]'
-                  : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-neutral-500 hover:text-black'
               }`}
             >
-              Fabric Care & Washing
+              Fabric Details & Care
             </button>
             <button
               onClick={() => setActiveTab('guide')}
-              className={`pb-3 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'guide'
-                  ? 'border-[#8C4830] text-[#8C4830]'
-                  : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-neutral-500 hover:text-black'
               }`}
             >
-              Unstitched Tailoring Guide
+              Suiting Cut & Dimensions
             </button>
             <button
               onClick={() => setActiveTab('heritage')}
-              className={`pb-3 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'heritage'
-                  ? 'border-[#8C4830] text-[#8C4830]'
-                  : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-neutral-500 hover:text-black'
               }`}
             >
-              Fabric Quality & Purity
+              Niaz Cloth House Guarantee
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`pb-3 text-xs sm:text-sm font-semibold whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'reviews'
-                  ? 'border-[#8C4830] text-[#8C4830]'
-                  : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                  ? 'border-black text-black'
+                  : 'border-transparent text-neutral-500 hover:text-black'
               }`}
             >
               Customer Reviews ({stats.totalReviews})

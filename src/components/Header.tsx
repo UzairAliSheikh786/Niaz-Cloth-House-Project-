@@ -1,58 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { 
-  Home as HomeIcon, 
-  Layers, 
-  Sun, 
-  Sparkles, 
-  MapPin, 
   Search, 
   ShoppingBag, 
-  ShieldCheck, 
+  Heart, 
   User as UserIcon, 
+  Menu, 
+  X, 
   ChevronDown, 
-  ChevronRight,
-  Menu,
-  X,
-  LogOut,
-  MessageCircle,
-  Scissors,
-  Check
+  ChevronRight, 
+  Phone, 
+  MapPin, 
+  LogOut, 
+  Truck, 
+  Check, 
+  Flame, 
+  ArrowRight
 } from 'lucide-react';
-import { useShop } from '../context/ShopContext';
+import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../context/AuthContext';
 import { WOMEN_EMBROIDERY_BRANDS, WOMEN_PRINTED_BRANDS, MENS_FABRICS } from '../types';
 
 export const Header: React.FC = () => {
-  const { cartCount, setIsCartOpen, setIsSearchOpen, orders } = useShop();
+  const { cartCount, cartTotal, setIsCartOpen, setIsSearchOpen, wishlist, orders } = useShop();
   const { currentPage, filterParams, navigateTo } = useNavigation();
   const { user, openAuthModal, logout } = useAuth();
 
-  // Accordion state for submenus inside sidebar
-  const [menExpanded, setMenExpanded] = useState<boolean>(true);
-  const [womenExpanded, setWomenExpanded] = useState<boolean>(true);
-  const [embroideryBrandsExpanded, setEmbroideryBrandsExpanded] = useState<boolean>(false);
-  const [printedBrandsExpanded, setPrintedBrandsExpanded] = useState<boolean>(false);
-  
-  // Mobile drawer open state
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeMegaMenu, setActiveMegaMenu] = useState<'women' | 'men' | null>(null);
+  const [mobileActiveTab, setMobileActiveTab] = useState<'women' | 'men'>('women');
+  const [mobileAccordion, setMobileAccordion] = useState<{
+    womenEmbroidered: boolean;
+    womenPrinted: boolean;
+    menFabrics: boolean;
+  }>({
+    womenEmbroidered: true,
+    womenPrinted: false,
+    menFabrics: true,
+  });
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [currency, setCurrency] = useState<'PKR' | 'USD' | 'AED' | 'GBP'>('PKR');
 
-  // Auto-expand based on active route
+  // Announcement bar rotating ticker
+  const tickerMessages = [
+    "SUMMER FESTIVE UNSTITCHED '26 IS LIVE · 100% ORIGINAL DESIGNER FABRICS",
+    "FREE NATIONWIDE EXPRESS SHIPPING ON ALL ORDERS OVER PKR 3,000",
+    "WHATSAPP CONCIERGE & VIDEO SUIT INSPECTION: 0334-6565636",
+    "AUTHENTIC PAKISTANI FABRICS · SHOP # 166-C PARIS BAZAAR RAWALPINDI"
+  ];
+  const [currentTicker, setCurrentTicker] = useState(0);
+
   useEffect(() => {
-    if (currentPage === 'men-summer' || currentPage === 'men-winter' || filterParams.gender === 'Men') {
-      setMenExpanded(true);
-    }
-    if (currentPage === 'women-summer' || currentPage === 'women-winter' || filterParams.gender === 'Women') {
-      setWomenExpanded(true);
-    }
-  }, [currentPage, filterParams.gender]);
+    const timer = setInterval(() => {
+      setCurrentTicker((prev) => (prev + 1) % tickerMessages.length);
+    }, 4500);
+    return () => clearInterval(timer);
+  }, [tickerMessages.length]);
 
-  // Close on Escape key
+  // Close menus on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        setMobileSidebarOpen(false);
+        setMobileMenuOpen(false);
+        setActiveMegaMenu(null);
         setUserDropdownOpen(false);
       }
     };
@@ -61,561 +71,772 @@ export const Header: React.FC = () => {
   }, []);
 
   const userOrdersCount = user
-    ? orders.filter((o) => (o as any).userId === user.uid || o.customer.fullName.toLowerCase().includes((user.displayName || '').toLowerCase())).length
+    ? orders.filter(
+        (o) =>
+          (o as any).userId === user.uid ||
+          o.customer.fullName.toLowerCase().includes((user.displayName || '').toLowerCase())
+      ).length
     : 0;
 
-  // Sidebar navigation items content with Cool Slate & Glacier Ice Blue styling
-  const sidebarContent = (
-    <div className="flex flex-col h-full bg-[#0B132B] text-[#F8FAFC] border-r border-[#1E293B] select-none">
-      {/* 1. Brand Logo / Wordmark Header */}
-      <div className="p-6 border-b border-[#1E293B] bg-[#080E1E] shrink-0">
-        <a
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            navigateTo('home');
-            setMobileSidebarOpen(false);
-          }}
-          className="block group focus-visible:outline-none"
-          aria-label="Niaz Cloth House Home"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <span className="w-2 h-2 rounded-full bg-[#38BDF8] animate-pulse" />
-            <span className="text-[10px] uppercase tracking-[0.24em] text-[#38BDF8] font-mono font-semibold">
-              Authentic Fabrics
-            </span>
+  return (
+    <header className="w-full bg-white border-b border-neutral-200 sticky top-0 z-40 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+      {/* 1. Limelight Top Announcement Bar */}
+      <div className="bg-[#111111] text-white py-2 px-4 sm:px-6 lg:px-12 text-[11px] font-sans font-medium tracking-wider flex items-center justify-between border-b border-neutral-800">
+        <div className="flex-1 text-center sm:text-left overflow-hidden">
+          <p className="truncate animate-fadeIn">
+            {tickerMessages[currentTicker]}
+          </p>
+        </div>
+
+        <div className="hidden md:flex items-center gap-6 shrink-0 text-neutral-300">
+          <a
+            href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20inquire%20about%20your%20unstitched%20fabrics"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-white flex items-center gap-1.5 transition-colors"
+          >
+            <Phone className="w-3 h-3 text-emerald-400" />
+            <span>0334-6565636</span>
+          </a>
+
+          <button
+            onClick={() => navigateTo('location')}
+            className="hover:text-white flex items-center gap-1.5 transition-colors"
+          >
+            <MapPin className="w-3 h-3" />
+            <span>Paris Bazaar, Rawalpindi</span>
+          </button>
+
+          {/* Currency selector like Limelight */}
+          <div className="flex items-center gap-1 text-[10px] text-neutral-400 pl-3 border-l border-neutral-700">
+            {(['PKR', 'USD', 'AED'] as const).map((curr) => (
+              <button
+                key={curr}
+                onClick={() => setCurrency(curr)}
+                className={`px-1.5 py-0.5 font-semibold transition-colors ${
+                  currency === curr ? 'text-white underline underline-offset-2' : 'hover:text-white'
+                }`}
+              >
+                {curr}
+              </button>
+            ))}
           </div>
-          <span className="font-serif text-xl xl:text-2xl font-bold tracking-[0.16em] uppercase text-white group-hover:text-[#38BDF8] transition-colors leading-tight block">
-            Niaz Cloth
-          </span>
-          <span className="font-serif text-lg xl:text-xl font-medium tracking-[0.24em] uppercase text-[#38BDF8] block -mt-0.5">
-            House
-          </span>
-          <div className="w-12 h-[2px] bg-[#38BDF8] mt-2 group-hover:w-20 transition-all duration-300" />
-          <span className="text-[10px] uppercase tracking-[0.22em] text-[#94A3B8] font-sans block mt-2">
-            Paris Bazaar · Est. 1970
-          </span>
-        </a>
+        </div>
       </div>
 
-      {/* 2. Primary Navigation Links (Navigators) */}
-      <div className="flex-1 overflow-y-auto px-4 py-5 space-y-1.5 text-xs font-semibold tracking-wider uppercase font-sans custom-scrollbar">
-        <div className="px-3 pb-2 text-[10px] tracking-[0.2em] text-[#64748B] uppercase font-sans font-bold">
-          Store Navigation
-        </div>
-
-        {/* Navigator: Home */}
-        <a
-          href="/"
-          onClick={(e) => {
-            e.preventDefault();
-            navigateTo('home');
-            setMobileSidebarOpen(false);
-          }}
-          className={`flex items-center justify-between px-3.5 py-3 transition-all duration-150 rounded-none border-l-2 ${
-            currentPage === 'home'
-              ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold shadow-xs'
-              : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <HomeIcon className="w-4 h-4 text-[#38BDF8]" />
-            <span>Home</span>
-          </div>
-          {currentPage === 'home' && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
-          )}
-        </a>
-
-        {/* Navigator: All Fabrics Catalog */}
-        <a
-          href="/shop"
-          onClick={(e) => {
-            e.preventDefault();
-            navigateTo('shop');
-            setMobileSidebarOpen(false);
-          }}
-          className={`flex items-center justify-between px-3.5 py-3 transition-all duration-150 rounded-none border-l-2 ${
-            currentPage === 'shop' && !filterParams.gender && !filterParams.craftType && !filterParams.fabric
-              ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold shadow-xs'
-              : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <Layers className="w-4 h-4 text-[#38BDF8]" />
-            <span>All Fabrics</span>
-          </div>
-          {currentPage === 'shop' && !filterParams.gender && !filterParams.craftType && !filterParams.fabric && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
-          )}
-        </a>
-
-        {/* Navigator: Men's Collection (Accordion) */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={() => setMenExpanded(!menExpanded)}
-            className={`w-full flex items-center justify-between px-3.5 py-3 transition-all duration-150 border-l-2 text-left ${
-              filterParams.gender === 'Men' || currentPage === 'men-summer' || currentPage === 'men-winter'
-                ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold'
-                : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Sun className="w-4 h-4 text-[#38BDF8]" />
-              <span>Men's Collection</span>
-            </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform duration-200 ${menExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
-          </button>
-
-          {menExpanded && (
-            <div className="pl-4 pr-1 py-1.5 space-y-1 bg-[#070B16] border-l border-[#1E293B] ml-4 mt-1">
-              <a
-                href="/shop?gender=Men"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo('shop', { gender: 'Men', fabric: undefined });
-                  setMobileSidebarOpen(false);
-                }}
-                className={`block px-3 py-1.5 text-[11px] font-semibold tracking-wide normal-case transition-colors ${
-                  filterParams.gender === 'Men' && !filterParams.fabric
-                    ? 'text-[#38BDF8] font-bold'
-                    : 'text-[#94A3B8] hover:text-white'
-                }`}
-              >
-                • All Men's Fabrics
-              </a>
-
-              {MENS_FABRICS.map((fabricName) => {
-                const isActive = filterParams.gender === 'Men' && filterParams.fabric === fabricName;
-                return (
-                  <a
-                    key={fabricName}
-                    href={`/shop?gender=Men&fabric=${encodeURIComponent(fabricName)}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigateTo('shop', { gender: 'Men', fabric: fabricName });
-                      setMobileSidebarOpen(false);
-                    }}
-                    className={`block px-3 py-1.5 text-[11px] font-medium tracking-wide normal-case transition-colors flex items-center justify-between ${
-                      isActive
-                        ? 'text-[#38BDF8] font-bold bg-[#38BDF8]/10'
-                        : 'text-[#CBD5E1] hover:text-white hover:bg-white/[0.03]'
-                    }`}
-                  >
-                    <span>{fabricName}</span>
-                    {isActive && <Check className="w-3 h-3 text-[#38BDF8]" />}
-                  </a>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {/* Navigator: Women's Collection (Accordion) */}
-        <div className="pt-1">
-          <button
-            type="button"
-            onClick={() => setWomenExpanded(!womenExpanded)}
-            className={`w-full flex items-center justify-between px-3.5 py-3 transition-all duration-150 border-l-2 text-left ${
-              filterParams.gender === 'Women' || currentPage === 'women-summer' || currentPage === 'women-winter'
-                ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold'
-                : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
-            }`}
-          >
-            <div className="flex items-center gap-3">
-              <Sparkles className="w-4 h-4 text-[#38BDF8]" />
-              <span>Women's Collection</span>
-            </div>
-            <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform duration-200 ${womenExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
-          </button>
-
-          {womenExpanded && (
-            <div className="pl-4 pr-1 py-1.5 space-y-1 bg-[#070B16] border-l border-[#1E293B] ml-4 mt-1">
-              <a
-                href="/shop?gender=Women"
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigateTo('shop', { gender: 'Women', craftType: undefined, brand: undefined });
-                  setMobileSidebarOpen(false);
-                }}
-                className={`block px-3 py-1.5 text-[11px] font-semibold tracking-wide normal-case transition-colors ${
-                  filterParams.gender === 'Women' && !filterParams.craftType && !filterParams.brand
-                    ? 'text-[#38BDF8] font-bold'
-                    : 'text-[#94A3B8] hover:text-white'
-                }`}
-              >
-                • All Women's Collection
-              </a>
-
-              {/* Embroidered Collection Link + Brands Dropdown */}
-              <div className="pt-1">
-                <div className="flex items-center justify-between px-3 py-1.5">
-                  <a
-                    href="/shop?gender=Women&craft=Embroidery"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand: undefined });
-                      setMobileSidebarOpen(false);
-                    }}
-                    className={`text-[11px] font-bold tracking-wide normal-case hover:text-white transition-colors ${
-                      filterParams.craftType === 'Embroidery' ? 'text-[#38BDF8]' : 'text-[#E2E8F0]'
-                    }`}
-                  >
-                    ★ Embroidered Collection
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => setEmbroideryBrandsExpanded(!embroideryBrandsExpanded)}
-                    className="p-1 text-[#94A3B8] hover:text-[#38BDF8]"
-                    aria-label="Toggle Embroidered Brands"
-                  >
-                    <ChevronDown className={`w-3 h-3 transition-transform ${embroideryBrandsExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
-                  </button>
-                </div>
-
-                {embroideryBrandsExpanded && (
-                  <div className="pl-3 pr-1 py-1 space-y-1 bg-black/40 border-l border-[#1E293B] ml-3 text-[10px]">
-                    {WOMEN_EMBROIDERY_BRANDS.map((brand) => (
-                      <a
-                        key={brand}
-                        href={`/shop?gender=Women&brand=${encodeURIComponent(brand)}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigateTo('shop', { gender: 'Women', brand, craftType: 'Embroidery' });
-                          setMobileSidebarOpen(false);
-                        }}
-                        className={`block px-2 py-1 normal-case truncate transition-colors ${
-                          filterParams.brand === brand
-                            ? 'text-[#38BDF8] font-bold'
-                            : 'text-[#94A3B8] hover:text-white'
-                        }`}
-                      >
-                        {brand}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Printed Collection Link + Brands Dropdown */}
-              <div className="pt-1">
-                <div className="flex items-center justify-between px-3 py-1.5">
-                  <a
-                    href="/shop?gender=Women&craft=Printed"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      navigateTo('shop', { gender: 'Women', craftType: 'Printed', brand: undefined });
-                      setMobileSidebarOpen(false);
-                    }}
-                    className={`text-[11px] font-bold tracking-wide normal-case hover:text-white transition-colors ${
-                      filterParams.craftType === 'Printed' ? 'text-[#38BDF8]' : 'text-[#E2E8F0]'
-                    }`}
-                  >
-                    ★ Printed Collection
-                  </a>
-                  <button
-                    type="button"
-                    onClick={() => setPrintedBrandsExpanded(!printedBrandsExpanded)}
-                    className="p-1 text-[#94A3B8] hover:text-[#38BDF8]"
-                    aria-label="Toggle Printed Brands"
-                  >
-                    <ChevronDown className={`w-3 h-3 transition-transform ${printedBrandsExpanded ? 'rotate-180 text-[#38BDF8]' : ''}`} />
-                  </button>
-                </div>
-
-                {printedBrandsExpanded && (
-                  <div className="pl-3 pr-1 py-1 space-y-1 bg-black/40 border-l border-[#1E293B] ml-3 text-[10px]">
-                    {WOMEN_PRINTED_BRANDS.map((brand) => (
-                      <a
-                        key={brand}
-                        href={`/shop?gender=Women&brand=${encodeURIComponent(brand)}`}
-                        onClick={(e) => {
-                          e.preventDefault();
-                          navigateTo('shop', { gender: 'Women', brand, craftType: 'Printed' });
-                          setMobileSidebarOpen(false);
-                        }}
-                        className={`block px-2 py-1 normal-case truncate transition-colors ${
-                          filterParams.brand === brand
-                            ? 'text-[#38BDF8] font-bold'
-                            : 'text-[#94A3B8] hover:text-white'
-                        }`}
-                      >
-                        {brand}
-                      </a>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Navigator: Store Location & Map */}
-        <a
-          href="/location"
-          onClick={(e) => {
-            e.preventDefault();
-            navigateTo('location');
-            setMobileSidebarOpen(false);
-          }}
-          className={`flex items-center justify-between px-3.5 py-3 transition-all duration-150 rounded-none border-l-2 ${
-            currentPage === 'location'
-              ? 'border-[#38BDF8] bg-white/[0.08] text-[#38BDF8] font-bold'
-              : 'border-transparent text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] hover:border-[#38BDF8]/50'
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <MapPin className="w-4 h-4 text-[#38BDF8]" />
-            <span>Store Location</span>
-          </div>
-          {currentPage === 'location' && (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#38BDF8]" />
-          )}
-        </a>
-
-        {/* Section Divider */}
-        <div className="pt-4 pb-2 px-3 text-[10px] tracking-[0.2em] text-[#64748B] uppercase font-sans font-bold border-t border-[#1E293B]">
-          Actions & Bag
-        </div>
-
-        {/* Action: Search Catalog */}
-        <button
-          type="button"
-          onClick={() => {
-            setIsSearchOpen(true);
-            setMobileSidebarOpen(false);
-          }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
-        >
-          <div className="flex items-center gap-3">
-            <Search className="w-4 h-4 text-[#38BDF8]" />
-            <span>Search Catalog</span>
-          </div>
-          <span className="text-[10px] bg-white/10 text-[#94A3B8] px-1.5 py-0.5 font-mono">/</span>
-        </button>
-
-        {/* Action: Shopping Bag */}
-        <button
-          type="button"
-          onClick={() => {
-            setIsCartOpen(true);
-            setMobileSidebarOpen(false);
-          }}
-          className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
-        >
-          <div className="flex items-center gap-3">
-            <ShoppingBag className="w-4 h-4 text-[#38BDF8]" />
-            <span>Shopping Bag</span>
-          </div>
-          <span className="min-w-[20px] h-5 px-1.5 bg-[#0284C7] text-white text-[11px] font-bold flex items-center justify-center tabular-nums shadow-xs">
-            {cartCount}
-          </span>
-        </button>
-
-        {/* Action: Customer Account */}
-        {user ? (
-          <div className="pt-1">
+      {/* 2. Main Brand Row */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 sm:h-22">
+          {/* Mobile Hamburger & Search Buttons */}
+          <div className="flex items-center lg:hidden gap-0.5 shrink-0">
             <button
               type="button"
-              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 text-neutral-900 hover:text-black focus:outline-none min-w-[40px] min-h-[40px] flex items-center justify-center"
+              aria-label="Open navigation menu"
             >
-              <div className="flex items-center gap-3 truncate">
-                <UserIcon className="w-4 h-4 text-[#38BDF8]" />
-                <span className="truncate">{user.displayName || 'Customer'}</span>
-              </div>
-              <ChevronDown className={`w-3.5 h-3.5 text-[#94A3B8] transition-transform ${userDropdownOpen ? 'rotate-180' : ''}`} />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2 text-neutral-900 hover:text-black min-w-[40px] min-h-[40px] flex items-center justify-center"
+              aria-label="Search catalog"
+            >
+              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
 
-            {userDropdownOpen && (
-              <div className="p-3 my-1 bg-black/40 border border-[#1E293B] text-xs space-y-2">
-                <p className="text-[11px] text-[#94A3B8] truncate">{user.email}</p>
-                <div className="flex justify-between text-[11px] text-[#CBD5E1]">
-                  <span>Tracked Orders:</span>
-                  <strong className="text-[#38BDF8] font-mono">{userOrdersCount}</strong>
-                </div>
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+          {/* Desktop Search Bar (Limelight-style quick search box) */}
+          <div className="hidden lg:flex items-center flex-1 max-w-xs">
+            <button
+              onClick={() => setIsSearchOpen(true)}
+              className="w-full flex items-center justify-between bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 px-3.5 py-2 text-xs tracking-wide transition-colors group cursor-text"
+            >
+              <span className="truncate">Search suits, brands, fabrics...</span>
+              <Search className="w-4 h-4 text-neutral-400 group-hover:text-neutral-700 shrink-0 ml-2" />
+            </button>
+          </div>
+
+          {/* Center Brand Identity (Responsive font & letter-spacing to prevent mobile clipping) */}
+          <div className="flex-1 lg:flex-initial text-center px-1 sm:px-4 min-w-0 overflow-hidden">
+            <a
+              href="/"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo('home');
+              }}
+              className="inline-block group focus:outline-none max-w-full"
+            >
+              <span className="block font-sans font-black text-sm sm:text-2xl lg:text-3xl tracking-[0.14em] sm:tracking-[0.24em] uppercase text-black group-hover:text-neutral-700 transition-colors truncate">
+                NIAZ CLOTH HOUSE
+              </span>
+              <span className="block text-[7.5px] sm:text-[10px] tracking-[0.16em] sm:tracking-[0.28em] uppercase text-neutral-500 font-medium mt-0.5 truncate">
+                EST. 1970 · PARIS BAZAAR · RAWALPINDI
+              </span>
+            </a>
+          </div>
+
+          {/* Right Action Icons: User Account, Wishlist, Cart */}
+          <div className="flex items-center justify-end shrink-0 lg:flex-1 lg:max-w-xs gap-1 sm:gap-3">
+            {/* User Account / Profile */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  if (user) {
+                    setUserDropdownOpen(!userDropdownOpen);
+                  } else {
+                    openAuthModal();
+                  }
+                }}
+                className="p-2 text-neutral-800 hover:text-black flex items-center gap-1.5 transition-colors focus:outline-none"
+                aria-label="Account login and profile"
+              >
+                <UserIcon className="w-5 h-5" />
+                <span className="hidden xl:inline text-xs font-semibold tracking-wider uppercase text-neutral-800">
+                  {user ? (user.displayName || 'Patron').split(' ')[0] : 'SIGN IN'}
+                </span>
+              </button>
+
+              {user && userDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-neutral-200 shadow-xl py-2 z-50 text-xs text-neutral-800">
+                  <div className="px-4 py-2 border-b border-neutral-100">
+                    <p className="font-semibold text-black truncate">{user.displayName || 'Distinguished Patron'}</p>
+                    <p className="text-[11px] text-neutral-500 truncate">{user.email}</p>
+                  </div>
                   <button
                     onClick={() => {
-                      openAuthModal('profile');
-                      setMobileSidebarOpen(false);
+                      navigateTo('admin');
+                      setUserDropdownOpen(false);
                     }}
-                    className="text-[11px] text-[#38BDF8] hover:underline uppercase tracking-wider"
+                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 font-medium"
                   >
-                    Profile
+                    Admin & Order Desk
                   </button>
                   <button
                     onClick={() => {
                       logout();
                       setUserDropdownOpen(false);
                     }}
-                    className="text-[11px] text-red-400 hover:underline uppercase tracking-wider flex items-center gap-1"
+                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 text-red-600 flex items-center gap-2"
                   >
-                    <LogOut className="w-3 h-3" />
+                    <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
                   </button>
+                </div>
+              )}
+            </div>
+
+            {/* Wishlist Button */}
+            <button
+              onClick={() => navigateTo('shop', { favoritesOnly: true })}
+              className="p-2 text-neutral-800 hover:text-black relative transition-colors focus:outline-none hidden sm:flex items-center"
+              aria-label={`Wishlist (${wishlist.length} items)`}
+              title="Wishlist"
+            >
+              <Heart className="w-5 h-5" />
+              {wishlist.length > 0 && (
+                <span className="absolute top-1 right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  {wishlist.length}
+                </span>
+              )}
+            </button>
+
+            {/* Shopping Bag / Cart Drawer Trigger (Limelight fast-fashion bag button) */}
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-black hover:bg-neutral-100 transition-colors focus:outline-none"
+              aria-label={`View cart (${cartCount} items)`}
+            >
+              <div className="relative">
+                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
+                {cartCount > 0 && (
+                  <span className="absolute -top-1.5 -right-2 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+              <div className="hidden lg:flex flex-col text-left">
+                <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold leading-tight">Bag</span>
+                <span className="text-xs font-bold text-black leading-tight">
+                  {cartTotal > 0 ? formatPKR(cartTotal) : 'PKR 0'}
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        {/* 3. Limelight Primary Navigation Bar (Centered Mega Menu) */}
+        <nav className="hidden lg:flex items-center justify-center border-t border-neutral-100 py-3 gap-8 text-[12px] font-sans font-semibold tracking-[0.16em] uppercase text-neutral-800 select-none">
+          {/* WOMEN DROP-DOWN */}
+          <div
+            className="relative group py-1"
+            onMouseEnter={() => setActiveMegaMenu('women')}
+            onMouseLeave={() => setActiveMegaMenu(null)}
+          >
+            <button
+              onClick={() => navigateTo('shop', { gender: 'Women' })}
+              className={`hover:text-black flex items-center gap-1 transition-colors ${
+                filterParams.gender === 'Women' ? 'text-black underline underline-offset-8 decoration-2' : ''
+              }`}
+            >
+              <span>WOMEN</span>
+              <ChevronDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black transition-transform group-hover:rotate-180" />
+            </button>
+
+            {/* Mega Menu Dropdown */}
+            {activeMegaMenu === 'women' && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[920px] bg-white border border-neutral-200 shadow-2xl p-8 z-50 animate-fadeIn">
+                <div className="grid grid-cols-4 gap-8">
+                  {/* Col 1: Embroidered Collection */}
+                  <div>
+                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3 flex items-center justify-between">
+                      <span>Embroidered Collection</span>
+                    </h3>
+                    <ul className="space-y-2 text-[11px] font-medium text-neutral-600">
+                      {WOMEN_EMBROIDERY_BRANDS.map((brand) => (
+                        <li key={brand}>
+                          <button
+                            onClick={() => {
+                              navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand });
+                              setActiveMegaMenu(null);
+                            }}
+                            className="hover:text-black hover:translate-x-1 transition-all block text-left"
+                          >
+                            {brand}
+                          </button>
+                        </li>
+                      ))}
+                      <li className="pt-2 border-t border-neutral-100">
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="text-black font-bold flex items-center gap-1 hover:underline"
+                        >
+                          View All Embroidered →
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Col 2: Printed Collection */}
+                  <div>
+                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3 flex items-center justify-between">
+                      <span>Printed Collection</span>
+                    </h3>
+                    <ul className="space-y-2 text-[11px] font-medium text-neutral-600">
+                      {WOMEN_PRINTED_BRANDS.map((brand) => (
+                        <li key={brand}>
+                          <button
+                            onClick={() => {
+                              navigateTo('shop', { gender: 'Women', craftType: 'Printed', brand });
+                              setActiveMegaMenu(null);
+                            }}
+                            className="hover:text-black hover:translate-x-1 transition-all block text-left"
+                          >
+                            {brand}
+                          </button>
+                        </li>
+                      ))}
+                      <li className="pt-2 border-t border-neutral-100">
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Women', craftType: 'Printed' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="text-black font-bold flex items-center gap-1 hover:underline"
+                        >
+                          View All Printed →
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Col 3: Shop By Suit Type */}
+                  <div>
+                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3">
+                      Shop By Suit Type
+                    </h3>
+                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-600">
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Women' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Unstitched 3-Piece Suits
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Women', fabric: 'Luxury Lawn' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Premium Swiss & Luxury Lawn
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Women', fabric: 'Embroidered Chiffon' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Chiffon & Organza Dupatta Suits
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Women', fabric: 'Silk Jacquard' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Festive Silk & Jacquard
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
+
+                  {/* Col 4: Visual Promo Banner */}
+                  <div className="bg-neutral-100 p-4 flex flex-col justify-between border border-neutral-200">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-red-600 block mb-1">
+                        Festive Volume '26
+                      </span>
+                      <h4 className="text-sm font-black uppercase text-black mb-1">
+                        Embroidered Luxury Lawn
+                      </h4>
+                      <p className="text-[11px] text-neutral-600 normal-case mb-4">
+                        Featuring Johara, Tawakkal & Bin Rashid unstitched 3-piece collections.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
+                        setActiveMegaMenu(null);
+                      }}
+                      className="w-full py-2.5 bg-black text-white hover:bg-neutral-800 text-center text-[10px] font-bold tracking-widest uppercase transition-colors"
+                    >
+                      Shop Collection
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
           </div>
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              openAuthModal('login');
-              setMobileSidebarOpen(false);
-            }}
-            className="w-full flex items-center justify-between px-3.5 py-2.5 text-[#CBD5E1] hover:text-white hover:bg-white/[0.04] transition-colors border-l-2 border-transparent text-left"
+
+          {/* MEN DROP-DOWN */}
+          <div
+            className="relative group py-1"
+            onMouseEnter={() => setActiveMegaMenu('men')}
+            onMouseLeave={() => setActiveMegaMenu(null)}
           >
-            <div className="flex items-center gap-3">
-              <UserIcon className="w-4 h-4 text-[#38BDF8]" />
-              <span>Sign In / Register</span>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-white/40" />
-          </button>
-        )}
+            <button
+              onClick={() => navigateTo('shop', { gender: 'Men' })}
+              className={`hover:text-black flex items-center gap-1 transition-colors ${
+                filterParams.gender === 'Men' ? 'text-black underline underline-offset-8 decoration-2' : ''
+              }`}
+            >
+              <span>MEN</span>
+              <ChevronDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black transition-transform group-hover:rotate-180" />
+            </button>
 
-        {/* Section Divider: Admin Portal */}
-        <div className="pt-3">
-          <a
-            href="/admin"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo('admin');
-              setMobileSidebarOpen(false);
-            }}
-            className={`flex items-center justify-between p-3 border transition-colors ${
-              currentPage === 'admin'
-                ? 'bg-[#0284C7] text-white border-[#38BDF8] font-bold shadow-md'
-                : 'bg-[#0F172A]/80 hover:bg-[#0284C7] text-[#E2E8F0] hover:text-white border-[#1E293B] hover:border-[#38BDF8]'
-            }`}
-          >
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#38BDF8] group-hover:text-white" />
-              <span className="text-xs font-bold tracking-wider uppercase">Admin Portal</span>
-            </div>
-            <span className="text-[10px] bg-white/10 text-[#38BDF8] group-hover:text-white px-1.5 py-0.5 font-bold font-mono">
-              STAFF
-            </span>
-          </a>
-        </div>
-      </div>
+            {/* Men's Mega Menu Dropdown */}
+            {activeMegaMenu === 'men' && (
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[760px] bg-white border border-neutral-200 shadow-2xl p-8 z-50 animate-fadeIn">
+                <div className="grid grid-cols-3 gap-8">
+                  {/* Col 1: Fabrics */}
+                  <div>
+                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3">
+                      Men's Signature Fabrics
+                    </h3>
+                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-600">
+                      {MENS_FABRICS.map((fabric) => (
+                        <li key={fabric}>
+                          <button
+                            onClick={() => {
+                              navigateTo('shop', { gender: 'Men', fabric });
+                              setActiveMegaMenu(null);
+                            }}
+                            className="hover:text-black hover:translate-x-1 transition-all block text-left font-medium"
+                          >
+                            {fabric} Suiting
+                          </button>
+                        </li>
+                      ))}
+                      <li className="pt-2 border-t border-neutral-100">
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="text-black font-bold flex items-center gap-1 hover:underline"
+                        >
+                          View All Men's Fabrics →
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
 
-      {/* 3. Sidebar Footer: Contact, Timings & Free Nationwide COD */}
-      <div className="p-4 border-t border-[#1E293B] bg-[#070B16] space-y-2.5 shrink-0 text-xs">
-        <a
-          href="https://wa.me/923346565636?text=Assalam-o-Alaikum%20Niaz%20Cloth%20House%2C%20I%20am%20inquiring%20about%20unstitched%20fabrics."
-          target="_blank"
-          rel="noreferrer"
-          className="w-full py-2.5 px-3 bg-[#1E293B] hover:bg-[#0284C7] text-white font-semibold tracking-wider uppercase flex items-center justify-center gap-2 transition-colors border border-[#334155] shadow-xs"
-        >
-          <MessageCircle className="w-4 h-4 text-[#38BDF8]" />
-          <span>WhatsApp 0334-6565636</span>
-        </a>
+                  {/* Col 2: Cuts & Occasion */}
+                  <div>
+                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3">
+                      Suiting Cuts & Grades
+                    </h3>
+                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-600">
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Wash & Wear (Wrinkle-Resistant)
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men', fabric: 'Boski' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Pure Chinese Boski (6 & 8-Pound)
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men', fabric: 'Cotton' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Crisp Finish & Combed Cotton
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men', fabric: 'Khaddar' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Authentic Kamalia Khaddar
+                        </button>
+                      </li>
+                      <li>
+                        <button
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men', fabric: 'Lelan' });
+                            setActiveMegaMenu(null);
+                          }}
+                          className="hover:text-black block text-left"
+                        >
+                          Textured Lelan Unstitched Cut
+                        </button>
+                      </li>
+                    </ul>
+                  </div>
 
-        <div className="text-[10px] text-[#94A3B8] space-y-1 text-center font-sans tracking-wide">
-          <div>MON–SUN 10:00 AM – 9:00 PM PKT</div>
-          <div className="text-[#38BDF8] font-semibold tracking-wider uppercase">FREE COD NATIONWIDE</div>
-        </div>
-      </div>
-    </div>
-  );
-
-  return (
-    <>
-      {/* A. Fixed Left Vertical Sidebar on Desktop (lg: and up) */}
-      <aside
-        aria-label="Sidebar Navigation Menu"
-        className="hidden lg:block fixed inset-y-0 left-0 w-64 xl:w-72 z-40 shadow-2xl"
-      >
-        {sidebarContent}
-      </aside>
-
-      {/* B. Sleek Top Navigation Bar on Mobile / Tablet (under lg) */}
-      <header className="lg:hidden sticky top-0 z-40 w-full bg-[#0B132B] text-white border-b border-[#1E293B] px-4 h-16 flex items-center justify-between">
-        {/* Mobile Left: Menu Toggle Button & Wordmark */}
-        <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => setMobileSidebarOpen(true)}
-            aria-label="Open navigation sidebar"
-            className="p-2 -ml-2 text-white hover:text-[#38BDF8] focus-visible:outline-none flex items-center gap-1.5"
-          >
-            <Menu className="w-6 h-6" />
-            <span className="text-[11px] font-bold tracking-widest uppercase text-[#38BDF8]">Menu</span>
-          </button>
-
-          <a
-            href="/"
-            onClick={(e) => {
-              e.preventDefault();
-              navigateTo('home');
-            }}
-            className="font-serif text-base sm:text-lg font-bold tracking-wider uppercase text-white truncate"
-          >
-            Niaz Cloth House
-          </a>
-        </div>
-
-        {/* Mobile Right: Search, Cart, Admin */}
-        <div className="flex items-center gap-1.5 sm:gap-2">
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="p-2 text-[#CBD5E1] hover:text-[#38BDF8]"
-            aria-label="Search catalog"
-          >
-            <Search className="w-5 h-5" />
-          </button>
-
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="relative p-2 text-[#CBD5E1] hover:text-[#38BDF8]"
-            aria-label={`Shopping bag with ${cartCount} items`}
-          >
-            <ShoppingBag className="w-5 h-5" />
-            {cartCount > 0 && (
-              <span className="absolute top-1 right-1 min-w-[18px] h-4.5 px-1 bg-[#0284C7] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {cartCount}
-              </span>
+                  {/* Col 3: Banner */}
+                  <div className="bg-neutral-100 p-4 flex flex-col justify-between border border-neutral-200">
+                    <div>
+                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-800 block mb-1">
+                        Executive Wardrobe
+                      </span>
+                      <h4 className="text-sm font-black uppercase text-black mb-1">
+                        Wash & Wear Suiting
+                      </h4>
+                      <p className="text-[11px] text-neutral-600 normal-case mb-4">
+                        Full 4.5m unstitched cuts in Bara Arz (double width) with certified finish.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' });
+                        setActiveMegaMenu(null);
+                      }}
+                      className="w-full py-2.5 bg-black text-white hover:bg-neutral-800 text-center text-[10px] font-bold tracking-widest uppercase transition-colors"
+                    >
+                      Shop Wash & Wear
+                    </button>
+                  </div>
+                </div>
+              </div>
             )}
+          </div>
+
+          {/* DIRECT CATEGORY LINKS */}
+          <button
+            onClick={() => navigateTo('shop', { craftType: 'Embroidery', gender: 'Women' })}
+            className="hover:text-black transition-colors"
+          >
+            EMBROIDERED
           </button>
 
           <button
-            onClick={() => navigateTo('admin')}
-            className="px-2.5 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-[11px] font-bold tracking-wider uppercase flex items-center gap-1"
-            title="Open Admin Portal"
+            onClick={() => navigateTo('shop', { craftType: 'Printed', gender: 'Women' })}
+            className="hover:text-black transition-colors"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Admin</span>
+            PRINTED
           </button>
-        </div>
-      </header>
 
-      {/* C. Mobile Slide-Over Drawer using the exact same Vertical Sidebar */}
-      {mobileSidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <button
+            onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' })}
+            className="hover:text-black transition-colors"
+          >
+            WASH & WEAR
+          </button>
+
+          <button
+            onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Boski' })}
+            className="hover:text-black transition-colors"
+          >
+            PURE BOSKI
+          </button>
+
+          <button
+            onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
+            className="hover:text-black transition-colors"
+          >
+            NEW ARRIVALS
+          </button>
+
+          <button
+            onClick={() => navigateTo('shop', { saleOnly: true })}
+            className="text-red-600 hover:text-red-700 font-bold transition-colors flex items-center gap-1"
+          >
+            <Flame className="w-3.5 h-3.5 fill-red-600" />
+            <span>SPECIAL OFFERS</span>
+          </button>
+        </nav>
+      </div>
+
+      {/* 4. Mobile Limelight Slide-Out Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
-            onClick={() => setMobileSidebarOpen(false)}
-            aria-hidden="true"
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* Drawer Sidebar */}
-          <div className="relative w-4/5 max-w-xs h-full z-10 animate-in slide-in-from-left duration-250 shadow-2xl flex flex-col">
-            {/* Close button overlay */}
-            <button
-              onClick={() => setMobileSidebarOpen(false)}
-              className="absolute top-4 right-4 z-20 p-2 text-[#CBD5E1] hover:text-[#38BDF8] bg-black/60 rounded-full"
-              aria-label="Close sidebar"
-            >
-              <X className="w-5 h-5" />
-            </button>
-            {sidebarContent}
+          {/* Drawer Panel */}
+          <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-2xl flex flex-col z-50">
+            {/* Drawer Header */}
+            <div className="p-4 border-b border-neutral-200 flex items-center justify-between bg-white">
+              <span className="font-sans font-black tracking-widest uppercase text-base text-black">
+                NIAZ CLOTH HOUSE
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                className="p-1.5 text-neutral-600 hover:text-black"
+                aria-label="Close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Department Tabs: Women vs Men */}
+            <div className="grid grid-cols-2 border-b border-neutral-200 text-center font-bold text-xs uppercase tracking-widest">
+              <button
+                onClick={() => setMobileActiveTab('women')}
+                className={`py-3 transition-colors ${
+                  mobileActiveTab === 'women'
+                    ? 'border-b-2 border-black text-black bg-neutral-50'
+                    : 'text-neutral-500 hover:text-black'
+                }`}
+              >
+                Women's Collection
+              </button>
+              <button
+                onClick={() => setMobileActiveTab('men')}
+                className={`py-3 transition-colors ${
+                  mobileActiveTab === 'men'
+                    ? 'border-b-2 border-black text-black bg-neutral-50'
+                    : 'text-neutral-500 hover:text-black'
+                }`}
+              >
+                Men's Suiting
+              </button>
+            </div>
+
+            {/* Drawer Scrollable Content */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+              {mobileActiveTab === 'women' ? (
+                <>
+                  {/* Embroidered Brands Accordion */}
+                  <div className="border border-neutral-200">
+                    <button
+                      onClick={() =>
+                        setMobileAccordion((p) => ({ ...p, womenEmbroidered: !p.womenEmbroidered }))
+                      }
+                      className="w-full flex items-center justify-between p-3 bg-neutral-50 text-xs font-black tracking-wider uppercase text-black"
+                    >
+                      <span>Embroidered Collection</span>
+                      <ChevronRight
+                        className={`w-4 h-4 transition-transform ${
+                          mobileAccordion.womenEmbroidered ? 'rotate-90' : ''
+                        }`}
+                      />
+                    </button>
+                    {mobileAccordion.womenEmbroidered && (
+                      <div className="p-3 bg-white grid grid-cols-2 gap-2 text-xs text-neutral-700">
+                        {WOMEN_EMBROIDERY_BRANDS.map((b) => (
+                          <button
+                            key={b}
+                            onClick={() => {
+                              navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand: b });
+                              setMobileMenuOpen(false);
+                            }}
+                            className="text-left py-1 hover:text-black hover:font-bold"
+                          >
+                            {b}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Printed Brands Accordion */}
+                  <div className="border border-neutral-200">
+                    <button
+                      onClick={() =>
+                        setMobileAccordion((p) => ({ ...p, womenPrinted: !p.womenPrinted }))
+                      }
+                      className="w-full flex items-center justify-between p-3 bg-neutral-50 text-xs font-black tracking-wider uppercase text-black"
+                    >
+                      <span>Printed Collection</span>
+                      <ChevronRight
+                        className={`w-4 h-4 transition-transform ${
+                          mobileAccordion.womenPrinted ? 'rotate-90' : ''
+                        }`}
+                      />
+                    </button>
+                    {mobileAccordion.womenPrinted && (
+                      <div className="p-3 bg-white grid grid-cols-2 gap-2 text-xs text-neutral-700">
+                        {WOMEN_PRINTED_BRANDS.map((b) => (
+                          <button
+                            key={b}
+                            onClick={() => {
+                              navigateTo('shop', { gender: 'Women', craftType: 'Printed', brand: b });
+                              setMobileMenuOpen(false);
+                            }}
+                            className="text-left py-1 hover:text-black hover:font-bold"
+                          >
+                            {b}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Quick Links */}
+                  <div className="pt-2 space-y-2 text-xs font-semibold uppercase tracking-wider text-black">
+                    <button
+                      onClick={() => {
+                        navigateTo('shop', { gender: 'Women' });
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-2.5 px-3 bg-neutral-100 hover:bg-neutral-200 text-left flex items-center justify-between"
+                    >
+                      <span>All Women's Unstitched</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Men's Fabrics Accordion */}
+                  <div className="border border-neutral-200">
+                    <div className="p-3 bg-neutral-50 text-xs font-black tracking-wider uppercase text-black border-b border-neutral-200">
+                      Men's Fabrics & Cuts
+                    </div>
+                    <div className="p-3 bg-white space-y-2 text-xs text-neutral-800">
+                      {MENS_FABRICS.map((f) => (
+                        <button
+                          key={f}
+                          onClick={() => {
+                            navigateTo('shop', { gender: 'Men', fabric: f });
+                            setMobileMenuOpen(false);
+                          }}
+                          className="w-full py-1.5 text-left flex items-center justify-between hover:text-black font-medium border-b border-neutral-100 last:border-0"
+                        >
+                          <span>{f} Suiting</span>
+                          <span className="text-[10px] text-neutral-400">4.5m Cut</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="pt-2 space-y-2 text-xs font-semibold uppercase tracking-wider text-black">
+                    <button
+                      onClick={() => {
+                        navigateTo('shop', { gender: 'Men' });
+                        setMobileMenuOpen(false);
+                      }}
+                      className="w-full py-2.5 px-3 bg-neutral-100 hover:bg-neutral-200 text-left flex items-center justify-between"
+                    >
+                      <span>All Men's Fabrics</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Utility Links in Mobile Menu */}
+              <div className="pt-4 border-t border-neutral-200 space-y-3 text-xs text-neutral-700 font-medium">
+                <a
+                  href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20order%20unstitched%20fabrics"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 font-bold uppercase tracking-wider text-[11px]"
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>WhatsApp Order (0334-6565636)</span>
+                </a>
+
+                <button
+                  onClick={() => {
+                    navigateTo('location');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 text-left flex items-center gap-2 hover:text-black"
+                >
+                  <MapPin className="w-4 h-4 text-neutral-500" />
+                  <span>Visit Shop # 166-C Paris Bazaar Rawalpindi</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigateTo('admin');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 text-left flex items-center gap-2 hover:text-black font-semibold"
+                >
+                  <UserIcon className="w-4 h-4 text-neutral-500" />
+                  <span>Merchant Admin Portal</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
-    </>
+    </header>
   );
 };

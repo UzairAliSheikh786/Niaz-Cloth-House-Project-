@@ -276,22 +276,19 @@ export const CheckoutModal: React.FC = () => {
       return;
     }
 
-    // Validate wallet transaction ID if digital method selected
-    if ((paymentMethod === 'EasyPaisa' || paymentMethod === 'JazzCash') && !transactionId.trim()) {
-      setFormError(`Please enter your ${paymentMethod} Transaction ID (TID / TRX ID) received via SMS.`);
-      return;
-    }
+    // Digital wallet details (EasyPaisa & JazzCash on 0334-6565636)
+    const effectiveTxnId = transactionId.trim().toUpperCase() || 'PENDING-WHATSAPP-PROOF';
 
     setIsSubmitting(true);
     try {
       let paymentDetails: OrderPaymentDetails | undefined;
       if (paymentMethod === 'EasyPaisa' || paymentMethod === 'JazzCash' || paymentMethod === 'Direct Bank Transfer') {
         paymentDetails = {
-          senderNumber: walletNumber || formData.phone,
-          transactionId: transactionId.trim().toUpperCase(),
+          senderNumber: walletNumber.trim() || formData.phone,
+          transactionId: effectiveTxnId,
           accountTitle: accountTitle.trim() || formData.fullName,
           paidAt: new Date().toISOString(),
-          paymentStatus: 'Paid',
+          paymentStatus: transactionId.trim() ? 'Paid' : 'Pending Verification',
         };
       } else {
         paymentDetails = {
@@ -358,10 +355,10 @@ export const CheckoutModal: React.FC = () => {
                 Order #{completedOrder.id}
               </span>
               <h3 className="font-serif text-2xl font-bold text-[#1C1917] mt-1">
-                Shukriya, {completedOrder.customer.fullName}!
+                Thank you, {completedOrder.customer.fullName}!
               </h3>
               <p className="text-xs text-[#1C1917]/70 mt-2 max-w-md mx-auto leading-relaxed">
-                Your unstitched fabric order has been successfully registered. Our dispatch team will call or message you at <strong className="text-[#1C1917]">{completedOrder.customer.phone}</strong> prior to shipping.
+                Your unstitched fabric order has been successfully registered. Our dispatch team will coordinate delivery with you at <strong className="text-[#1C1917]">{completedOrder.customer.phone}</strong> prior to shipping.
               </p>
             </div>
 
@@ -813,12 +810,11 @@ export const CheckoutModal: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
                       <label className="block text-[11px] font-semibold text-[#1C1917] mb-1">
-                        Your EasyPaisa Mobile Number <span className="text-red-600">*</span>
+                        Sender EasyPaisa Mobile Number <span className="text-neutral-400 font-normal">(Optional)</span>
                       </label>
                       <input
                         type="tel"
-                        required
-                        placeholder="03xx-xxxxxxx (Sender Mobile Number)"
+                        placeholder={formData.phone || "03xx-xxxxxxx"}
                         value={walletNumber}
                         onChange={(e) => setWalletNumber(e.target.value)}
                         className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#009E49] focus:outline-none"
@@ -826,12 +822,11 @@ export const CheckoutModal: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-[#1C1917] mb-1">
-                        Transaction ID (TID from 3737 SMS) <span className="text-red-600">*</span>
+                        Transaction ID (TID) <span className="text-neutral-400 font-normal">(Or send via WhatsApp)</span>
                       </label>
                       <input
                         type="text"
-                        required
-                        placeholder="e.g. 1029384756 (or EP-1029384756)"
+                        placeholder="e.g. 1029384756 (or leave blank to verify via WhatsApp)"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
                         className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#009E49] focus:outline-none font-mono"
@@ -843,7 +838,7 @@ export const CheckoutModal: React.FC = () => {
                   <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#009E49]/20">
                     <span className="text-[#1C1917]/70">Need assistance or want to send payment screenshot?</span>
                     <a
-                      href={`https://wa.me/923346565636?text=${encodeURIComponent(`Assalam-o-Alaikum, I am paying via EasyPaisa for my order of PKR ${cartSubtotal}. Account: 0334-6565636.`)}`}
+                      href={`https://wa.me/923346565636?text=${encodeURIComponent(`Hello, I am paying via EasyPaisa for my order of PKR ${cartSubtotal}. Account: 0334-6565636.`)}`}
                       target="_blank"
                       rel="noreferrer"
                       className="font-semibold text-[#009E49] hover:underline flex items-center gap-1"
@@ -933,12 +928,11 @@ export const CheckoutModal: React.FC = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                     <div>
                       <label className="block text-[11px] font-semibold text-[#1C1917] mb-1">
-                        Your JazzCash Mobile Number <span className="text-red-600">*</span>
+                        Sender JazzCash Mobile Number <span className="text-neutral-400 font-normal">(Optional)</span>
                       </label>
                       <input
                         type="tel"
-                        required
-                        placeholder="03xx-xxxxxxx (Sender Mobile Number)"
+                        placeholder={formData.phone || "03xx-xxxxxxx"}
                         value={walletNumber}
                         onChange={(e) => setWalletNumber(e.target.value)}
                         className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#DE1F27] focus:outline-none"
@@ -946,12 +940,11 @@ export const CheckoutModal: React.FC = () => {
                     </div>
                     <div>
                       <label className="block text-[11px] font-semibold text-[#1C1917] mb-1">
-                        Transaction ID (TRX ID from 8558 SMS) <span className="text-red-600">*</span>
+                        Transaction ID (TRX ID) <span className="text-neutral-400 font-normal">(Or send via WhatsApp)</span>
                       </label>
                       <input
                         type="text"
-                        required
-                        placeholder="e.g. 8472910394 (or JC-8472910394)"
+                        placeholder="e.g. 8472910394 (or leave blank to verify via WhatsApp)"
                         value={transactionId}
                         onChange={(e) => setTransactionId(e.target.value)}
                         className="w-full px-3 py-2 text-xs bg-white border border-[#E2E8F0] focus:border-[#DE1F27] focus:outline-none font-mono"
@@ -963,7 +956,7 @@ export const CheckoutModal: React.FC = () => {
                   <div className="flex items-center justify-between text-[11px] pt-1 border-t border-[#DE1F27]/20">
                     <span className="text-[#1C1917]/70">Need assistance or want to send payment screenshot?</span>
                     <a
-                      href={`https://wa.me/923346565636?text=${encodeURIComponent(`Assalam-o-Alaikum, I am paying via JazzCash for my order of PKR ${cartSubtotal}. Account: 0334-6565636.`)}`}
+                      href={`https://wa.me/923346565636?text=${encodeURIComponent(`Hello, I am paying via JazzCash for my order of PKR ${cartSubtotal}. Account: 0334-6565636.`)}`}
                       target="_blank"
                       rel="noreferrer"
                       className="font-semibold text-[#DE1F27] hover:underline flex items-center gap-1"

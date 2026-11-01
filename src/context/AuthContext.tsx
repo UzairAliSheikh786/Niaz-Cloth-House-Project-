@@ -26,6 +26,9 @@ export interface PatronProfile {
   city?: string;
   address?: string;
   createdAt: string;
+  lastLoginAt?: string;
+  isOnline?: boolean;
+  role?: string;
 }
 
 interface AuthContextType {
@@ -71,17 +74,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         try {
           const userDocRef = doc(db, 'users', currentUser.uid);
           const snap = await getDoc(userDocRef);
+          const assignedRole = currentUser.email === 'uzairaliuzairali640@gmail.com' 
+            ? 'Super Administrator' 
+            : (currentUser.email === 'admin@nch.com' || currentUser.email === 'admin@niazclothhouse.com' ? 'Store Administrator' : 'Customer');
+
+          const now = new Date().toISOString();
           if (snap.exists()) {
-            setUserProfile(snap.data() as PatronProfile);
+            const data = snap.data() as PatronProfile;
+            const updatedProfile: PatronProfile = {
+              ...data,
+              email: currentUser.email || data.email,
+              displayName: currentUser.displayName || data.displayName || 'Customer',
+              photoURL: currentUser.photoURL || data.photoURL || '',
+              isOnline: true,
+              lastLoginAt: now,
+              role: assignedRole,
+            };
+            await setDoc(userDocRef, updatedProfile, { merge: true });
+            setUserProfile(updatedProfile);
           } else {
             const newProfile: PatronProfile = {
               uid: currentUser.uid,
               email: currentUser.email || '',
-              displayName: currentUser.displayName || 'Customer',
+              displayName: currentUser.displayName || currentUser.email?.split('@')[0] || 'Customer',
               photoURL: currentUser.photoURL || '',
               phone: '',
               city: 'Rawalpindi',
-              createdAt: new Date().toISOString(),
+              createdAt: now,
+              lastLoginAt: now,
+              isOnline: true,
+              role: assignedRole,
             };
             await setDoc(userDocRef, newProfile);
             setUserProfile(newProfile);
@@ -221,6 +243,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = async () => {
     try {
       errorTracker.addBreadcrumb('Customer logging out, clearing state');
+      if (auth.currentUser) {
+        try {
+          await setDoc(
+            doc(db, 'users', auth.currentUser.uid),
+            { isOnline: false, lastActiveAt: new Date().toISOString() },
+            { merge: true }
+          );
+        } catch {
+          // ignore
+        }
+      }
       await signOut(auth);
       setUser(null);
       setUserProfile(null);

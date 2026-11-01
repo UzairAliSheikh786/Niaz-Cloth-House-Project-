@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Package, 
   Truck, 
+  ShoppingBag,
   Plus, 
   Edit3, 
   Trash2, 
@@ -38,12 +39,20 @@ import {
   Play,
   Share2,
   Star,
-  Mail
+  Mail,
+  Image as ImageIcon,
+  Camera,
+  Layers,
+  Sparkles
 } from 'lucide-react';
 import { WhatsAppCatalogSyncModal } from '../components/WhatsAppCatalogSyncModal';
+import { FirebaseSecurityCheckup } from '../components/FirebaseSecurityCheckup';
 import { clientCache } from '../utils/cache';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useReviews } from '../context/ReviewContext';
+import { useAuth, PatronProfile } from '../context/AuthContext';
+import { db, auth } from '../firebase';
+import { collection, onSnapshot } from 'firebase/firestore';
 import { 
   Product, 
   Order, 
@@ -52,8 +61,23 @@ import {
   Gender, 
   FabricWeightCategory, 
   ThreadCountCategory, 
-  WeaveTypeCategory 
+  WeaveTypeCategory,
+  WOMEN_EMBROIDERY_BRANDS,
+  WOMEN_PRINTED_BRANDS,
+  MENS_FABRICS
 } from '../types';
+
+export const PRESET_FABRIC_IMAGES = [
+  { label: "Festive Embroidered Lawn (Johara / Bin Rashid / Safa Marwa)", url: '/images/khaadi_editorial_hero_1791657181176.jpg' },
+  { label: "Luxury Lawn & Chiffon Dupatta Collection", url: '/images/product_womens_lawn_chiffon_1791569231005.jpg' },
+  { label: "Printed Summer Lawn (Bin Saeed / H.Z / Safina)", url: '/images/khaadi_unstitched_boutique_1791657162979.jpg' },
+  { label: "Men's Pure Imperial Chinese Boski Silk", url: '/images/product_mens_pure_boski_1791569243386.jpg' },
+  { label: "Men's Luxury Boski Display & Cut", url: '/images/khaadi_mens_boski_display_1791657195697.jpg' },
+  { label: "Men's Executive Wash & Wear / Cotton", url: '/images/product_mens_latha_cotton_1791569254348.jpg' },
+  { label: "Authentic Unstitched Rolls & Bolts (Paris Bazaar)", url: '/images/heritage_unstitched_rolls_1791658049901.jpg' },
+  { label: "Palace Boutique Fabric Wall", url: '/images/khaadi_unstitched_palace_1791658025090.jpg' },
+  { label: "Niaz 1970 Heritage Master Fabric", url: '/images/hero_niaz_luxury_fabric_1791569218384.jpg' },
+];
 
 interface AdminAccount {
   id: string;
@@ -204,8 +228,51 @@ export const AdminPage: React.FC = () => {
     showToast('Admin logged out. Staff portal locked.');
   };
 
-  // Admin Staff Management & Modal State
-  const [adminUsers] = useState<AdminAccount[]>(DEFAULT_ADMIN_USERS);
+  const { user: authUser, userProfile } = useAuth();
+  const [realUsers, setRealUsers] = useState<PatronProfile[]>([]);
+
+  // Real-time Firestore Registered & Logged-In Users Listener
+  useEffect(() => {
+    try {
+      const usersCol = collection(db, 'users');
+      const unsubscribe = onSnapshot(
+        usersCol,
+        (snapshot) => {
+          const list: PatronProfile[] = [];
+          snapshot.forEach((docSnap) => {
+            list.push(docSnap.data() as PatronProfile);
+          });
+          list.sort((a, b) => new Date(b.lastLoginAt || b.createdAt || 0).getTime() - new Date(a.lastLoginAt || a.createdAt || 0).getTime());
+          setRealUsers(list);
+        },
+        (err) => {
+          console.warn('Real-time users subscription info:', err);
+        }
+      );
+      return () => unsubscribe();
+    } catch (err) {
+      console.warn('Users listener initialization note:', err);
+    }
+  }, []);
+
+  // Compute active user list combining real registered users and current active session
+  const activeUserList = useMemo(() => {
+    const list = [...realUsers];
+    if (authUser && !list.some((u) => u.uid === authUser.uid || u.email === authUser.email)) {
+      list.unshift({
+        uid: authUser.uid,
+        email: authUser.email || '',
+        displayName: authUser.displayName || authUser.email?.split('@')[0] || 'Administrator',
+        photoURL: authUser.photoURL || '',
+        createdAt: new Date().toISOString(),
+        lastLoginAt: new Date().toISOString(),
+        isOnline: true,
+        role: authUser.email === 'uzairaliuzairali640@gmail.com' ? 'Super Administrator' : 'Store Administrator',
+      });
+    }
+    return list;
+  }, [realUsers, authUser]);
+
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [changeOldPassword, setChangeOldPassword] = useState('');
   const [changeNewPassword, setChangeNewPassword] = useState('');
@@ -321,6 +388,100 @@ export const AdminPage: React.FC = () => {
   // Search & Filter state for Orders
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('All');
 
+  // Product Image Management States
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [showPresetPicker, setShowPresetPicker] = useState(false);
+  const [showAddPresetPicker, setShowAddPresetPicker] = useState(false);
+  const [isFirebaseCheckupOpen, setIsFirebaseCheckupOpen] = useState(false);
+
+  const handleImageFileChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    target: 'edit' | 'new'
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 15 * 1024 * 1024) {
+      showToast('Image file too large. Please select a photo under 15MB.');
+      return;
+    }
+
+    setIsUploadingImage(true);
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64Data = reader.result as string;
+      try {
+        const response = await fetch('/api/admin/upload-image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            imageData: base64Data,
+            filename: target === 'edit' ? (editingProduct?.title || 'suit') : (newProductForm.title || 'suit'),
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          const uploadedUrl = data.url;
+          if (target === 'edit' && editingProduct) {
+            const currentGallery = editingProduct.galleryImages || [];
+            setEditingProduct({
+              ...editingProduct,
+              primaryImage: uploadedUrl,
+              galleryImages: currentGallery.includes(uploadedUrl) ? currentGallery : [uploadedUrl, ...currentGallery],
+            });
+          } else {
+            const currentGallery = newProductForm.galleryImages || [];
+            setNewProductForm((prev) => ({
+              ...prev,
+              primaryImage: uploadedUrl,
+              galleryImages: currentGallery.includes(uploadedUrl) ? currentGallery : [uploadedUrl, ...currentGallery],
+            }));
+          }
+          showToast('Suit photo updated successfully!');
+        } else {
+          if (target === 'edit' && editingProduct) {
+            const currentGallery = editingProduct.galleryImages || [];
+            setEditingProduct({
+              ...editingProduct,
+              primaryImage: base64Data,
+              galleryImages: [base64Data, ...currentGallery],
+            });
+          } else {
+            const currentGallery = newProductForm.galleryImages || [];
+            setNewProductForm((prev) => ({
+              ...prev,
+              primaryImage: base64Data,
+              galleryImages: [base64Data, ...currentGallery],
+            }));
+          }
+          showToast('Photo attached!');
+        }
+      } catch {
+        if (target === 'edit' && editingProduct) {
+          const currentGallery = editingProduct.galleryImages || [];
+          setEditingProduct({
+            ...editingProduct,
+            primaryImage: base64Data,
+            galleryImages: [base64Data, ...currentGallery],
+          });
+        } else {
+          const currentGallery = newProductForm.galleryImages || [];
+          setNewProductForm((prev) => ({
+            ...prev,
+            primaryImage: base64Data,
+            galleryImages: [base64Data, ...currentGallery],
+          }));
+        }
+        showToast('Photo attached locally!');
+      } finally {
+        setIsUploadingImage(false);
+        e.target.value = '';
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // New Product Form state with advanced attributes
   const [newProductForm, setNewProductForm] = useState<Partial<Product>>({
     title: '',
@@ -387,17 +548,21 @@ export const AdminPage: React.FC = () => {
       subtitle: newProductForm.subtitle || 'Unstitched Luxury Collection',
       gender: (newProductForm.gender as Gender) || 'Men',
       fabric: (newProductForm.fabric as FabricType) || 'Boski Silk',
+      brand: newProductForm.brand || (newProductForm.gender === 'Women' ? 'Johara' : 'Niaz Signature Men'),
+      craftType: newProductForm.craftType || (newProductForm.gender === 'Women' ? 'Embroidery' : 'Plain / Solid'),
       collection: newProductForm.collection || 'Royal Heirloom',
       price: Number(newProductForm.price),
+      originalPrice: newProductForm.originalPrice || undefined,
       inStock: newProductForm.inStock ?? true,
       featured: newProductForm.featured ?? false,
       newArrival: true,
       rating: 5.0,
       reviewsCount: 1,
-      primaryImage: newProductForm.primaryImage || '/images/product_mens_pure_boski_1791569243386.jpg',
-      galleryImages: [
-        newProductForm.primaryImage || '/images/product_mens_pure_boski_1791569243386.jpg',
-      ],
+      primaryImage: newProductForm.primaryImage || '/images/hero_niaz_luxury_fabric_1791569218384.jpg',
+      galleryImages:
+        newProductForm.galleryImages && newProductForm.galleryImages.length > 0
+          ? newProductForm.galleryImages
+          : [newProductForm.primaryImage || '/images/hero_niaz_luxury_fabric_1791569218384.jpg'],
       description: newProductForm.description || '',
       cutDetails: newProductForm.cutDetails || {
         length: '4.5 Standard Meters',
@@ -418,7 +583,7 @@ export const AdminPage: React.FC = () => {
         ironing: 'Steam iron.',
         preservation: 'Keep in muslin.',
       },
-      heritageNotes: newProductForm.heritageNotes || 'Archived since 1977.',
+      heritageNotes: newProductForm.heritageNotes || 'Archived since 1970.',
     };
 
     addProduct(created);
@@ -637,6 +802,15 @@ export const AdminPage: React.FC = () => {
             </div>
 
             <button
+              onClick={() => setIsFirebaseCheckupOpen(true)}
+              className="px-3 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-emerald-400 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
+              title="Interactive 5-minute Firebase Rules & Security Checkup"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Firebase Rules Checkup</span>
+            </button>
+
+            <button
               onClick={() => setIsStaffModalOpen(true)}
               className="px-3 py-2 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
               title="Admin account security & password settings"
@@ -704,7 +878,7 @@ export const AdminPage: React.FC = () => {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Logged-In Users & Accounts ({adminUsers.length})</span>
+            <span>Live Users & Accounts ({activeUserList.length})</span>
           </button>
 
           <button
@@ -815,14 +989,25 @@ export const AdminPage: React.FC = () => {
                   {filteredInventory.map((item) => (
                     <tr key={item.id} className="hover:bg-[#F8FAFC] transition-colors">
                       <td className="py-3 px-4 flex items-center gap-3">
-                        <img
-                          src={item.primaryImage}
-                          alt={item.title}
-                          width={44}
-                          height={44}
-                          referrerPolicy="no-referrer"
-                          className="w-11 h-11 object-cover bg-[#F2EDE7] shrink-0 border border-[#E2E8F0]"
-                        />
+                        <div 
+                          className="relative group cursor-pointer shrink-0"
+                          onClick={() => setEditingProduct(item)}
+                          title="Click to change photo or edit suit"
+                        >
+                          <img
+                            src={item.primaryImage}
+                            alt={item.title}
+                            width={44}
+                            height={44}
+                            className="w-11 h-11 object-cover bg-[#F2EDE7] border border-[#E2E8F0]"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+                            }}
+                          />
+                          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition-opacity">
+                            <Camera className="w-3.5 h-3.5" />
+                          </div>
+                        </div>
                         <div className="min-w-0">
                           <p className="font-serif font-bold text-sm text-[#1C1917] truncate max-w-xs">
                             {item.title}
@@ -889,11 +1074,13 @@ export const AdminPage: React.FC = () => {
                           <Share2 className="w-4 h-4" />
                         </button>
                         <button
+                          type="button"
                           onClick={() => setEditingProduct(item)}
-                          className="p-1.5 hover:bg-[#F2ECE5] text-[#1C1917]/80 hover:text-[#1C1917] transition-colors"
-                          title="Edit fabric"
+                          className="px-2.5 py-1 bg-neutral-100 hover:bg-black hover:text-white text-neutral-900 text-[11px] font-semibold transition-colors inline-flex items-center gap-1 border border-neutral-300 shadow-2xs"
+                          title="Change suit picture, brand or details"
                         >
-                          <Edit3 className="w-4 h-4" />
+                          <Camera className="w-3.5 h-3.5 text-neutral-600 group-hover:text-white" />
+                          <span>Edit Photo</span>
                         </button>
                         <button
                           type="button"
@@ -1043,7 +1230,7 @@ export const AdminPage: React.FC = () => {
 
                         <div className="pt-2 border-t border-[#E2E8F0] flex gap-2">
                           <a
-                            href={`https://wa.me/${order.customer.whatsapp?.replace(/[^0-9]/g, '') || '923346565636'}?text=Assalam-o-Alaikum%20${encodeURIComponent(order.customer.fullName)}%2C%20your%20order%20${order.id}%20from%20Niaz%20Cloth%20House%20is%20${order.status.toLowerCase()}.`}
+                            href={`https://wa.me/${order.customer.whatsapp?.replace(/[^0-9]/g, '') || '923346565636'}?text=Hello%20${encodeURIComponent(order.customer.fullName)}%2C%20your%20order%20${order.id}%20from%20Niaz%20Cloth%20House%20is%20${order.status.toLowerCase()}.`}
                             target="_blank"
                             rel="noreferrer"
                             className="flex-1 py-1.5 px-2 bg-[#4A5D4E] hover:bg-[#3d4d40] text-white text-center text-[11px] font-semibold transition-colors flex items-center justify-center gap-1"
@@ -1061,7 +1248,7 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 3: LOGGED-IN USERS & ACCOUNTS DIRECTORY */}
+        {/* TAB 3: REAL-TIME LOGGED-IN USERS & AUTHENTICATED ACCOUNTS */}
         {activeTab === 'users' && (
           <div className="space-y-6">
             {/* Active Session Spotlight */}
@@ -1069,14 +1256,14 @@ export const AdminPage: React.FC = () => {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-lg shadow-sm">
-                    {currentAdmin.fullName.charAt(0)}
+                    {(authUser?.displayName || authUser?.email || currentAdmin.fullName).charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <span className="text-[11px] uppercase tracking-widest text-[#0284C7] font-bold block">
                       Currently Logged-In User Profile
                     </span>
                     <h3 className="font-serif text-xl font-bold text-[#1C1917]">
-                      {currentAdmin.fullName}
+                      {authUser?.displayName || currentAdmin.fullName || 'Store Administrator'}
                     </h3>
                   </div>
                 </div>
@@ -1092,162 +1279,209 @@ export const AdminPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 text-xs">
                 <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Logged-In Username
+                    Authenticated Account
                   </span>
-                  <span className="font-mono font-bold text-sm text-[#0284C7] mt-0.5 block">
-                    @{currentAdmin.username}
-                  </span>
-                </div>
-
-                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Email Address
-                  </span>
-                  <span className="font-medium text-[#1C1917] mt-0.5 block truncate">
-                    {currentAdmin.email || 'admin@nch.com'}
+                  <span className="font-mono font-bold text-sm text-[#0284C7] mt-0.5 block truncate">
+                    {authUser?.email || currentAdmin.email || 'uzairaliuzairali640@gmail.com'}
                   </span>
                 </div>
 
                 <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Designated Portal Role
+                    Real-Time Registered Users
+                  </span>
+                  <span className="font-bold text-sm text-[#1C1917] mt-0.5 block">
+                    {activeUserList.length} User Account(s)
+                  </span>
+                </div>
+
+                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
+                  <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
+                    Designated Role
                   </span>
                   <span className="font-semibold text-[#1C1917] mt-0.5 block">
-                    {currentAdmin.role}
+                    {authUser?.email === 'uzairaliuzairali640@gmail.com' ? 'Super Administrator (Owner)' : currentAdmin.role}
                   </span>
                 </div>
 
                 <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
                   <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Session Security
+                    Live Session Security
                   </span>
-                  <span className="font-medium text-emerald-700 mt-0.5 block">
-                    256-Bit TLS · Verified Session
+                  <span className="font-medium text-emerald-700 mt-0.5 block flex items-center gap-1">
+                    <ShieldCheck className="w-3.5 h-3.5" />
+                    <span>Firebase Auth & TLS 256-Bit</span>
                   </span>
                 </div>
               </div>
             </div>
 
-            {/* Staff & Admin Users List */}
+            {/* Live Real-Time Registered Users Directory (from Firestore) */}
             <div className="bg-white border border-[#E2E8F0] p-5 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2E8F0]">
                 <div>
                   <h4 className="font-serif text-base font-bold text-[#1C1917] flex items-center gap-2">
                     <Users className="w-4 h-4 text-[#0284C7]" />
-                    <span>Registered Store Staff & Administrator Accounts</span>
+                    <span>Actual Real-Time Registered & Logged-In Users ({activeUserList.length})</span>
                   </h4>
                   <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
-                    Authorized usernames with access to Niaz Cloth House administrative controls.
+                    Live user accounts registered via Firebase Auth and stored in Firestore database. Zero dummy accounts.
                   </p>
                 </div>
-                <button
-                  onClick={() => setIsStaffModalOpen(true)}
-                  className="px-3 py-1.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold transition-colors flex items-center gap-1.5 self-start sm:self-auto"
-                >
-                  <KeyRound className="w-3.5 h-3.5" />
-                  <span>Update Account Password</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 text-[#1C1917] text-xs font-semibold rounded">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+                    <span>Live Firestore Sync</span>
+                  </span>
+                </div>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[550px]">
-                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
-                    <tr>
-                      <th className="py-2.5 px-3">Staff Name</th>
-                      <th className="py-2.5 px-3">Username</th>
-                      <th className="py-2.5 px-3">Email Address</th>
-                      <th className="py-2.5 px-3">Role</th>
-                      <th className="py-2.5 px-3">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F0]">
-                    {adminUsers.map((user) => {
-                      const isCurrent = user.username === currentAdmin.username || (currentAdmin.id && user.id === currentAdmin.id);
-                      return (
-                        <tr key={user.id} className={isCurrent ? 'bg-[#0284C7]/5 font-medium' : 'hover:bg-[#F8FAFC]'}>
-                          <td className="py-2.5 px-3 flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-[10px]">
-                              {user.fullName.charAt(0)}
-                            </div>
-                            <span className="text-[#1C1917]">{user.fullName}</span>
-                            {isCurrent && (
-                              <span className="text-[10px] px-1.5 py-0.5 bg-[#0284C7] text-white font-sans font-semibold rounded-xs">
-                                You
+              {activeUserList.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs min-w-[650px]">
+                    <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
+                      <tr>
+                        <th className="py-2.5 px-3">User Profile</th>
+                        <th className="py-2.5 px-3">Email Address</th>
+                        <th className="py-2.5 px-3">Role</th>
+                        <th className="py-2.5 px-3">Live Status</th>
+                        <th className="py-2.5 px-3">Registration Date</th>
+                        <th className="py-2.5 px-3">Last Active</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E2E8F0]">
+                      {activeUserList.map((usr) => {
+                        const isCurrent = (authUser && usr.uid === authUser.uid) || (usr.email && usr.email === currentAdmin.email);
+                        const isUserOnline = usr.isOnline || isCurrent;
+                        return (
+                          <tr key={usr.uid || usr.email} className={isCurrent ? 'bg-[#0284C7]/5 font-medium' : 'hover:bg-[#F8FAFC]'}>
+                            <td className="py-2.5 px-3 flex items-center gap-2.5">
+                              {usr.photoURL ? (
+                                <img src={usr.photoURL} alt={usr.displayName} className="w-7 h-7 rounded-full object-cover" />
+                              ) : (
+                                <div className="w-7 h-7 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-[10px]">
+                                  {(usr.displayName || usr.email || 'U').charAt(0).toUpperCase()}
+                                </div>
+                              )}
+                              <div>
+                                <span className="text-[#1C1917] font-semibold block">{usr.displayName || 'Customer'}</span>
+                                <span className="font-mono text-[10px] text-neutral-400 block truncate max-w-[120px]">{usr.uid}</span>
+                              </div>
+                              {isCurrent && (
+                                <span className="text-[9px] px-1.5 py-0.5 bg-[#0284C7] text-white font-sans font-bold rounded-xs ml-1">
+                                  You
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-3 font-sans text-[#1C1917]">
+                              {usr.email}
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded ${
+                                usr.email === 'uzairaliuzairali640@gmail.com'
+                                  ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                                  : usr.role?.includes('Admin')
+                                  ? 'bg-sky-100 text-sky-800 border border-sky-300'
+                                  : 'bg-neutral-100 text-neutral-800 border border-neutral-200'
+                              }`}>
+                                {usr.email === 'uzairaliuzairali640@gmail.com' ? 'Super Administrator' : (usr.role || 'Verified Customer')}
                               </span>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono font-semibold text-[#0284C7]">
-                            @{user.username}
-                          </td>
-                          <td className="py-2.5 px-3 text-[#1C1917]/80 font-sans">
-                            {user.email}
-                          </td>
-                          <td className="py-2.5 px-3 text-[#1C1917]">
-                            {user.role}
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-700 font-semibold">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
-                              <span>Active</span>
-                            </span>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+                            </td>
+                            <td className="py-2.5 px-3">
+                              {isUserOnline ? (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold">
+                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                  <span>ONLINE NOW</span>
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1.5 text-[11px] text-neutral-500">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                                  <span>Offline</span>
+                                </span>
+                              )}
+                            </td>
+                            <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
+                              {usr.createdAt ? new Date(usr.createdAt).toLocaleDateString() : 'Active Member'}
+                            </td>
+                            <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
+                              {isUserOnline ? 'Active right now' : (usr.lastLoginAt ? new Date(usr.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent')}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <Users className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-neutral-700">No external users logged in yet</p>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">
+                    Currently active: 1 Administrator ({authUser?.email || currentAdmin.email}). When customers sign in or register, they will appear here live.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Customer User Profiles Directory */}
+            {/* Customer User Profiles Directory (From Real Orders) */}
             <div className="bg-white border border-[#E2E8F0] p-5 space-y-4">
               <div>
                 <h4 className="font-serif text-base font-bold text-[#1C1917]">
-                  Customer Accounts & Delivery Order Contacts
+                  Verified Customer Contacts & Order History
                 </h4>
                 <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
-                  Customers who have placed unstitched fabric orders through the storefront.
+                  Real customers who have completed unstitched fabric checkouts on the storefront.
                 </p>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs min-w-[600px]">
-                  <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
-                    <tr>
-                      <th className="py-2.5 px-3">Customer Full Name</th>
-                      <th className="py-2.5 px-3">Contact Phone</th>
-                      <th className="py-2.5 px-3">Destination City / Country</th>
-                      <th className="py-2.5 px-3">Total Orders</th>
-                      <th className="py-2.5 px-3">Last Payment Method</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-[#E2E8F0]">
-                    {Array.from(new Set(orders.map((o) => o.customer.fullName))).map((customerName) => {
-                      const customerOrders = orders.filter((o) => o.customer.fullName === customerName);
-                      const latestOrder = customerOrders[0];
-                      return (
-                        <tr key={customerName} className="hover:bg-[#F8FAFC]">
-                          <td className="py-2.5 px-3 font-semibold text-[#1C1917]">
-                            {customerName}
-                          </td>
-                          <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">
-                            {latestOrder.customer.phone}
-                          </td>
-                          <td className="py-2.5 px-3 text-[#1C1917]/80">
-                            {latestOrder.customer.city}, {latestOrder.customer.country || 'Pakistan'}
-                          </td>
-                          <td className="py-2.5 px-3 font-semibold text-[#0284C7]">
-                            {customerOrders.length} order(s)
-                          </td>
-                          <td className="py-2.5 px-3 text-[11px] text-[#1C1917]/70">
-                            {latestOrder.paymentMethod}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
+              {orders.length > 0 ? (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs min-w-[600px]">
+                    <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
+                      <tr>
+                        <th className="py-2.5 px-3">Customer Full Name</th>
+                        <th className="py-2.5 px-3">Contact Phone</th>
+                        <th className="py-2.5 px-3">Destination City / Country</th>
+                        <th className="py-2.5 px-3">Total Orders</th>
+                        <th className="py-2.5 px-3">Last Payment Method</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E2E8F0]">
+                      {Array.from(new Set(orders.map((o) => o.customer.fullName))).map((customerName) => {
+                        const customerOrders = orders.filter((o) => o.customer.fullName === customerName);
+                        const latestOrder = customerOrders[0];
+                        return (
+                          <tr key={customerName} className="hover:bg-[#F8FAFC]">
+                            <td className="py-2.5 px-3 font-semibold text-[#1C1917]">
+                              {customerName}
+                            </td>
+                            <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">
+                              {latestOrder.customer.phone}
+                            </td>
+                            <td className="py-2.5 px-3 text-[#1C1917]/80">
+                              {latestOrder.customer.city}, {latestOrder.customer.country || 'Pakistan'}
+                            </td>
+                            <td className="py-2.5 px-3 font-semibold text-[#0284C7]">
+                              {customerOrders.length} order(s)
+                            </td>
+                            <td className="py-2.5 px-3 text-[11px] text-[#1C1917]/70">
+                              {latestOrder.paymentMethod}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div className="p-8 text-center bg-[#F8FAFC] border border-[#E2E8F0]">
+                  <ShoppingBag className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
+                  <p className="text-xs font-semibold text-neutral-700">No Customer Orders Registered Yet</p>
+                  <p className="text-[11px] text-neutral-500 mt-0.5">
+                    All dummy order data has been removed. When a real customer completes checkout, their contact information and order history will automatically display here in real time.
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -1277,7 +1511,7 @@ export const AdminPage: React.FC = () => {
                         store: 'Niaz Cloth House',
                         products,
                         orders,
-                        adminUsers: adminUsers.map((u) => ({ ...u, passwordHash: '***' })),
+                        users: activeUserList.map((u) => ({ uid: u.uid, email: u.email, displayName: u.displayName, role: u.role })),
                       };
                       const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
                       const url = URL.createObjectURL(blob);
@@ -1312,6 +1546,11 @@ export const AdminPage: React.FC = () => {
                   <span className="font-bold text-base text-emerald-700 mt-0.5 block">100% Consistent</span>
                 </div>
               </div>
+            </div>
+
+            {/* Interactive Firebase Security Rules Checkup Suite (5 Steps, 5 Minutes) */}
+            <div className="pt-2">
+              <FirebaseSecurityCheckup />
             </div>
 
             {/* Audit & Event Log (NFR-18) */}
@@ -2070,6 +2309,129 @@ export const AdminPage: React.FC = () => {
               </div>
 
               <form onSubmit={handleCreateProduct} className="space-y-4 pt-4 text-xs">
+                {/* 1. SUIT PHOTO & GALLERY MANAGEMENT */}
+                <div className="bg-white border border-[#E2E8F0] p-4 space-y-3.5 shadow-2xs">
+                  <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-[#0284C7]" />
+                      <span className="font-bold uppercase tracking-wider text-[11px] text-[#1C1917]">
+                        Suit Picture & Visual Presentation
+                      </span>
+                    </div>
+                    {isUploadingImage && (
+                      <span className="text-[11px] font-semibold text-[#0284C7] flex items-center gap-1">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Uploading image...
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+                    {/* Primary Photo Preview */}
+                    <div className="sm:col-span-4 flex flex-col items-center">
+                      <div className="w-32 sm:w-36 aspect-[3/4] bg-neutral-100 border-2 border-neutral-300 relative overflow-hidden group shadow-xs">
+                        <img
+                          src={newProductForm.primaryImage || '/images/hero_niaz_luxury_fabric_1791569218384.jpg'}
+                          alt={newProductForm.title || 'New fabric'}
+                          className="w-full h-full object-cover object-center"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+                          }}
+                        />
+                        <div className="absolute bottom-0 inset-x-0 bg-black/80 text-white text-[9px] font-bold text-center py-1 tracking-wider uppercase">
+                          Selected Picture
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Image Source & Upload Controls */}
+                    <div className="sm:col-span-8 space-y-3">
+                      <div>
+                        <label className="block font-semibold mb-1 text-[11px] text-[#1C1917]">
+                          Option 1: Upload Photo from Phone or PC
+                        </label>
+                        <label className="w-full px-3 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs">
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>Choose Photo from Device</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleImageFileChange(e, 'new')}
+                          />
+                        </label>
+                        <p className="text-[10px] text-neutral-500 mt-1">
+                          Select any camera photo or saved image (JPG, PNG, WebP). It uploads directly to the store images folder.
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block font-semibold mb-1 text-[11px] text-[#1C1917]">
+                          Option 2: Photo URL or Image Path
+                        </label>
+                        <input
+                          type="text"
+                          value={newProductForm.primaryImage || ''}
+                          onChange={(e) => {
+                            const newUrl = e.target.value;
+                            const currentGal = newProductForm.galleryImages || [];
+                            setNewProductForm((prev) => ({
+                              ...prev,
+                              primaryImage: newUrl,
+                              galleryImages: currentGal.includes(newUrl) ? currentGal : [newUrl, ...currentGal],
+                            }));
+                          }}
+                          placeholder="e.g. /images/... or https://..."
+                          className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0] text-xs font-mono"
+                        />
+                      </div>
+
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => setShowAddPresetPicker(!showAddPresetPicker)}
+                          className="text-[11px] font-semibold text-[#0284C7] hover:underline flex items-center gap-1"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>{showAddPresetPicker ? 'Hide store fabric presets' : 'Or choose from store catalog presets'}</span>
+                        </button>
+
+                        {showAddPresetPicker && (
+                          <div className="grid grid-cols-3 gap-2 mt-2 p-2 bg-[#F8FAFC] border border-[#E2E8F0] max-h-48 overflow-y-auto">
+                            {PRESET_FABRIC_IMAGES.map((preset, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => {
+                                  const currentGallery = newProductForm.galleryImages || [];
+                                  setNewProductForm((prev) => ({
+                                    ...prev,
+                                    primaryImage: preset.url,
+                                    galleryImages: currentGallery.includes(preset.url) ? currentGallery : [preset.url, ...currentGallery],
+                                  }));
+                                  showToast(`Selected "${preset.label}"`);
+                                }}
+                                className={`flex flex-col items-center p-1 border text-[10px] transition-all text-center ${
+                                  newProductForm.primaryImage === preset.url
+                                    ? 'border-[#0284C7] bg-white ring-1 ring-[#0284C7]'
+                                    : 'border-neutral-200 hover:border-black bg-white'
+                                }`}
+                              >
+                                <img
+                                  src={preset.url}
+                                  alt={preset.label}
+                                  className="w-14 h-16 object-cover mb-1 bg-neutral-100"
+                                />
+                                <span className="line-clamp-1 text-[9px] font-medium">{preset.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. SUIT TITLE & SUBTITLE */}
                 <div>
                   <label className="block font-semibold mb-1">Fabric Title</label>
                   <input
@@ -2077,123 +2439,161 @@ export const AdminPage: React.FC = () => {
                     required
                     value={newProductForm.title}
                     onChange={(e) => setNewProductForm({ ...newProductForm, title: e.target.value })}
-                    placeholder="e.g. Imperial 8-Pound Pure Boski Silk"
+                    placeholder="e.g. Imperial 8-Pound Pure Boski Silk or Johara Festive Lawn"
+                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold mb-1">Subtitle / Weave Detail</label>
+                  <input
+                    type="text"
+                    value={newProductForm.subtitle || ''}
+                    onChange={(e) => setNewProductForm({ ...newProductForm, subtitle: e.target.value })}
+                    placeholder="e.g. 3-Piece Unstitched Luxury Collection"
                     className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                   />
                 </div>
 
+                {/* 3. BRAND & CRAFT TYPE SPECIFICATIONS */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold mb-1">Category</label>
+                    <label className="block font-semibold mb-1 text-[11px]">Brand / Mill Name</label>
+                    <div className="space-y-1">
+                      <select
+                        value={newProductForm.brand || ''}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, brand: e.target.value })}
+                        className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] font-semibold text-xs"
+                      >
+                        <option value="">-- Select Mill / Designer Brand --</option>
+                        <optgroup label="Women's Embroidered Collection">
+                          {WOMEN_EMBROIDERY_BRANDS.map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Women's Printed Collection">
+                          {WOMEN_PRINTED_BRANDS.map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Men's Heritage Collection">
+                          <option value="Niaz Signature Men">Niaz Signature Men</option>
+                          <option value="Kamalia Khaddar House">Kamalia Khaddar House</option>
+                          <option value="Chinese Imperial Boski">Chinese Imperial Boski</option>
+                          <option value="Pasha Fabrics">Pasha Fabrics</option>
+                          <option value="Grace Fabrics">Grace Fabrics</option>
+                          <option value="Gul Ahmed Men">Gul Ahmed Men</option>
+                        </optgroup>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Or custom brand name..."
+                        value={newProductForm.brand || ''}
+                        onChange={(e) => setNewProductForm({ ...newProductForm, brand: e.target.value })}
+                        className="w-full px-2 py-1 bg-white border border-[#E2E8F0] text-[11px]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Craft Style</label>
+                    <select
+                      value={newProductForm.craftType || 'Embroidery'}
+                      onChange={(e) => setNewProductForm({ ...newProductForm, craftType: e.target.value as any })}
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] text-xs font-semibold"
+                    >
+                      <option value="Embroidery">Embroidered Collection</option>
+                      <option value="Printed">Printed Collection</option>
+                      <option value="Plain / Solid">Plain / Solid Suiting</option>
+                      <option value="Self-Dobby">Self-Dobby / Jacquard</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 4. DEPARTMENT & FABRIC TYPE */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold mb-1">Department</label>
                     <select
                       value={newProductForm.gender}
                       onChange={(e) => setNewProductForm({ ...newProductForm, gender: e.target.value as Gender })}
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-semibold text-xs"
                     >
-                      <option value="Men">Men's Unstitched</option>
                       <option value="Women">Women's Unstitched</option>
+                      <option value="Men">Men's Unstitched</option>
+                      <option value="Unisex">Unisex / Fabric Cut</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">Fabric Type</label>
+                    <label className="block font-semibold mb-1">Fabric Material</label>
                     <select
                       value={newProductForm.fabric}
                       onChange={(e) => setNewProductForm({ ...newProductForm, fabric: e.target.value as FabricType })}
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-semibold text-xs"
                     >
-                      <option value="Boski Silk">Boski Silk</option>
-                      <option value="Latha Cotton">Latha Cotton</option>
-                      <option value="Luxury Lawn">Luxury Lawn</option>
-                      <option value="Embroidered Chiffon">Embroidered Chiffon</option>
-                      <option value="Handwoven Karandi">Handwoven Karandi</option>
-                      <option value="Swiss Voile">Swiss Voile</option>
-                      <option value="Silk Jacquard">Silk Jacquard</option>
-                      <option value="Pure Khaddar">Pure Khaddar</option>
+                      <optgroup label="Men's Fabrics">
+                        {MENS_FABRICS.map((f) => (
+                          <option key={f} value={f}>{f}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Women's Fabrics">
+                        <option value="Luxury Lawn">Luxury Lawn</option>
+                        <option value="Embroidered Chiffon">Embroidered Chiffon</option>
+                        <option value="Swiss Voile">Swiss Voile</option>
+                        <option value="Silk Jacquard">Silk Jacquard</option>
+                        <option value="Handwoven Karandi">Handwoven Karandi</option>
+                      </optgroup>
                     </select>
                   </div>
                 </div>
 
-                {/* Technical Specs: Weave, Weight, Thread */}
-                <div className="grid grid-cols-3 gap-2">
+                {/* 5. PRICING & STOCK */}
+                <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block font-semibold mb-1">Weave Type</label>
-                    <select
-                      value={newProductForm.weaveTypeCategory || 'Plain Weave'}
-                      onChange={(e) =>
-                        setNewProductForm({
-                          ...newProductForm,
-                          weaveTypeCategory: e.target.value as WeaveTypeCategory,
-                          weaveType: e.target.value,
-                        })
-                      }
-                      className="w-full px-2 py-2 bg-white border border-[#E2E8F0]"
-                    >
-                      <option value="Plain Weave">Plain Weave</option>
-                      <option value="Sateen / Boski Weave">Sateen / Boski</option>
-                      <option value="Cambric / Lawn Weave">Cambric / Lawn</option>
-                      <option value="Chiffon / Crepe Weave">Chiffon / Crepe</option>
-                      <option value="Jacquard Weave">Jacquard</option>
-                      <option value="Handloom Textured Weave">Handloom</option>
-                      <option value="Twill Weave">Twill Weave</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold mb-1">Weight (GSM)</label>
-                    <select
-                      value={newProductForm.fabricWeightCategory || 'Medium Weight'}
-                      onChange={(e) =>
-                        setNewProductForm({
-                          ...newProductForm,
-                          fabricWeightCategory: e.target.value as FabricWeightCategory,
-                          fabricWeight: `${e.target.value} (160 GSM)`,
-                        })
-                      }
-                      className="w-full px-2 py-2 bg-white border border-[#E2E8F0]"
-                    >
-                      <option value="Ultra-Lightweight">Ultra-Light</option>
-                      <option value="Lightweight">Lightweight</option>
-                      <option value="Medium Weight">Medium Weight</option>
-                      <option value="Heavy Weight">Heavy Weight</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block font-semibold mb-1">Thread Count</label>
-                    <select
-                      value={newProductForm.threadCountCategory || 'Superfine (100s-120s)'}
-                      onChange={(e) =>
-                        setNewProductForm({
-                          ...newProductForm,
-                          threadCountCategory: e.target.value as ThreadCountCategory,
-                          threadCount: e.target.value,
-                        })
-                      }
-                      className="w-full px-2 py-2 bg-white border border-[#E2E8F0]"
-                    >
-                      <option value="Coarse / Traditional (30s-40s)">30s-40s Coarse</option>
-                      <option value="High Count (60s-80s)">60s-80s High</option>
-                      <option value="Superfine (100s-120s)">100s-120s Superfine</option>
-                      <option value="Royal Grade (140s+)">140s+ Royal</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block font-semibold mb-1">Price (PKR)</label>
+                    <label className="block font-semibold mb-1 text-[11px]">Price (PKR)</label>
                     <input
                       type="number"
                       required
                       value={newProductForm.price}
                       onChange={(e) => setNewProductForm({ ...newProductForm, price: Number(e.target.value) })}
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Original Price (PKR)</label>
+                    <input
+                      type="number"
+                      value={newProductForm.originalPrice || ''}
+                      onChange={(e) =>
+                        setNewProductForm({
+                          ...newProductForm,
+                          originalPrice: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      placeholder="e.g. 18500 (Sale)"
                       className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">Cut Length</label>
+                    <label className="block font-semibold mb-1 text-[11px]">Stock Status</label>
+                    <select
+                      value={newProductForm.inStock ? 'yes' : 'no'}
+                      onChange={(e) => setNewProductForm({ ...newProductForm, inStock: e.target.value === 'yes' })}
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-semibold"
+                    >
+                      <option value="yes">In Stock (Available)</option>
+                      <option value="no">Out of Stock</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 6. CUT SPECIFICATIONS */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Cut Length</label>
                     <input
                       type="text"
                       value={newProductForm.cutDetails?.length}
@@ -2203,6 +2603,23 @@ export const AdminPage: React.FC = () => {
                           cutDetails: { ...newProductForm.cutDetails!, length: e.target.value },
                         })
                       }
+                      placeholder="e.g. 4.5 Standard Meters or 3-Piece"
+                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Fabric Width (Arz)</label>
+                    <input
+                      type="text"
+                      value={newProductForm.cutDetails?.width}
+                      onChange={(e) =>
+                        setNewProductForm({
+                          ...newProductForm,
+                          cutDetails: { ...newProductForm.cutDetails!, width: e.target.value },
+                        })
+                      }
+                      placeholder="e.g. 54 Inches (Double Width)"
                       className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                     />
                   </div>
@@ -2228,9 +2645,10 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#0284C7] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#0369A1]"
+                    disabled={isUploadingImage}
+                    className="px-6 py-2 bg-black hover:bg-neutral-800 text-white text-xs font-bold tracking-widest uppercase transition-colors shadow-md"
                   >
-                    Save Fabric
+                    Save & Add Fabric
                   </button>
                 </div>
               </form>
@@ -2238,97 +2656,386 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* MODAL: EDIT PRODUCT */}
+        {/* MODAL: EDIT PRODUCT & PICTURES */}
         {editingProduct && (
-          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4">
-            <div className="bg-[#F8FAFC] max-w-lg w-full border border-[#E2E8F0] shadow-2xl p-6 relative max-h-[90vh] overflow-y-auto">
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4">
+            <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl p-5 sm:p-6 relative max-h-[92vh] overflow-y-auto">
               <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
-                <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                  Edit: {editingProduct.title}
-                </h3>
-                <button onClick={() => setEditingProduct(null)}>
-                  <X className="w-5 h-5 text-[#1C1917]/70" />
+                <div>
+                  <h3 className="font-serif text-lg font-bold text-[#1C1917]">
+                    Edit Suit: {editingProduct.title}
+                  </h3>
+                  <p className="text-[11px] text-[#1C1917]/60">
+                    Update fabric photography, certified brand designation, craft style, and catalog pricing.
+                  </p>
+                </div>
+                <button onClick={() => setEditingProduct(null)} className="p-1 text-neutral-500 hover:text-black">
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
               <form onSubmit={handleUpdateProductSubmit} className="space-y-4 pt-4 text-xs">
+                {/* 1. SUIT PHOTO & GALLERY MANAGEMENT */}
+                <div className="bg-white border border-[#E2E8F0] p-4 space-y-3.5 shadow-2xs">
+                  <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2">
+                    <div className="flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-[#0284C7]" />
+                      <span className="font-bold uppercase tracking-wider text-[11px] text-[#1C1917]">
+                        Suit Picture & Visual Presentation
+                      </span>
+                    </div>
+                    {isUploadingImage && (
+                      <span className="text-[11px] font-semibold text-[#0284C7] flex items-center gap-1">
+                        <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Saving image...
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-start">
+                    {/* Primary Photo Preview */}
+                    <div className="sm:col-span-4 flex flex-col items-center">
+                      <div className="w-32 sm:w-36 aspect-[3/4] bg-neutral-100 border-2 border-neutral-300 relative overflow-hidden group shadow-xs">
+                        <img
+                          src={editingProduct.primaryImage || '/images/hero_niaz_luxury_fabric_1791569218384.jpg'}
+                          alt={editingProduct.title}
+                          className="w-full h-full object-cover object-center"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+                          }}
+                        />
+                        <div className="absolute bottom-0 inset-x-0 bg-black/80 text-white text-[9px] font-bold text-center py-1 tracking-wider uppercase">
+                          Current Primary Picture
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Image Source & Upload Controls */}
+                    <div className="sm:col-span-8 space-y-3">
+                      {/* Method A: Device Upload */}
+                      <div>
+                        <label className="block font-semibold mb-1 text-[11px] text-[#1C1917]">
+                          Option 1: Upload Photo from Phone or PC
+                        </label>
+                        <label className="w-full px-3 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-2xs">
+                          <Camera className="w-3.5 h-3.5" />
+                          <span>Choose New Photo from Device</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => handleImageFileChange(e, 'edit')}
+                          />
+                        </label>
+                        <p className="text-[10px] text-neutral-500 mt-1">
+                          Select any camera photo or saved image (JPG, PNG, WebP). It uploads directly to the store images folder.
+                        </p>
+                      </div>
+
+                      {/* Method B: Direct URL Input */}
+                      <div>
+                        <label className="block font-semibold mb-1 text-[11px] text-[#1C1917]">
+                          Option 2: Photo URL or Image Path
+                        </label>
+                        <input
+                          type="text"
+                          value={editingProduct.primaryImage}
+                          onChange={(e) => {
+                            const newUrl = e.target.value;
+                            const currentGal = editingProduct.galleryImages || [];
+                            setEditingProduct({
+                              ...editingProduct,
+                              primaryImage: newUrl,
+                              galleryImages: currentGal.includes(newUrl) ? currentGal : [newUrl, ...currentGal],
+                            });
+                          }}
+                          placeholder="e.g. /images/... or https://..."
+                          className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0] text-xs font-mono"
+                        />
+                      </div>
+
+                      {/* Method C: Preset Store Images */}
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => setShowPresetPicker(!showPresetPicker)}
+                          className="text-[11px] font-semibold text-[#0284C7] hover:underline flex items-center gap-1"
+                        >
+                          <Sparkles className="w-3 h-3" />
+                          <span>{showPresetPicker ? 'Hide store fabric presets' : 'Or choose from store catalog presets'}</span>
+                        </button>
+
+                        {showPresetPicker && (
+                          <div className="grid grid-cols-3 gap-2 mt-2 p-2 bg-[#F8FAFC] border border-[#E2E8F0] max-h-48 overflow-y-auto">
+                            {PRESET_FABRIC_IMAGES.map((preset, idx) => (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => {
+                                  const currentGallery = editingProduct.galleryImages || [];
+                                  setEditingProduct({
+                                    ...editingProduct,
+                                    primaryImage: preset.url,
+                                    galleryImages: currentGallery.includes(preset.url) ? currentGallery : [preset.url, ...currentGallery],
+                                  });
+                                  showToast(`Selected "${preset.label}"`);
+                                }}
+                                className={`flex flex-col items-center p-1 border text-[10px] transition-all text-center ${
+                                  editingProduct.primaryImage === preset.url
+                                    ? 'border-[#0284C7] bg-white ring-1 ring-[#0284C7]'
+                                    : 'border-neutral-200 hover:border-black bg-white'
+                                }`}
+                              >
+                                <img
+                                  src={preset.url}
+                                  alt={preset.label}
+                                  className="w-14 h-16 object-cover mb-1 bg-neutral-100"
+                                />
+                                <span className="line-clamp-1 text-[9px] font-medium">{preset.label}</span>
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Gallery Thumbnails Strip */}
+                  <div className="border-t border-[#E2E8F0] pt-2.5">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-neutral-700">
+                        Gallery Views ({(editingProduct.galleryImages || [editingProduct.primaryImage]).length})
+                      </span>
+                      <span className="text-[10px] text-neutral-400">Click any view to set as Primary Photo</span>
+                    </div>
+                    <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                      {(editingProduct.galleryImages || [editingProduct.primaryImage]).map((img, idx) => (
+                        <div key={idx} className="relative group shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => setEditingProduct({ ...editingProduct, primaryImage: img })}
+                            className={`w-14 h-18 border-2 overflow-hidden transition-all ${
+                              editingProduct.primaryImage === img
+                                ? 'border-[#0284C7] ring-1 ring-[#0284C7]'
+                                : 'border-neutral-200 opacity-70 hover:opacity-100'
+                            }`}
+                            title="Set as primary image"
+                          >
+                            <img src={img} alt={`Gallery view ${idx + 1}`} className="w-full h-full object-cover" />
+                          </button>
+                          {editingProduct.galleryImages && editingProduct.galleryImages.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const filtered = editingProduct.galleryImages.filter((_, i) => i !== idx);
+                                setEditingProduct({
+                                  ...editingProduct,
+                                  galleryImages: filtered,
+                                  primaryImage: editingProduct.primaryImage === img ? (filtered[0] || '') : editingProduct.primaryImage,
+                                });
+                              }}
+                              className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                              title="Remove from gallery"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. SUIT TITLE & SUBTITLE */}
                 <div>
                   <label className="block font-semibold mb-1">Fabric Title</label>
                   <input
                     type="text"
+                    required
                     value={editingProduct.title}
                     onChange={(e) => setEditingProduct({ ...editingProduct, title: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-medium"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-semibold mb-1">Subtitle / Weave Detail</label>
+                  <input
+                    type="text"
+                    value={editingProduct.subtitle || ''}
+                    onChange={(e) => setEditingProduct({ ...editingProduct, subtitle: e.target.value })}
+                    placeholder="e.g. 3-Piece Embroidered Festive Lawn Collection"
                     className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
                   />
                 </div>
 
+                {/* 3. BRAND & CRAFT TYPE SPECIFICATIONS */}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold mb-1">Price (PKR)</label>
-                    <input
-                      type="number"
-                      value={editingProduct.price}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
-                    />
+                    <label className="block font-semibold mb-1 text-[11px]">Brand / Mill Name</label>
+                    <div className="space-y-1">
+                      <select
+                        value={editingProduct.brand || ''}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, brand: e.target.value })}
+                        className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] font-semibold text-xs"
+                      >
+                        <option value="">-- Select Mill / Designer Brand --</option>
+                        <optgroup label="Women's Embroidered Collection">
+                          {WOMEN_EMBROIDERY_BRANDS.map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Women's Printed Collection">
+                          {WOMEN_PRINTED_BRANDS.map((b) => (
+                            <option key={b} value={b}>{b}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="Men's Heritage Collection">
+                          <option value="Niaz Signature Men">Niaz Signature Men</option>
+                          <option value="Kamalia Khaddar House">Kamalia Khaddar House</option>
+                          <option value="Chinese Imperial Boski">Chinese Imperial Boski</option>
+                          <option value="Pasha Fabrics">Pasha Fabrics</option>
+                          <option value="Grace Fabrics">Grace Fabrics</option>
+                          <option value="Gul Ahmed Men">Gul Ahmed Men</option>
+                        </optgroup>
+                      </select>
+                      <input
+                        type="text"
+                        placeholder="Or custom brand name..."
+                        value={editingProduct.brand || ''}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, brand: e.target.value })}
+                        className="w-full px-2 py-1 bg-white border border-[#E2E8F0] text-[11px]"
+                      />
+                    </div>
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1">In Stock?</label>
+                    <label className="block font-semibold mb-1 text-[11px]">Craft Style</label>
                     <select
-                      value={editingProduct.inStock ? 'yes' : 'no'}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.value === 'yes' })}
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
+                      value={editingProduct.craftType || 'Embroidery'}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, craftType: e.target.value as any })}
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] text-xs font-semibold"
                     >
-                      <option value="yes">Yes - Available</option>
-                      <option value="no">No - Out of Stock</option>
+                      <option value="Embroidery">Embroidered Collection</option>
+                      <option value="Printed">Printed Collection</option>
+                      <option value="Plain / Solid">Plain / Solid Suiting</option>
+                      <option value="Self-Dobby">Self-Dobby / Jacquard</option>
                     </select>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                {/* 4. DEPARTMENT & FABRIC MATERIAL */}
+                <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-semibold mb-1">Weave Type</label>
-                    <input
-                      type="text"
-                      value={editingProduct.weaveType || ''}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, weaveType: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0]"
-                    />
+                    <label className="block font-semibold mb-1 text-[11px]">Department</label>
+                    <select
+                      value={editingProduct.gender}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, gender: e.target.value as Gender })}
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] text-xs font-semibold"
+                    >
+                      <option value="Women">Women's Collection</option>
+                      <option value="Men">Men's Collection</option>
+                      <option value="Unisex">Unisex / Fabric Cut</option>
+                    </select>
                   </div>
+
                   <div>
-                    <label className="block font-semibold mb-1">Fabric Weight</label>
-                    <input
-                      type="text"
-                      value={editingProduct.fabricWeight || ''}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, fabricWeight: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0]"
-                    />
-                  </div>
-                  <div>
-                    <label className="block font-semibold mb-1">Thread Count</label>
-                    <input
-                      type="text"
-                      value={editingProduct.threadCount || ''}
-                      onChange={(e) => setEditingProduct({ ...editingProduct, threadCount: e.target.value })}
-                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0]"
-                    />
+                    <label className="block font-semibold mb-1 text-[11px]">Fabric Material</label>
+                    <select
+                      value={editingProduct.fabric}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, fabric: e.target.value as FabricType })}
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] text-xs font-semibold"
+                    >
+                      <optgroup label="Men's Fabrics">
+                        {MENS_FABRICS.map((f) => (
+                          <option key={f} value={f}>{f}</option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="Women's Fabrics">
+                        <option value="Luxury Lawn">Luxury Lawn</option>
+                        <option value="Embroidered Chiffon">Embroidered Chiffon</option>
+                        <option value="Swiss Voile">Swiss Voile</option>
+                        <option value="Silk Jacquard">Silk Jacquard</option>
+                        <option value="Handwoven Karandi">Handwoven Karandi</option>
+                      </optgroup>
+                    </select>
                   </div>
                 </div>
 
-                <div>
-                  <label className="block font-semibold mb-1">Cut Specification</label>
-                  <input
-                    type="text"
-                    value={editingProduct.cutDetails.length}
-                    onChange={(e) =>
-                      setEditingProduct({
-                        ...editingProduct,
-                        cutDetails: { ...editingProduct.cutDetails, length: e.target.value },
-                      })
-                    }
-                    className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
-                  />
+                {/* 5. PRICING & STOCK */}
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Selling Price (PKR)</label>
+                    <input
+                      type="number"
+                      required
+                      value={editingProduct.price}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0] font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Original Price (PKR)</label>
+                    <input
+                      type="number"
+                      value={editingProduct.originalPrice || ''}
+                      onChange={(e) =>
+                        setEditingProduct({
+                          ...editingProduct,
+                          originalPrice: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      placeholder="e.g. 18500 (Sale)"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Stock Status</label>
+                    <select
+                      value={editingProduct.inStock ? 'yes' : 'no'}
+                      onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.value === 'yes' })}
+                      className="w-full px-2 py-1.5 bg-white border border-[#E2E8F0] font-semibold"
+                    >
+                      <option value="yes">In Stock (Available)</option>
+                      <option value="no">Out of Stock</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* 6. TECHNICAL & CUT DETAILS */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Cut Length</label>
+                    <input
+                      type="text"
+                      value={editingProduct.cutDetails.length}
+                      onChange={(e) =>
+                        setEditingProduct({
+                          ...editingProduct,
+                          cutDetails: { ...editingProduct.cutDetails, length: e.target.value },
+                        })
+                      }
+                      placeholder="e.g. 4.5 Meters or 3-Piece"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-semibold mb-1 text-[11px]">Fabric Width (Arz)</label>
+                    <input
+                      type="text"
+                      value={editingProduct.cutDetails.width}
+                      onChange={(e) =>
+                        setEditingProduct({
+                          ...editingProduct,
+                          cutDetails: { ...editingProduct.cutDetails, width: e.target.value },
+                        })
+                      }
+                      placeholder="e.g. 54 Inches (Double Width)"
+                      className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0]"
+                    />
+                  </div>
                 </div>
 
                 <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-between gap-2">
@@ -2355,9 +3062,10 @@ export const AdminPage: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-[#0284C7] text-white text-xs font-semibold tracking-wider uppercase hover:bg-[#0369A1]"
+                      disabled={isUploadingImage}
+                      className="px-6 py-2.5 bg-black hover:bg-neutral-800 text-white text-xs font-bold tracking-widest uppercase transition-colors shadow-md"
                     >
-                      Update Fabric
+                      Update Suit & Photo
                     </button>
                   </div>
                 </div>
@@ -2419,6 +3127,14 @@ export const AdminPage: React.FC = () => {
           currentAdminName={currentAdmin?.fullName || 'Haji Niaz Ahmad'}
           initialSelectedProductId={selectedSyncProductId}
         />
+
+        {/* Firebase Security Checkup Modal */}
+        {isFirebaseCheckupOpen && (
+          <FirebaseSecurityCheckup 
+            isModal 
+            onClose={() => setIsFirebaseCheckupOpen(false)} 
+          />
+        )}
       </div>
     </div>
   );

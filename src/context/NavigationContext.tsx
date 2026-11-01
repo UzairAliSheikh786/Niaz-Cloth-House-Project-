@@ -29,6 +29,9 @@ export interface NavFilterParams {
   brand?: string;
   craftType?: string;
   search?: string;
+  favoritesOnly?: boolean;
+  newArrivalsOnly?: boolean;
+  saleOnly?: boolean;
 }
 
 interface NavigationContextType {
@@ -49,6 +52,9 @@ interface NavigationContextType {
       brand?: string;
       craftType?: string;
       search?: string;
+      favoritesOnly?: boolean;
+      newArrivalsOnly?: boolean;
+      saleOnly?: boolean;
     }
   ) => void;
   filterParams: NavFilterParams;
@@ -158,19 +164,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
 
   const navigateTo = (
     page: PageRoute,
-    params?: { 
+    params?: NavFilterParams & { 
       id?: string; 
       slug?: string;
-      category?: string; 
-      fabric?: string; 
-      gender?: string; 
-      season?: string;
-      fabricWeight?: string;
-      threadCount?: string;
-      weaveType?: string;
-      brand?: string;
-      craftType?: string;
-      search?: string;
     }
   ) => {
     setCurrentPage(page);
@@ -194,6 +190,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         brand: params.brand,
         craftType: params.craftType,
         search: params.search,
+        favoritesOnly: params.favoritesOnly,
+        newArrivalsOnly: params.newArrivalsOnly,
+        saleOnly: params.saleOnly,
       });
     } else {
       setFilterParams({});

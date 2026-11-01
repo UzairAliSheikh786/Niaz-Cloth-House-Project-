@@ -769,7 +769,7 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
               Visit Store at 170 Paris Bazaar
             </a>
             <a
-              href="https://wa.me/923346565636?text=Assalam-o-Alaikum%2C%20I%20have%20an%20inquiry%20regarding%20store%20policies."
+              href="https://wa.me/923346565636?text=Hello%2C%20I%20have%20an%20inquiry%20regarding%20store%20policies."
               target="_blank"
               rel="noreferrer"
               className="px-4 py-2 bg-[#4A5D4E] hover:bg-[#3d4d40] text-white font-semibold transition-colors"
