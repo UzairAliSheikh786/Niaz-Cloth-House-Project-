@@ -27,7 +27,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { addToCart, formatPKR, showToast } = useShop();
+  const { addToCart, formatPKR, showToast, recordProductView } = useShop();
   const { navigateTo } = useNavigation();
 
   const fallbackImage = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
@@ -38,9 +38,10 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const [selectedDesignId, setSelectedDesignId] = useState<string>('std');
   const [addedAnimation, setAddedAnimation] = useState(false);
 
-  // Sync state when product opens
+  // Sync state when product opens and persist to IndexedDB
   useEffect(() => {
     if (product) {
+      recordProductView(product);
       setSelectedImage(product.primaryImage || fallbackImage);
       setQuantity(1);
       setSelectedColor(product.colorOptions?.[0]?.name || product.color || '');

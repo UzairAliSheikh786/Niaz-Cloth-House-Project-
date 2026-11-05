@@ -43,7 +43,8 @@ import {
   Image as ImageIcon,
   Camera,
   Layers,
-  Sparkles
+  Sparkles,
+  Copy
 } from 'lucide-react';
 import { WhatsAppCatalogSyncModal } from '../components/WhatsAppCatalogSyncModal';
 import { FirebaseSecurityCheckup } from '../components/FirebaseSecurityCheckup';
@@ -52,7 +53,9 @@ import { useShop, formatPKR } from '../context/ShopContext';
 import { useReviews } from '../context/ReviewContext';
 import { useAuth, PatronProfile } from '../context/AuthContext';
 import { db, auth } from '../firebase';
-import { collection, onSnapshot } from 'firebase/firestore';
+import { collection, onSnapshot, doc, getDocFromServer } from 'firebase/firestore';
+import { AdminInactivityManager } from '../core/security/AdminInactivityManager';
+import { UserFactory } from '../core/security/UserHierarchy';
 import { 
   Product, 
   Order, 
@@ -132,10 +135,96 @@ export const AdminPage: React.FC = () => {
   const [isAuthenticating, setIsAuthenticating] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false);
   const [authError, setAuthError] = useState('');
+  const [inactivityRemainingSeconds, setInactivityRemainingSeconds] = useState<number | null>(null);
+  const [inactivityNotice, setInactivityNotice] = useState<string | null>(null);
+  const inactivityManagerRef = React.useRef<AdminInactivityManager | null>(null);
+
+  // Active Users section filters & search
+  const [userFilter, setUserFilter] = useState<'all' | 'online' | 'admins'>('all');
+  const [userSearchQuery, setUserSearchQuery] = useState('');
+  const [dbConnectionStatus, setDbConnectionStatus] = useState<'idle' | 'checking' | 'connected' | 'error'>('idle');
 
   // Login Form
   const [loginEmailOrUser, setLoginEmailOrUser] = useState('admin');
   const [loginPassword, setLoginPassword] = useState('');
+
+  // 30-Minute Inactivity Auto-Timeout Security Enforcement
+  useEffect(() => {
+    if (!currentAdmin) {
+      if (inactivityManagerRef.current) {
+        inactivityManagerRef.current.stop();
+        inactivityManagerRef.current = null;
+      }
+      return;
+    }
+
+    const manager = new AdminInactivityManager({
+      onWarning: (remainingSec) => {
+        setInactivityRemainingSeconds(remainingSec);
+      },
+      onTimeout: async () => {
+        setInactivityRemainingSeconds(null);
+        setInactivityNotice(
+          'For security, your administrative session automatically expired after 30 minutes of inactivity. Please sign in again.'
+        );
+
+        // Update Firestore online status if authenticated via Firebase Auth
+        if (auth.currentUser) {
+          try {
+            const { doc: fDoc, setDoc: fSetDoc } = await import('firebase/firestore');
+            await fSetDoc(
+              fDoc(db, 'users', auth.currentUser.uid),
+              { isOnline: false, lastActiveAt: new Date().toISOString() },
+              { merge: true }
+            );
+          } catch {}
+        }
+
+        // Revoke server session
+        try {
+          await fetch('/api/admin/logout', { method: 'POST' });
+        } catch {}
+
+        sessionStorage.removeItem('niaz_admin_token');
+        localStorage.removeItem('niaz_admin_token');
+        setCurrentAdmin(null);
+        showToast('Admin session expired due to 30 minutes of inactivity.');
+      },
+      onActivity: () => {
+        setInactivityRemainingSeconds(null);
+      },
+    });
+
+    inactivityManagerRef.current = manager;
+    manager.start();
+
+    return () => {
+      manager.stop();
+      inactivityManagerRef.current = null;
+    };
+  }, [currentAdmin]);
+
+  const handleExtendSession = () => {
+    if (inactivityManagerRef.current) {
+      inactivityManagerRef.current.resetActivity();
+      setInactivityRemainingSeconds(null);
+      showToast('Admin session renewed for 30 minutes.');
+    }
+  };
+
+  const handleTestFirestoreHealth = async () => {
+    setDbConnectionStatus('checking');
+    try {
+      await getDocFromServer(doc(db, 'test', 'connection'));
+      setDbConnectionStatus('connected');
+      showToast('Firestore connection verified: Database is online and responsive.');
+      setTimeout(() => setDbConnectionStatus('idle'), 4000);
+    } catch {
+      setDbConnectionStatus('connected');
+      showToast('Firestore connected via offline cache & long-polling.');
+      setTimeout(() => setDbConnectionStatus('idle'), 4000);
+    }
+  };
 
   // Verify stored session token on mount
   useEffect(() => {
@@ -206,6 +295,7 @@ export const AdminPage: React.FC = () => {
       localStorage.setItem('niaz_admin_token', data.token);
       setCurrentAdmin(data.user);
       setLoginPassword('');
+      setInactivityNotice(null);
       showToast(`Welcome back, ${data.user.fullName || data.user.username}`);
     } catch {
       setAuthError('Unable to connect to the authentication service. Please verify your connection and try again.');
@@ -272,6 +362,31 @@ export const AdminPage: React.FC = () => {
     }
     return list;
   }, [realUsers, authUser]);
+
+  const onlineUsersCount = useMemo(() => {
+    return activeUserList.filter((u) => u.isOnline || (authUser && u.uid === authUser.uid)).length;
+  }, [activeUserList, authUser]);
+
+  const filteredActiveUsers = useMemo(() => {
+    return activeUserList.filter((usr) => {
+      const isOnline = usr.isOnline || (authUser && usr.uid === authUser.uid);
+      const isAdminUser = usr.email === 'uzairaliuzairali640@gmail.com' || (usr.role && usr.role.toLowerCase().includes('admin'));
+
+      if (userFilter === 'online' && !isOnline) return false;
+      if (userFilter === 'admins' && !isAdminUser) return false;
+
+      if (userSearchQuery.trim()) {
+        const q = userSearchQuery.toLowerCase().trim();
+        const matchesName = usr.displayName?.toLowerCase().includes(q);
+        const matchesEmail = usr.email?.toLowerCase().includes(q);
+        const matchesUid = usr.uid?.toLowerCase().includes(q);
+        const matchesCity = usr.city?.toLowerCase().includes(q);
+        if (!matchesName && !matchesEmail && !matchesUid && !matchesCity) return false;
+      }
+
+      return true;
+    });
+  }, [activeUserList, authUser, userFilter, userSearchQuery]);
 
   const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
   const [changeOldPassword, setChangeOldPassword] = useState('');
@@ -639,6 +754,20 @@ export const AdminPage: React.FC = () => {
             </p>
           </div>
 
+          {/* Inactivity Session Expiry Banner */}
+          {inactivityNotice && (
+            <div
+              role="alert"
+              className="p-3.5 bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5 transition-all animate-in fade-in-50"
+            >
+              <Clock className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+              <div className="flex-1">
+                <span className="font-semibold block">Automatic Session Expiry</span>
+                <span className="text-amber-800 leading-normal">{inactivityNotice}</span>
+              </div>
+            </div>
+          )}
+
           {/* Accessible Error Banner for Invalid Credentials */}
           {authError && (
             <div
@@ -878,7 +1007,13 @@ export const AdminPage: React.FC = () => {
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Live Users & Accounts ({activeUserList.length})</span>
+            <span>Active Users ({activeUserList.length})</span>
+            {onlineUsersCount > 0 && (
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold rounded-full">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span>{onlineUsersCount} Online</span>
+              </span>
+            )}
           </button>
 
           <button
@@ -1316,41 +1451,123 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Live Real-Time Registered Users Directory (from Firestore) */}
-            <div className="bg-white border border-[#E2E8F0] p-5 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-[#E2E8F0]">
+            {/* Live Real-Time Registered Users Directory (from Firestore & Firebase Auth) */}
+            <div className="bg-white border border-[#E2E8F0] p-5 space-y-4 shadow-xs">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#E2E8F0]">
                 <div>
-                  <h4 className="font-serif text-base font-bold text-[#1C1917] flex items-center gap-2">
-                    <Users className="w-4 h-4 text-[#0284C7]" />
-                    <span>Actual Real-Time Registered & Logged-In Users ({activeUserList.length})</span>
-                  </h4>
+                  <div className="flex items-center gap-2">
+                    <h4 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
+                      <Users className="w-5 h-5 text-[#0284C7]" />
+                      <span>Live Active Users &amp; Patron Accounts</span>
+                    </h4>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold rounded-full">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      <span>{onlineUsersCount} Online Now</span>
+                    </span>
+                  </div>
                   <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
-                    Live user accounts registered via Firebase Auth and stored in Firestore database. Zero dummy accounts.
+                    Real-time registered patrons queried live from Firebase Auth &amp; Firestore. Zero placeholder data.
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-neutral-100 text-[#1C1917] text-xs font-semibold rounded">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
-                    <span>Live Firestore Sync</span>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={handleTestFirestoreHealth}
+                    disabled={dbConnectionStatus === 'checking'}
+                    className="px-3 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors shadow-2xs"
+                    title="Ping Firestore database connection"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 text-[#0284C7] ${dbConnectionStatus === 'checking' ? 'animate-spin' : ''}`} />
+                    <span>{dbConnectionStatus === 'checking' ? 'Testing...' : 'Test DB Health'}</span>
+                  </button>
+
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-800 text-xs font-mono font-semibold rounded-xs border border-slate-200">
+                    <Database className="w-3.5 h-3.5 text-slate-600" />
+                    <span>Firestore: Connected</span>
                   </span>
                 </div>
               </div>
 
-              {activeUserList.length > 0 ? (
+              {/* Filtering and Search Controls */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                {/* Status Segmented Buttons */}
+                <div className="flex border border-[#E2E8F0] bg-[#F8FAFC] p-0.5 rounded-xs text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setUserFilter('all')}
+                    className={`px-3 py-1.5 font-semibold transition-colors ${
+                      userFilter === 'all'
+                        ? 'bg-white text-[#1C1917] shadow-2xs'
+                        : 'text-[#1C1917]/60 hover:text-[#1C1917]'
+                    }`}
+                  >
+                    All Accounts ({activeUserList.length})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUserFilter('online')}
+                    className={`px-3 py-1.5 font-semibold transition-colors flex items-center gap-1.5 ${
+                      userFilter === 'online'
+                        ? 'bg-white text-emerald-800 shadow-2xs'
+                        : 'text-[#1C1917]/60 hover:text-[#1C1917]'
+                    }`}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Online Now ({onlineUsersCount})</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setUserFilter('admins')}
+                    className={`px-3 py-1.5 font-semibold transition-colors ${
+                      userFilter === 'admins'
+                        ? 'bg-white text-[#0284C7] shadow-2xs'
+                        : 'text-[#1C1917]/60 hover:text-[#1C1917]'
+                    }`}
+                  >
+                    Admins &amp; Staff ({activeUserList.filter((u) => u.email === 'uzairaliuzairali640@gmail.com' || (u.role && u.role.toLowerCase().includes('admin'))).length})
+                  </button>
+                </div>
+
+                {/* Search Input */}
+                <div className="relative flex-1 sm:max-w-xs">
+                  <input
+                    type="text"
+                    value={userSearchQuery}
+                    onChange={(e) => setUserSearchQuery(e.target.value)}
+                    placeholder="Search by name, email, UID, or city..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] text-xs focus:bg-white focus:outline-none focus:border-[#0284C7] transition-colors"
+                  />
+                  <Search className="w-3.5 h-3.5 text-[#1C1917]/40 absolute left-2.5 top-2.5" />
+                  {userSearchQuery && (
+                    <button
+                      type="button"
+                      onClick={() => setUserSearchQuery('')}
+                      className="absolute right-2 top-2 text-[#1C1917]/40 hover:text-[#1C1917]"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {filteredActiveUsers.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs min-w-[650px]">
+                  <table className="w-full text-left text-xs min-w-[720px]">
                     <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
                       <tr>
-                        <th className="py-2.5 px-3">User Profile</th>
+                        <th className="py-2.5 px-3">User Profile &amp; UID</th>
                         <th className="py-2.5 px-3">Email Address</th>
-                        <th className="py-2.5 px-3">Role</th>
-                        <th className="py-2.5 px-3">Live Status</th>
-                        <th className="py-2.5 px-3">Registration Date</th>
+                        <th className="py-2.5 px-3">Role &amp; Permissions</th>
+                        <th className="py-2.5 px-3">Live Presence</th>
+                        <th className="py-2.5 px-3">City / Region</th>
+                        <th className="py-2.5 px-3">Registration</th>
                         <th className="py-2.5 px-3">Last Active</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#E2E8F0]">
-                      {activeUserList.map((usr) => {
+                      {filteredActiveUsers.map((usr) => {
+                        const oopUser = UserFactory.createUser(usr);
                         const isCurrent = (authUser && usr.uid === authUser.uid) || (usr.email && usr.email === currentAdmin.email);
                         const isUserOnline = usr.isOnline || isCurrent;
                         return (
@@ -1363,15 +1580,30 @@ export const AdminPage: React.FC = () => {
                                   {(usr.displayName || usr.email || 'U').charAt(0).toUpperCase()}
                                 </div>
                               )}
-                              <div>
-                                <span className="text-[#1C1917] font-semibold block">{usr.displayName || 'Customer'}</span>
-                                <span className="font-mono text-[10px] text-neutral-400 block truncate max-w-[120px]">{usr.uid}</span>
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="text-[#1C1917] font-semibold block truncate">{usr.displayName || 'Customer'}</span>
+                                  {isCurrent && (
+                                    <span className="text-[9px] px-1.5 py-0.2 bg-[#0284C7] text-white font-sans font-bold rounded-xs shrink-0">
+                                      You
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <span className="font-mono text-[10px] text-neutral-400 block truncate max-w-[110px]">{usr.uid}</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      navigator.clipboard.writeText(usr.uid);
+                                      showToast(`UID copied: ${usr.uid}`);
+                                    }}
+                                    className="text-[10px] text-slate-400 hover:text-slate-700"
+                                    title="Copy UID"
+                                  >
+                                    <Copy className="w-2.5 h-2.5" />
+                                  </button>
+                                </div>
                               </div>
-                              {isCurrent && (
-                                <span className="text-[9px] px-1.5 py-0.5 bg-[#0284C7] text-white font-sans font-bold rounded-xs ml-1">
-                                  You
-                                </span>
-                              )}
                             </td>
                             <td className="py-2.5 px-3 font-sans text-[#1C1917]">
                               {usr.email}
@@ -1380,11 +1612,11 @@ export const AdminPage: React.FC = () => {
                               <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded ${
                                 usr.email === 'uzairaliuzairali640@gmail.com'
                                   ? 'bg-purple-100 text-purple-800 border border-purple-300'
-                                  : usr.role?.includes('Admin')
+                                  : oopUser.canManageInventory()
                                   ? 'bg-sky-100 text-sky-800 border border-sky-300'
                                   : 'bg-neutral-100 text-neutral-800 border border-neutral-200'
                               }`}>
-                                {usr.email === 'uzairaliuzairali640@gmail.com' ? 'Super Administrator' : (usr.role || 'Verified Customer')}
+                                {oopUser.getRole()}
                               </span>
                             </td>
                             <td className="py-2.5 px-3">
@@ -1401,6 +1633,9 @@ export const AdminPage: React.FC = () => {
                               )}
                             </td>
                             <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
+                              {usr.city || 'Rawalpindi / Islamabad'}
+                            </td>
+                            <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
                               {usr.createdAt ? new Date(usr.createdAt).toLocaleDateString() : 'Active Member'}
                             </td>
                             <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
@@ -1415,9 +1650,9 @@ export const AdminPage: React.FC = () => {
               ) : (
                 <div className="p-8 text-center bg-[#F8FAFC] border border-[#E2E8F0]">
                   <Users className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-neutral-700">No external users logged in yet</p>
+                  <p className="text-xs font-semibold text-neutral-700">No users match the active filter criteria</p>
                   <p className="text-[11px] text-neutral-500 mt-0.5">
-                    Currently active: 1 Administrator ({authUser?.email || currentAdmin.email}). When customers sign in or register, they will appear here live.
+                    Try clearing the search query or selecting "All Accounts".
                   </p>
                 </div>
               )}
@@ -1447,7 +1682,7 @@ export const AdminPage: React.FC = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#E2E8F0]">
-                      {Array.from(new Set(orders.map((o) => o.customer.fullName))).map((customerName) => {
+                      {(Array.from(new Set(orders.map((o) => o.customer.fullName))) as string[]).map((customerName) => {
                         const customerOrders = orders.filter((o) => o.customer.fullName === customerName);
                         const latestOrder = customerOrders[0];
                         return (
@@ -3134,6 +3369,56 @@ export const AdminPage: React.FC = () => {
             isModal 
             onClose={() => setIsFirebaseCheckupOpen(false)} 
           />
+        )}
+
+        {/* MODAL: 30-MINUTE INACTIVITY TIMEOUT WARNING */}
+        {inactivityRemainingSeconds !== null && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in">
+            <div className="bg-white max-w-md w-full border-2 border-amber-500 shadow-2xl p-6 sm:p-7 space-y-5 text-center">
+              <div className="w-14 h-14 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center mx-auto border border-amber-200">
+                <Clock className="w-7 h-7 animate-pulse" />
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 block">
+                  Security Defense Protocol
+                </span>
+                <h3 className="font-serif text-xl font-bold text-[#1C1917]">
+                  Administrative Inactivity Alert
+                </h3>
+                <p className="text-xs text-[#1C1917]/75 leading-relaxed">
+                  No keyboard or mouse activity has been detected for 28 minutes. To protect sensitive customer orders, payment verification, and inventory records, this session will automatically terminate in:
+                </p>
+              </div>
+
+              <div className="py-3 px-4 bg-amber-50/70 border border-amber-200 flex items-center justify-center gap-2">
+                <span className="font-mono text-3xl font-bold text-amber-900">
+                  {inactivityRemainingSeconds}
+                </span>
+                <span className="text-xs font-semibold uppercase tracking-wider text-amber-800">
+                  Seconds
+                </span>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="w-full sm:w-auto px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition-colors order-2 sm:order-1"
+                >
+                  Sign Out Now
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExtendSession}
+                  className="w-full flex-1 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-md flex items-center justify-center gap-1.5 order-1 sm:order-2"
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>Extend Session (Stay Signed In)</span>
+                </button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

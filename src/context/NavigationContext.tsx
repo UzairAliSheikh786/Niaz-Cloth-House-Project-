@@ -58,6 +58,8 @@ interface NavigationContextType {
     }
   ) => void;
   filterParams: NavFilterParams;
+  isMapAgentOpen: boolean;
+  setIsMapAgentOpen: (open: boolean) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -149,6 +151,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [currentPage, setCurrentPage] = useState<PageRoute>(initial.page);
   const [productId, setProductId] = useState<string | null>(initial.id || 'nch-001');
   const [filterParams, setFilterParams] = useState<NavFilterParams>(initial.filters);
+  const [isMapAgentOpen, setIsMapAgentOpen] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -262,6 +265,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         productId,
         navigateTo,
         filterParams,
+        isMapAgentOpen,
+        setIsMapAgentOpen,
       }}
     >
       {children}

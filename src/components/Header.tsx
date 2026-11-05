@@ -14,7 +14,8 @@ import {
   Truck, 
   Check, 
   Flame, 
-  ArrowRight
+  ArrowRight,
+  Compass
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -23,7 +24,7 @@ import { WOMEN_EMBROIDERY_BRANDS, WOMEN_PRINTED_BRANDS, MENS_FABRICS } from '../
 
 export const Header: React.FC = () => {
   const { cartCount, cartTotal, setIsCartOpen, setIsSearchOpen, wishlist, orders } = useShop();
-  const { currentPage, filterParams, navigateTo } = useNavigation();
+  const { currentPage, filterParams, navigateTo, setIsMapAgentOpen } = useNavigation();
   const { user, openAuthModal, logout } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -103,8 +104,17 @@ export const Header: React.FC = () => {
             onClick={() => navigateTo('location')}
             className="hover:text-white flex items-center gap-1.5 transition-colors"
           >
-            <MapPin className="w-3 h-3" />
+            <MapPin className="w-3 h-3 text-sky-400" />
             <span>Paris Bazaar, Rawalpindi</span>
+          </button>
+
+          <button
+            onClick={() => setIsMapAgentOpen(true)}
+            className="hover:text-sky-300 text-sky-400 flex items-center gap-1.5 transition-colors font-semibold"
+            title="Open Interactive Google Maps Route & Places Agent"
+          >
+            <Compass className="w-3.5 h-3.5 animate-pulse" />
+            <span>Maps &amp; Route Agent</span>
           </button>
 
           {/* Currency selector like Limelight */}

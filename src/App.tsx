@@ -22,11 +22,12 @@ import { GeminiChatbot } from './components/GeminiChatbot';
 import { BrandEntranceReveal } from './components/BrandEntranceReveal';
 import { PatronAuthModal } from './components/PatronAuthModal';
 import { OnboardingTutorial } from './components/OnboardingTutorial';
+import { InteractiveStoreMapModal } from './components/InteractiveStoreMapModal';
 
 import { SEOHead } from './components/SEOHead';
 
 const AppContent: React.FC = () => {
-  const { currentPage } = useNavigation();
+  const { currentPage, isMapAgentOpen, setIsMapAgentOpen } = useNavigation();
 
   return (
     <div className="min-h-screen flex flex-col bg-white text-[#111111] w-full max-w-full overflow-x-hidden relative">
@@ -91,6 +92,12 @@ const AppContent: React.FC = () => {
 
       {/* Patron Onboarding Tour & Heritage Tutorial (Triggered on demand, non-blocking) */}
       <OnboardingTutorial />
+
+      {/* Google Maps Real-Time Route & Places Agent Modal */}
+      <InteractiveStoreMapModal
+        isOpen={isMapAgentOpen}
+        onClose={() => setIsMapAgentOpen(false)}
+      />
     </div>
   );
 };

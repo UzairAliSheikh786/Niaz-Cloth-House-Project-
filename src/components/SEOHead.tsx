@@ -9,7 +9,7 @@ export const SEOHead: React.FC = () => {
 
   useEffect(() => {
     let metadata;
-    let productJSONLD = null;
+    let productJSONLD: Record<string, any> | null = null;
 
     if (currentPage === 'product-detail') {
       const product = products.find((p) => p.id === productId || p.slug === productId) || products[0];

@@ -28,7 +28,7 @@ import { Breadcrumbs, BreadcrumbItem } from '../components/Breadcrumbs';
 import { QuickViewModal } from '../components/QuickViewModal';
 
 export const ShopPage: React.FC = () => {
-  const { products } = useShop();
+  const { products, recentlyViewed, formatPKR } = useShop();
   const { filterParams, navigateTo, currentPage } = useNavigation();
 
   // Quick View Modal State
@@ -507,6 +507,52 @@ export const ShopPage: React.FC = () => {
             )}
           </main>
         </div>
+
+        {/* Recently Viewed Fabrics (Persisted across sessions via IndexedDB) */}
+        {recentlyViewed && recentlyViewed.length > 0 && (
+          <section className="mt-14 pt-10 border-t border-neutral-200">
+            <div className="flex items-center justify-between mb-6">
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[#0284C7] block">
+                  Personalized For You · Preserved in IndexedDB
+                </span>
+                <h3 className="font-serif text-xl sm:text-2xl font-bold text-neutral-900 mt-0.5">
+                  Recently Viewed Atelier Fabrics
+                </h3>
+              </div>
+              <span className="text-xs text-neutral-500 font-mono">
+                {recentlyViewed.length} items viewed
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+              {recentlyViewed.slice(0, 6).map((item) => (
+                <div key={item.id} className="group relative bg-white border border-neutral-200 p-2 text-left flex flex-col justify-between">
+                  <div>
+                    <div className="aspect-3/4 overflow-hidden bg-neutral-100 relative mb-2">
+                      <img
+                        src={item.primaryImage}
+                        alt={item.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    </div>
+                    <div className="space-y-0.5 text-xs">
+                      <div className="text-[10px] text-neutral-500 font-bold uppercase truncate">{item.brand || item.fabric}</div>
+                      <div className="font-semibold text-neutral-900 truncate">{item.title}</div>
+                      <div className="font-bold text-neutral-900 text-xs">{formatPKR(item.price)}</div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setQuickViewProduct(item)}
+                    className="mt-3 w-full py-1.5 bg-neutral-100 hover:bg-black hover:text-white text-neutral-800 text-[10px] font-bold uppercase tracking-wider transition-colors"
+                  >
+                    Quick View
+                  </button>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
       </div>
 
       {/* 5. Mobile Filter Drawer (Limelight Fast-Fashion Slide-Over) */}

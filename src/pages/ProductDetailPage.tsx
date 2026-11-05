@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ShoppingBag, 
   MessageCircle, 
@@ -26,12 +26,18 @@ import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const ProductDetailPage: React.FC = () => {
-  const { products, addToCart, generateWhatsAppOrderUrl, showToast } = useShop();
+  const { products, addToCart, generateWhatsAppOrderUrl, showToast, recordProductView } = useShop();
   const { productId, navigateTo } = useNavigation();
   const { getReviewsForProduct, getProductStats, submitReview, isSubmittingReview } = useReviews();
   const { user } = useAuth();
 
   const product = products.find((p) => p.id === productId) || products[0];
+
+  useEffect(() => {
+    if (product) {
+      recordProductView(product);
+    }
+  }, [product?.id]);
 
   const [selectedImage, setSelectedImage] = useState<string>(product.primaryImage);
   const [quantity, setQuantity] = useState<number>(1);

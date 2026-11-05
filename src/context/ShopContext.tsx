@@ -3,6 +3,13 @@ import { Product, CartItem, Order, CustomerDetails, OrderStatus, PaymentMethod, 
 import { INITIAL_PRODUCTS, INITIAL_ORDERS } from '../data/products';
 import { db, auth, handleFirestoreError, OperationType } from '../firebase';
 import { collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
+import { 
+  cartStore, 
+  preferenceStore, 
+  recentlyViewedStore, 
+  UserPreferences,
+  DEFAULT_USER_PREFERENCES 
+} from '../core/storage/IndexedDBStore';
 
 interface ShopContextType {
   products: Product[];
@@ -46,6 +53,11 @@ interface ShopContextType {
   resetDefaultCatalog: () => void;
   formatPKR: (amount: number) => string;
   generateWhatsAppOrderUrl: (customer?: CustomerDetails) => string;
+  // IndexedDB Preferences & Personalization
+  userPreferences: UserPreferences;
+  updatePreferences: (prefs: Partial<UserPreferences>) => Promise<void>;
+  recentlyViewed: Product[];
+  recordProductView: (product: Product) => void;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -66,7 +78,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return INITIAL_PRODUCTS;
   });
 
-  // Cart state
+  // Cart state with IndexedDB client-side persistence
   const [cart, setCart] = useState<CartItem[]>(() => {
     try {
       const saved = localStorage.getItem('niaz_cart_v2');
@@ -76,6 +88,56 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return [];
   });
+
+  // User Preferences & Recently Viewed (IndexedDB)
+  const [userPreferences, setUserPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
+  const [recentlyViewed, setRecentlyViewed] = useState<Product[]>([]);
+
+  // Hydrate Cart, User Preferences, and Recently Viewed from IndexedDB on initial mount
+  useEffect(() => {
+    async function hydrateFromIndexedDB() {
+      try {
+        // 1. Hydrate Cart from IndexedDB if available
+        const idbCartItems = await cartStore.loadCartItems();
+        if (idbCartItems && idbCartItems.length > 0) {
+          setCart(idbCartItems);
+        }
+
+        // 2. Hydrate Preferences
+        const prefs = await preferenceStore.getPreferences();
+        setUserPreferences(prefs);
+
+        // 3. Hydrate Recently Viewed
+        const viewed = await recentlyViewedStore.getRecentlyViewed();
+        setRecentlyViewed(viewed);
+      } catch (err) {
+        console.warn('IndexedDB initial hydration note:', err);
+      }
+    }
+    hydrateFromIndexedDB();
+  }, []);
+
+  const updatePreferences = async (partial: Partial<UserPreferences>) => {
+    try {
+      const updated = await preferenceStore.savePreferences(partial);
+      setUserPreferences(updated);
+      showToast('Personalization preferences updated');
+    } catch {
+      setUserPreferences((prev) => ({ ...prev, ...partial }));
+    }
+  };
+
+  const recordProductView = async (product: Product) => {
+    try {
+      await recentlyViewedStore.recordView(product);
+      setRecentlyViewed((prev) => {
+        const filtered = prev.filter((p) => p.id !== product.id);
+        return [product, ...filtered].slice(0, 10);
+      });
+    } catch {
+      // ignore
+    }
+  };
 
   // Orders state (Filtered of any legacy dummy data)
   const [orders, setOrders] = useState<Order[]>(() => {
@@ -224,10 +286,13 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [products]);
 
-  // Sync cart to localStorage
+  // Sync cart to localStorage and IndexedDB (Preserves items, quantities, and prices across browser sessions)
   useEffect(() => {
     try {
       localStorage.setItem('niaz_cart_v2', JSON.stringify(cart));
+      cartStore.syncCart(cart).catch((err) => {
+        console.warn('IndexedDB cart sync error:', err);
+      });
     } catch (e) {
       console.error('Failed to save cart:', e);
     }
@@ -548,6 +613,10 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setCompareProductB,
         swapCompareProducts,
         addToCompare,
+        userPreferences,
+        updatePreferences,
+        recentlyViewed,
+        recordProductView,
       }}
     >
       {children}

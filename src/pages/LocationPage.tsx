@@ -22,7 +22,7 @@ import { Breadcrumbs } from '../components/Breadcrumbs';
 import { MapsGroundingAssistant } from '../components/MapsGroundingAssistant';
 
 export const LocationPage: React.FC = () => {
-  const { navigateTo } = useNavigation();
+  const { navigateTo, setIsMapAgentOpen } = useNavigation();
   const { showToast } = useShop();
   const [copiedField, setCopiedField] = useState<string | null>(null);
 
@@ -90,6 +90,15 @@ export const LocationPage: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2.5 flex-wrap">
+              <button
+                type="button"
+                onClick={() => setIsMapAgentOpen(true)}
+                className="px-4 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-sky-400 border border-sky-600/40 text-xs font-semibold uppercase tracking-wider flex items-center gap-1.5 transition-colors shadow-sm"
+              >
+                <Compass className="w-3.5 h-3.5 text-sky-400 animate-pulse" />
+                <span>Live Route &amp; Places Agent</span>
+              </button>
+
               <button
                 type="button"
                 onClick={handleShare}
