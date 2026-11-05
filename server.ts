@@ -13,7 +13,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = 3000;
+const port = Number(process.env.PORT) || 3000;
 
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
@@ -448,11 +448,17 @@ app.post('/api/cache/purge', (_req: Request, res: Response) => {
 // ==========================================
 // SECURE ADMIN AUTHENTICATION ENGINE
 // ==========================================
-const ADMIN_USERNAME = (process.env.ADMIN_USERNAME || 'admin').trim();
-const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || 'Niaz1977#').trim();
-const ADMIN_SESSION_SECRET = (
-  process.env.ADMIN_SESSION_SECRET || 'niaz_cloth_house_secret_key_1977_paris_bazaar'
-).trim();
+const ADMIN_USERNAME = (process.env.ADMIN_USERNAME || '').trim();
+const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || '').trim();
+const ADMIN_SESSION_SECRET = (process.env.ADMIN_SESSION_SECRET || '').trim();
+
+if (
+  !ADMIN_USERNAME ||
+  !ADMIN_PASSWORD ||
+  ADMIN_SESSION_SECRET.length < 32
+) {
+  throw new Error('Configure secure admin environment variables before starting the server.');
+}
 
 // Dedicated rate limiter for admin authentication attempts (15 attempts per 15 minutes)
 const adminAuthLimiter = createRateLimiter({
