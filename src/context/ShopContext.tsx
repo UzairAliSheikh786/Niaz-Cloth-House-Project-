@@ -1,5 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Product, CartItem, Order, CustomerDetails, OrderStatus, PaymentMethod, OrderPaymentDetails } from '../types';
+import { 
+  Product, 
+  CartItem, 
+  Order, 
+  CustomerDetails, 
+  OrderStatus, 
+  PaymentMethod, 
+  OrderPaymentDetails,
+  StoreSettings,
+  DEFAULT_STORE_SETTINGS
+} from '../types';
 import { INITIAL_PRODUCTS, INITIAL_ORDERS } from '../data/products';
 import { db, auth, handleFirestoreError, OperationType } from '../firebase';
 import { collection, doc, onSnapshot, setDoc, updateDoc, deleteDoc } from 'firebase/firestore';
@@ -7,7 +17,7 @@ import {
   cartStore, 
   preferenceStore, 
   recentlyViewedStore, 
-  UserPreferences,
+  UserPreferences, 
   DEFAULT_USER_PREFERENCES 
 } from '../core/storage/IndexedDBStore';
 
@@ -47,6 +57,9 @@ interface ShopContextType {
     paymentDetails?: OrderPaymentDetails
   ) => Promise<Order>;
   updateOrderStatus: (orderId: string, status: OrderStatus) => Promise<void>;
+  updateOrderDetails: (orderId: string, details: Partial<Order>) => Promise<void>;
+  deleteOrder: (orderId: string) => Promise<void>;
+  createManualOrder: (order: Order) => Promise<void>;
   addProduct: (product: Product) => void;
   updateProduct: (product: Product) => void;
   deleteProduct: (id: string) => void;
@@ -58,6 +71,9 @@ interface ShopContextType {
   updatePreferences: (prefs: Partial<UserPreferences>) => Promise<void>;
   recentlyViewed: Product[];
   recordProductView: (product: Product) => void;
+  // Store Settings & Promotions
+  storeSettings: StoreSettings;
+  updateStoreSettings: (newSettings: Partial<StoreSettings>) => void;
 }
 
 const ShopContext = createContext<ShopContextType | undefined>(undefined);
@@ -88,6 +104,29 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     return [];
   });
+
+  // Store Settings state with localStorage & Firestore persistence
+  const [storeSettings, setStoreSettings] = useState<StoreSettings>(() => {
+    try {
+      const saved = localStorage.getItem('nch_store_settings_v1');
+      if (saved) return { ...DEFAULT_STORE_SETTINGS, ...JSON.parse(saved) };
+    } catch {}
+    return DEFAULT_STORE_SETTINGS;
+  });
+
+  const updateStoreSettings = (newSettings: Partial<StoreSettings>) => {
+    setStoreSettings((prev) => {
+      const updated = { ...prev, ...newSettings };
+      try {
+        localStorage.setItem('nch_store_settings_v1', JSON.stringify(updated));
+      } catch {}
+      try {
+        setDoc(doc(db, 'store_settings', 'main'), updated, { merge: true }).catch(() => {});
+      } catch {}
+      return updated;
+    });
+    showToast('Store settings updated');
+  };
 
   // User Preferences & Recently Viewed (IndexedDB)
   const [userPreferences, setUserPreferences] = useState<UserPreferences>(DEFAULT_USER_PREFERENCES);
@@ -466,6 +505,61 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     showToast(`Order ${orderId} updated to ${status}`);
   };
 
+  const updateOrderDetails = async (orderId: string, details: Partial<Order>) => {
+    setOrders((prev) => {
+      const updated = prev.map((o) => (o.id === orderId ? { ...o, ...details } : o));
+      try {
+        localStorage.setItem('niaz_orders_v2', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    try {
+      const orderRef = doc(db, 'orders', orderId);
+      await setDoc(orderRef, details, { merge: true });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.UPDATE, `orders/${orderId}`);
+    }
+    showToast(`Order #${orderId} details updated`);
+  };
+
+  const deleteOrder = async (orderId: string) => {
+    setOrders((prev) => {
+      const updated = prev.filter((o) => o.id !== orderId);
+      try {
+        localStorage.setItem('niaz_orders_v2', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    try {
+      await deleteDoc(doc(db, 'orders', orderId));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, `orders/${orderId}`);
+    }
+    showToast(`Order #${orderId} removed`);
+  };
+
+  const createManualOrder = async (order: Order) => {
+    setOrders((prev) => {
+      const updated = [order, ...prev];
+      try {
+        localStorage.setItem('niaz_orders_v2', JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    try {
+      await setDoc(doc(db, 'orders', order.id), {
+        ...order,
+        createdAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      handleFirestoreError(err, OperationType.CREATE, `orders/${order.id}`);
+    }
+    showToast(`Order #${order.id} registered successfully`);
+  };
+
   const addProduct = (product: Product) => {
     setProducts((prev) => {
       const updated = [product, ...prev];
@@ -602,6 +696,9 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         toggleWishlist,
         createOrder,
         updateOrderStatus,
+        updateOrderDetails,
+        deleteOrder,
+        createManualOrder,
         addProduct,
         updateProduct,
         deleteProduct,
@@ -617,6 +714,8 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatePreferences,
         recentlyViewed,
         recordProductView,
+        storeSettings,
+        updateStoreSettings,
       }}
     >
       {children}

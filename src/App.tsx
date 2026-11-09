@@ -23,14 +23,22 @@ import { BrandEntranceReveal } from './components/BrandEntranceReveal';
 import { PatronAuthModal } from './components/PatronAuthModal';
 import { OnboardingTutorial } from './components/OnboardingTutorial';
 import { InteractiveStoreMapModal } from './components/InteractiveStoreMapModal';
+import { AtelierAmbient3DBackground } from './components/3d/AtelierAmbient3DBackground';
 
 import { SEOHead } from './components/SEOHead';
 
 const AppContent: React.FC = () => {
-  const { currentPage, isMapAgentOpen, setIsMapAgentOpen } = useNavigation();
+  const { 
+    currentPage, 
+    isMapAgentOpen, 
+    setIsMapAgentOpen
+  } = useNavigation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-white text-[#111111] w-full max-w-full overflow-x-hidden relative">
+    <div className="min-h-screen flex flex-col bg-[#050811] text-[#F3F4F6] w-full max-w-full overflow-x-hidden relative selection:bg-[#00F0FF]/30 selection:text-[#00F0FF]">
+      {/* 3D Global Depth & Floating Gold Thread Parallax Layer */}
+      <AtelierAmbient3DBackground />
+
       {/* Central Technical SEO & Schema Head Engine */}
       <SEOHead />
       {/* WCAG Accessibility Skip Link */}
@@ -98,6 +106,9 @@ const AppContent: React.FC = () => {
         isOpen={isMapAgentOpen}
         onClose={() => setIsMapAgentOpen(false)}
       />
+
+      {/* Interactive 3D Brand Entrance Reveal */}
+      <BrandEntranceReveal />
     </div>
   );
 };

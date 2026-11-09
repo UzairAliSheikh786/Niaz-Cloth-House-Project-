@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { ArrowRight, X, Sparkles } from 'lucide-react';
+import React, { useEffect, useState, useRef } from 'react';
+import { ArrowRight, X, Sparkles, Crown, ShieldCheck } from 'lucide-react';
 
 interface BrandEntranceRevealProps {
   onComplete?: () => void;
@@ -12,6 +12,8 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Show on page open, unless explicitly dismissed in this session
@@ -19,10 +21,10 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
 
     if (!hasSeenIntro || forceShow) {
       setIsVisible(true);
-      // Auto-exit after 3.2 seconds of cinematic display
+      // Auto-exit after 3.5 seconds of cinematic display so shopping is never blocked
       const exitTimer = setTimeout(() => {
         handleDismiss();
-      }, 3200);
+      }, 3500);
 
       return () => clearTimeout(exitTimer);
     }
@@ -47,112 +49,121 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
       setIsVisible(false);
       setIsExiting(false);
       if (onComplete) onComplete();
-    }, 850);
+    }, 700);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!containerRef.current) return;
+    const { innerWidth, innerHeight } = window;
+    const x = (e.clientX - innerWidth / 2) / (innerWidth / 2);
+    const y = (e.clientY - innerHeight / 2) / (innerHeight / 2);
+    setTilt({ x: -y * 8, y: x * 8 });
   };
 
   if (!isVisible) return null;
 
   return (
     <aside
-      aria-label="Niaz Cloth House Brand Reveal"
+      aria-label="Niaz Cloth House Interactive 3D Store Entrance"
       onClick={handleDismiss}
-      className={`fixed inset-0 z-50 flex items-center justify-center cursor-pointer select-none overflow-hidden transition-all duration-700 ${
-        isExiting ? 'pointer-events-none' : ''
+      onMouseMove={handleMouseMove}
+      className={`fixed inset-0 z-50 flex items-center justify-center cursor-pointer select-none overflow-hidden transition-all duration-700 bg-black/95 backdrop-blur-md ${
+        isExiting ? 'opacity-0 pointer-events-none scale-105' : 'opacity-100 scale-100'
       }`}
     >
-      {/* Background Left & Right Sliding Curtains */}
-      <div
-        className={`absolute inset-y-0 left-0 w-1/2 bg-[#0B0908] border-r border-[#38BDF8]/20 ${
-          isExiting ? 'animate-curtain-left' : ''
-        }`}
-      />
-      <div
-        className={`absolute inset-y-0 right-0 w-1/2 bg-[#0B0908] border-l border-[#38BDF8]/20 ${
-          isExiting ? 'animate-curtain-right' : ''
-        }`}
-      />
+      {/* 3D Architectural Lighting & Ambient Radial Sheen */}
+      <div className="absolute w-[700px] h-[700px] rounded-full bg-[#D4AF37]/15 blur-[160px] pointer-events-none -top-32 -left-32 animate-pulse" />
+      <div className="absolute w-[600px] h-[600px] rounded-full bg-[#8C4830]/20 blur-[150px] pointer-events-none -bottom-32 -right-32" />
 
-      {/* Decorative Gold Ambient Radial Light Glow */}
-      <div className="absolute w-[600px] h-[600px] rounded-full bg-[#0284C7]/25 blur-[140px] pointer-events-none -top-24 -left-24 animate-pulse" />
-      <div className="absolute w-[500px] h-[500px] rounded-full bg-[#38BDF8]/20 blur-[120px] pointer-events-none -bottom-24 -right-24" />
-
-      {/* Heritage Silk Weave Pattern Overlay */}
+      {/* Floating Gold Weave Background Matrix */}
       <div
-        className="absolute inset-0 opacity-10 pointer-events-none"
+        className="absolute inset-0 opacity-15 pointer-events-none"
         style={{
-          backgroundImage: `radial-gradient(#38BDF8 1px, transparent 1px), radial-gradient(#38BDF8 1px, transparent 1px)`,
-          backgroundSize: '36px 36px',
-          backgroundPosition: '0 0, 18px 18px',
+          backgroundImage: `radial-gradient(#D4AF37 1px, transparent 1px), radial-gradient(#D4AF37 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+          backgroundPosition: '0 0, 20px 20px',
         }}
       />
 
-      {/* Theatrical Stage Container */}
+      {/* 3D Spatial Portal Container with Perspective Tilt */}
       <div
-        className={`relative max-w-5xl mx-auto px-6 py-12 text-center flex flex-col items-center justify-center space-y-6 z-10 transition-all duration-700 ${
-          isExiting ? 'opacity-0 scale-95 -translate-y-4' : 'opacity-100 scale-100'
+        ref={containerRef}
+        style={{
+          transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+          transition: 'transform 0.15s ease-out',
+        }}
+        className={`relative max-w-4xl mx-auto px-6 py-12 text-center flex flex-col items-center justify-center space-y-6 z-10 transition-all duration-700 ${
+          isExiting ? 'opacity-0 scale-95 -translate-y-6' : 'opacity-100 scale-100'
         }`}
       >
-        {/* Heritage Monogram Seal - Drops in with Gold Accent */}
-        <div className="animate-brand-from-side flex items-center justify-center mb-1">
-          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-[#38BDF8]/60 bg-gradient-to-b from-[#1C1613] to-[#0D0A08] flex items-center justify-center shadow-2xl animate-pulse-gold relative">
-            <span className="font-serif text-2xl sm:text-3xl font-black text-[#38BDF8] tracking-tighter">
+        {/* Heritage Monogram Emblem */}
+        {/* Heritage Monogram Emblem */}
+        <div className="flex items-center justify-center mb-1">
+          <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full border-2 border-[#00F0FF] bg-gradient-to-b from-[#0A0F1D] to-[#050811] flex items-center justify-center shadow-[0_0_35px_rgba(0,240,255,0.4)] relative">
+            <Sparkles className="w-5 h-5 text-[#00F0FF] absolute -top-3" />
+            <span className="font-sans text-3xl sm:text-4xl font-black text-[#F5B738] tracking-tight drop-shadow-[0_0_15px_rgba(245,183,56,0.5)]">
               NCH
             </span>
-            <div className="absolute -inset-1 rounded-full border border-[#38BDF8]/20 animate-spin" style={{ animationDuration: '24s' }} />
+            <div
+              className="absolute -inset-2 rounded-full border border-[#00F0FF]/40 border-dashed animate-spin"
+              style={{ animationDuration: '24s' }}
+            />
+            <div
+              className="absolute -inset-4 rounded-full border border-[#F5B738]/20 animate-spin"
+              style={{ animationDuration: '36s', animationDirection: 'reverse' }}
+            />
           </div>
         </div>
 
-        {/* Top Kicker - Glides in from Top Right */}
-        <div className="animate-brand-from-right flex items-center gap-3">
-          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-r from-transparent to-[#38BDF8]" />
-          <span className="text-[11px] sm:text-xs uppercase tracking-[0.35em] text-[#38BDF8] font-semibold font-sans">
-            Haute Couture Unstitched Fabrics · Established 1970
+        {/* Kicker Pill */}
+        <div className="inline-flex items-center gap-3">
+          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-r from-transparent to-[#00F0FF]" />
+          <span className="text-[10px] sm:text-xs uppercase tracking-[0.35em] text-[#00F0FF] font-bold font-mono">
+            ◈ 2050 CYBER ATELIER · ESTABLISHED 1970 ◈
           </span>
-          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-l from-transparent to-[#38BDF8]" />
+          <span className="w-8 sm:w-16 h-[1.5px] bg-gradient-to-l from-transparent to-[#00F0FF]" />
         </div>
 
-        {/* The Iconic Brand Name: Comes Out Dramatically from the Screen Side! */}
-        <div className="overflow-visible py-2 px-4">
-          <h1 className="animate-brand-from-side font-serif text-5xl sm:text-7xl lg:text-8xl font-black tracking-tight drop-shadow-[0_20px_35px_rgba(0,0,0,0.9)]">
-            <span className="inline-block animate-gold-shimmer">
-              Niaz Cloth House
-            </span>
+        {/* Prominent Store Name */}
+        <div className="py-2">
+          <h1 className="font-sans text-5xl sm:text-7xl lg:text-8xl font-black text-white tracking-tight leading-none drop-shadow-[0_0_35px_rgba(255,255,255,0.3)] uppercase">
+            Niaz Cloth House
           </h1>
-        </div>
-
-        {/* Golden Silk Filament Divider - Draws across smoothly */}
-        <div className="w-48 sm:w-96 h-[2px] bg-gradient-to-r from-transparent via-[#38BDF8] to-transparent animate-thread-draw" />
-
-        {/* Subtitle & Paris Bazaar Location - Glides in from Right Screen Side */}
-        <div className="animate-brand-from-right space-y-2 max-w-xl">
-          <p className="font-serif italic text-base sm:text-2xl text-white/95">
+          <p className="font-sans text-lg sm:text-2xl text-[#F5B738] mt-3 tracking-widest uppercase font-semibold">
             "Dress To Impress"
           </p>
-          <p className="text-xs sm:text-sm text-[#F8FAFC]/70 tracking-widest font-sans uppercase">
+        </div>
+
+        {/* Gold & Cyan Filament Divider */}
+        <div className="w-48 sm:w-80 h-[2px] bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent" />
+
+        {/* Subtitle & Paris Bazaar Location */}
+        <div className="space-y-1.5 max-w-xl text-neutral-300">
+          <p className="text-xs sm:text-sm tracking-widest font-mono uppercase font-medium text-neutral-200">
             Shop #170 Paris Bazaar · Committee Chowk · Rawalpindi
           </p>
-          <p className="text-[11px] text-[#38BDF8]/80 font-mono tracking-wider pt-1">
-            Pure Chinese Boski · Wash and Wear · Kamalia Khaddar · Raw Karandi
+          <p className="text-[11px] text-[#00F0FF]/90 font-mono tracking-wider">
+            Pure Chinese Boski Silk · Executive Wash & Wear · Festive Embroidered Lawn · Kamalia Khaddar
           </p>
         </div>
 
-        {/* Interactive Click-to-Enter Luxury Action */}
-        <div className="pt-4 animate-brand-from-side-delayed">
+        {/* Interactive Click-to-Enter Action */}
+        <div className="pt-2">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               handleDismiss();
             }}
-            className="group px-7 py-3.5 bg-[#0284C7] hover:bg-[#a25439] text-white text-xs font-semibold tracking-[0.25em] uppercase transition-all duration-300 shadow-2xl inline-flex items-center gap-3 border border-[#38BDF8]/50 hover:scale-105 active:scale-95"
+            className="px-8 py-3.5 bg-gradient-to-r from-[#00F0FF] to-[#06B6D4] hover:from-[#38BDF8] hover:to-[#00F0FF] text-black text-xs font-black tracking-[0.25em] uppercase transition-all duration-300 shadow-[0_0_30px_rgba(0,240,255,0.4)] inline-flex items-center gap-3 hover:scale-105 active:scale-95 border border-[#00F0FF]"
           >
-            <span>Enter Boutique</span>
-            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+            <span>Enter 2050 Boutique</span>
+            <ArrowRight className="w-4 h-4" />
           </button>
         </div>
 
-        <p className="text-[10px] text-white/40 tracking-widest font-mono uppercase pt-1">
-          Click anywhere to enter boutique
+        <p className="text-[10px] text-white/50 tracking-widest font-mono uppercase">
+          Click anywhere or press Skip to enter immediately
         </p>
       </div>
 
@@ -163,10 +174,10 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
           e.stopPropagation();
           handleDismiss();
         }}
-        className="absolute top-6 right-6 p-2.5 text-white/60 hover:text-white transition-colors z-20 flex items-center gap-1.5 bg-black/40 border border-white/10 hover:border-white/30"
+        className="absolute top-6 right-6 p-2 sm:px-4 sm:py-2 text-white/70 hover:text-white transition-colors z-20 flex items-center gap-1.5 bg-black/50 border border-white/20 hover:border-[#D4AF37]"
         aria-label="Skip entrance animation"
       >
-        <span className="text-[11px] tracking-wider uppercase font-sans">Skip</span>
+        <span className="text-[11px] tracking-widest uppercase font-sans font-semibold">Skip Intro</span>
         <X className="w-4 h-4" />
       </button>
     </aside>

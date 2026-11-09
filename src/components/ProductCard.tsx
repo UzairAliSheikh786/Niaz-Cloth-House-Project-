@@ -3,6 +3,7 @@ import { ShoppingBag, Heart, MessageCircle, Star, Eye } from 'lucide-react';
 import { Product } from '../types';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
+import { Card3DWrapper } from './3d/Card3DWrapper';
 
 interface ProductCardProps {
   product: Product;
@@ -54,13 +55,14 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const waUrl = `https://wa.me/923346565636?text=${waMessage}`;
 
   return (
-    <article 
-      className="group flex flex-col bg-white border border-neutral-200 hover:border-black transition-all duration-300 relative select-none w-full min-w-0"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      {/* 1. Image Container (Limelight 3:4 Fashion Portrait Ratio) */}
-      <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100">
+    <Card3DWrapper className="h-full">
+      <article 
+        className="group flex flex-col bg-[#0B1224] border border-white/10 hover:border-[#00F0FF]/60 hover:shadow-[0_0_25px_rgba(0,240,255,0.2)] transition-all duration-300 relative select-none w-full min-w-0 h-full rounded-xs overflow-hidden"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
+      >
+        {/* 1. Image Container (Limelight 3:4 Fashion Portrait Ratio) */}
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100">
         <a 
           href={productUrl}
           onClick={handleCardClick}
@@ -181,39 +183,39 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </div>
       </div>
 
-      {/* 2. Product Details (Clean Limelight Fast-Fashion Typography with zero overlapping) */}
-      <div className="p-2 min-[380px]:p-2.5 sm:p-3.5 flex flex-col flex-grow justify-between bg-white text-left min-w-0">
+      {/* 2. Product Details */}
+      <div className="p-2 min-[380px]:p-2.5 sm:p-3.5 flex flex-col flex-grow justify-between bg-[#0B1224] text-left min-w-0">
         <div>
           {/* Brand Kicker with Overflow Protection */}
           <div className="flex items-center justify-between gap-1 mb-1">
-            <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.12em] sm:tracking-[0.14em] uppercase text-neutral-500 truncate max-w-[70%]">
+            <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.14em] uppercase text-[#00F0FF]/80 truncate max-w-[70%] font-mono">
               {product.brand || product.gender}
             </span>
             {product.rating && (
-              <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] text-amber-500 font-bold shrink-0">
-                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-amber-400 text-amber-400" />
+              <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] text-[#F5B738] font-bold shrink-0 font-mono">
+                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-[#F5B738] text-[#F5B738]" />
                 <span>{product.rating.toFixed(1)}</span>
               </div>
             )}
           </div>
 
           {/* Title with Line Clamping */}
-          <h3 className="text-[11.5px] min-[360px]:text-xs sm:text-[13px] font-semibold text-neutral-900 group-hover:text-black line-clamp-1 leading-snug transition-colors">
+          <h3 className="text-[11.5px] min-[360px]:text-xs sm:text-[13px] font-semibold text-white group-hover:text-[#00F0FF] line-clamp-1 leading-snug transition-colors">
             <a href={productUrl} onClick={handleCardClick} title={product.title}>
               {product.title}
             </a>
           </h3>
 
           {/* Fabric / Pieces Subtitle */}
-          <p className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] text-neutral-500 truncate mt-0.5 font-normal">
+          <p className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] text-neutral-400 truncate mt-0.5 font-normal">
             {product.subtitle || `${product.fabric} · Unstitched`}
           </p>
         </div>
 
         {/* Pricing with Safe Flex Wrapping */}
-        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-neutral-100 flex items-baseline justify-between gap-1 flex-wrap">
+        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-white/10 flex items-baseline justify-between gap-1 flex-wrap">
           <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-xs sm:text-sm font-black text-black whitespace-nowrap">
+            <span className="text-xs sm:text-sm font-black text-[#F5B738] whitespace-nowrap font-mono">
               {formatPKR(product.price)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
@@ -259,5 +261,6 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </div>
       </div>
     </article>
+  </Card3DWrapper>
   );
 };

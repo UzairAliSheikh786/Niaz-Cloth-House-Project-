@@ -148,8 +148,10 @@ export interface CustomerDetails {
   fullName: string;
   phone: string;
   whatsapp: string;
+  email?: string;
   address: string;
   city: string;
+  province?: string;
   country?: string;
   isInternational?: boolean;
   postalCode?: string;
@@ -220,3 +222,47 @@ export interface NewsletterSubscriber {
   subscribedAt: string; // ISO string
   source?: string;
 }
+
+export interface StorePromotion {
+  id: string;
+  title: string;
+  discountPercent: number;
+  startDate: string;
+  endDate: string;
+  active: boolean;
+}
+
+export interface StoreSettings {
+  storeName: string;
+  tagline: string;
+  phone: string;
+  whatsapp: string;
+  address: string;
+  announcementText: string;
+  easypaisaNumber: string;
+  easypaisaTitle: string;
+  jazzcashNumber: string;
+  jazzcashTitle: string;
+  shippingFee: number;
+  freeShippingThreshold: number;
+  heroAnnouncement: string;
+  promotions: StorePromotion[];
+}
+
+export const DEFAULT_STORE_SETTINGS: StoreSettings = {
+  storeName: 'Niaz Cloth House',
+  tagline: 'Haute Couture Unstitched Fabrics · Established 1977',
+  phone: '0334-6565636',
+  whatsapp: '0334-6565636',
+  address: 'Shop #170, Paris Bazaar, Committee Chowk, Rawalpindi, Pakistan',
+  announcementText: 'Certified Pure Chinese Boski Silk & Authentic Pakistani Mill Unstitched Fabrics · Worldwide Shipping',
+  easypaisaNumber: '0334-6565636',
+  easypaisaTitle: 'Haji Niaz Ahmad / Niaz Cloth House',
+  jazzcashNumber: '0334-6565636',
+  jazzcashTitle: 'Haji Niaz Ahmad / Niaz Cloth House',
+  shippingFee: 250,
+  freeShippingThreshold: 5000,
+  heroAnnouncement: 'Summer & Festive Unstitched Collections 2026',
+  promotions: [],
+};
+

@@ -16,7 +16,10 @@ import {
   PenSquare,
   X,
   CheckCircle2,
-  Filter
+  Filter,
+  Palette,
+  Layers,
+  Scissors
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -50,6 +53,7 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedDesignId, setSelectedDesignId] = useState<string>(
     product.designOptions?.[0]?.id || 'std'
   );
+  const [selectedPartTab, setSelectedPartTab] = useState<'all' | 'kameez' | 'dupatta' | 'shalwar'>('all');
   const [activeTab, setActiveTab] = useState<'care' | 'guide' | 'heritage' | 'reviews'>('care');
   const [openAccordion, setOpenAccordion] = useState<string>('washing');
 
@@ -213,8 +217,26 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* PDP Main Grid: Gallery Left + Contiguous Purchase Module Right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Gallery Module (Left Column: Limelight 3:4 Portrait Ratio) */}
+          {/* Gallery Module (Left Column: Limelight 3:4 Portrait Ratio Clear Presentation) */}
           <div className="lg:col-span-7 space-y-4">
+            
+            {/* Gallery Header */}
+            <div className="flex items-center justify-between pb-2 border-b border-[#E7E0D8]">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-black">
+                  Fabric Presentation
+                </span>
+                <span className="text-[11px] text-[#8C4830] font-medium">
+                  {product.gender === 'Women' ? '3-Piece Unstitched Ensemble' : "Men's Unstitched Suiting"}
+                </span>
+              </div>
+
+              <span className="text-[11px] font-sans text-neutral-400 hidden sm:inline">
+                Paris Bazaar Atelier Photography
+              </span>
+            </div>
+
+            {/* Clear High-Resolution Photo Display */}
             <div className="aspect-[3/4] w-full overflow-hidden bg-neutral-100 border border-neutral-200 relative group">
               <img
                 src={selectedImage}
@@ -361,48 +383,306 @@ export const ProductDetailPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Choice 1: Select Article Color / Shade */}
-            {product.colorOptions && product.colorOptions.length > 0 && (
-              <div className="space-y-2.5 pb-4 border-b border-[#E7E0D8]">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold uppercase tracking-wider text-[#1C1917]">
-                    Article Color / Shade:
-                  </span>
-                  <span className="font-semibold text-[#8C4830]">{selectedColor}</span>
-                </div>
+            {/* Dynamic Presentation: Clear Parts (Dupatta, Kameez, Shalwar) for Women, Pure Color for Men */}
+            {product.gender === 'Women' ? (
+              /* WOMEN'S ENSEMBLE PRESENTATION: COLOURS + DUPATTA, KAMEEZ, SHALWAR PARTS */
+              <div className="space-y-5 pb-5 border-b border-[#E7E0D8]">
+                {/* 1. Women's Colour Selection */}
+                {product.colorOptions && product.colorOptions.length > 0 && (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#1C1917]">
+                        <Palette className="w-3.5 h-3.5 text-[#8C4830]" />
+                        <span>Suit Colour / Shade:</span>
+                      </div>
+                      <span className="font-semibold text-[#8C4830]">{selectedColor}</span>
+                    </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  {product.colorOptions.map((opt) => {
-                    const isSelected = selectedColor === opt.name;
-                    return (
-                      <button
-                        key={opt.name}
-                        type="button"
-                        onClick={() => {
-                          setSelectedColor(opt.name);
-                          setSelectedColorHex(opt.hex);
-                        }}
-                        className={`flex items-center gap-2 px-3 py-2 border text-xs transition-all ${
-                          isSelected
-                            ? 'border-[#8C4830] bg-[#FAF5EE] ring-1 ring-[#8C4830] text-[#1C1917] font-semibold'
-                            : 'border-[#E7E0D8] bg-white text-[#1C1917]/75 hover:border-[#8C4830]/40'
-                        }`}
-                        title={opt.previewLabel || opt.name}
-                      >
-                        <span
-                          className="w-3.5 h-3.5 rounded-full border border-black/20 shrink-0"
-                          style={{ backgroundColor: opt.hex }}
-                        />
-                        <span>{opt.name}</span>
-                        {isSelected && <Check className="w-3 h-3 text-[#8C4830]" />}
-                      </button>
-                    );
-                  })}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {product.colorOptions.map((opt) => {
+                        const isSelected = selectedColor === opt.name;
+                        return (
+                          <button
+                            key={opt.name}
+                            type="button"
+                            onClick={() => {
+                              setSelectedColor(opt.name);
+                              setSelectedColorHex(opt.hex);
+                            }}
+                            className={`flex items-center gap-2 px-3 py-2 border text-xs transition-all ${
+                              isSelected
+                                ? 'border-[#8C4830] bg-[#FAF5EE] ring-1 ring-[#8C4830] text-[#1C1917] font-semibold'
+                                : 'border-[#E7E0D8] bg-white text-[#1C1917]/75 hover:border-[#8C4830]/40'
+                            }`}
+                            title={opt.previewLabel || opt.name}
+                          >
+                            <span
+                              className="w-4 h-4 rounded-full border border-black/20 shrink-0 shadow-xs"
+                              style={{ backgroundColor: opt.hex }}
+                            />
+                            <span>{opt.name}</span>
+                            {isSelected && <Check className="w-3 h-3 text-[#8C4830]" />}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Women's Unstitched Suit Parts Breakdown: Kameez, Dupatta, Shalwar */}
+                <div className="space-y-3 pt-3 border-t border-[#F0EAE1]">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#1C1917]">
+                      <Layers className="w-4 h-4 text-[#8C4830]" />
+                      <span>3-Piece Suit Parts Breakdown:</span>
+                    </div>
+                    <span className="text-[11px] text-[#8C4830] font-medium">Unstitched Fabric Cuts</span>
+                  </div>
+
+                  {/* Part Filter Tabs */}
+                  <div className="flex items-center gap-1 bg-[#F5EFEB] p-1 rounded-md text-[11px] font-sans font-medium overflow-x-auto">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPartTab('all')}
+                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                        selectedPartTab === 'all'
+                          ? 'bg-white text-black font-bold shadow-xs'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      All Parts (3-Piece)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPartTab('kameez')}
+                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                        selectedPartTab === 'kameez'
+                          ? 'bg-white text-black font-bold shadow-xs'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      Kameez (Shirt)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPartTab('dupatta')}
+                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                        selectedPartTab === 'dupatta'
+                          ? 'bg-white text-black font-bold shadow-xs'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      Dupatta (Shawl)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedPartTab('shalwar')}
+                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                        selectedPartTab === 'shalwar'
+                          ? 'bg-white text-black font-bold shadow-xs'
+                          : 'text-neutral-600 hover:text-black'
+                      }`}
+                    >
+                      Shalwar (Trouser)
+                    </button>
+                  </div>
+
+                  {/* Suit Parts Display Cards */}
+                  <div className="space-y-2 text-xs">
+                    {/* Kameez (Shirt) */}
+                    {(selectedPartTab === 'all' || selectedPartTab === 'kameez') && (
+                      <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] rounded-sm transition-all hover:border-[#8C4830]/50">
+                        <div className="flex items-center justify-between pb-1 border-b border-[#EFE8DF]">
+                          <div className="flex items-center gap-1.5 font-bold text-[#1C1917]">
+                            <Scissors className="w-3.5 h-3.5 text-[#8C4830]" />
+                            <span>1. Kameez (Shirt / Kurta)</span>
+                          </div>
+                          <span className="font-mono text-[11px] font-bold text-[#8C4830] bg-white px-2 py-0.5 border border-[#8C4830]/30 rounded">
+                            3.0m - 3.2m Cut
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#1C1917]/75 mt-1.5 leading-relaxed">
+                          {product.craftType === 'Embroidery'
+                            ? 'Delicate resham needlework on front shirt panel, with matching back and full sleeves cut. Includes neck/gala & daman borders.'
+                            : 'High-definition digital floral & geometric print on fine combed lawn, featuring separate front, back, and sleeves.'}
+                        </p>
+                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#1C1917]/60">
+                          <span>Fabric: {product.fabric}</span>
+                          <span>Width: 42"-44" Arz</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Dupatta */}
+                    {(selectedPartTab === 'all' || selectedPartTab === 'dupatta') && (
+                      <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] rounded-sm transition-all hover:border-[#8C4830]/50">
+                        <div className="flex items-center justify-between pb-1 border-b border-[#EFE8DF]">
+                          <div className="flex items-center gap-1.5 font-bold text-[#1C1917]">
+                            <Sparkles className="w-3.5 h-3.5 text-[#8C4830]" />
+                            <span>2. Dupatta (Draped Shawl)</span>
+                          </div>
+                          <span className="font-mono text-[11px] font-bold text-[#8C4830] bg-white px-2 py-0.5 border border-[#8C4830]/30 rounded">
+                            2.5m Standard Cut
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#1C1917]/75 mt-1.5 leading-relaxed">
+                          {product.fabric.includes('Chiffon')
+                            ? 'Pure crinkle chiffon with 4-sided finished borders, lightweight drape, and soft airy fall.'
+                            : product.fabric.includes('Silk')
+                            ? 'Digital luxury silk dupatta with vibrant botanical borders and natural sheen.'
+                            : 'Lightweight summer voile / lawn dupatta with coordinated border prints.'}
+                        </p>
+                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#1C1917]/60">
+                          <span>Style: Draped Fluid Fall</span>
+                          <span>Width: 40"-42" Standard</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Shalwar (Trouser) */}
+                    {(selectedPartTab === 'all' || selectedPartTab === 'shalwar') && (
+                      <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] rounded-sm transition-all hover:border-[#8C4830]/50">
+                        <div className="flex items-center justify-between pb-1 border-b border-[#EFE8DF]">
+                          <div className="flex items-center gap-1.5 font-bold text-[#1C1917]">
+                            <Ruler className="w-3.5 h-3.5 text-[#8C4830]" />
+                            <span>3. Shalwar (Trouser / Bottom)</span>
+                          </div>
+                          <span className="font-mono text-[11px] font-bold text-[#8C4830] bg-white px-2 py-0.5 border border-[#8C4830]/30 rounded">
+                            2.5m Dyed Cut
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-[#1C1917]/75 mt-1.5 leading-relaxed">
+                          Solid dyed premium cambric cotton fabric matched to the ensemble palette. Pre-shrunk and suitable for classic shalwar, culottes, or tailored cigarette trousers.
+                        </p>
+                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#1C1917]/60">
+                          <span>Fabric: Dyed Cambric Cotton</span>
+                          <span>Width: 54" Double Width</span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Included Accents & Patches if listed in data */}
+                    {product.cutDetails.suitPieces && product.cutDetails.suitPieces.some(p => p.toLowerCase().includes('border') || p.toLowerCase().includes('patch')) && (
+                      <div className="p-2.5 bg-white border border-[#E7E0D8] rounded-sm text-[11px] text-[#1C1917]/80">
+                        <strong className="text-[#8C4830] block mb-1">Included Borders & Embellishments:</strong>
+                        <ul className="list-disc list-inside space-y-0.5 text-[#1C1917]/70">
+                          {product.cutDetails.suitPieces
+                            .filter(p => p.toLowerCase().includes('border') || p.toLowerCase().includes('patch'))
+                            .map((p, i) => (
+                              <li key={i}>{p}</li>
+                            ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* MEN'S PRESENTATION: PURE COLOR PALETTE & UNSTITCHED SUITING CUT */
+              <div className="space-y-5 pb-5 border-b border-[#E7E0D8]">
+                {/* 1. Men's Dedicated Colour Selection */}
+                {product.colorOptions && product.colorOptions.length > 0 && (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#1C1917]">
+                        <Palette className="w-4 h-4 text-[#8C4830]" />
+                        <span>Fabric Colour & Shade:</span>
+                      </div>
+                      <span className="font-bold text-[#8C4830] text-xs">{selectedColor}</span>
+                    </div>
+
+                    {/* Rich Tactile Swatches for Men */}
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                      {product.colorOptions.map((opt) => {
+                        const isSelected = selectedColor === opt.name;
+                        return (
+                          <button
+                            key={opt.name}
+                            type="button"
+                            onClick={() => {
+                              setSelectedColor(opt.name);
+                              setSelectedColorHex(opt.hex);
+                            }}
+                            className={`flex items-center gap-2.5 p-2.5 border text-left transition-all ${
+                              isSelected
+                                ? 'border-[#8C4830] bg-[#FAF5EE] ring-2 ring-[#8C4830] shadow-xs'
+                                : 'border-[#E7E0D8] bg-white hover:border-[#8C4830]/50 hover:bg-[#FAF8F5]'
+                            }`}
+                          >
+                            <span
+                              className="w-5 h-5 rounded-full border border-black/25 shrink-0 shadow-inner flex items-center justify-center"
+                              style={{ backgroundColor: opt.hex }}
+                            >
+                              {isSelected && <Check className="w-3 h-3 text-white drop-shadow-sm" />}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <span className="block text-xs font-semibold text-[#1C1917] truncate leading-tight">
+                                {opt.name}
+                              </span>
+                              {opt.previewLabel && (
+                                <span className="block text-[10px] text-[#1C1917]/55 truncate">
+                                  {opt.previewLabel}
+                                </span>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Selected Shade Guarantee Box */}
+                    <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-center gap-3">
+                      <span
+                        className="w-8 h-8 rounded-full border-2 border-white shadow-md shrink-0"
+                        style={{ backgroundColor: selectedColorHex }}
+                      />
+                      <div className="text-xs text-[#1C1917]/80">
+                        <strong className="text-[#1C1917] block">Selected Shade: {selectedColor}</strong>
+                        <span className="text-[11px] text-[#1C1917]/65">
+                          100% Vat-Dyed Reactive Color: Guaranteed zero color bleed and color fastness across washes.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Men's Unstitched Suiting Yardage & Cut (No Women's Parts) */}
+                <div className="p-4 bg-white border border-[#E7E0D8] space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-[#F0EAE1]">
+                    <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#1C1917]">
+                      <Ruler className="w-4 h-4 text-[#8C4830]" />
+                      <span>Men's Suiting Cut & Yardage:</span>
+                    </div>
+                    <span className="font-mono text-xs font-bold text-[#8C4830]">{product.cutDetails.length}</span>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 text-[11px] pt-1">
+                    <div>
+                      <span className="text-[#1C1917]/60 block">Fabric Width (Bada Arz):</span>
+                      <strong className="text-[#1C1917] font-semibold">{product.cutDetails.width}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#1C1917]/60 block">Weave & Texture:</span>
+                      <strong className="text-[#1C1917] font-semibold">{product.weaveType || product.fabric}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#1C1917]/60 block">Fabric Weight:</span>
+                      <strong className="text-[#1C1917] font-semibold">{product.fabricWeight || 'Medium Weight'}</strong>
+                    </div>
+                    <div>
+                      <span className="text-[#1C1917]/60 block">Thread Quality:</span>
+                      <strong className="text-[#1C1917] font-semibold">{product.threadCount || 'High Count Master Grade'}</strong>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-[#F0EAE1] text-[11px] text-[#1C1917]/70">
+                    <strong className="text-[#1C1917]">Continuous Bolt:</strong> Standard 4.5m cut provides ample yardage for full Shalwar Kameez suit with collar, cuffs, placket facings, and matching trouser.
+                  </div>
                 </div>
               </div>
             )}
 
-            {/* Choice 2: Select Design & Cut Style */}
+            {/* Design & Cut Style Options (Preserved for both) */}
             {product.designOptions && product.designOptions.length > 0 && (
               <div className="space-y-2.5 pb-4 border-b border-[#E7E0D8]">
                 <div className="flex items-center justify-between text-xs">
@@ -451,46 +731,6 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
               </div>
             )}
-
-            {/* Suit & Cloth Specifications */}
-            <div className="bg-white p-4 border border-[#E7E0D8] space-y-2 text-xs">
-              <div className="flex justify-between items-center text-[#1C1917]">
-                <span className="text-[#1C1917]/60">Suit Length (Cut):</span>
-                <strong className="font-semibold">{product.cutDetails.length}</strong>
-              </div>
-              <div className="flex justify-between items-center text-[#1C1917]">
-                <span className="text-[#1C1917]/60">Fabric Width (Arz):</span>
-                <strong className="font-semibold">{product.cutDetails.width}</strong>
-              </div>
-              {product.weaveType && (
-                <div className="flex justify-between items-center text-[#1C1917]">
-                  <span className="text-[#1C1917]/60">Weave Style:</span>
-                  <strong className="font-semibold">{product.weaveType}</strong>
-                </div>
-              )}
-              {product.fabricWeight && (
-                <div className="flex justify-between items-center text-[#1C1917]">
-                  <span className="text-[#1C1917]/60">Fabric Weight:</span>
-                  <strong className="font-semibold">{product.fabricWeight}</strong>
-                </div>
-              )}
-              {product.threadCount && (
-                <div className="flex justify-between items-center text-[#1C1917]">
-                  <span className="text-[#1C1917]/60">Thread Quality:</span>
-                  <strong className="font-semibold">{product.threadCount}</strong>
-                </div>
-              )}
-              {product.cutDetails.suitPieces && (
-                <div className="pt-2 border-t border-[#F2ECE5]">
-                  <span className="text-[#1C1917]/60 block mb-1">Suit Pieces Included:</span>
-                  <ul className="list-disc list-inside space-y-0.5 text-[#1C1917]/80 pl-1">
-                    {product.cutDetails.suitPieces.map((piece, idx) => (
-                      <li key={idx}>{piece}</li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
 
             {/* Quantity Selector & Purchase CTAs */}
             <div className="space-y-4 pt-2">

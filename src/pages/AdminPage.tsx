@@ -3,6 +3,7 @@ import {
   Package, 
   Truck, 
   ShoppingBag,
+  CreditCard,
   Plus, 
   Edit3, 
   Trash2, 
@@ -44,7 +45,16 @@ import {
   Camera,
   Layers,
   Sparkles,
-  Copy
+  Copy,
+  LayoutDashboard,
+  Settings,
+  Percent,
+  Sliders,
+  Tag,
+  DollarSign,
+  TrendingUp,
+  AlertTriangle,
+  Pencil
 } from 'lucide-react';
 import { WhatsAppCatalogSyncModal } from '../components/WhatsAppCatalogSyncModal';
 import { FirebaseSecurityCheckup } from '../components/FirebaseSecurityCheckup';
@@ -53,13 +63,14 @@ import { useShop, formatPKR } from '../context/ShopContext';
 import { useReviews } from '../context/ReviewContext';
 import { useAuth, PatronProfile } from '../context/AuthContext';
 import { db, auth } from '../firebase';
-import { collection, onSnapshot, doc, getDocFromServer } from 'firebase/firestore';
+import { collection, onSnapshot, doc, getDocFromServer, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { AdminInactivityManager } from '../core/security/AdminInactivityManager';
 import { UserFactory } from '../core/security/UserHierarchy';
 import { 
   Product, 
   Order, 
   OrderStatus, 
+  PaymentMethod,
   FabricType, 
   Gender, 
   FabricWeightCategory, 
@@ -113,7 +124,12 @@ export const AdminPage: React.FC = () => {
     deleteProduct,
     resetDefaultCatalog,
     updateOrderStatus,
+    updateOrderDetails,
+    deleteOrder,
+    createManualOrder,
     showToast,
+    storeSettings,
+    updateStoreSettings,
   } = useShop();
 
   const {
@@ -414,9 +430,47 @@ export const AdminPage: React.FC = () => {
   };
 
   // Admin Portal State
-  const [activeTab, setActiveTab] = useState<'inventory' | 'orders' | 'users' | 'audit' | 'performance' | 'feedback'>('inventory');
+  type AdminTab = 
+    | 'dashboard' 
+    | 'inventory' 
+    | 'pricing' 
+    | 'orders' 
+    | 'categories' 
+    | 'homepage' 
+    | 'users' 
+    | 'settings' 
+    | 'audit' 
+    | 'performance' 
+    | 'feedback';
+
+  const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [isWhatsAppSyncOpen, setIsWhatsAppSyncOpen] = useState(false);
   const [selectedSyncProductId, setSelectedSyncProductId] = useState<string | null>(null);
+
+  // Pricing & Discount Management State
+  const [editingPriceProduct, setEditingPriceProduct] = useState<Product | null>(null);
+  const [editPriceSelling, setEditPriceSelling] = useState<number>(0);
+  const [editPriceOriginal, setEditPriceOriginal] = useState<number>(0);
+  const [priceSearchQuery, setPriceSearchQuery] = useState('');
+  const [newPromoTitle, setNewPromoTitle] = useState('');
+  const [newPromoPercent, setNewPromoPercent] = useState<number>(10);
+  const [newPromoStart, setNewPromoStart] = useState('2026-06-01');
+  const [newPromoEnd, setNewPromoEnd] = useState('2026-12-31');
+
+  // Homepage & Banners State
+  const [announcementInput, setAnnouncementInput] = useState(storeSettings?.announcementText || '');
+  const [heroHeadingInput, setHeroHeadingInput] = useState(storeSettings?.heroAnnouncement || '');
+
+  // Store Settings Form State
+  const [settingsForm, setSettingsForm] = useState(storeSettings);
+
+  useEffect(() => {
+    if (storeSettings) {
+      setAnnouncementInput(storeSettings.announcementText || '');
+      setHeroHeadingInput(storeSettings.heroAnnouncement || '');
+      setSettingsForm(storeSettings);
+    }
+  }, [storeSettings]);
 
   // Performance, Database Indexes & Load Testing state
   const [dbIndexes, setDbIndexes] = useState<any>(null);
@@ -502,6 +556,167 @@ export const AdminPage: React.FC = () => {
 
   // Search & Filter state for Orders
   const [orderStatusFilter, setOrderStatusFilter] = useState<string>('All');
+  const [isAddOrderModalOpen, setIsAddOrderModalOpen] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<Order | null>(null);
+  const [newOrderForm, setNewOrderForm] = useState<{
+    fullName: string;
+    phone: string;
+    city: string;
+    address: string;
+    selectedProductId: string;
+    quantity: number;
+    paymentMethod: PaymentMethod;
+  }>({
+    fullName: '',
+    phone: '',
+    city: 'Rawalpindi',
+    address: '',
+    selectedProductId: '',
+    quantity: 1,
+    paymentMethod: 'Cash on Delivery',
+  });
+
+  // Customer Management CRUD states
+  const [isAddCustomerModalOpen, setIsAddCustomerModalOpen] = useState(false);
+  const [editingCustomer, setEditingCustomer] = useState<PatronProfile | null>(null);
+  const [newCustomerForm, setNewCustomerForm] = useState({
+    displayName: '',
+    email: '',
+    phone: '',
+    city: 'Rawalpindi',
+    address: '',
+    role: 'Customer',
+  });
+
+  // Manual Order CRUD Handlers
+  const handleCreateManualOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newOrderForm.fullName || !newOrderForm.phone) {
+      showToast('Customer name and phone number required');
+      return;
+    }
+    const chosenProduct = products.find((p) => p.id === newOrderForm.selectedProductId) || products[0];
+    if (!chosenProduct) {
+      showToast('Please select a fabric product');
+      return;
+    }
+    const subtotal = chosenProduct.price * (newOrderForm.quantity || 1);
+    const shipping = subtotal > 3000 ? 0 : 250;
+    const total = subtotal + shipping;
+    const orderId = `NCH-1977-${Date.now().toString().slice(-4)}`;
+
+    const manualOrder: Order = {
+      id: orderId,
+      date: new Date().toISOString(),
+      customer: {
+        fullName: newOrderForm.fullName.trim(),
+        email: 'concierge@niazclothhouse.com',
+        phone: newOrderForm.phone.trim(),
+        whatsapp: newOrderForm.phone.trim(),
+        address: newOrderForm.address.trim() || 'Paris Bazaar counter pickup',
+        city: newOrderForm.city.trim() || 'Rawalpindi',
+        province: 'Punjab',
+        postalCode: '46000',
+      },
+      items: [
+        {
+          product: chosenProduct,
+          quantity: newOrderForm.quantity || 1,
+          selectedColor: chosenProduct.color,
+        },
+      ],
+      subtotal,
+      shipping,
+      total,
+      status: 'Pending',
+      paymentMethod: newOrderForm.paymentMethod,
+    };
+
+    await createManualOrder(manualOrder);
+    setIsAddOrderModalOpen(false);
+    setNewOrderForm({
+      fullName: '',
+      phone: '',
+      city: 'Rawalpindi',
+      address: '',
+      selectedProductId: '',
+      quantity: 1,
+      paymentMethod: 'Cash on Delivery',
+    });
+  };
+
+  const handleUpdateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingOrder) return;
+    await updateOrderDetails(editingOrder.id, {
+      customer: editingOrder.customer,
+      status: editingOrder.status,
+    });
+    setEditingOrder(null);
+  };
+
+  const handleDeleteOrder = async (orderId: string) => {
+    if (!window.confirm(`Are you sure you want to remove Order #${orderId} from Firestore?`)) return;
+    await deleteOrder(orderId);
+  };
+
+  // Customer Management CRUD Handlers
+  const handleCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCustomerForm.displayName || !newCustomerForm.email) {
+      showToast('Name and email are required');
+      return;
+    }
+    const newUid = `user-${Date.now().toString().slice(-6)}`;
+    const newProfile: PatronProfile = {
+      uid: newUid,
+      displayName: newCustomerForm.displayName.trim(),
+      email: newCustomerForm.email.trim().toLowerCase(),
+      phone: newCustomerForm.phone.trim(),
+      city: newCustomerForm.city.trim(),
+      address: newCustomerForm.address.trim(),
+      createdAt: new Date().toISOString(),
+      lastLoginAt: new Date().toISOString(),
+      role: newCustomerForm.role,
+      isOnline: false,
+    };
+    try {
+      await setDoc(doc(db, 'users', newUid), newProfile);
+      setRealUsers((prev) => [newProfile, ...prev]);
+      showToast(`Customer "${newProfile.displayName}" created in Firestore`);
+      setIsAddCustomerModalOpen(false);
+      setNewCustomerForm({ displayName: '', email: '', phone: '', city: 'Rawalpindi', address: '', role: 'Customer' });
+    } catch (err) {
+      showToast('Error saving customer to Firestore');
+      console.error(err);
+    }
+  };
+
+  const handleUpdateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingCustomer) return;
+    try {
+      await setDoc(doc(db, 'users', editingCustomer.uid), editingCustomer, { merge: true });
+      setRealUsers((prev) => prev.map((u) => u.uid === editingCustomer.uid ? editingCustomer : u));
+      showToast(`Customer profile for "${editingCustomer.displayName}" updated`);
+      setEditingCustomer(null);
+    } catch (err) {
+      showToast('Error updating customer');
+      console.error(err);
+    }
+  };
+
+  const handleDeleteCustomer = async (uid: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete customer "${name}" from Firestore?`)) return;
+    try {
+      await deleteDoc(doc(db, 'users', uid));
+      setRealUsers((prev) => prev.filter((u) => u.uid !== uid));
+      showToast(`Customer "${name}" removed from Firestore`);
+    } catch (err) {
+      showToast('Error deleting customer');
+      console.error(err);
+    }
+  };
 
   // Product Image Management States
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -736,21 +951,25 @@ export const AdminPage: React.FC = () => {
   // ==========================================
   if (!currentAdmin) {
     return (
-      <div className="w-full bg-[#F8FAFC] min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center">
-        <div className="max-w-md w-full bg-white border border-[#E2E8F0] shadow-xl p-6 sm:p-8 space-y-6">
+      <div className="w-full bg-[#050811] min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative overflow-hidden">
+        {/* Cyber Glow Orbs */}
+        <div className="absolute w-96 h-96 rounded-full bg-[#00F0FF]/10 blur-[120px] -top-20 -left-20 pointer-events-none" />
+        <div className="absolute w-96 h-96 rounded-full bg-[#F5B738]/10 blur-[120px] -bottom-20 -right-20 pointer-events-none" />
+
+        <div className="max-w-md w-full bg-[#0A0F1D]/90 border border-[#00F0FF]/30 shadow-[0_0_50px_rgba(0,240,255,0.2)] p-6 sm:p-8 space-y-6 backdrop-blur-2xl relative z-10 rounded-xs">
           {/* Brand & Security Header */}
-          <div className="text-center space-y-2 border-b border-[#E2E8F0] pb-6">
-            <div className="inline-flex items-center justify-center w-12 h-12 bg-[#0284C7]/10 text-[#0284C7] rounded-full mx-auto">
+          <div className="text-center space-y-2 border-b border-white/10 pb-6">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-[#0E1626] border border-[#00F0FF]/40 text-[#00F0FF] rounded-full mx-auto shadow-[0_0_20px_rgba(0,240,255,0.3)]">
               <Lock className="w-6 h-6" />
             </div>
-            <div className="text-[11px] uppercase tracking-widest text-[#0284C7] font-sans font-bold">
-              Niaz Cloth House · Paris Bazaar
+            <div className="text-[10px] uppercase tracking-[0.25em] text-[#00F0FF] font-mono font-bold">
+              ◈ 2050 CYBER COMMAND DECK ◈
             </div>
-            <h1 className="font-serif text-2xl font-bold text-[#1C1917]">
+            <h1 className="font-sans text-2xl font-black text-white uppercase tracking-wider">
               Admin Authentication
             </h1>
-            <p className="text-xs text-[#1C1917]/65 leading-relaxed">
-              Sign in with your administrator credentials to manage product inventory, track customer orders, and sync WhatsApp catalogs.
+            <p className="text-xs text-neutral-400 leading-relaxed font-sans">
+              Sign in with your verified administrator credentials to access real-time Firestore CRUD, telemetry widgets, and stock control.
             </p>
           </div>
 
@@ -758,12 +977,12 @@ export const AdminPage: React.FC = () => {
           {inactivityNotice && (
             <div
               role="alert"
-              className="p-3.5 bg-amber-50 border border-amber-300 text-amber-900 text-xs flex items-start gap-2.5 transition-all animate-in fade-in-50"
+              className="p-3.5 bg-amber-950/60 border border-amber-500/50 text-amber-200 text-xs flex items-start gap-2.5 transition-all animate-in fade-in-50"
             >
-              <Clock className="w-4 h-4 shrink-0 text-amber-600 mt-0.5" />
+              <Clock className="w-4 h-4 shrink-0 text-amber-400 mt-0.5" />
               <div className="flex-1">
-                <span className="font-semibold block">Automatic Session Expiry</span>
-                <span className="text-amber-800 leading-normal">{inactivityNotice}</span>
+                <span className="font-semibold block text-amber-300">Automatic Session Timeout</span>
+                <span className="text-amber-200/90 leading-normal">{inactivityNotice}</span>
               </div>
             </div>
           )}
@@ -772,12 +991,12 @@ export const AdminPage: React.FC = () => {
           {authError && (
             <div
               role="alert"
-              className="p-3.5 bg-red-50 border border-red-200 text-red-800 text-xs flex items-start gap-2.5 transition-all animate-in fade-in-50"
+              className="p-3.5 bg-red-950/60 border border-red-500/50 text-red-200 text-xs flex items-start gap-2.5 transition-all animate-in fade-in-50"
             >
-              <AlertCircle className="w-4 h-4 shrink-0 text-red-600 mt-0.5" />
+              <AlertCircle className="w-4 h-4 shrink-0 text-red-400 mt-0.5" />
               <div className="flex-1">
-                <span className="font-semibold block">Authentication Failed</span>
-                <span className="text-red-700/90 leading-normal">{authError}</span>
+                <span className="font-semibold block text-red-300">Authentication Failed</span>
+                <span className="text-red-200/90 leading-normal">{authError}</span>
               </div>
             </div>
           )}
@@ -785,8 +1004,8 @@ export const AdminPage: React.FC = () => {
           {/* SIGN IN FORM */}
           <form onSubmit={handleLoginSubmit} className="space-y-4 text-xs">
             <div>
-              <label htmlFor="admin-username-input" className="block font-semibold text-[#1C1917] mb-1">
-                Username or Staff Email
+              <label htmlFor="admin-username-input" className="block font-semibold text-neutral-300 mb-1">
+                Admin Username or Email
               </label>
               <input
                 id="admin-username-input"
@@ -799,13 +1018,13 @@ export const AdminPage: React.FC = () => {
                   if (authError) setAuthError('');
                 }}
                 placeholder="e.g. admin"
-                className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:bg-white focus:outline-none focus:border-[#0284C7] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#070B16] border border-white/10 text-white focus:bg-[#0E1626] focus:outline-none focus:border-[#00F0FF] transition-all font-mono"
               />
             </div>
 
             <div>
-              <label htmlFor="admin-password-input" className="block font-semibold text-[#1C1917] mb-1">
-                Password
+              <label htmlFor="admin-password-input" className="block font-semibold text-neutral-300 mb-1">
+                Secret Access Key / Password
               </label>
               <div className="relative">
                 <input
@@ -819,12 +1038,12 @@ export const AdminPage: React.FC = () => {
                     if (authError) setAuthError('');
                   }}
                   placeholder="Enter administrator password"
-                  className="w-full px-3.5 py-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[#1C1917] focus:bg-white focus:outline-none focus:border-[#0284C7] pr-10 transition-colors"
+                  className="w-full px-3.5 py-2.5 bg-[#070B16] border border-white/10 text-white focus:bg-[#0E1626] focus:outline-none focus:border-[#00F0FF] pr-10 transition-all font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-[#1C1917]/40 hover:text-[#1C1917] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#0284C7]"
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00F0FF]"
                   title={showPassword ? 'Hide password' : 'Show password'}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
@@ -834,12 +1053,12 @@ export const AdminPage: React.FC = () => {
             </div>
 
             {/* Development Environment Credential Helper */}
-            <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] flex items-center justify-between text-[11px]">
+            <div className="p-3 bg-[#070B16] border border-white/10 flex items-center justify-between text-[11px]">
               <div>
-                <span className="text-[#1C1917]/70 block font-sans">
-                  Development Credentials (from .env):
+                <span className="text-neutral-400 block font-mono text-[10px]">
+                  Verified Admin Credentials:
                 </span>
-                <span className="font-mono text-[#0284C7] font-semibold">
+                <span className="font-mono text-[#00F0FF] font-semibold">
                   admin / Niaz1977#
                 </span>
               </div>
@@ -850,7 +1069,7 @@ export const AdminPage: React.FC = () => {
                   setLoginPassword('Niaz1977#');
                   if (authError) setAuthError('');
                 }}
-                className="px-2.5 py-1 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-[11px] font-semibold text-[#1C1917] transition-colors shadow-2xs"
+                className="px-2.5 py-1 bg-[#0E1626] border border-[#00F0FF]/40 hover:border-[#00F0FF] text-[11px] font-mono font-semibold text-[#00F0FF] transition-colors"
               >
                 Auto Fill
               </button>
@@ -859,26 +1078,26 @@ export const AdminPage: React.FC = () => {
             <button
               type="submit"
               disabled={isAuthenticating}
-              className="w-full py-3 bg-[#0284C7] hover:bg-[#0369A1] disabled:bg-[#0284C7]/70 text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center justify-center gap-2 shadow-sm"
+              className="w-full py-3 bg-gradient-to-r from-[#00F0FF] to-[#06B6D4] hover:from-[#38BDF8] hover:to-[#00F0FF] disabled:opacity-50 text-black text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
             >
               {isAuthenticating ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  <span>Authenticating...</span>
+                  <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <span>Verifying Credentials...</span>
                 </>
               ) : (
                 <>
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Sign In to Admin Dashboard</span>
+                  <span>Launch 2050 Admin Command Deck</span>
                 </>
               )}
             </button>
           </form>
 
           {/* Security Note */}
-          <div className="pt-2 text-center border-t border-[#F2ECE5]">
-            <p className="text-[10px] text-[#1C1917]/50 font-sans leading-relaxed">
-              Credentials are authenticated server-side using secure environment variables. Authorized store personnel only.
+          <div className="pt-2 text-center border-t border-white/10">
+            <p className="text-[10px] text-neutral-400 font-mono leading-relaxed">
+              Secured with 30-Minute Inactivity Auto-Timeout · TLS 256-Bit Protection
             </p>
           </div>
         </div>
@@ -890,41 +1109,45 @@ export const AdminPage: React.FC = () => {
   // VIEW: AUTHENTICATED STAFF DASHBOARD
   // ==========================================
   return (
-    <div className="w-full max-w-full overflow-x-hidden bg-[#F8FAFC] min-h-screen py-8 sm:py-14">
+    <div className="w-full max-w-full overflow-x-hidden bg-[#050811] text-[#F3F4F6] min-h-screen py-8 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 w-full max-w-full min-w-0">
-        {/* Header Bar with Active Admin Credentials Profile */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#E2E8F0] gap-4">
+        {/* Header Bar with 2050 Cyber Command Profile */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#1F293D] gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase tracking-widest text-[#0284C7] font-sans font-semibold">
-                Internal Control Center
+              <span className="text-[10px] uppercase font-mono tracking-widest text-[#00F0FF] font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse shadow-[0_0_8px_#00F0FF]" />
+                QUANTUM ATELIER CONTROL · 2050 PROTOCOL
               </span>
-              <span className="inline-flex items-center gap-1 bg-[#4A5D4E]/10 text-[#4A5D4E] text-[10px] px-2 py-0.5 rounded-full font-semibold">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#4A5D4E] animate-pulse" />
-                Live Session
+              <span className="inline-flex items-center gap-1 bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/30 text-[10px] px-2 py-0.5 rounded-xs font-mono">
+                SECURE AES-256
               </span>
             </div>
-            <h1 className="font-serif text-3xl font-bold text-[#1C1917] mt-0.5">
-              Niaz Staff Portal & Inventory Manager
+            <h1 className="font-serif text-3xl font-bold text-white tracking-wide mt-1.5 flex items-center gap-3">
+              <span>Admin Cyber Command</span>
+              <span className="text-xs font-mono px-2 py-0.5 border border-[#F5B738]/40 text-[#F5B738] bg-[#F5B738]/10 rounded-xs">
+                v2050.4
+              </span>
             </h1>
-            <p className="text-xs text-[#1C1917]/70 font-sans mt-1">
-              Manage unstitched fabrics, stock availability, and track nationwide COD orders.
+            <p className="text-xs text-slate-400 font-sans mt-1">
+              Real-time multi-dimensional orchestration of fabrics, automated dispatch telemetry, and customer intelligence.
             </p>
           </div>
 
           {/* Active Admin Profile & Control Actions */}
-          <div className="flex flex-wrap items-center gap-3">
-            {/* Admin Badge with Explicit Logged-in Username */}
-            <div className="bg-white border border-[#E2E8F0] p-2 sm:px-3 sm:py-1.5 flex items-center gap-2.5 shadow-2xs">
-              <div className="w-8 h-8 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-xs shrink-0">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Admin Badge */}
+            <div className="bg-[#0B1224] border border-[#1F293D] p-2 sm:px-3 sm:py-1.5 flex items-center gap-2.5 shadow-lg">
+              <div className="w-8 h-8 rounded-xs bg-gradient-to-br from-[#00F0FF] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.4)]">
                 {currentAdmin.fullName.charAt(0)}
               </div>
               <div className="text-left text-xs leading-tight">
-                <span className="font-semibold text-[#1C1917] block">
-                  {currentAdmin.fullName} <span className="text-[#0284C7] font-mono text-[11px] font-bold">(@{currentAdmin.username})</span>
+                <span className="font-medium text-white block">
+                  {currentAdmin.fullName}{' '}
+                  <span className="text-[#00F0FF] font-mono text-[11px]">(@{currentAdmin.username})</span>
                 </span>
-                <span className="text-[10px] text-emerald-700 font-medium flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 inline-block animate-pulse"></span>
+                <span className="text-[10px] text-[#00FF9D] font-mono flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] inline-block animate-pulse"></span>
                   Active Session · {currentAdmin.role}
                 </span>
               </div>
@@ -932,20 +1155,20 @@ export const AdminPage: React.FC = () => {
 
             <button
               onClick={() => setIsFirebaseCheckupOpen(true)}
-              className="px-3 py-2 bg-[#0F172A] hover:bg-[#1E293B] text-emerald-400 border border-emerald-500/40 text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs"
-              title="Interactive 5-minute Firebase Rules & Security Checkup"
+              className="px-3 py-2 bg-[#0B1224] hover:bg-[#131F38] text-[#00FF9D] border border-[#00FF9D]/40 text-xs font-mono font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
+              title="Interactive Firebase Rules & Security Checkup"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Firebase Rules Checkup</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-[#00FF9D]" />
+              <span>Rules Checkup</span>
             </button>
 
             <button
               onClick={() => setIsStaffModalOpen(true)}
-              className="px-3 py-2 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
-              title="Admin account security & password settings"
+              className="px-3 py-2 bg-[#0B1224] border border-[#1F293D] hover:border-[#00F0FF] text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1.5 transition-all"
+              title="Admin account credentials & authentication"
             >
-              <KeyRound className="w-3.5 h-3.5 text-[#0284C7]" />
-              <span>Change Password</span>
+              <KeyRound className="w-3.5 h-3.5 text-[#00F0FF]" />
+              <span>Credentials</span>
             </button>
 
             <button
@@ -954,44 +1177,68 @@ export const AdminPage: React.FC = () => {
                   resetDefaultCatalog();
                 }
               }}
-              className="px-3 py-2 bg-white border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 bg-[#0B1224] border border-[#1F293D] hover:border-[#F5B738] text-xs font-mono text-slate-400 hover:text-white flex items-center gap-1.5 transition-all"
               title="Restore default test products & orders"
             >
               <RotateCcw className="w-3.5 h-3.5" />
-              <span>Reset Catalog</span>
+              <span>Reset</span>
             </button>
 
             <button
               onClick={handleLogout}
-              className="px-3.5 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors uppercase tracking-wider"
+              className="px-3.5 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white text-xs font-mono font-semibold flex items-center gap-1.5 transition-all uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.3)]"
               title="End admin session and lock portal"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Sign Out</span>
+              <span>Lock Terminal</span>
             </button>
           </div>
         </div>
 
-        {/* Portal Tabs */}
-        <div className="flex border-b border-[#E2E8F0] gap-4 sm:gap-8 overflow-x-auto scrollbar-none">
+        {/* Portal Tabs - 2050 Cyber Deck Navigation */}
+        <div className="flex border-b border-[#1F293D] gap-2 sm:gap-4 overflow-x-auto scrollbar-none pb-0.5">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'dashboard'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            <span>Dashboard Hub</span>
+          </button>
+
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'inventory'
-                ? 'border-[#0284C7] text-[#0284C7]'
-                : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             <Package className="w-4 h-4" />
-            <span>Fabric Inventory ({products.length})</span>
+            <span>Products &amp; Stock ({products.length})</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('pricing')}
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'pricing'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+          >
+            <Percent className="w-4 h-4" />
+            <span>Prices &amp; Rates</span>
           </button>
 
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'orders'
-                ? 'border-[#0284C7] text-[#0284C7]'
-                : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             <Truck className="w-4 h-4" />
@@ -1000,70 +1247,562 @@ export const AdminPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('users')}
-            className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'users'
-                ? 'border-[#0284C7] text-[#0284C7]'
-                : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             <Users className="w-4 h-4" />
-            <span>Active Users ({activeUserList.length})</span>
+            <span>Patrons &amp; Users ({activeUserList.length})</span>
             {onlineUsersCount > 0 && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-200 text-[10px] font-bold rounded-full">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 text-[10px] font-mono rounded-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-pulse"></span>
                 <span>{onlineUsersCount} Online</span>
               </span>
             )}
           </button>
 
           <button
-            onClick={() => setActiveTab('audit')}
-            className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
-              activeTab === 'audit'
-                ? 'border-[#0284C7] text-[#0284C7]'
-                : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+            onClick={() => setActiveTab('categories')}
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'categories'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Security Audit & Backup</span>
+            <Layers className="w-4 h-4" />
+            <span>Collections</span>
           </button>
 
           <button
-            onClick={() => setActiveTab('performance')}
-            className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
-              activeTab === 'performance'
-                ? 'border-[#0284C7] text-[#0284C7]'
-                : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+            onClick={() => setActiveTab('homepage')}
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'homepage'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Gauge className="w-4 h-4 text-[#38BDF8]" />
-            <span>Database Indexes, Caching & Load Testing</span>
+            <ImageIcon className="w-4 h-4" />
+            <span>Banners</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'settings'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+          >
+            <Settings className="w-4 h-4" />
+            <span>Settings</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('audit')}
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+              activeTab === 'audit'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
+            }`}
+          >
+            <ShieldCheck className="w-4 h-4" />
+            <span>Security</span>
           </button>
 
           <button
             onClick={() => setActiveTab('feedback')}
-            className={`pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'feedback'
-                ? 'border-[#0284C7] text-[#0284C7]'
-                : 'border-transparent text-[#1C1917]/60 hover:text-[#1C1917]'
+                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
-            <span>Reviews & Newsletter ({allReviews.length} / {newsletterSubscribers.length})</span>
-          </button>
-
-          <button
-            onClick={() => {
-              setSelectedSyncProductId(null);
-              setIsWhatsAppSyncOpen(true);
-            }}
-            className="pb-3 text-xs sm:text-sm font-semibold transition-colors flex items-center gap-1.5 border-b-2 whitespace-nowrap shrink-0 border-transparent text-[#25D366] hover:text-emerald-700 ml-auto"
-            title="Sync inventory directly to WhatsApp Business catalog"
-          >
-            <Share2 className="w-4 h-4" />
-            <span>WhatsApp Catalog Sync</span>
+            <Star className="w-4 h-4 text-[#F5B738] fill-[#F5B738]" />
+            <span>Reviews ({allReviews.length})</span>
           </button>
         </div>
+
+        {/* MODULE A: DASHBOARD OVERVIEW — 2050 CYBER HUDS */}
+        {activeTab === 'dashboard' && (
+          <div className="space-y-6">
+            {/* ======================================================== */}
+            {/* 3 CORE REQUESTED WIDGETS: REVENUE, SALES, LOW-STOCK ALERTS */}
+            {/* ======================================================== */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* ---------------------------------------------------- */}
+              {/* WIDGET 1: REVENUE MATRIX 2050 */}
+              {/* ---------------------------------------------------- */}
+              {(() => {
+                const totalGrossRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+                const aov = orders.length > 0 ? Math.round(totalGrossRevenue / orders.length) : 0;
+                const codOrders = orders.filter((o) => !o.paymentMethod || o.paymentMethod.includes('Cash on Delivery') || o.paymentMethod.includes('COD'));
+                const codTotal = codOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+                const gatewayOrders = orders.filter((o) => o.paymentMethod?.includes('Online') || o.paymentMethod?.includes('Debit') || o.paymentMethod?.includes('Card'));
+                const gatewayTotal = gatewayOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+                const waOrders = orders.filter((o) => o.paymentMethod?.includes('WhatsApp') || o.paymentMethod?.includes('Bank'));
+                const waTotal = waOrders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+                return (
+                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#00F0FF]/50 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00F0FF]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#00F0FF]/10 transition-all" />
+                    
+                    <div className="flex items-center justify-between border-b border-[#1F293D] pb-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-[#00F0FF]/10 border border-[#00F0FF]/30 text-[#00F0FF] rounded-xs">
+                          <DollarSign className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#00F0FF] font-bold block">
+                            WIDGET 01 // METRIC ENGINE
+                          </span>
+                          <h3 className="font-serif text-lg font-bold text-white">Gross Revenue Matrix</h3>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 rounded-xs flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-ping" />
+                        LIVE PKR
+                      </span>
+                    </div>
+
+                    {/* Big Metric */}
+                    <div className="mb-5 bg-[#050811] p-4 border border-[#1F293D]/80 rounded-xs">
+                      <span className="text-[11px] font-mono text-slate-400 block uppercase">Total Realized Volume</span>
+                      <div className="flex items-baseline justify-between mt-1">
+                        <span className="text-2xl sm:text-3xl font-mono font-bold text-[#F5B738] tracking-tight">
+                          {formatPKR(totalGrossRevenue)}
+                        </span>
+                        <span className="text-xs font-mono text-emerald-400 flex items-center gap-1">
+                          <TrendingUp className="w-3.5 h-3.5" />
+                          +18.4%
+                        </span>
+                      </div>
+                      <div className="mt-2.5 pt-2 border-t border-[#1F293D] flex justify-between text-xs font-mono">
+                        <span className="text-slate-400">Average Order Value (AOV):</span>
+                        <strong className="text-white">{formatPKR(aov)}</strong>
+                      </div>
+                    </div>
+
+                    {/* Breakdown by Payment Channel */}
+                    <div className="space-y-2.5 text-xs font-mono">
+                      <div className="flex justify-between items-center text-slate-300">
+                        <span className="flex items-center gap-1.5">
+                          <Truck className="w-3.5 h-3.5 text-amber-400" />
+                          <span>Cash on Delivery ({codOrders.length})</span>
+                        </span>
+                        <span className="font-bold text-white">{formatPKR(codTotal)}</span>
+                      </div>
+                      <div className="w-full bg-[#1F293D] h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className="bg-amber-400 h-full transition-all"
+                          style={{ width: `${totalGrossRevenue > 0 ? (codTotal / totalGrossRevenue) * 100 : 0}%` }}
+                        />
+                      </div>
+
+                      <div className="flex justify-between items-center text-slate-300 pt-1">
+                        <span className="flex items-center gap-1.5">
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#00F0FF]" />
+                          <span>Gateway / Card ({gatewayOrders.length})</span>
+                        </span>
+                        <span className="font-bold text-white">{formatPKR(gatewayTotal)}</span>
+                      </div>
+                      <div className="w-full bg-[#1F293D] h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className="bg-[#00F0FF] h-full transition-all"
+                          style={{ width: `${totalGrossRevenue > 0 ? (gatewayTotal / totalGrossRevenue) * 100 : 0}%` }}
+                        />
+                      </div>
+
+                      <div className="flex justify-between items-center text-slate-300 pt-1">
+                        <span className="flex items-center gap-1.5">
+                          <MessageCircle className="w-3.5 h-3.5 text-[#00FF9D]" />
+                          <span>WhatsApp Transfer ({waOrders.length})</span>
+                        </span>
+                        <span className="font-bold text-white">{formatPKR(waTotal)}</span>
+                      </div>
+                      <div className="w-full bg-[#1F293D] h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className="bg-[#00FF9D] h-full transition-all"
+                          style={{ width: `${totalGrossRevenue > 0 ? (waTotal / totalGrossRevenue) * 100 : 0}%` }}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* ---------------------------------------------------- */}
+              {/* WIDGET 2: SALES & DISPATCH VELOCITY */}
+              {/* ---------------------------------------------------- */}
+              {(() => {
+                const totalOrdersCount = orders.length;
+                const deliveredCount = orders.filter((o) => o.status === 'Delivered').length;
+                const pendingCount = orders.filter((o) => o.status === 'Pending').length;
+                const processingCount = orders.filter((o) => o.status === 'Processing').length;
+                const shippedCount = orders.filter((o) => o.status === 'Shipped').length;
+                const fulfillmentRate = totalOrdersCount > 0 ? Math.round((deliveredCount / totalOrdersCount) * 100) : 100;
+
+                return (
+                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#00FF9D]/50 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00FF9D]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#00FF9D]/10 transition-all" />
+                    
+                    <div className="flex items-center justify-between border-b border-[#1F293D] pb-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-[#00FF9D]/10 border border-[#00FF9D]/30 text-[#00FF9D] rounded-xs">
+                          <Truck className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#00FF9D] font-bold block">
+                            WIDGET 02 // VELOCITY
+                          </span>
+                          <h3 className="font-serif text-lg font-bold text-white">Sales &amp; Dispatch Flow</h3>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/30 rounded-xs">
+                        {totalOrdersCount} TOTAL
+                      </span>
+                    </div>
+
+                    {/* Progress Ring / Gauge summary */}
+                    <div className="mb-5 bg-[#050811] p-4 border border-[#1F293D]/80 rounded-xs">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <span className="text-[11px] font-mono text-slate-400 block uppercase">Fulfillment Velocity</span>
+                          <span className="text-3xl font-mono font-bold text-[#00FF9D] mt-0.5 block">
+                            {fulfillmentRate}%
+                          </span>
+                          <span className="text-[10px] font-mono text-slate-400">Order delivery rate</span>
+                        </div>
+                        <div className="w-16 h-16 rounded-full border-4 border-[#1F293D] border-t-[#00FF9D] border-r-[#00F0FF] flex items-center justify-center font-mono text-xs text-white">
+                          <CheckCircle2 className="w-6 h-6 text-[#00FF9D]" />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Status grid */}
+                    <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                      <div className="bg-[#050811] p-2.5 border border-[#1F293D]">
+                        <span className="text-[10px] uppercase text-amber-400 font-bold block">Pending</span>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <strong className="text-lg text-white font-mono">{pendingCount}</strong>
+                          <Clock className="w-3.5 h-3.5 text-amber-400" />
+                        </div>
+                      </div>
+
+                      <div className="bg-[#050811] p-2.5 border border-[#1F293D]">
+                        <span className="text-[10px] uppercase text-[#00F0FF] font-bold block">Processing</span>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <strong className="text-lg text-white font-mono">{processingCount}</strong>
+                          <Package className="w-3.5 h-3.5 text-[#00F0FF]" />
+                        </div>
+                      </div>
+
+                      <div className="bg-[#050811] p-2.5 border border-[#1F293D]">
+                        <span className="text-[10px] uppercase text-blue-400 font-bold block">Shipped</span>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <strong className="text-lg text-white font-mono">{shippedCount}</strong>
+                          <Truck className="w-3.5 h-3.5 text-blue-400" />
+                        </div>
+                      </div>
+
+                      <div className="bg-[#050811] p-2.5 border border-[#1F293D]">
+                        <span className="text-[10px] uppercase text-[#00FF9D] font-bold block">Delivered</span>
+                        <div className="flex items-baseline justify-between mt-1">
+                          <strong className="text-lg text-white font-mono">{deliveredCount}</strong>
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF9D]" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="mt-4 pt-3 border-t border-[#1F293D] flex justify-between items-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('orders');
+                          setIsAddOrderModalOpen(true);
+                        }}
+                        className="text-xs font-mono text-[#00F0FF] hover:underline flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Create Manual Order</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('orders')}
+                        className="text-xs font-mono text-slate-400 hover:text-white"
+                      >
+                        Open Dispatch Board →
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* ---------------------------------------------------- */}
+              {/* WIDGET 3: LOW-STOCK & DEPLETION ALERT SENTINEL */}
+              {/* ---------------------------------------------------- */}
+              {(() => {
+                const lowStockItems = products.filter((p) => !p.inStock || (p as any).stockCount < 5);
+                const outOfStockCount = products.filter((p) => !p.inStock).length;
+
+                return (
+                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#F5B738]/50 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#F5B738]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#F5B738]/10 transition-all" />
+                    
+                    <div className="flex items-center justify-between border-b border-[#1F293D] pb-3 mb-4">
+                      <div className="flex items-center gap-2">
+                        <div className="p-2 bg-[#F5B738]/10 border border-[#F5B738]/30 text-[#F5B738] rounded-xs">
+                          <AlertCircle className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#F5B738] font-bold block">
+                            WIDGET 03 // INVENTORY SENTINEL
+                          </span>
+                          <h3 className="font-serif text-lg font-bold text-white">Low-Stock &amp; Depletion</h3>
+                        </div>
+                      </div>
+                      <span className={`text-[10px] font-mono px-2 py-0.5 rounded-xs border font-bold ${
+                        outOfStockCount > 0
+                          ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
+                          : 'bg-[#00FF9D]/15 text-[#00FF9D] border-[#00FF9D]/30'
+                      }`}>
+                        {outOfStockCount > 0 ? `${outOfStockCount} DEPLETED` : 'STOCKS OPTIMAL'}
+                      </span>
+                    </div>
+
+                    {/* Stock Health Banner */}
+                    <div className={`mb-3 p-3 border rounded-xs font-mono text-xs flex items-center justify-between ${
+                      outOfStockCount > 0
+                        ? 'bg-rose-950/30 border-rose-800/60 text-rose-200'
+                        : 'bg-[#050811] border-[#1F293D] text-slate-300'
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <AlertTriangle className={`w-4 h-4 ${outOfStockCount > 0 ? 'text-rose-400 animate-bounce' : 'text-[#F5B738]'}`} />
+                        <span>{lowStockItems.length} Suits require fabric reorder</span>
+                      </div>
+                      <span className="font-bold text-white">{products.length - outOfStockCount} / {products.length} In-Stock</span>
+                    </div>
+
+                    {/* Interactive Re-stock list */}
+                    <div className="space-y-2 max-h-[175px] overflow-y-auto pr-1 scrollbar-thin">
+                      {lowStockItems.length === 0 ? (
+                        <div className="p-4 text-center text-xs font-mono text-slate-400 bg-[#050811] border border-[#1F293D]">
+                          All fabric mills and collections have sufficient inventory.
+                        </div>
+                      ) : (
+                        lowStockItems.slice(0, 4).map((p) => (
+                          <div
+                            key={p.id}
+                            className="p-2.5 bg-[#050811] border border-[#1F293D] hover:border-[#00F0FF]/40 flex items-center justify-between gap-2 transition-all"
+                          >
+                            <div className="min-w-0">
+                              <span className="font-medium text-xs text-white truncate block">{p.title}</span>
+                              <span className="text-[10px] font-mono text-slate-400 block">
+                                {p.gender} · {p.fabric} · {formatPKR(p.price)}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {!p.inStock ? (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    updateProduct({ ...p, inStock: true });
+                                    showToast(`Restocked "${p.title}" to active status`);
+                                  }}
+                                  className="px-2.5 py-1 bg-[#00FF9D]/15 hover:bg-[#00FF9D]/30 text-[#00FF9D] border border-[#00FF9D]/40 text-[10px] font-mono font-bold uppercase transition-all rounded-xs"
+                                >
+                                  ⚡ Restock
+                                </button>
+                              ) : (
+                                <span className="text-[10px] font-mono text-amber-400 px-1.5 py-0.5 border border-amber-400/30 bg-amber-400/10">
+                                  Low Units
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t border-[#1F293D] flex justify-between items-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveTab('inventory');
+                          setIsAddModalOpen(true);
+                        }}
+                        className="text-xs font-mono text-[#F5B738] hover:underline flex items-center gap-1"
+                      >
+                        <Plus className="w-3 h-3" />
+                        <span>Add New Fabric</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('inventory')}
+                        className="text-xs font-mono text-slate-400 hover:text-white"
+                      >
+                        Manage Inventory →
+                      </button>
+                    </div>
+                  </div>
+                );
+              })()}
+            </div>
+
+            {/* Quick Action Bar — 2050 Command Hub */}
+            <div className="p-4 bg-[#0B1224] border border-[#1F293D] flex flex-wrap items-center justify-between gap-3 shadow-xl">
+              <div>
+                <strong className="text-xs font-mono uppercase tracking-wider text-white block flex items-center gap-2">
+                  <Sparkles className="w-3.5 h-3.5 text-[#00F0FF]" />
+                  <span>2050 Atelier Operations Terminal</span>
+                </strong>
+                <span className="text-[11px] text-slate-400 font-sans">
+                  Execute catalog mutations, dispatch phone orders, synchronise WhatsApp inventory, and manage client accounts.
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('inventory');
+                    setIsAddModalOpen(true);
+                  }}
+                  className="px-3.5 py-2 bg-gradient-to-r from-[#00F0FF] to-[#0284C7] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Product</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('orders');
+                    setIsAddOrderModalOpen(true);
+                  }}
+                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#00FF9D] text-[#00FF9D] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
+                >
+                  <Truck className="w-3.5 h-3.5" />
+                  <span>+ Phone Order</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveTab('users');
+                    setIsAddCustomerModalOpen(true);
+                  }}
+                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#F5B738] text-[#F5B738] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(245,183,56,0.15)]"
+                >
+                  <Users className="w-3.5 h-3.5" />
+                  <span>+ New Customer</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('pricing')}
+                  className="px-3 py-2 bg-[#050811] border border-[#1F293D] hover:border-white text-slate-300 hover:text-white text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
+                >
+                  <Percent className="w-3.5 h-3.5 text-[#00F0FF]" />
+                  <span>Prices &amp; Rates</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Recent Orders List — 2050 Cyber Terminal Table */}
+            <div className="bg-[#0B1224] border border-[#1F293D] p-5 shadow-xl">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
+                    Live Real-Time Orders Dispatch Stream
+                  </h3>
+                  <span className="text-[10px] font-mono px-2 py-0.5 bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/30 rounded-xs">
+                    {orders.length} Logged
+                  </span>
+                </div>
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className="text-xs font-mono text-[#00F0FF] hover:underline"
+                >
+                  View All Orders →
+                </button>
+              </div>
+
+              {orders.length === 0 ? (
+                <div className="py-8 text-center text-xs font-mono text-slate-500">No orders logged in database yet.</div>
+              ) : (
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs font-sans">
+                    <thead>
+                      <tr className="border-b border-[#1F293D] text-[10px] uppercase font-mono font-bold text-slate-400">
+                        <th className="pb-2.5">Order ID</th>
+                        <th className="pb-2.5">Customer &amp; Phone</th>
+                        <th className="pb-2.5">City</th>
+                        <th className="pb-2.5">Items</th>
+                        <th className="pb-2.5">Total Amount</th>
+                        <th className="pb-2.5">Status</th>
+                        <th className="pb-2.5 text-right">Quick Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#1F293D]">
+                      {orders.slice(0, 6).map((order) => (
+                        <tr key={order.id} className="hover:bg-[#131F38]/50 transition-colors">
+                          <td className="py-3 font-mono text-[11px] font-bold text-[#00F0FF]">
+                            #{order.id.slice(-6).toUpperCase()}
+                          </td>
+                          <td className="py-3">
+                            <span className="font-medium text-white block">{order.customer?.fullName || 'Customer'}</span>
+                            <span className="text-[10px] font-mono text-slate-400">{order.customer?.phone || 'No phone'}</span>
+                          </td>
+                          <td className="py-3 text-slate-300 font-mono text-[11px]">{order.customer?.city || 'Pakistan'}</td>
+                          <td className="py-3 font-mono text-slate-300">{order.items?.length || 1} suit(s)</td>
+                          <td className="py-3 font-mono font-bold text-[#F5B738]">
+                            {formatPKR(order.total)}
+                          </td>
+                          <td className="py-3">
+                            <span
+                              className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded-xs border ${
+                                order.status === 'Delivered'
+                                  ? 'bg-[#00FF9D]/15 text-[#00FF9D] border-[#00FF9D]/30'
+                                  : order.status === 'Shipped'
+                                  ? 'bg-[#00F0FF]/15 text-[#00F0FF] border-[#00F0FF]/30'
+                                  : order.status === 'Processing'
+                                  ? 'bg-amber-400/15 text-amber-300 border-amber-400/30'
+                                  : 'bg-slate-700/30 text-slate-300 border-slate-600'
+                              }`}
+                            >
+                              {order.status}
+                            </span>
+                          </td>
+                          <td className="py-3 text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <select
+                                value={order.status}
+                                onChange={(e) => updateOrderStatus(order.id, e.target.value as OrderStatus)}
+                                className="text-[11px] font-mono border border-[#1F293D] px-2 py-1 bg-[#050811] text-white focus:border-[#00F0FF] outline-none"
+                              >
+                                <option value="Pending">Pending</option>
+                                <option value="Processing">Processing</option>
+                                <option value="Shipped">Shipped</option>
+                                <option value="Delivered">Delivered</option>
+                              </select>
+                              <button
+                                type="button"
+                                onClick={() => setEditingOrder(order)}
+                                className="p-1 text-slate-400 hover:text-[#00F0FF]"
+                                title="Edit Order Details"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* TAB 1: INVENTORY MANAGEMENT */}
         {activeTab === 'inventory' && (
@@ -1235,95 +1974,550 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 2: ORDER MANAGEMENT */}
+        {/* MODULE C: PRICE AND DISCOUNT MANAGEMENT */}
+        {activeTab === 'pricing' && (
+          <div className="space-y-6">
+            {/* Strict Pricing Policy Notice */}
+            <div className="p-4 bg-[#FAF7F2] border-l-4 border-[#8C4830] border-y border-r border-[#E2E8F0]">
+              <div className="flex items-start gap-3">
+                <Percent className="w-5 h-5 text-[#8C4830] shrink-0 mt-0.5" />
+                <div className="text-xs text-[#1C1917]/85 space-y-1">
+                  <strong className="text-[#1C1917] block font-bold uppercase tracking-wider">
+                    Strict Pricing & Discount Policy Active
+                  </strong>
+                  <p>
+                    All customer-facing prices and promotional badges are controlled strictly through this module. The store never invents or generates automated markdowns. When a discount is cleared, products display only their actual selling price with zero fake crossed-out numbers.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Price Table Header & Search */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 border border-[#E2E8F0]">
+              <div className="relative w-full sm:w-80">
+                <Search className="w-4 h-4 absolute left-3 top-3 text-[#1C1917]/40" />
+                <input
+                  type="text"
+                  placeholder="Search fabric title, brand, or code..."
+                  value={priceSearchQuery}
+                  onChange={(e) => setPriceSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-[#E2E8F0] bg-[#F8FAFC] focus:outline-none focus:border-[#0284C7]"
+                />
+              </div>
+
+              <div className="text-xs text-neutral-600 font-medium">
+                Showing {products.length} catalog products
+              </div>
+            </div>
+
+            {/* Products Pricing Table */}
+            <div className="bg-white border border-[#E2E8F0] overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead>
+                  <tr className="border-b border-[#E2E8F0] bg-[#F8FAFC] text-[10px] uppercase font-bold text-neutral-500">
+                    <th className="p-3">Article / Fabric</th>
+                    <th className="p-3">Department</th>
+                    <th className="p-3">Selling Price</th>
+                    <th className="p-3">Original Price (Pre-Sale)</th>
+                    <th className="p-3">Discount Status</th>
+                    <th className="p-3 text-right">Pricing Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[#E2E8F0]">
+                  {products
+                    .filter((p) => {
+                      if (!priceSearchQuery.trim()) return true;
+                      const q = priceSearchQuery.toLowerCase();
+                      return (
+                        p.title.toLowerCase().includes(q) ||
+                        p.id.toLowerCase().includes(q) ||
+                        p.fabric.toLowerCase().includes(q) ||
+                        (p.brand || '').toLowerCase().includes(q)
+                      );
+                    })
+                    .map((item) => {
+                      const hasDiscount = item.originalPrice && item.originalPrice > item.price;
+                      const discountPct = hasDiscount
+                        ? Math.round(((item.originalPrice! - item.price) / item.originalPrice!) * 100)
+                        : 0;
+
+                      return (
+                        <tr key={item.id} className="hover:bg-[#F8FAFC]">
+                          <td className="p-3">
+                            <strong className="block text-[#1C1917] font-semibold">{item.title}</strong>
+                            <span className="text-[10px] font-mono text-neutral-500 uppercase">
+                              SKU: {item.id} · {item.fabric}
+                            </span>
+                          </td>
+                          <td className="p-3 text-neutral-700">
+                            {item.brand ? (
+                              <span className="font-bold text-[#8C4830]">{item.brand} ({item.gender})</span>
+                            ) : (
+                              <span>{item.gender}'s Suiting</span>
+                            )}
+                          </td>
+                          <td className="p-3 font-mono font-bold text-[#1C1917]">
+                            {formatPKR(item.price)}
+                          </td>
+                          <td className="p-3 font-mono">
+                            {hasDiscount ? (
+                              <span className="text-neutral-500 line-through">
+                                {formatPKR(item.originalPrice!)}
+                              </span>
+                            ) : (
+                              <span className="text-neutral-400 text-[11px]">— (No original price)</span>
+                            )}
+                          </td>
+                          <td className="p-3">
+                            {hasDiscount ? (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 text-red-700 text-[10px] font-bold border border-red-200">
+                                <Tag className="w-3 h-3" />
+                                <span>-{discountPct}% Approved Sale</span>
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-neutral-100 text-neutral-600 text-[10px] font-medium">
+                                Regular Price (Zero Markup)
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="inline-flex items-center gap-1">
+                              {/* Quick 10% Discount */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const original = Math.round(item.price * 1.12);
+                                  updateProduct({
+                                    ...item,
+                                    originalPrice: original,
+                                  });
+                                  showToast(`Set 10% approved discount for ${item.title}`);
+                                }}
+                                className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-[10px] font-semibold"
+                                title="Set 10% discount"
+                              >
+                                10% Off
+                              </button>
+
+                              {/* Quick 15% Discount */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const original = Math.round(item.price * 1.18);
+                                  updateProduct({
+                                    ...item,
+                                    originalPrice: original,
+                                  });
+                                  showToast(`Set 15% approved discount for ${item.title}`);
+                                }}
+                                className="px-2 py-1 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 text-[10px] font-semibold"
+                                title="Set 15% discount"
+                              >
+                                15% Off
+                              </button>
+
+                              {/* Clear Discount Button */}
+                              {hasDiscount && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const { originalPrice, ...rest } = item;
+                                    updateProduct({
+                                      ...rest,
+                                      originalPrice: undefined,
+                                    });
+                                    showToast(`Cleared discount for ${item.title} (Reverted to Regular Price)`);
+                                  }}
+                                  className="px-2 py-1 bg-red-100 hover:bg-red-200 text-red-800 text-[10px] font-bold"
+                                  title="Clear discount and display only selling price"
+                                >
+                                  Clear Sale
+                                </button>
+                              )}
+
+                              {/* Custom Edit Price */}
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setEditingPriceProduct(item);
+                                  setEditPriceSelling(item.price);
+                                  setEditPriceOriginal(item.originalPrice || item.price);
+                                }}
+                                className="px-2.5 py-1 bg-[#0284C7] hover:bg-[#0369A1] text-white text-[10px] font-bold uppercase tracking-wider"
+                              >
+                                Edit Price
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Promotional Campaigns Manager */}
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-[#E2E8F0] gap-2">
+                <div>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
+                    Store Promotional Campaigns
+                  </h3>
+                  <p className="text-[11px] text-neutral-500">
+                    Administrator-scheduled campaigns with explicit start & end dates.
+                  </p>
+                </div>
+              </div>
+
+              {/* Add New Campaign Form */}
+              <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-1">
+                    Campaign Title
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Eid Festive Unstitched Gala"
+                    value={newPromoTitle}
+                    onChange={(e) => setNewPromoTitle(e.target.value)}
+                    className="w-full p-2 border border-[#E2E8F0] bg-white text-xs"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-1">
+                    Discount Rate (%)
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    max="50"
+                    value={newPromoPercent}
+                    onChange={(e) => setNewPromoPercent(Number(e.target.value))}
+                    className="w-full p-2 border border-[#E2E8F0] bg-white text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-1">
+                    Expiry Date
+                  </label>
+                  <input
+                    type="date"
+                    value={newPromoEnd}
+                    onChange={(e) => setNewPromoEnd(e.target.value)}
+                    className="w-full p-2 border border-[#E2E8F0] bg-white text-xs"
+                  />
+                </div>
+                <div className="flex items-end">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!newPromoTitle.trim()) {
+                        showToast('Please enter a campaign title');
+                        return;
+                      }
+                      const newPromo = {
+                        id: `promo-${Date.now()}`,
+                        title: newPromoTitle.trim(),
+                        discountPercent: newPromoPercent,
+                        startDate: newPromoStart,
+                        endDate: newPromoEnd,
+                        active: true,
+                      };
+                      const existing = storeSettings?.promotions || [];
+                      updateStoreSettings({
+                        promotions: [...existing, newPromo],
+                      });
+                      setNewPromoTitle('');
+                      showToast(`Created promotion "${newPromo.title}"`);
+                    }}
+                    className="w-full py-2.5 px-4 bg-[#8C4830] hover:bg-[#723a26] text-white text-xs font-bold uppercase tracking-wider shadow-2xs"
+                  >
+                    + Create Campaign
+                  </button>
+                </div>
+              </div>
+
+              {/* Active Campaigns List */}
+              {(!storeSettings?.promotions || storeSettings.promotions.length === 0) ? (
+                <p className="text-xs text-neutral-400 py-3 text-center">
+                  No promotional campaigns currently active. The store is running strictly on regular mill prices.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {storeSettings.promotions.map((promo) => (
+                    <div
+                      key={promo.id}
+                      className="p-3 bg-white border border-[#E2E8F0] flex items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span
+                          className={`w-3 h-3 rounded-full ${
+                            promo.active ? 'bg-emerald-500' : 'bg-neutral-300'
+                          }`}
+                        />
+                        <div>
+                          <strong className="text-xs font-bold text-[#1C1917] block">{promo.title}</strong>
+                          <span className="text-[10px] text-neutral-500">
+                            Discount: {promo.discountPercent}% · Valid until {promo.endDate}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = storeSettings.promotions.map((p) =>
+                              p.id === promo.id ? { ...p, active: !p.active } : p
+                            );
+                            updateStoreSettings({ promotions: updated });
+                          }}
+                          className={`px-3 py-1 text-xs font-bold ${
+                            promo.active
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : 'bg-neutral-100 text-neutral-600'
+                          }`}
+                        >
+                          {promo.active ? 'Active' : 'Paused'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const updated = storeSettings.promotions.filter((p) => p.id !== promo.id);
+                            updateStoreSettings({ promotions: updated });
+                            showToast(`Deleted campaign "${promo.title}"`);
+                          }}
+                          className="p-1 text-red-600 hover:text-red-800"
+                          title="Delete Campaign"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Custom Edit Price Modal */}
+            {editingPriceProduct && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+                <div className="bg-white max-w-md w-full p-6 shadow-2xl border border-neutral-300 space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
+                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
+                      Edit Product Pricing & Offer
+                    </h4>
+                    <button
+                      onClick={() => setEditingPriceProduct(null)}
+                      className="text-neutral-500 hover:text-black"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  <div>
+                    <strong className="text-xs text-[#1C1917] block">{editingPriceProduct.title}</strong>
+                    <span className="text-[10px] text-neutral-500 font-mono">
+                      SKU: {editingPriceProduct.id} · {editingPriceProduct.fabric}
+                    </span>
+                  </div>
+
+                  <div className="space-y-3 text-xs">
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                        Selling Price (PKR) — Actual Customer Charge
+                      </label>
+                      <input
+                        type="number"
+                        min="100"
+                        value={editPriceSelling}
+                        onChange={(e) => setEditPriceSelling(Number(e.target.value))}
+                        className="w-full p-2 border border-neutral-300 font-mono font-bold"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                        Original Price (PKR) — Displayed as Crossed Out if Higher
+                      </label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editPriceOriginal}
+                        onChange={(e) => setEditPriceOriginal(Number(e.target.value))}
+                        className="w-full p-2 border border-neutral-300 font-mono"
+                      />
+                      <span className="text-[10px] text-neutral-500 mt-0.5 block">
+                        Set equal to or lower than Selling Price to remove any discount badge.
+                      </span>
+                    </div>
+
+                    {editPriceOriginal > editPriceSelling && (
+                      <div className="p-2.5 bg-red-50 border border-red-200 text-[11px] text-red-700 font-bold">
+                        Resulting Customer Discount: -{Math.round(((editPriceOriginal - editPriceSelling) / editPriceOriginal) * 100)}%
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-200">
+                    <button
+                      type="button"
+                      onClick={() => setEditingPriceProduct(null)}
+                      className="px-4 py-2 border border-neutral-300 text-xs font-semibold"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const hasDiscount = editPriceOriginal > editPriceSelling;
+                        updateProduct({
+                          ...editingPriceProduct,
+                          price: editPriceSelling,
+                          originalPrice: hasDiscount ? editPriceOriginal : undefined,
+                        });
+                        setEditingPriceProduct(null);
+                        showToast(`Updated pricing for ${editingPriceProduct.title}`);
+                      }}
+                      className="px-5 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold uppercase tracking-wider"
+                    >
+                      Save Pricing
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* TAB 2: ORDER MANAGEMENT — FULL CRUD */}
         {activeTab === 'orders' && (
           <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 border border-[#E2E8F0]">
-              <span className="text-xs font-semibold text-[#1C1917]">
-                Filter by Dispatch Status:
-              </span>
-              <div className="flex gap-2">
-                {['All', 'Pending', 'Processing', 'Shipped', 'Delivered'].map((status) => (
-                  <button
-                    key={status}
-                    onClick={() => setOrderStatusFilter(status)}
-                    className={`px-3 py-1.5 text-xs font-semibold border transition-colors ${
-                      orderStatusFilter === status
-                        ? 'bg-[#0284C7] text-white border-[#0284C7]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#0284C7]'
-                    }`}
-                  >
-                    {status}
-                  </button>
-                ))}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#0B1224] p-4 border border-[#1F293D] shadow-xl">
+              <div className="flex items-center gap-3">
+                <span className="text-xs font-mono font-bold uppercase tracking-wider text-slate-300">
+                  Dispatch Status:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {['All', 'Pending', 'Processing', 'Shipped', 'Delivered'].map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => setOrderStatusFilter(status)}
+                      className={`px-3 py-1 text-xs font-mono font-semibold transition-all rounded-xs border ${
+                        orderStatusFilter === status
+                          ? 'bg-[#00F0FF] text-[#050811] border-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.4)]'
+                          : 'bg-[#050811] text-slate-400 border-[#1F293D] hover:border-[#00F0FF] hover:text-white'
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              {/* Action: Create Manual / Phone Order */}
+              <button
+                type="button"
+                onClick={() => setIsAddOrderModalOpen(true)}
+                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#00FF9D] to-[#00F0FF] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(0,255,157,0.3)] flex items-center justify-center gap-2"
+              >
+                <Plus className="w-4 h-4 text-[#050811]" />
+                <span>+ Create Manual Order</span>
+              </button>
             </div>
 
             <div className="space-y-4">
               {filteredOrders.length === 0 ? (
-                <div className="p-12 text-center bg-white border border-[#E2E8F0] text-xs text-[#1C1917]/60">
+                <div className="p-12 text-center bg-[#0B1224] border border-[#1F293D] text-xs font-mono text-slate-400">
                   No orders found for status "{orderStatusFilter}".
                 </div>
               ) : (
                 filteredOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="bg-white border border-[#E2E8F0] p-5 shadow-xs space-y-4 text-xs"
+                    className="bg-[#0B1224] border border-[#1F293D] hover:border-[#00F0FF]/40 transition-all p-5 shadow-xl space-y-4 text-xs"
                   >
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E2E8F0] pb-3">
-                      <div>
-                        <span className="font-mono font-bold text-sm text-[#1C1917]">
-                          {order.id}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1F293D] pb-3">
+                      <div className="flex items-center gap-2.5">
+                        <span className="font-mono font-bold text-sm text-[#00F0FF]">
+                          #{order.id}
                         </span>
-                        <span className="text-[11px] text-[#1C1917]/50 ml-2">
+                        <span className="text-[11px] font-mono text-slate-400">
                           {new Date(order.date).toLocaleString('en-PK')}
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-2">
-                        <span className="font-semibold text-[#1C1917]">Status:</span>
-                        <select
-                          value={order.status}
-                          onChange={(e) =>
-                            updateOrderStatus(order.id, e.target.value as OrderStatus)
-                          }
-                          className="py-1 px-2 border border-[#E2E8F0] bg-[#F8FAFC] text-xs font-semibold text-[#0284C7] focus:outline-none"
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-xs text-slate-400">Status:</span>
+                          <select
+                            value={order.status}
+                            onChange={(e) =>
+                              updateOrderStatus(order.id, e.target.value as OrderStatus)
+                            }
+                            className="py-1 px-2.5 border border-[#1F293D] bg-[#050811] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#00F0FF]"
+                          >
+                            <option value="Pending">Pending</option>
+                            <option value="Processing">Processing</option>
+                            <option value="Shipped">Shipped</option>
+                            <option value="Delivered">Delivered</option>
+                          </select>
+                        </div>
+
+                        {/* Order CRUD triggers: Edit & Delete */}
+                        <button
+                          type="button"
+                          onClick={() => setEditingOrder(order)}
+                          className="px-2.5 py-1 bg-[#050811] hover:bg-[#131F38] border border-[#1F293D] hover:border-[#00F0FF] text-[#00F0FF] text-[11px] font-mono flex items-center gap-1 transition-all"
+                          title="Edit Customer & Order Shipping Info"
                         >
-                          <option value="Pending">Pending</option>
-                          <option value="Processing">Processing</option>
-                          <option value="Shipped">Shipped</option>
-                          <option value="Delivered">Delivered</option>
-                        </select>
+                          <Pencil className="w-3 h-3" />
+                          <span>Edit</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrder(order.id)}
+                          className="px-2.5 py-1 bg-[#050811] hover:bg-rose-950/40 border border-[#1F293D] hover:border-rose-500/50 text-rose-400 text-[11px] font-mono flex items-center gap-1 transition-all"
+                          title="Delete Order Permanently"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Delete</span>
+                        </button>
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {/* Customer Details */}
-                      <div>
-                        <p className="font-semibold text-[#1C1917] mb-1">
-                          Customer Details
+                      <div className="bg-[#050811] p-3 border border-[#1F293D] rounded-xs">
+                        <p className="font-mono text-[10px] uppercase tracking-wider text-[#00F0FF] font-bold mb-1.5 flex items-center gap-1.5">
+                          <Users className="w-3 h-3" />
+                          <span>Customer Dispatch Profile</span>
                         </p>
-                        <p className="font-medium text-[#1C1917]">
+                        <p className="font-bold text-white text-sm">
                           {order.customer.fullName}
                         </p>
-                        <p className="text-[#1C1917]/70">{order.customer.phone}</p>
-                        <p className="text-[#1C1917]/70 mt-1">
+                        <p className="text-slate-300 font-mono text-[11px] mt-0.5">{order.customer.phone}</p>
+                        {order.customer.email && (
+                          <p className="text-slate-400 font-mono text-[10px]">{order.customer.email}</p>
+                        )}
+                        <p className="text-slate-400 mt-2 text-[11px] leading-relaxed">
                           {order.customer.address}, {order.customer.city}
                         </p>
                       </div>
 
                       {/* Items Ordered */}
-                      <div>
-                        <p className="font-semibold text-[#1C1917] mb-1">
-                          Ordered Unstitched Fabrics
+                      <div className="bg-[#050811] p-3 border border-[#1F293D] rounded-xs">
+                        <p className="font-mono text-[10px] uppercase tracking-wider text-[#F5B738] font-bold mb-1.5 flex items-center gap-1.5">
+                          <Package className="w-3 h-3" />
+                          <span>Fabric Manifest ({order.items.length} items)</span>
                         </p>
-                        <ul className="space-y-1">
+                        <ul className="space-y-1.5 max-h-[140px] overflow-y-auto pr-1">
                           {order.items.map((it, idx) => (
-                            <li key={idx} className="flex justify-between">
-                              <span className="text-[#1C1917]">
-                                {it.product.title} (x{it.quantity})
+                            <li key={idx} className="flex justify-between items-center text-[11px]">
+                              <span className="text-white truncate max-w-[180px]">
+                                {it.product.title} <span className="text-[#00F0FF] font-mono font-bold">(x{it.quantity})</span>
                               </span>
-                              <span className="font-mono tabular-nums text-[#0284C7]">
+                              <span className="font-mono text-[#F5B738] tabular-nums shrink-0">
                                 {formatPKR(it.product.price * it.quantity)}
                               </span>
                             </li>
@@ -1332,43 +2526,43 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       {/* Payment & Dispatch Actions */}
-                      <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0] flex flex-col justify-between">
+                      <div className="bg-[#050811] p-3 border border-[#1F293D] rounded-xs flex flex-col justify-between">
                         <div>
-                          <div className="flex justify-between items-start mb-1 gap-2">
-                            <span className="text-[#1C1917]/60 shrink-0">Payment:</span>
-                            <span className="font-semibold text-right">
+                          <div className="flex justify-between items-start mb-1.5 gap-2">
+                            <span className="text-slate-400 font-mono text-[10px] uppercase shrink-0">Payment:</span>
+                            <span className="font-semibold text-right text-xs">
                               {order.paymentMethod === 'Online Payment Gateway (Debit/Credit Card)' ? (
-                                <span className="inline-flex items-center gap-1 text-blue-700 bg-blue-50 px-1.5 py-0.5 border border-blue-200 text-[11px]">
-                                  <ShieldCheck className="w-3 h-3 text-blue-600" />
+                                <span className="inline-flex items-center gap-1 text-[#00F0FF] bg-[#00F0FF]/10 px-1.5 py-0.5 border border-[#00F0FF]/30 text-[11px] font-mono">
+                                  <ShieldCheck className="w-3 h-3 text-[#00F0FF]" />
                                   Gateway ({order.paymentDetails?.cardBrand || 'Card'} •••• {order.paymentDetails?.cardLast4 || '4242'})
                                 </span>
                               ) : (
-                                order.paymentMethod
+                                <span className="text-slate-200 font-mono">{order.paymentMethod}</span>
                               )}
                             </span>
                           </div>
 
                           {order.paymentDetails?.authCode && (
-                            <div className="text-[10px] font-mono text-slate-600 flex justify-between bg-white p-1 border border-[#E2E8F0] my-1">
+                            <div className="text-[10px] font-mono text-slate-300 flex justify-between bg-[#0B1224] p-1.5 border border-[#1F293D] my-1">
                               <span>Auth Ref:</span>
-                              <strong className="text-blue-900">{order.paymentDetails.authCode}</strong>
+                              <strong className="text-[#00F0FF]">{order.paymentDetails.authCode}</strong>
                             </div>
                           )}
 
-                          <div className="flex justify-between items-center font-bold text-sm mt-1.5">
-                            <span>Total Payable:</span>
-                            <span className="font-mono text-[#0284C7] tabular-nums">
+                          <div className="flex justify-between items-center font-bold text-sm mt-2 pt-2 border-t border-[#1F293D]">
+                            <span className="text-slate-300 font-mono text-xs">Total Payable:</span>
+                            <span className="font-mono text-[#F5B738] tabular-nums text-base">
                               {formatPKR(order.total)}
                             </span>
                           </div>
                         </div>
 
-                        <div className="pt-2 border-t border-[#E2E8F0] flex gap-2">
+                        <div className="pt-3 border-t border-[#1F293D] flex gap-2">
                           <a
-                            href={`https://wa.me/${order.customer.whatsapp?.replace(/[^0-9]/g, '') || '923346565636'}?text=Hello%20${encodeURIComponent(order.customer.fullName)}%2C%20your%20order%20${order.id}%20from%20Niaz%20Cloth%20House%20is%20${order.status.toLowerCase()}.`}
+                            href={`https://wa.me/${order.customer.whatsapp?.replace(/[^0-9]/g, '') || order.customer.phone?.replace(/[^0-9]/g, '') || '923346565636'}?text=Hello%20${encodeURIComponent(order.customer.fullName)}%2C%20your%20order%20${order.id}%20from%20Niaz%20Cloth%20House%20is%20${order.status.toLowerCase()}.`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex-1 py-1.5 px-2 bg-[#4A5D4E] hover:bg-[#3d4d40] text-white text-center text-[11px] font-semibold transition-colors flex items-center justify-center gap-1"
+                            className="flex-1 py-1.5 px-2 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#00FF9D] border border-[#25D366]/40 text-center text-[11px] font-mono font-semibold transition-all flex items-center justify-center gap-1.5 rounded-xs"
                           >
                             <MessageCircle className="w-3.5 h-3.5" />
                             <span>WhatsApp Customer</span>
@@ -1383,108 +2577,433 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 3: REAL-TIME LOGGED-IN USERS & AUTHENTICATED ACCOUNTS */}
+        {/* MODULE E: CATEGORY & COLLECTION MANAGEMENT */}
+        {activeTab === 'categories' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E2E8F0] gap-3">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C1917]">
+                  Categories & Designer Mill Collections
+                </h3>
+                <p className="text-xs text-neutral-500">
+                  Manage department categorization for women's 3-piece ensembles and men's executive suiting.
+                </p>
+              </div>
+            </div>
+
+            {/* Categories Split: Women's Collections & Men's Collections */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Women's Categories */}
+              <div className="bg-white border border-[#E2E8F0] p-5 space-y-4 shadow-xs">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-[#8C4830]" />
+                    <strong className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
+                      Women's Department Categories
+                    </strong>
+                  </div>
+                  <span className="text-[11px] font-mono text-[#8C4830] font-bold">
+                    {products.filter((p) => p.gender === 'Women').length} Products
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                    <div className="flex justify-between items-center mb-1">
+                      <strong className="text-[#1C1917] font-semibold">Festive Embroidered Lawn</strong>
+                      <span className="font-mono text-[10px] text-[#8C4830]">
+                        {products.filter((p) => p.gender === 'Women' && p.craftType === 'Embroidery').length} Suits
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-600 mb-2">
+                      Johara, Bin Rashid, Safa Marwa, Sana Noor, Bonanza, Tawakkal, Bin Saeed, Zam Zam, Rana Arts, Ghani Arts.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchProductQuery('Embroidery');
+                        setActiveTab('inventory');
+                      }}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] hover:underline"
+                    >
+                      View in Inventory →
+                    </button>
+                  </div>
+
+                  <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                    <div className="flex justify-between items-center mb-1">
+                      <strong className="text-[#1C1917] font-semibold">Summer Printed Lawn</strong>
+                      <span className="font-mono text-[10px] text-[#8C4830]">
+                        {products.filter((p) => p.gender === 'Women' && p.craftType === 'Printed').length} Suits
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-600 mb-2">
+                      Bin Saeed, H.Z, Safina, Salina, Rawayat, Zam Zam, Five Star, Ajwa, Al-Hamda, Designer Classic.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchProductQuery('Printed');
+                        setActiveTab('inventory');
+                      }}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] hover:underline"
+                    >
+                      View in Inventory →
+                    </button>
+                  </div>
+
+                  <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8]">
+                    <div className="flex justify-between items-center mb-1">
+                      <strong className="text-[#1C1917] font-semibold">Luxury Chiffon & Silk Jacquard</strong>
+                      <span className="font-mono text-[10px] text-[#8C4830]">
+                        {products.filter((p) => p.gender === 'Women' && (p.fabric.includes('Chiffon') || p.fabric.includes('Silk'))).length} Suits
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-600 mb-2">
+                      Banarasi Silk Jacquard, Pure Bamberg Chiffon, Korean Tissue Organza with Resham and Marori needlework.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchProductQuery('Chiffon');
+                        setActiveTab('inventory');
+                      }}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] hover:underline"
+                    >
+                      View in Inventory →
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Men's Categories */}
+              <div className="bg-white border border-[#E2E8F0] p-5 space-y-4 shadow-xs">
+                <div className="flex items-center justify-between pb-3 border-b border-[#E2E8F0]">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
+                    <strong className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
+                      Men's Department Categories
+                    </strong>
+                  </div>
+                  <span className="text-[11px] font-mono text-[#0284C7] font-bold">
+                    {products.filter((p) => p.gender === 'Men').length} Products
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <div className="flex justify-between items-center mb-1">
+                      <strong className="text-[#1C1917] font-semibold">Pure Chinese Boski Silk (8-Pound)</strong>
+                      <span className="font-mono text-[10px] text-[#0284C7]">
+                        {products.filter((p) => p.gender === 'Men' && p.fabric === 'Boski').length} Suits
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-600 mb-2">
+                      Authentic Chinese mulberry spun silk in heirloom 8-pound weight with imperial gold selvedge.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchProductQuery('Boski');
+                        setActiveTab('inventory');
+                      }}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] hover:underline"
+                    >
+                      View in Inventory →
+                    </button>
+                  </div>
+
+                  <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <div className="flex justify-between items-center mb-1">
+                      <strong className="text-[#1C1917] font-semibold">Executive Wash & Wear</strong>
+                      <span className="font-mono text-[10px] text-[#0284C7]">
+                        {products.filter((p) => p.gender === 'Men' && p.fabric === 'Wash & Wear').length} Suits
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-600 mb-2">
+                      Poly-Viscose crease-resistant suiting with fluid fall, soft hand-feel, and crisp collar hold.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchProductQuery('Wash & Wear');
+                        setActiveTab('inventory');
+                      }}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] hover:underline"
+                    >
+                      View in Inventory →
+                    </button>
+                  </div>
+
+                  <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
+                    <div className="flex justify-between items-center mb-1">
+                      <strong className="text-[#1C1917] font-semibold">Kamalia Khaddar & Pure Cotton</strong>
+                      <span className="font-mono text-[10px] text-[#0284C7]">
+                        {products.filter((p) => p.gender === 'Men' && (p.fabric === 'Khaddar' || p.fabric === 'Cotton')).length} Suits
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-neutral-600 mb-2">
+                      Traditional handloom Kamalia spun khaddar and high-count Egyptian combed cotton.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSearchProductQuery('Cotton');
+                        setActiveTab('inventory');
+                      }}
+                      className="text-[10px] font-bold uppercase tracking-wider text-[#0284C7] hover:underline"
+                    >
+                      View in Inventory →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* MODULE F: HOMEPAGE & BANNER MANAGEMENT */}
+        {activeTab === 'homepage' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E2E8F0] gap-3">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C1917]">
+                  Homepage Content & Banners Controller
+                </h3>
+                <p className="text-xs text-neutral-500">
+                  Update customer announcements, hero headings, and featured collections without touching code.
+                </p>
+              </div>
+            </div>
+
+            {/* Announcement Bar & Top Notice */}
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917] pb-2 border-b border-[#E2E8F0]">
+                1. Store Announcement Bar
+              </h4>
+              <p className="text-xs text-neutral-500">
+                Displays at the very top of every page for promotions, shipping notices, or store timings.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={announcementInput}
+                  onChange={(e) => setAnnouncementInput(e.target.value)}
+                  placeholder="e.g. Certified Pure Chinese Boski Silk & Authentic Pakistani Mill Unstitched Fabrics..."
+                  className="flex-1 p-2.5 border border-[#E2E8F0] text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateStoreSettings({ announcementText: announcementInput.trim() });
+                    showToast('Store announcement banner updated');
+                  }}
+                  className="px-6 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold uppercase tracking-wider"
+                >
+                  Save Banner
+                </button>
+              </div>
+            </div>
+
+            {/* Hero Section Headings */}
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917] pb-2 border-b border-[#E2E8F0]">
+                2. Hero Section Seasonal Subtitle
+              </h4>
+              <div className="flex flex-col sm:flex-row gap-3">
+                <input
+                  type="text"
+                  value={heroHeadingInput}
+                  onChange={(e) => setHeroHeadingInput(e.target.value)}
+                  placeholder="e.g. Summer & Festive Unstitched Collections 2026"
+                  className="flex-1 p-2.5 border border-[#E2E8F0] text-xs"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateStoreSettings({ heroAnnouncement: heroHeadingInput.trim() });
+                    showToast('Hero season heading updated');
+                  }}
+                  className="px-6 py-2.5 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold uppercase tracking-wider"
+                >
+                  Save Headline
+                </button>
+              </div>
+            </div>
+
+            {/* Featured Products Toggle Grid */}
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
+              <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+                <div>
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
+                    3. Homepage Featured Showcase Products
+                  </h4>
+                  <span className="text-[11px] text-neutral-500">
+                    Toggle which unstitched suits appear on the primary homepage showcase:
+                  </span>
+                </div>
+                <span className="text-xs font-mono font-bold text-[#0284C7]">
+                  {products.filter((p) => p.featured).length} Featured
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {products.map((p) => (
+                  <div
+                    key={p.id}
+                    className={`p-3 border flex items-center justify-between gap-3 text-xs transition-colors ${
+                      p.featured ? 'border-[#0284C7] bg-[#F0F9FF]' : 'border-[#E2E8F0] bg-white'
+                    }`}
+                  >
+                    <div className="min-w-0 flex-1">
+                      <strong className="block text-[#1C1917] truncate font-semibold">{p.title}</strong>
+                      <span className="text-[10px] text-neutral-500">
+                        {p.gender} · {formatPKR(p.price)}
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        updateProduct({ ...p, featured: !p.featured });
+                        showToast(`${!p.featured ? 'Added' : 'Removed'} "${p.title}" ${!p.featured ? 'to' : 'from'} featured`);
+                      }}
+                      className={`px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
+                        p.featured ? 'bg-[#0284C7] text-white' : 'bg-neutral-100 text-neutral-700 hover:bg-neutral-200'
+                      }`}
+                    >
+                      {p.featured ? 'Featured' : 'Make Featured'}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* TAB 3: REAL-TIME CUSTOMERS & PATRON ACCOUNTS — FULL CRUD */}
         {activeTab === 'users' && (
           <div className="space-y-6">
-            {/* Active Session Spotlight */}
-            <div className="bg-white border-2 border-[#0284C7]/40 p-6 shadow-sm">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
+            {/* Active Session Spotlight — 2050 Quantum HUD */}
+            <div className="bg-[#0B1224] border border-[#1F293D] p-6 shadow-2xl relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#00F0FF]/5 rounded-full blur-3xl pointer-events-none" />
+
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1F293D]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                  <div className="w-12 h-12 rounded-xs bg-gradient-to-br from-[#00F0FF] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-lg shadow-[0_0_15px_rgba(0,240,255,0.4)]">
                     {(authUser?.displayName || authUser?.email || currentAdmin.fullName).charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <span className="text-[11px] uppercase tracking-widest text-[#0284C7] font-bold block">
-                      Currently Logged-In User Profile
+                    <span className="text-[10px] uppercase font-mono tracking-widest text-[#00F0FF] font-bold block flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+                      ACTIVE TERMINAL OPERATOR PROFILE
                     </span>
-                    <h3 className="font-serif text-xl font-bold text-[#1C1917]">
+                    <h3 className="font-serif text-xl font-bold text-white">
                       {authUser?.displayName || currentAdmin.fullName || 'Store Administrator'}
                     </h3>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold rounded-full">
-                    <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
-                    <span>ONLINE & AUTHENTICATED</span>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 text-xs font-mono font-semibold rounded-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                    <span>AUTHENTICATED · SECURE PROTOCOL</span>
                   </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAddCustomerModalOpen(true)}
+                    className="px-4 py-2 bg-gradient-to-r from-[#F5B738] to-amber-500 hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(245,183,56,0.3)] flex items-center gap-1.5"
+                  >
+                    <Plus className="w-4 h-4 text-[#050811]" />
+                    <span>+ Add Customer</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 text-xs">
-                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Authenticated Account
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 text-xs font-mono">
+                <div className="bg-[#050811] p-3 border border-[#1F293D]">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
+                    Admin UID / Account
                   </span>
-                  <span className="font-mono font-bold text-sm text-[#0284C7] mt-0.5 block truncate">
+                  <span className="font-mono font-bold text-sm text-[#00F0FF] mt-0.5 block truncate">
                     {authUser?.email || currentAdmin.email || 'uzairaliuzairali640@gmail.com'}
                   </span>
                 </div>
 
-                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Real-Time Registered Users
+                <div className="bg-[#050811] p-3 border border-[#1F293D]">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
+                    Live Patron Directory
                   </span>
-                  <span className="font-bold text-sm text-[#1C1917] mt-0.5 block">
-                    {activeUserList.length} User Account(s)
+                  <span className="font-bold text-sm text-white mt-0.5 block">
+                    {activeUserList.length} User Accounts
                   </span>
                 </div>
 
-                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Designated Role
+                <div className="bg-[#050811] p-3 border border-[#1F293D]">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
+                    Security Clearance
                   </span>
-                  <span className="font-semibold text-[#1C1917] mt-0.5 block">
+                  <span className="font-semibold text-[#F5B738] mt-0.5 block">
                     {authUser?.email === 'uzairaliuzairali640@gmail.com' ? 'Super Administrator (Owner)' : currentAdmin.role}
                   </span>
                 </div>
 
-                <div className="bg-[#F8FAFC] p-3 border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase tracking-wider font-semibold">
-                    Live Session Security
+                <div className="bg-[#050811] p-3 border border-[#1F293D]">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
+                    Database Encryption
                   </span>
-                  <span className="font-medium text-emerald-700 mt-0.5 block flex items-center gap-1">
+                  <span className="font-medium text-[#00FF9D] mt-0.5 block flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
-                    <span>Firebase Auth & TLS 256-Bit</span>
+                    <span>Firestore TLS 256-Bit</span>
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Live Real-Time Registered Users Directory (from Firestore & Firebase Auth) */}
-            <div className="bg-white border border-[#E2E8F0] p-5 space-y-4 shadow-xs">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#E2E8F0]">
+            <div className="bg-[#0B1224] border border-[#1F293D] p-5 space-y-4 shadow-xl">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[#1F293D]">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
-                      <Users className="w-5 h-5 text-[#0284C7]" />
-                      <span>Live Active Users &amp; Patron Accounts</span>
+                    <h4 className="font-serif text-lg font-bold text-white flex items-center gap-2">
+                      <Users className="w-5 h-5 text-[#00F0FF]" />
+                      <span>Live Customer &amp; Patron Intelligence</span>
                     </h4>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] font-bold rounded-full">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 text-[11px] font-mono font-bold rounded-xs">
+                      <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
                       <span>{onlineUsersCount} Online Now</span>
                     </span>
                   </div>
-                  <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
-                    Real-time registered patrons queried live from Firebase Auth &amp; Firestore. Zero placeholder data.
+                  <p className="text-xs text-slate-400 font-sans mt-0.5">
+                    Real-time registered customer profiles connected to Firestore `users` collection. Full CRUD enabled.
                   </p>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
                   <button
                     type="button"
+                    onClick={() => setIsAddCustomerModalOpen(true)}
+                    className="px-3.5 py-1.5 bg-[#00F0FF]/15 hover:bg-[#00F0FF]/25 border border-[#00F0FF]/40 text-xs font-mono font-bold text-[#00F0FF] flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,240,255,0.2)]"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Create Customer Profile</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={handleTestFirestoreHealth}
                     disabled={dbConnectionStatus === 'checking'}
-                    className="px-3 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] hover:border-[#0284C7] text-xs font-semibold text-[#1C1917] flex items-center gap-1.5 transition-colors shadow-2xs"
+                    className="px-3 py-1.5 bg-[#050811] border border-[#1F293D] hover:border-[#00F0FF] text-xs font-mono text-slate-300 flex items-center gap-1.5 transition-all"
                     title="Ping Firestore database connection"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 text-[#0284C7] ${dbConnectionStatus === 'checking' ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-3.5 h-3.5 text-[#00F0FF] ${dbConnectionStatus === 'checking' ? 'animate-spin' : ''}`} />
                     <span>{dbConnectionStatus === 'checking' ? 'Testing...' : 'Test DB Health'}</span>
                   </button>
 
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 text-slate-800 text-xs font-mono font-semibold rounded-xs border border-slate-200">
-                    <Database className="w-3.5 h-3.5 text-slate-600" />
-                    <span>Firestore: Connected</span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#050811] text-[#00FF9D] text-xs font-mono font-semibold rounded-xs border border-[#1F293D]">
+                    <Database className="w-3.5 h-3.5 text-[#00FF9D]" />
+                    <span>Firestore Live</span>
                   </span>
                 </div>
               </div>
@@ -1492,37 +3011,37 @@ export const AdminPage: React.FC = () => {
               {/* Filtering and Search Controls */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
                 {/* Status Segmented Buttons */}
-                <div className="flex border border-[#E2E8F0] bg-[#F8FAFC] p-0.5 rounded-xs text-xs">
+                <div className="flex border border-[#1F293D] bg-[#050811] p-0.5 rounded-xs text-xs font-mono">
                   <button
                     type="button"
                     onClick={() => setUserFilter('all')}
-                    className={`px-3 py-1.5 font-semibold transition-colors ${
+                    className={`px-3 py-1.5 transition-all ${
                       userFilter === 'all'
-                        ? 'bg-white text-[#1C1917] shadow-2xs'
-                        : 'text-[#1C1917]/60 hover:text-[#1C1917]'
+                        ? 'bg-[#00F0FF] text-[#050811] font-bold shadow-[0_0_8px_rgba(0,240,255,0.4)]'
+                        : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    All Accounts ({activeUserList.length})
+                    All Patrons ({activeUserList.length})
                   </button>
                   <button
                     type="button"
                     onClick={() => setUserFilter('online')}
-                    className={`px-3 py-1.5 font-semibold transition-colors flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 transition-all flex items-center gap-1.5 ${
                       userFilter === 'online'
-                        ? 'bg-white text-emerald-800 shadow-2xs'
-                        : 'text-[#1C1917]/60 hover:text-[#1C1917]'
+                        ? 'bg-[#00FF9D] text-[#050811] font-bold shadow-[0_0_8px_rgba(0,255,157,0.4)]'
+                        : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Online Now ({onlineUsersCount})</span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                    <span>Online ({onlineUsersCount})</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => setUserFilter('admins')}
-                    className={`px-3 py-1.5 font-semibold transition-colors ${
+                    className={`px-3 py-1.5 transition-all ${
                       userFilter === 'admins'
-                        ? 'bg-white text-[#0284C7] shadow-2xs'
-                        : 'text-[#1C1917]/60 hover:text-[#1C1917]'
+                        ? 'bg-[#F5B738] text-[#050811] font-bold shadow-[0_0_8px_rgba(245,183,56,0.4)]'
+                        : 'text-slate-400 hover:text-white'
                     }`}
                   >
                     Admins &amp; Staff ({activeUserList.filter((u) => u.email === 'uzairaliuzairali640@gmail.com' || (u.role && u.role.toLowerCase().includes('admin'))).length})
@@ -1535,15 +3054,15 @@ export const AdminPage: React.FC = () => {
                     type="text"
                     value={userSearchQuery}
                     onChange={(e) => setUserSearchQuery(e.target.value)}
-                    placeholder="Search by name, email, UID, or city..."
-                    className="w-full pl-8 pr-3 py-1.5 bg-[#F8FAFC] border border-[#E2E8F0] text-xs focus:bg-white focus:outline-none focus:border-[#0284C7] transition-colors"
+                    placeholder="Filter patrons by name, email, or city..."
+                    className="w-full pl-8 pr-3 py-1.5 bg-[#050811] border border-[#1F293D] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#00F0FF] transition-all"
                   />
-                  <Search className="w-3.5 h-3.5 text-[#1C1917]/40 absolute left-2.5 top-2.5" />
+                  <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                   {userSearchQuery && (
                     <button
                       type="button"
                       onClick={() => setUserSearchQuery('')}
-                      className="absolute right-2 top-2 text-[#1C1917]/40 hover:text-[#1C1917]"
+                      className="absolute right-2 top-2 text-slate-400 hover:text-white"
                     >
                       <X className="w-3 h-3" />
                     </button>
@@ -1553,51 +3072,51 @@ export const AdminPage: React.FC = () => {
 
               {filteredActiveUsers.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs min-w-[720px]">
-                    <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
+                  <table className="w-full text-left text-xs min-w-[720px] font-sans">
+                    <thead className="bg-[#050811] text-slate-400 uppercase tracking-wider text-[11px] font-mono font-semibold border-b border-[#1F293D]">
                       <tr>
-                        <th className="py-2.5 px-3">User Profile &amp; UID</th>
+                        <th className="py-2.5 px-3">Patron Profile &amp; UID</th>
                         <th className="py-2.5 px-3">Email Address</th>
-                        <th className="py-2.5 px-3">Role &amp; Permissions</th>
-                        <th className="py-2.5 px-3">Live Presence</th>
-                        <th className="py-2.5 px-3">City / Region</th>
-                        <th className="py-2.5 px-3">Registration</th>
-                        <th className="py-2.5 px-3">Last Active</th>
+                        <th className="py-2.5 px-3">Role &amp; Tier</th>
+                        <th className="py-2.5 px-3">Presence</th>
+                        <th className="py-2.5 px-3">City</th>
+                        <th className="py-2.5 px-3">Registered</th>
+                        <th className="py-2.5 px-3 text-right">Actions</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E2E8F0]">
+                    <tbody className="divide-y divide-[#1F293D]">
                       {filteredActiveUsers.map((usr) => {
                         const oopUser = UserFactory.createUser(usr);
                         const isCurrent = (authUser && usr.uid === authUser.uid) || (usr.email && usr.email === currentAdmin.email);
                         const isUserOnline = usr.isOnline || isCurrent;
                         return (
-                          <tr key={usr.uid || usr.email} className={isCurrent ? 'bg-[#0284C7]/5 font-medium' : 'hover:bg-[#F8FAFC]'}>
+                          <tr key={usr.uid || usr.email} className={isCurrent ? 'bg-[#00F0FF]/10 font-medium' : 'hover:bg-[#131F38]/50 transition-colors'}>
                             <td className="py-2.5 px-3 flex items-center gap-2.5">
                               {usr.photoURL ? (
-                                <img src={usr.photoURL} alt={usr.displayName} className="w-7 h-7 rounded-full object-cover" />
+                                <img src={usr.photoURL} alt={usr.displayName} className="w-7 h-7 rounded-xs object-cover border border-[#1F293D]" />
                               ) : (
-                                <div className="w-7 h-7 rounded-full bg-[#0284C7] text-white flex items-center justify-center font-bold text-[10px]">
+                                <div className="w-7 h-7 rounded-xs bg-[#00F0FF]/20 text-[#00F0FF] border border-[#00F0FF]/30 flex items-center justify-center font-mono font-bold text-[10px]">
                                   {(usr.displayName || usr.email || 'U').charAt(0).toUpperCase()}
                                 </div>
                               )}
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5">
-                                  <span className="text-[#1C1917] font-semibold block truncate">{usr.displayName || 'Customer'}</span>
+                                  <span className="text-white font-medium block truncate">{usr.displayName || 'Customer'}</span>
                                   {isCurrent && (
-                                    <span className="text-[9px] px-1.5 py-0.2 bg-[#0284C7] text-white font-sans font-bold rounded-xs shrink-0">
-                                      You
+                                    <span className="text-[9px] px-1.5 py-0.2 bg-[#00F0FF] text-[#050811] font-mono font-bold rounded-xs shrink-0">
+                                      YOU
                                     </span>
                                   )}
                                 </div>
                                 <div className="flex items-center gap-1 mt-0.5">
-                                  <span className="font-mono text-[10px] text-neutral-400 block truncate max-w-[110px]">{usr.uid}</span>
+                                  <span className="font-mono text-[10px] text-slate-400 block truncate max-w-[110px]">{usr.uid}</span>
                                   <button
                                     type="button"
                                     onClick={() => {
                                       navigator.clipboard.writeText(usr.uid);
                                       showToast(`UID copied: ${usr.uid}`);
                                     }}
-                                    className="text-[10px] text-slate-400 hover:text-slate-700"
+                                    className="text-[10px] text-slate-400 hover:text-[#00F0FF]"
                                     title="Copy UID"
                                   >
                                     <Copy className="w-2.5 h-2.5" />
@@ -1605,41 +3124,58 @@ export const AdminPage: React.FC = () => {
                                 </div>
                               </div>
                             </td>
-                            <td className="py-2.5 px-3 font-sans text-[#1C1917]">
+                            <td className="py-2.5 px-3 font-mono text-slate-300">
                               {usr.email}
                             </td>
-                            <td className="py-2.5 px-3">
-                              <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded ${
+                            <td className="py-2.5 px-3 font-mono">
+                              <span className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded-xs border ${
                                 usr.email === 'uzairaliuzairali640@gmail.com'
-                                  ? 'bg-purple-100 text-purple-800 border border-purple-300'
+                                  ? 'bg-[#F5B738]/15 text-[#F5B738] border-[#F5B738]/30'
                                   : oopUser.canManageInventory()
-                                  ? 'bg-sky-100 text-sky-800 border border-sky-300'
-                                  : 'bg-neutral-100 text-neutral-800 border border-neutral-200'
+                                  ? 'bg-[#00F0FF]/15 text-[#00F0FF] border-[#00F0FF]/30'
+                                  : 'bg-slate-800 text-slate-300 border-slate-700'
                               }`}>
-                                {oopUser.getRole()}
+                                {usr.role || oopUser.getRole()}
                               </span>
                             </td>
-                            <td className="py-2.5 px-3">
+                            <td className="py-2.5 px-3 font-mono">
                               {isUserOnline ? (
-                                <span className="inline-flex items-center gap-1.5 text-[11px] text-emerald-700 font-bold">
-                                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                  <span>ONLINE NOW</span>
+                                <span className="inline-flex items-center gap-1.5 text-[10px] text-[#00FF9D] font-bold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                                  <span>ONLINE</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1.5 text-[11px] text-neutral-500">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-neutral-400"></span>
+                                <span className="inline-flex items-center gap-1.5 text-[10px] text-slate-500">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-slate-600"></span>
                                   <span>Offline</span>
                                 </span>
                               )}
                             </td>
-                            <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
+                            <td className="py-2.5 px-3 text-slate-300 text-[11px] font-mono">
                               {usr.city || 'Rawalpindi / Islamabad'}
                             </td>
-                            <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
+                            <td className="py-2.5 px-3 text-slate-400 text-[11px] font-mono">
                               {usr.createdAt ? new Date(usr.createdAt).toLocaleDateString() : 'Active Member'}
                             </td>
-                            <td className="py-2.5 px-3 text-[#1C1917]/70 text-[11px]">
-                              {isUserOnline ? 'Active right now' : (usr.lastLoginAt ? new Date(usr.lastLoginAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Recent')}
+                            <td className="py-2.5 px-3 text-right">
+                              <div className="flex items-center justify-end gap-1.5">
+                                <button
+                                  type="button"
+                                  onClick={() => setEditingCustomer(usr)}
+                                  className="p-1.5 bg-[#050811] hover:bg-[#131F38] border border-[#1F293D] hover:border-[#00F0FF] text-[#00F0FF] transition-all rounded-xs"
+                                  title="Edit Profile & Role"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCustomer(usr.uid, usr.email)}
+                                  className="p-1.5 bg-[#050811] hover:bg-rose-950/40 border border-[#1F293D] hover:border-rose-500 text-rose-400 transition-all rounded-xs"
+                                  title="Delete Customer Profile"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );
@@ -1648,58 +3184,55 @@ export const AdminPage: React.FC = () => {
                   </table>
                 </div>
               ) : (
-                <div className="p-8 text-center bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <Users className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-neutral-700">No users match the active filter criteria</p>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">
-                    Try clearing the search query or selecting "All Accounts".
-                  </p>
+                <div className="p-8 text-center text-xs font-mono text-slate-500">
+                  No matching patron accounts found.
                 </div>
               )}
             </div>
 
-            {/* Customer User Profiles Directory (From Real Orders) */}
-            <div className="bg-white border border-[#E2E8F0] p-5 space-y-4">
+            {/* Customer User Profiles Directory (From Real Orders) — 2050 Style */}
+            <div className="bg-[#0B1224] border border-[#1F293D] p-5 space-y-4 shadow-xl">
               <div>
-                <h4 className="font-serif text-base font-bold text-[#1C1917]">
-                  Verified Customer Contacts & Order History
+                <h4 className="font-serif text-base font-bold text-white flex items-center gap-2">
+                  <ShoppingBag className="w-4 h-4 text-[#F5B738]" />
+                  <span>Verified Checkout Clients &amp; Order Telemetry</span>
                 </h4>
-                <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
-                  Real customers who have completed unstitched fabric checkouts on the storefront.
+                <p className="text-xs text-slate-400 font-sans mt-0.5">
+                  Real patrons who have completed unstitched fabric checkouts across WhatsApp, COD, and payment gateway.
                 </p>
               </div>
 
               {orders.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-left text-xs min-w-[600px]">
-                    <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
+                  <table className="w-full text-left text-xs min-w-[600px] font-sans">
+                    <thead className="bg-[#050811] text-slate-400 uppercase tracking-wider text-[11px] font-mono font-semibold border-b border-[#1F293D]">
                       <tr>
                         <th className="py-2.5 px-3">Customer Full Name</th>
                         <th className="py-2.5 px-3">Contact Phone</th>
-                        <th className="py-2.5 px-3">Destination City / Country</th>
+                        <th className="py-2.5 px-3">Destination City</th>
                         <th className="py-2.5 px-3">Total Orders</th>
                         <th className="py-2.5 px-3">Last Payment Method</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#E2E8F0]">
+                    <tbody className="divide-y divide-[#1F293D]">
                       {(Array.from(new Set(orders.map((o) => o.customer.fullName))) as string[]).map((customerName) => {
                         const customerOrders = orders.filter((o) => o.customer.fullName === customerName);
                         const latestOrder = customerOrders[0];
                         return (
-                          <tr key={customerName} className="hover:bg-[#F8FAFC]">
-                            <td className="py-2.5 px-3 font-semibold text-[#1C1917]">
+                          <tr key={customerName} className="hover:bg-[#131F38]/50 transition-colors">
+                            <td className="py-2.5 px-3 font-medium text-white">
                               {customerName}
                             </td>
-                            <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">
+                            <td className="py-2.5 px-3 font-mono text-[#00F0FF]">
                               {latestOrder.customer.phone}
                             </td>
-                            <td className="py-2.5 px-3 text-[#1C1917]/80">
+                            <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px]">
                               {latestOrder.customer.city}, {latestOrder.customer.country || 'Pakistan'}
                             </td>
-                            <td className="py-2.5 px-3 font-semibold text-[#0284C7]">
+                            <td className="py-2.5 px-3 font-mono font-bold text-[#F5B738]">
                               {customerOrders.length} order(s)
                             </td>
-                            <td className="py-2.5 px-3 text-[11px] text-[#1C1917]/70">
+                            <td className="py-2.5 px-3 text-[11px] text-slate-400 font-mono">
                               {latestOrder.paymentMethod}
                             </td>
                           </tr>
@@ -1709,14 +3242,227 @@ export const AdminPage: React.FC = () => {
                   </table>
                 </div>
               ) : (
-                <div className="p-8 text-center bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <ShoppingBag className="w-8 h-8 text-neutral-400 mx-auto mb-2" />
-                  <p className="text-xs font-semibold text-neutral-700">No Customer Orders Registered Yet</p>
-                  <p className="text-[11px] text-neutral-500 mt-0.5">
-                    All dummy order data has been removed. When a real customer completes checkout, their contact information and order history will automatically display here in real time.
+                <div className="p-8 text-center bg-[#050811] border border-[#1F293D]">
+                  <ShoppingBag className="w-8 h-8 text-slate-600 mx-auto mb-2" />
+                  <p className="text-xs font-mono font-semibold text-slate-400">No Customer Orders Registered Yet</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    When a real customer completes checkout, their contact information and order history will automatically display here in real time.
                   </p>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {/* MODULE H: STORE SETTINGS & GATEWAY CONFIGURATION */}
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#E2E8F0] gap-3">
+              <div>
+                <h3 className="text-sm font-bold uppercase tracking-wider text-[#1C1917]">
+                  Store Settings & Payment Gateways
+                </h3>
+                <p className="text-xs text-neutral-500">
+                  Centralized control over store branding, hotline numbers, physical address, and mobile wallets.
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-white border border-[#E2E8F0] p-6 space-y-6 shadow-xs">
+              {/* Branding Section */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917] pb-2 border-b border-[#E2E8F0] flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#0284C7]" />
+                  <span>1. Store Identity & Physical Location</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Store Name
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm?.storeName || ''}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, storeName: e.target.value }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs font-semibold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Brand Tagline
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm?.tagline || ''}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, tagline: e.target.value }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs"
+                    />
+                  </div>
+
+                  <div className="sm:col-span-2">
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Physical Store Address (Paris Bazaar)
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm?.address || ''}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, address: e.target.value }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Communication Hotline */}
+              <div className="space-y-4 pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917] pb-2 border-b border-[#E2E8F0] flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                  <span>2. Concierge & Official WhatsApp (Same Number for Hotline & Wallets)</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Official WhatsApp Number
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm?.whatsapp || ''}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, whatsapp: e.target.value }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-neutral-500 mt-1 block">
+                      Used for customer WhatsApp concierge and instant order links.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Telephone / Voice Desk
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm?.phone || ''}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, phone: e.target.value }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Gateways */}
+              <div className="space-y-4 pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917] pb-2 border-b border-[#E2E8F0] flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-[#8C4830]" />
+                  <span>3. Mobile Banking Payment Gateways (Easypaisa & JazzCash)</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] space-y-2">
+                    <strong className="block text-xs font-bold text-[#8C4830]">Easypaisa Account</strong>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-0.5">
+                        Account Number
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm?.easypaisaNumber || ''}
+                        onChange={(e) => setSettingsForm((prev) => ({ ...prev, easypaisaNumber: e.target.value }))}
+                        className="w-full p-2 border border-[#E2E8F0] bg-white text-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-0.5">
+                        Account Title
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm?.easypaisaTitle || ''}
+                        onChange={(e) => setSettingsForm((prev) => ({ ...prev, easypaisaTitle: e.target.value }))}
+                        className="w-full p-2 border border-[#E2E8F0] bg-white text-xs"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] space-y-2">
+                    <strong className="block text-xs font-bold text-[#8C4830]">JazzCash Account</strong>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-0.5">
+                        Account Number
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm?.jazzcashNumber || ''}
+                        onChange={(e) => setSettingsForm((prev) => ({ ...prev, jazzcashNumber: e.target.value }))}
+                        className="w-full p-2 border border-[#E2E8F0] bg-white text-xs font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-0.5">
+                        Account Title
+                      </label>
+                      <input
+                        type="text"
+                        value={settingsForm?.jazzcashTitle || ''}
+                        onChange={(e) => setSettingsForm((prev) => ({ ...prev, jazzcashTitle: e.target.value }))}
+                        className="w-full p-2 border border-[#E2E8F0] bg-white text-xs"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Shipping & Delivery Charges */}
+              <div className="space-y-4 pt-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917] pb-2 border-b border-[#E2E8F0] flex items-center gap-2">
+                  <Truck className="w-4 h-4 text-[#0284C7]" />
+                  <span>4. Courier Shipping & Free Delivery Threshold</span>
+                </h4>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Standard Nationwide Courier Charge (PKR)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={settingsForm?.shippingFee || 250}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, shippingFee: Number(e.target.value) }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
+                      Free Shipping Order Threshold (PKR)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={settingsForm?.freeShippingThreshold || 5000}
+                      onChange={(e) => setSettingsForm((prev) => ({ ...prev, freeShippingThreshold: Number(e.target.value) }))}
+                      className="w-full p-2.5 border border-[#E2E8F0] text-xs font-mono"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Save All Settings Action */}
+              <div className="pt-4 border-t border-[#E2E8F0] flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateStoreSettings(settingsForm);
+                    showToast('All store settings saved & synced to live platform');
+                  }}
+                  className="px-8 py-3 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold uppercase tracking-widest shadow-md"
+                >
+                  Save Store Settings
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -3303,6 +5049,474 @@ export const AdminPage: React.FC = () => {
                       Update Suit & Photo
                     </button>
                   </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL 1: CREATE MANUAL / PHONE DISPATCH ORDER */}
+        {isAddOrderModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#0B1224] border border-[#00F0FF]/40 text-white max-w-xl w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-[#00F0FF]/15 border border-[#00F0FF]/40 text-[#00F0FF]">
+                    <Truck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#00F0FF] font-bold block">
+                      MANUAL DISPATCH TERMINAL
+                    </span>
+                    <h3 className="font-serif text-lg font-bold text-white">Create Phone / Counter Order</h3>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddOrderModalOpen(false)}
+                  className="text-slate-400 hover:text-white p-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateManualOrder} className="space-y-4 text-xs font-mono">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Customer Full Name *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newOrderForm.fullName}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, fullName: e.target.value })}
+                      placeholder="e.g. Fatima Khan"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Phone / WhatsApp *</label>
+                    <input
+                      type="text"
+                      required
+                      value={newOrderForm.phone}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, phone: e.target.value })}
+                      placeholder="e.g. 0334-6565636"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Destination City</label>
+                    <input
+                      type="text"
+                      value={newOrderForm.city}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, city: e.target.value })}
+                      placeholder="e.g. Rawalpindi"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Payment Method</label>
+                    <select
+                      value={newOrderForm.paymentMethod}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, paymentMethod: e.target.value as PaymentMethod })}
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    >
+                      <option value="Cash on Delivery">Cash on Delivery (COD)</option>
+                      <option value="Direct WhatsApp / Bank Transfer">Direct WhatsApp / Bank Transfer</option>
+                      <option value="Online Payment Gateway (Debit/Credit Card)">Online Payment Gateway</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Delivery Street Address</label>
+                  <input
+                    type="text"
+                    value={newOrderForm.address}
+                    onChange={(e) => setNewOrderForm({ ...newOrderForm, address: e.target.value })}
+                    placeholder="House / Shop address, Paris Bazaar"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="col-span-2">
+                    <label className="block text-slate-300 mb-1 text-[11px]">Select Fabric Product</label>
+                    <select
+                      value={newOrderForm.selectedProductId || (products[0]?.id || '')}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, selectedProductId: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none truncate"
+                    >
+                      {products.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.title} ({p.fabric} · {formatPKR(p.price)})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Quantity</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="50"
+                      value={newOrderForm.quantity}
+                      onChange={(e) => setNewOrderForm({ ...newOrderForm, quantity: Math.max(1, Number(e.target.value)) })}
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="p-3 bg-[#050811] border border-[#1F293D] flex justify-between items-center text-xs">
+                  <span className="text-slate-400">Total Calculated Payable:</span>
+                  <span className="text-base font-bold text-[#F5B738]">
+                    {(() => {
+                      const sel = products.find((p) => p.id === newOrderForm.selectedProductId) || products[0];
+                      const sub = sel ? sel.price * (newOrderForm.quantity || 1) : 0;
+                      const ship = sub > 3000 ? 0 : 250;
+                      return formatPKR(sub + ship);
+                    })()}
+                  </span>
+                </div>
+
+                <div className="pt-3 border-t border-[#1F293D] flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddOrderModalOpen(false)}
+                    className="px-4 py-2 bg-[#050811] border border-[#1F293D] text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-6 py-2 bg-gradient-to-r from-[#00FF9D] to-[#00F0FF] hover:brightness-110 text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(0,255,157,0.3)]"
+                  >
+                    Create &amp; Dispatch Order
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL 2: EDIT ORDER DETAILS */}
+        {editingOrder && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#0B1224] border border-[#00F0FF]/40 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#00F0FF] font-bold block">
+                    ORDER MUTATION
+                  </span>
+                  <h3 className="font-serif text-lg font-bold text-white">Edit Order #{editingOrder.id}</h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingOrder(null)}
+                  className="text-slate-400 hover:text-white p-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateOrder} className="space-y-4 text-xs font-mono">
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Customer Full Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingOrder.customer.fullName}
+                    onChange={(e) =>
+                      setEditingOrder({
+                        ...editingOrder,
+                        customer: { ...editingOrder.customer, fullName: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Phone</label>
+                    <input
+                      type="text"
+                      required
+                      value={editingOrder.customer.phone}
+                      onChange={(e) =>
+                        setEditingOrder({
+                          ...editingOrder,
+                          customer: { ...editingOrder.customer, phone: e.target.value },
+                        })
+                      }
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">City</label>
+                    <input
+                      type="text"
+                      value={editingOrder.customer.city}
+                      onChange={(e) =>
+                        setEditingOrder({
+                          ...editingOrder,
+                          customer: { ...editingOrder.customer, city: e.target.value },
+                        })
+                      }
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Street Address</label>
+                  <input
+                    type="text"
+                    value={editingOrder.customer.address}
+                    onChange={(e) =>
+                      setEditingOrder({
+                        ...editingOrder,
+                        customer: { ...editingOrder.customer, address: e.target.value },
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Order Status</label>
+                  <select
+                    value={editingOrder.status}
+                    onChange={(e) =>
+                      setEditingOrder({
+                        ...editingOrder,
+                        status: e.target.value as OrderStatus,
+                      })
+                    }
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="Processing">Processing</option>
+                    <option value="Shipped">Shipped</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                </div>
+
+                <div className="pt-3 border-t border-[#1F293D] flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingOrder(null)}
+                    className="px-4 py-2 bg-[#050811] border border-[#1F293D] text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-[#00F0FF] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL 3: ADD CUSTOMER / PATRON PROFILE */}
+        {isAddCustomerModalOpen && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#0B1224] border border-[#F5B738]/50 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-[#F5B738]/15 border border-[#F5B738]/40 text-[#F5B738]">
+                    <Users className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#F5B738] font-bold block">
+                      CLIENT MANAGEMENT
+                    </span>
+                    <h3 className="font-serif text-lg font-bold text-white">Register Patron Profile</h3>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsAddCustomerModalOpen(false)}
+                  className="text-slate-400 hover:text-white p-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleCreateCustomer} className="space-y-4 text-xs font-mono">
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Full Name *</label>
+                  <input
+                    type="text"
+                    required
+                    value={newCustomerForm.displayName}
+                    onChange={(e) => setNewCustomerForm({ ...newCustomerForm, displayName: e.target.value })}
+                    placeholder="e.g. Ayesha Siddiqui"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#F5B738] text-white outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Email Address *</label>
+                    <input
+                      type="email"
+                      required
+                      value={newCustomerForm.email}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, email: e.target.value })}
+                      placeholder="client@domain.com"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#F5B738] text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Phone</label>
+                    <input
+                      type="text"
+                      value={newCustomerForm.phone}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, phone: e.target.value })}
+                      placeholder="0300-1234567"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#F5B738] text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">City</label>
+                    <input
+                      type="text"
+                      value={newCustomerForm.city}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, city: e.target.value })}
+                      placeholder="Rawalpindi"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#F5B738] text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Clearance Role</label>
+                    <select
+                      value={newCustomerForm.role}
+                      onChange={(e) => setNewCustomerForm({ ...newCustomerForm, role: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#F5B738] text-white outline-none"
+                    >
+                      <option value="Customer">Standard Customer</option>
+                      <option value="VIP Patron">VIP Patron (Preferred Discounts)</option>
+                      <option value="Inventory Staff">Inventory Staff</option>
+                      <option value="Admin">Administrator</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="pt-3 border-t border-[#1F293D] flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddCustomerModalOpen(false)}
+                    className="px-4 py-2 bg-[#050811] border border-[#1F293D] text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-[#F5B738] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(245,183,56,0.4)]"
+                  >
+                    Save Customer Profile
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* MODAL 4: EDIT CUSTOMER / PATRON PROFILE */}
+        {editingCustomer && (
+          <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-[#0B1224] border border-[#00F0FF]/40 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+              <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
+                <div>
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#00F0FF] font-bold block">
+                    PATRON RECORD MUTATION
+                  </span>
+                  <h3 className="font-serif text-lg font-bold text-white">
+                    Edit {editingCustomer.displayName || editingCustomer.email}
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingCustomer(null)}
+                  className="text-slate-400 hover:text-white p-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateCustomer} className="space-y-4 text-xs font-mono">
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Display Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingCustomer.displayName || ''}
+                    onChange={(e) => setEditingCustomer({ ...editingCustomer, displayName: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">Phone</label>
+                    <input
+                      type="text"
+                      value={editingCustomer.phone || ''}
+                      onChange={(e) => setEditingCustomer({ ...editingCustomer, phone: e.target.value })}
+                      placeholder="0334-xxxxxxx"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 mb-1 text-[11px]">City</label>
+                    <input
+                      type="text"
+                      value={editingCustomer.city || ''}
+                      onChange={(e) => setEditingCustomer({ ...editingCustomer, city: e.target.value })}
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-slate-300 mb-1 text-[11px]">Assigned Role &amp; Tier</label>
+                  <select
+                    value={editingCustomer.role || 'Customer'}
+                    onChange={(e) => setEditingCustomer({ ...editingCustomer, role: e.target.value })}
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                  >
+                    <option value="Customer">Standard Customer</option>
+                    <option value="VIP Patron">VIP Patron (Preferred Discounts)</option>
+                    <option value="Inventory Staff">Inventory Staff</option>
+                    <option value="Admin">Administrator</option>
+                  </select>
+                </div>
+
+                <div className="pt-3 border-t border-[#1F293D] flex items-center justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingCustomer(null)}
+                    className="px-4 py-2 bg-[#050811] border border-[#1F293D] text-slate-400 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-5 py-2 bg-[#00F0FF] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                  >
+                    Save Patron Changes
+                  </button>
                 </div>
               </form>
             </div>

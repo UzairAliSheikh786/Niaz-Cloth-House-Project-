@@ -13,12 +13,14 @@ import {
   MessageCircle,
   Scissors,
   Check,
-  ShoppingBag
+  ShoppingBag,
+  Rotate3d
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { ProductCard } from '../components/ProductCard';
 import { QuickViewModal } from '../components/QuickViewModal';
+import { Interactive3DStorefronts } from '../components/3d/Interactive3DStorefronts';
 import { Product, WOMEN_EMBROIDERY_BRANDS, WOMEN_PRINTED_BRANDS, MENS_FABRICS } from '../types';
 
 export const HomePage: React.FC = () => {
@@ -260,49 +262,52 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 2. Worldwide Shipping & International Patron Assurance Bar */}
-      <section className="bg-[#111111] text-white border-y border-neutral-800 py-3.5 px-4 sm:px-8">
+      <section className="bg-[#030610] text-neutral-300 border-y border-white/10 py-3.5 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <Globe className="w-4 h-4 text-emerald-400 shrink-0" />
+            <Globe className="w-4 h-4 text-[#00F0FF] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block">Worldwide Delivery</span>
+              <span className="font-bold uppercase tracking-wider block text-white font-mono">Worldwide Delivery</span>
               <span className="text-neutral-400">UK, USA, UAE, Canada & Global</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <Video className="w-4 h-4 text-emerald-400 shrink-0" />
+            <Video className="w-4 h-4 text-[#F5B738] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block">Live Video Inspection</span>
+              <span className="font-bold uppercase tracking-wider block text-white font-mono">Live Video Inspection</span>
               <span className="text-neutral-400">Inspect fabric drape before dispatch</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[#00FF9D] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block">100% Original Mills</span>
+              <span className="font-bold uppercase tracking-wider block text-white font-mono">100% Original Mills</span>
               <span className="text-neutral-400">Certified seals & brand packaging</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <MessageCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+            <MessageCircle className="w-4 h-4 text-[#00F0FF] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block">WhatsApp Concierge</span>
-              <span className="text-neutral-400">+92 334 6565636 (24/7 Desk)</span>
+              <span className="font-bold uppercase tracking-wider block text-white font-mono">WhatsApp Concierge</span>
+              <span className="text-[#00FF9D] font-mono">+92 334 6565636 (24/7 Desk)</span>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 3. Limelight Quick Category Circles / Highlights */}
-      <section className="py-8 sm:py-12 border-b border-neutral-200 bg-[#FAFAFA]">
+      {/* 2.5 TWO INTERACTIVE 3D SHOPPING STOREFRONTS: SECTION A (WOMEN) & SECTION B (MEN) */}
+      <Interactive3DStorefronts />
+
+      {/* 3. Quick Category Highlights */}
+      <section className="py-8 sm:py-12 border-b border-white/10 bg-[#060A16]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xs sm:text-sm font-black tracking-[0.2em] uppercase text-black">
-              Explore Collections
+            <h2 className="text-xs sm:text-sm font-black tracking-[0.2em] uppercase text-white font-mono">
+              ◈ Explore Collections
             </h2>
             <button
               onClick={() => navigateTo('shop')}
-              className="text-xs font-bold tracking-wider uppercase text-neutral-600 hover:text-black flex items-center gap-1"
+              className="text-xs font-bold tracking-wider uppercase text-[#00F0FF] hover:text-white flex items-center gap-1 font-mono transition-colors"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -316,7 +321,7 @@ export const HomePage: React.FC = () => {
                 onClick={cat.action}
                 className="group flex flex-col items-center shrink-0 w-16 sm:w-22 text-center focus:outline-none"
               >
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-transparent group-hover:border-black p-0.5 transition-all duration-300 shadow-xs bg-white">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-[#00F0FF] p-0.5 transition-all duration-300 shadow-md bg-[#0A0F1D] group-hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]">
                   <img
                     src={cat.image}
                     alt={cat.label}
@@ -331,7 +336,7 @@ export const HomePage: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] sm:text-xs font-semibold text-neutral-800 group-hover:text-black mt-1.5 sm:mt-2 tracking-wide leading-tight line-clamp-1">
+                <span className="text-[10px] sm:text-xs font-semibold text-neutral-300 group-hover:text-[#00F0FF] mt-1.5 sm:mt-2 tracking-wide leading-tight line-clamp-1 transition-colors">
                   {cat.label}
                 </span>
               </button>
@@ -340,19 +345,19 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* 4. Interactive Curated Collections Atelier (Clean Limelight Luxury Filtering) */}
-      <section className="py-10 sm:py-16 bg-white border-b border-neutral-200">
+      {/* 4. Interactive Curated Collections Atelier */}
+      <section className="py-10 sm:py-16 bg-[#050811] border-b border-white/10 text-white">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           
           {/* Section Header */}
           <div className="text-center mb-6 sm:mb-8">
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.25em] uppercase text-neutral-500 block mb-1">
+            <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.25em] uppercase text-[#00F0FF] block mb-1">
               Curated Unstitched Fabrics
             </span>
-            <h2 className="font-sans font-black text-xl sm:text-3xl tracking-[0.14em] uppercase text-black mb-2.5">
+            <h2 className="font-sans font-black text-xl sm:text-3xl tracking-[0.14em] uppercase text-white mb-2.5">
               Select By Department & Designer Mill
             </h2>
-            <div className="w-14 h-0.5 bg-black mx-auto mb-4" />
+            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent mx-auto mb-4" />
             <p className="text-xs text-neutral-500 max-w-xl mx-auto">
               Filter unstitched suits instantly by craft, fabric, and renowned Pakistani textile mills. Shipped worldwide from Paris Bazaar Rawalpindi.
             </p>

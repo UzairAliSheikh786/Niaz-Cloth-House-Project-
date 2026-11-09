@@ -15,7 +15,8 @@ import {
   Check, 
   Flame, 
   ArrowRight,
-  Compass
+  Compass,
+  Sparkles
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -80,11 +81,12 @@ export const Header: React.FC = () => {
     : 0;
 
   return (
-    <header className="w-full bg-white border-b border-neutral-200 sticky top-0 z-40 transition-all shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
-      {/* 1. Limelight Top Announcement Bar */}
-      <div className="bg-[#111111] text-white py-2 px-4 sm:px-6 lg:px-12 text-[11px] font-sans font-medium tracking-wider flex items-center justify-between border-b border-neutral-800">
+    <header className="w-full bg-[#050811]/92 backdrop-blur-2xl border-b border-white/10 sticky top-0 z-40 transition-all shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
+      {/* 1. 2050s Cyber Top Announcement Bar */}
+      <div className="bg-[#030610] text-neutral-200 py-2 px-4 sm:px-6 lg:px-12 text-[11px] font-sans font-medium tracking-wider flex items-center justify-between border-b border-white/10">
         <div className="flex-1 text-center sm:text-left overflow-hidden">
-          <p className="truncate animate-fadeIn">
+          <p className="truncate animate-fadeIn text-neutral-200">
+            <span className="text-[#00F0FF] mr-2">◈ 2050 ATELIER</span>
             {tickerMessages[currentTicker]}
           </p>
         </div>
@@ -94,37 +96,37 @@ export const Header: React.FC = () => {
             href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20inquire%20about%20your%20unstitched%20fabrics"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-white flex items-center gap-1.5 transition-colors"
+            className="hover:text-[#00FF9D] flex items-center gap-1.5 transition-colors"
           >
-            <Phone className="w-3 h-3 text-emerald-400" />
-            <span>0334-6565636</span>
+            <Phone className="w-3 h-3 text-[#00FF9D]" />
+            <span className="font-mono">0334-6565636</span>
           </a>
 
           <button
             onClick={() => navigateTo('location')}
             className="hover:text-white flex items-center gap-1.5 transition-colors"
           >
-            <MapPin className="w-3 h-3 text-sky-400" />
+            <MapPin className="w-3 h-3 text-[#00F0FF]" />
             <span>Paris Bazaar, Rawalpindi</span>
           </button>
 
           <button
             onClick={() => setIsMapAgentOpen(true)}
-            className="hover:text-sky-300 text-sky-400 flex items-center gap-1.5 transition-colors font-semibold"
+            className="hover:text-[#00F0FF] text-[#00F0FF]/90 flex items-center gap-1.5 transition-colors font-semibold"
             title="Open Interactive Google Maps Route & Places Agent"
           >
-            <Compass className="w-3.5 h-3.5 animate-pulse" />
+            <Compass className="w-3.5 h-3.5 animate-pulse text-[#00F0FF]" />
             <span>Maps &amp; Route Agent</span>
           </button>
 
-          {/* Currency selector like Limelight */}
-          <div className="flex items-center gap-1 text-[10px] text-neutral-400 pl-3 border-l border-neutral-700">
+          {/* Currency selector */}
+          <div className="flex items-center gap-1 text-[10px] text-neutral-400 pl-3 border-l border-white/10">
             {(['PKR', 'USD', 'AED'] as const).map((curr) => (
               <button
                 key={curr}
                 onClick={() => setCurrency(curr)}
                 className={`px-1.5 py-0.5 font-semibold transition-colors ${
-                  currency === curr ? 'text-white underline underline-offset-2' : 'hover:text-white'
+                  currency === curr ? 'text-[#F5B738] underline underline-offset-2' : 'hover:text-white'
                 }`}
               >
                 {curr}
@@ -142,7 +144,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 text-neutral-900 hover:text-black focus:outline-none min-w-[40px] min-h-[40px] flex items-center justify-center"
+              className="p-2 text-white hover:text-[#00F0FF] focus:outline-none min-w-[40px] min-h-[40px] flex items-center justify-center"
               aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -150,25 +152,25 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-neutral-900 hover:text-black min-w-[40px] min-h-[40px] flex items-center justify-center"
+              className="p-2 text-white hover:text-[#00F0FF] min-w-[40px] min-h-[40px] flex items-center justify-center"
               aria-label="Search catalog"
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
 
-          {/* Desktop Search Bar (Limelight-style quick search box) */}
+          {/* Desktop Search Bar */}
           <div className="hidden lg:flex items-center flex-1 max-w-xs">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="w-full flex items-center justify-between bg-neutral-100 hover:bg-neutral-200/70 border border-neutral-200 text-neutral-500 px-3.5 py-2 text-xs tracking-wide transition-colors group cursor-text"
+              className="w-full flex items-center justify-between bg-[#0A0F1D]/80 hover:bg-[#0E1626] border border-white/10 hover:border-[#00F0FF]/40 text-neutral-400 px-3.5 py-2 text-xs tracking-wide transition-all group cursor-text rounded-xs"
             >
-              <span className="truncate">Search suits, brands, fabrics...</span>
-              <Search className="w-4 h-4 text-neutral-400 group-hover:text-neutral-700 shrink-0 ml-2" />
+              <span className="truncate">Search luxury fabrics, weaves, silk...</span>
+              <Search className="w-4 h-4 text-neutral-400 group-hover:text-[#00F0FF] shrink-0 ml-2" />
             </button>
           </div>
 
-          {/* Center Brand Identity (Responsive font & letter-spacing to prevent mobile clipping) */}
+          {/* Center Brand Identity */}
           <div className="flex-1 lg:flex-initial text-center px-1 sm:px-4 min-w-0 overflow-hidden">
             <a
               href="/"
@@ -178,11 +180,11 @@ export const Header: React.FC = () => {
               }}
               className="inline-block group focus:outline-none max-w-full"
             >
-              <span className="block font-sans font-black text-sm sm:text-2xl lg:text-3xl tracking-[0.14em] sm:tracking-[0.24em] uppercase text-black group-hover:text-neutral-700 transition-colors truncate">
+              <span className="block font-sans font-black text-sm sm:text-2xl lg:text-3xl tracking-[0.16em] sm:tracking-[0.24em] uppercase text-white group-hover:text-[#F5B738] transition-colors truncate drop-shadow-[0_0_20px_rgba(245,183,56,0.3)]">
                 NIAZ CLOTH HOUSE
               </span>
-              <span className="block text-[7.5px] sm:text-[10px] tracking-[0.16em] sm:tracking-[0.28em] uppercase text-neutral-500 font-medium mt-0.5 truncate">
-                EST. 1970 · PARIS BAZAAR · RAWALPINDI
+              <span className="block text-[7.5px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.32em] uppercase text-[#00F0FF]/80 font-mono font-medium mt-0.5 truncate">
+                EST. 1970 · PARIS BAZAAR RAWALPINDI · 2050 ATELIER
               </span>
             </a>
           </div>
@@ -199,36 +201,36 @@ export const Header: React.FC = () => {
                     openAuthModal();
                   }
                 }}
-                className="p-2 text-neutral-800 hover:text-black flex items-center gap-1.5 transition-colors focus:outline-none"
+                className="p-2 text-neutral-200 hover:text-white flex items-center gap-1.5 transition-colors focus:outline-none"
                 aria-label="Account login and profile"
               >
-                <UserIcon className="w-5 h-5" />
-                <span className="hidden xl:inline text-xs font-semibold tracking-wider uppercase text-neutral-800">
+                <UserIcon className="w-5 h-5 text-neutral-300" />
+                <span className="hidden xl:inline text-xs font-semibold tracking-wider uppercase text-neutral-300 hover:text-white">
                   {user ? (user.displayName || 'Patron').split(' ')[0] : 'SIGN IN'}
                 </span>
               </button>
 
               {user && userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-neutral-200 shadow-xl py-2 z-50 text-xs text-neutral-800">
-                  <div className="px-4 py-2 border-b border-neutral-100">
-                    <p className="font-semibold text-black truncate">{user.displayName || 'Distinguished Patron'}</p>
-                    <p className="text-[11px] text-neutral-500 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-[#0A0F1D] border border-white/10 shadow-2xl py-2 z-50 text-xs text-neutral-200 backdrop-blur-xl">
+                  <div className="px-4 py-2 border-b border-white/10">
+                    <p className="font-semibold text-white truncate">{user.displayName || 'Distinguished Patron'}</p>
+                    <p className="text-[11px] text-neutral-400 truncate">{user.email}</p>
                   </div>
                   <button
                     onClick={() => {
                       navigateTo('admin');
                       setUserDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 font-medium"
+                    className="w-full text-left px-4 py-2 hover:bg-white/5 font-medium text-[#00F0FF]"
                   >
-                    Admin & Order Desk
+                    Admin Command Desk
                   </button>
                   <button
                     onClick={() => {
                       logout();
                       setUserDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-neutral-100 text-red-600 flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 hover:bg-white/5 text-red-400 flex items-center gap-2"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
@@ -240,35 +242,35 @@ export const Header: React.FC = () => {
             {/* Wishlist Button */}
             <button
               onClick={() => navigateTo('shop', { favoritesOnly: true })}
-              className="p-2 text-neutral-800 hover:text-black relative transition-colors focus:outline-none hidden sm:flex items-center"
+              className="p-2 text-neutral-300 hover:text-[#F5B738] relative transition-colors focus:outline-none hidden sm:flex items-center"
               aria-label={`Wishlist (${wishlist.length} items)`}
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute top-1 right-1 bg-[#F5B738] text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {wishlist.length}
                 </span>
               )}
             </button>
 
-            {/* Shopping Bag / Cart Drawer Trigger (Limelight fast-fashion bag button) */}
+            {/* Shopping Bag / Cart Drawer Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-black hover:bg-neutral-100 transition-colors focus:outline-none"
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-white hover:bg-white/5 border border-white/5 hover:border-[#00F0FF]/30 transition-all focus:outline-none rounded-xs"
               aria-label={`View cart (${cartCount} items)`}
             >
               <div className="relative">
-                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6" />
+                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[#00F0FF]" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-black text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute -top-1.5 -right-2 bg-[#F5B738] text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                     {cartCount}
                   </span>
                 )}
               </div>
               <div className="hidden lg:flex flex-col text-left">
-                <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-semibold leading-tight">Bag</span>
-                <span className="text-xs font-bold text-black leading-tight">
+                <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold leading-tight font-mono">Bag</span>
+                <span className="text-xs font-bold text-[#F5B738] leading-tight font-mono">
                   {cartTotal > 0 ? formatPKR(cartTotal) : 'PKR 0'}
                 </span>
               </div>
@@ -276,8 +278,8 @@ export const Header: React.FC = () => {
           </div>
         </div>
 
-        {/* 3. Limelight Primary Navigation Bar (Centered Mega Menu) */}
-        <nav className="hidden lg:flex items-center justify-center border-t border-neutral-100 py-3 gap-8 text-[12px] font-sans font-semibold tracking-[0.16em] uppercase text-neutral-800 select-none">
+        {/* 3. Primary Navigation Bar */}
+        <nav className="hidden lg:flex items-center justify-center border-t border-white/10 py-3 gap-8 text-[12px] font-sans font-semibold tracking-[0.16em] uppercase text-neutral-300 select-none">
           {/* WOMEN DROP-DOWN */}
           <div
             className="relative group py-1"
@@ -296,14 +298,14 @@ export const Header: React.FC = () => {
 
             {/* Mega Menu Dropdown */}
             {activeMegaMenu === 'women' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[920px] bg-white border border-neutral-200 shadow-2xl p-8 z-50 animate-fadeIn">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[920px] bg-[#0B1224] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-8 z-50 animate-fadeIn text-white">
                 <div className="grid grid-cols-4 gap-8">
                   {/* Col 1: Embroidered Collection */}
                   <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3 flex items-center justify-between">
-                      <span>Embroidered Collection</span>
+                    <h3 className="text-xs font-black tracking-widest uppercase text-white pb-2 border-b border-white/10 mb-3 flex items-center justify-between">
+                      <span className="text-[#00F0FF]">Embroidered Collection</span>
                     </h3>
-                    <ul className="space-y-2 text-[11px] font-medium text-neutral-600">
+                    <ul className="space-y-2 text-[11px] font-medium text-neutral-300">
                       {WOMEN_EMBROIDERY_BRANDS.map((brand) => (
                         <li key={brand}>
                           <button
@@ -311,19 +313,19 @@ export const Header: React.FC = () => {
                               navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand });
                               setActiveMegaMenu(null);
                             }}
-                            className="hover:text-black hover:translate-x-1 transition-all block text-left"
+                            className="hover:text-[#00F0FF] hover:translate-x-1 transition-all block text-left"
                           >
                             {brand}
                           </button>
                         </li>
                       ))}
-                      <li className="pt-2 border-t border-neutral-100">
+                      <li className="pt-2 border-t border-white/10">
                         <button
                           onClick={() => {
                             navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
                             setActiveMegaMenu(null);
                           }}
-                          className="text-black font-bold flex items-center gap-1 hover:underline"
+                          className="text-[#00F0FF] font-bold flex items-center gap-1 hover:underline"
                         >
                           View All Embroidered →
                         </button>
@@ -463,14 +465,14 @@ export const Header: React.FC = () => {
 
             {/* Men's Mega Menu Dropdown */}
             {activeMegaMenu === 'men' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[760px] bg-white border border-neutral-200 shadow-2xl p-8 z-50 animate-fadeIn">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[760px] bg-[#0B1224] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-8 z-50 animate-fadeIn text-white">
                 <div className="grid grid-cols-3 gap-8">
                   {/* Col 1: Fabrics */}
                   <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3">
-                      Men's Signature Fabrics
+                    <h3 className="text-xs font-black tracking-widest uppercase text-white pb-2 border-b border-white/10 mb-3">
+                      <span className="text-[#F5B738]">Men's Signature Fabrics</span>
                     </h3>
-                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-600">
+                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-300">
                       {MENS_FABRICS.map((fabric) => (
                         <li key={fabric}>
                           <button
@@ -478,19 +480,19 @@ export const Header: React.FC = () => {
                               navigateTo('shop', { gender: 'Men', fabric });
                               setActiveMegaMenu(null);
                             }}
-                            className="hover:text-black hover:translate-x-1 transition-all block text-left font-medium"
+                            className="hover:text-[#F5B738] hover:translate-x-1 transition-all block text-left font-medium"
                           >
                             {fabric} Suiting
                           </button>
                         </li>
                       ))}
-                      <li className="pt-2 border-t border-neutral-100">
+                      <li className="pt-2 border-t border-white/10">
                         <button
                           onClick={() => {
                             navigateTo('shop', { gender: 'Men' });
                             setActiveMegaMenu(null);
                           }}
-                          className="text-black font-bold flex items-center gap-1 hover:underline"
+                          className="text-[#F5B738] font-bold flex items-center gap-1 hover:underline"
                         >
                           View All Men's Fabrics →
                         </button>

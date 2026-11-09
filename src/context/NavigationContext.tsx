@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { INITIAL_PRODUCTS } from '../data/products';
+import { Product } from '../types';
 
 export type PageRoute = 
   | 'home' 
@@ -60,6 +61,10 @@ interface NavigationContextType {
   filterParams: NavFilterParams;
   isMapAgentOpen: boolean;
   setIsMapAgentOpen: (open: boolean) => void;
+  is3DInspectorOpen: boolean;
+  setIs3DInspectorOpen: (open: boolean) => void;
+  inspectorProduct: Product | null;
+  open3DInspector: (product?: Product | null) => void;
 }
 
 const NavigationContext = createContext<NavigationContextType | undefined>(undefined);
@@ -152,6 +157,13 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
   const [productId, setProductId] = useState<string | null>(initial.id || 'nch-001');
   const [filterParams, setFilterParams] = useState<NavFilterParams>(initial.filters);
   const [isMapAgentOpen, setIsMapAgentOpen] = useState(false);
+  const [is3DInspectorOpen, setIs3DInspectorOpen] = useState(false);
+  const [inspectorProduct, setInspectorProduct] = useState<Product | null>(null);
+
+  const open3DInspector = (product?: Product | null) => {
+    if (product) setInspectorProduct(product);
+    setIs3DInspectorOpen(true);
+  };
 
   useEffect(() => {
     const handlePopState = () => {
@@ -267,6 +279,10 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         filterParams,
         isMapAgentOpen,
         setIsMapAgentOpen,
+        is3DInspectorOpen,
+        setIs3DInspectorOpen,
+        inspectorProduct,
+        open3DInspector,
       }}
     >
       {children}
