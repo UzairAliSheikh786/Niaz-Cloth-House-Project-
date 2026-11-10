@@ -29,7 +29,7 @@ import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs } from '../components/Breadcrumbs';
 
 export const ProductDetailPage: React.FC = () => {
-  const { products, addToCart, generateWhatsAppOrderUrl, showToast, recordProductView } = useShop();
+  const { products, addToCart, generateWhatsAppOrderUrl, showToast, recordProductView, storeSettings } = useShop();
   const { productId, navigateTo } = useNavigation();
   const { getReviewsForProduct, getProductStats, submitReview, isSubmittingReview } = useReviews();
   const { user } = useAuth();
@@ -789,7 +789,7 @@ export const ProductDetailPage: React.FC = () => {
                   <Truck className="w-3.5 h-3.5 text-black" />
                   <span>Nationwide Express COD Dispatch</span>
                 </div>
-                <span>Free Shipping over PKR 3,000</span>
+                <span>Free Shipping over {formatPKR(storeSettings?.freeShippingThreshold ?? 5000)}</span>
               </div>
             </div>
           </div>

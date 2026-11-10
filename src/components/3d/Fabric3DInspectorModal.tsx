@@ -584,7 +584,7 @@ export const Fabric3DInspectorModal: React.FC<Fabric3DInspectorModalProps> = ({
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold text-[#D4AF37]">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Paris Bazaar 1977 Quality</span>
+              <span>Paris Bazaar 1970 Heritage Quality</span>
             </div>
 
             <h3 id="modal-3d-title" className="font-serif text-xl sm:text-2xl text-white font-normal leading-snug">

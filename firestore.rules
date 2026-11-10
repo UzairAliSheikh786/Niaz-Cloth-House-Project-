@@ -17,29 +17,14 @@ service cloud.firestore {
 
     function isAdmin() {
       return isSignedIn() && (
-        request.auth.token.email == 'uzairaliuzairali640@gmail.com' ||
-        request.auth.token.email == 'admin@nch.com' ||
-        request.auth.token.email == 'admin@niazclothhouse.com'
+        (request.auth.token.email in ['uzairaliuzairali640@gmail.com', 'admin@nch.com', 'admin@niazclothhouse.com'] &&
+         request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
       );
     }
 
-    // Users Collection
-    match /users/{userId} {
-      allow read: if isSignedIn();
-      allow write: if isOwner(userId) || isAdmin();
-    }
-
-    // Orders Collection
-    match /orders/{orderId} {
-      // Anyone can create an order (supports Cash on Delivery & WhatsApp checkout)
-      allow create: if request.resource.data.id is string
-                    && request.resource.data.total is number;
-      // Anyone can look up a single order by its exact ID (Order Tracking)
-      allow get: if true;
-      // Listing all orders restricted to store admin or authenticated account owner
-      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
-      // Status updates reserved for store admin
-      allow update, delete: if isAdmin();
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
     }
 
     // Connection verification document
@@ -47,13 +32,50 @@ service cloud.firestore {
       allow read: if true;
     }
 
-    // Customer Reviews Collection (associated with products)
+    // Store Settings (Business info, announcements, shipping parameters, promotions)
+    match /storeSettings/{settingId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Users Collection (Strict PII Isolation)
+    match /users/{userId} {
+      allow read, write: if isOwner(userId) || isAdmin();
+    }
+
+    // Orders Collection (Server & Authenticated Client Protection)
+    match /orders/{orderId} {
+      // Order Creation: Validate required fields and reasonable size
+      allow create: if request.resource.data.id is string
+                    && request.resource.data.id.size() <= 64
+                    && request.resource.data.total is number
+                    && request.resource.data.total > 0
+                    && request.resource.data.items is list
+                    && request.resource.data.items.size() > 0
+                    && request.resource.data.items.size() <= 50
+                    && request.resource.data.customer is map;
+      
+      // Order Read: Strict access - only the account owner or verified store administrator
+      allow get: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      // Order List: Restricted to store administrator or matching account owner
+      allow list: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
+      
+      // Order Status Updates & Cancellations: Strictly store administrator
+      allow update, delete: if isAdmin();
+    }
+
+    // Customer Reviews Collection (Verified authentic product feedback)
     match /reviews/{reviewId} {
       allow read: if true;
       allow create: if request.resource.data.productId is string
+                    && request.resource.data.authorName is string
+                    && request.resource.data.authorName.size() <= 100
                     && request.resource.data.rating is number
                     && request.resource.data.rating >= 1
-                    && request.resource.data.rating <= 5;
+                    && request.resource.data.rating <= 5
+                    && request.resource.data.comment is string
+                    && request.resource.data.comment.size() <= 1000;
       allow update, delete: if isAdmin();
     }
 
@@ -66,13 +88,13 @@ service cloud.firestore {
     // Video Generations (Veo 3 unstitched fabric runway visualizations)
     match /videoGenerations/{videoId} {
       allow read: if true;
-      allow create: if true;
+      allow create: if isSignedIn();
       allow delete: if isAdmin();
     }
 
     // Consultations & Chat Inquiries Collection
     match /consultations/{consultationId} {
-      allow read: if true;
+      allow read: if isAdmin() || (isSignedIn() && resource.data.userId == request.auth.uid);
       allow create: if true;
       allow update, delete: if isAdmin();
     }

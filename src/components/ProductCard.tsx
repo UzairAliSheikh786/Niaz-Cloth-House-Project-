@@ -57,12 +57,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   return (
     <Card3DWrapper className="h-full">
       <article 
-        className="group flex flex-col bg-[#0B1224] border border-white/10 hover:border-[#00F0FF]/60 hover:shadow-[0_0_25px_rgba(0,240,255,0.2)] transition-all duration-300 relative select-none w-full min-w-0 h-full rounded-xs overflow-hidden"
+        className="group flex flex-col bg-white border border-[#E8E0D2] hover:border-[#D4AF37] hover:shadow-[0_8px_25px_rgba(212,175,55,0.12)] transition-all duration-300 relative select-none w-full min-w-0 h-full overflow-hidden"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
         {/* 1. Image Container (Limelight 3:4 Fashion Portrait Ratio) */}
-        <div className="relative aspect-[3/4] w-full overflow-hidden bg-neutral-100">
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F7F4EE]">
         <a 
           href={productUrl}
           onClick={handleCardClick}
@@ -89,10 +89,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         {badgeText && (
           <div className="absolute top-2 left-2 z-10 pointer-events-none">
             <span
-              className={`text-[8px] sm:text-[9px] font-bold tracking-widest uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 leading-none shadow-xs ${
+              className={`text-[8px] sm:text-[9px] font-sans font-medium tracking-widest uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 leading-none shadow-xs ${
                 badgeType === 'sale'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-black text-white'
+                  ? 'bg-[#1F1F1F] text-[#D4AF37] border border-[#D4AF37]/50'
+                  : 'bg-[#1F1F1F] text-[#F7F4EE]'
               }`}
             >
               {badgeText}
@@ -112,7 +112,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             }}
             className={`p-1.5 sm:p-2 rounded-full transition-all duration-200 ${
               isFavorite 
-                ? 'bg-red-600 text-white shadow-md' 
+                ? 'bg-[#D4AF37] text-white shadow-md' 
                 : 'bg-white/90 text-neutral-700 hover:text-black hover:bg-white shadow-xs'
             }`}
             aria-label={isFavorite ? 'Remove from wishlist' : 'Add to wishlist'}
@@ -148,7 +148,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
                 e.stopPropagation();
                 addToCart(product, 1);
               }}
-              className="flex-1 py-2 px-2.5 bg-black hover:bg-neutral-800 text-white text-[10px] font-bold tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 shadow-md"
+              className="flex-1 py-2 px-2.5 bg-[#1F1F1F] hover:bg-black text-[#F7F4EE] hover:text-[#D4AF37] text-[10px] font-medium tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 shadow-md border border-[#D4AF37]/30"
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               <span>Add to Bag</span>
@@ -162,7 +162,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
                   e.stopPropagation();
                   onQuickView(product);
                 }}
-                className="p-2 bg-white hover:bg-neutral-100 text-black transition-colors"
+                className="p-2 bg-white hover:bg-[#F7F4EE] text-[#1F1F1F] transition-colors"
                 title="Quick View"
               >
                 <Eye className="w-3.5 h-3.5" />
@@ -175,7 +175,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             target="_blank"
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
-            className="w-full py-1.5 px-2 bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-1"
+            className="w-full py-1.5 px-2 bg-[#D4AF37] hover:bg-[#E5C158] text-[#1F1F1F] text-[10px] font-medium tracking-wider uppercase transition-colors flex items-center justify-center gap-1"
           >
             <MessageCircle className="w-3 h-3" />
             <span>Order on WhatsApp</span>
@@ -184,53 +184,53 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       </div>
 
       {/* 2. Product Details */}
-      <div className="p-2 min-[380px]:p-2.5 sm:p-3.5 flex flex-col flex-grow justify-between bg-[#0B1224] text-left min-w-0">
+      <div className="p-2 min-[380px]:p-2.5 sm:p-3.5 flex flex-col flex-grow justify-between bg-white text-left min-w-0">
         <div>
           {/* Brand Kicker with Overflow Protection */}
           <div className="flex items-center justify-between gap-1 mb-1">
-            <span className="text-[9px] sm:text-[10px] font-bold tracking-[0.14em] uppercase text-[#00F0FF]/80 truncate max-w-[70%] font-mono">
+            <span className="text-[9px] sm:text-[10px] font-sans font-medium tracking-[0.14em] uppercase text-[#D4AF37] truncate max-w-[70%]">
               {product.brand || product.gender}
             </span>
             {product.rating && (
-              <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] text-[#F5B738] font-bold shrink-0 font-mono">
-                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-[#F5B738] text-[#F5B738]" />
+              <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] text-[#D4AF37] font-medium shrink-0 font-sans">
+                <Star className="w-2.5 h-2.5 sm:w-3 sm:h-3 fill-[#D4AF37] text-[#D4AF37]" />
                 <span>{product.rating.toFixed(1)}</span>
               </div>
             )}
           </div>
 
           {/* Title with Line Clamping */}
-          <h3 className="text-[11.5px] min-[360px]:text-xs sm:text-[13px] font-semibold text-white group-hover:text-[#00F0FF] line-clamp-1 leading-snug transition-colors">
+          <h3 className="text-[11.5px] min-[360px]:text-xs sm:text-[13px] font-medium text-[#1F1F1F] group-hover:text-[#D4AF37] line-clamp-1 leading-snug transition-colors">
             <a href={productUrl} onClick={handleCardClick} title={product.title}>
               {product.title}
             </a>
           </h3>
 
           {/* Fabric / Pieces Subtitle */}
-          <p className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] text-neutral-400 truncate mt-0.5 font-normal">
+          <p className="text-[9.5px] min-[360px]:text-[10px] sm:text-[11px] text-[#1F1F1F]/60 truncate mt-0.5 font-normal">
             {product.subtitle || `${product.fabric} · Unstitched`}
           </p>
         </div>
 
         {/* Pricing with Safe Flex Wrapping */}
-        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-white/10 flex items-baseline justify-between gap-1 flex-wrap">
+        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-[#E8E0D2] flex items-baseline justify-between gap-1 flex-wrap">
           <div className="flex items-baseline gap-1.5 flex-wrap">
-            <span className="text-xs sm:text-sm font-black text-[#F5B738] whitespace-nowrap font-mono">
+            <span className="text-xs sm:text-sm font-semibold text-[#1F1F1F] whitespace-nowrap font-sans">
               {formatPKR(product.price)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-[9.5px] sm:text-[11px] text-neutral-400 line-through whitespace-nowrap">
+              <span className="text-[9.5px] sm:text-[11px] text-[#1F1F1F]/40 line-through whitespace-nowrap font-sans">
                 {formatPKR(product.originalPrice)}
               </span>
             )}
           </div>
-          <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-neutral-400 font-medium shrink-0">
+          <span className="text-[8px] sm:text-[9px] uppercase tracking-wider text-[#1F1F1F]/50 font-medium shrink-0 font-sans">
             Unstitched
           </span>
         </div>
 
         {/* Mobile Quick Action Buttons (Touchscreens) */}
-        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-neutral-100 flex sm:hidden items-center gap-1">
+        <div className="mt-1.5 sm:mt-2 pt-1.5 sm:pt-2 border-t border-[#E8E0D2] flex sm:hidden items-center gap-1">
           {onQuickView && (
             <button
               type="button"
@@ -239,7 +239,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
                 e.stopPropagation();
                 onQuickView(product);
               }}
-              className="flex-1 py-1.5 px-0.5 bg-neutral-100 hover:bg-neutral-200 text-black text-[9.5px] min-[360px]:text-[10px] font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1 transition-colors"
+              className="flex-1 py-1.5 px-0.5 bg-[#F7F4EE] hover:bg-[#E8E0D2] text-[#1F1F1F] text-[9.5px] min-[360px]:text-[10px] font-medium uppercase tracking-wider text-center flex items-center justify-center gap-1 transition-colors"
             >
               <Eye className="w-3 h-3" />
               <span>Quick View</span>
@@ -253,7 +253,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
               e.stopPropagation();
               addToCart(product, 1);
             }}
-            className="flex-1 py-1.5 px-0.5 bg-black text-white text-[9.5px] min-[360px]:text-[10px] font-bold uppercase tracking-wider text-center flex items-center justify-center gap-1 transition-colors active:scale-95"
+            className="flex-1 py-1.5 px-0.5 bg-[#1F1F1F] text-[#F7F4EE] text-[9.5px] min-[360px]:text-[10px] font-medium uppercase tracking-wider text-center flex items-center justify-center gap-1 transition-colors active:scale-95"
           >
             <ShoppingBag className="w-3 h-3" />
             <span>+ Bag</span>

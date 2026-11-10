@@ -601,7 +601,8 @@ export const AdminPage: React.FC = () => {
       return;
     }
     const subtotal = chosenProduct.price * (newOrderForm.quantity || 1);
-    const shipping = subtotal > 3000 ? 0 : 250;
+    const threshold = storeSettings?.freeShippingThreshold ?? 5000;
+    const shipping = subtotal >= threshold ? 0 : (storeSettings?.shippingFee ?? 250);
     const total = subtotal + shipping;
     const orderId = `NCH-1977-${Date.now().toString().slice(-4)}`;
 
@@ -953,16 +954,16 @@ export const AdminPage: React.FC = () => {
     return (
       <div className="w-full bg-[#050811] min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative overflow-hidden">
         {/* Cyber Glow Orbs */}
-        <div className="absolute w-96 h-96 rounded-full bg-[#00F0FF]/10 blur-[120px] -top-20 -left-20 pointer-events-none" />
+        <div className="absolute w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-[120px] -top-20 -left-20 pointer-events-none" />
         <div className="absolute w-96 h-96 rounded-full bg-[#F5B738]/10 blur-[120px] -bottom-20 -right-20 pointer-events-none" />
 
-        <div className="max-w-md w-full bg-[#0A0F1D]/90 border border-[#00F0FF]/30 shadow-[0_0_50px_rgba(0,240,255,0.2)] p-6 sm:p-8 space-y-6 backdrop-blur-2xl relative z-10 rounded-xs">
+        <div className="max-w-md w-full bg-[#0A0F1D]/90 border border-[#D4AF37]/30 shadow-[0_0_50px_rgba(0,240,255,0.2)] p-6 sm:p-8 space-y-6 backdrop-blur-2xl relative z-10 rounded-xs">
           {/* Brand & Security Header */}
           <div className="text-center space-y-2 border-b border-white/10 pb-6">
-            <div className="inline-flex items-center justify-center w-14 h-14 bg-[#0E1626] border border-[#00F0FF]/40 text-[#00F0FF] rounded-full mx-auto shadow-[0_0_20px_rgba(0,240,255,0.3)]">
+            <div className="inline-flex items-center justify-center w-14 h-14 bg-[#0E1626] border border-[#D4AF37]/40 text-[#D4AF37] rounded-full mx-auto shadow-[0_0_20px_rgba(0,240,255,0.3)]">
               <Lock className="w-6 h-6" />
             </div>
-            <div className="text-[10px] uppercase tracking-[0.25em] text-[#00F0FF] font-mono font-bold">
+            <div className="text-[10px] uppercase tracking-[0.25em] text-[#D4AF37] font-mono font-bold">
               ◈ 2050 CYBER COMMAND DECK ◈
             </div>
             <h1 className="font-sans text-2xl font-black text-white uppercase tracking-wider">
@@ -1018,7 +1019,7 @@ export const AdminPage: React.FC = () => {
                   if (authError) setAuthError('');
                 }}
                 placeholder="e.g. admin"
-                className="w-full px-3.5 py-2.5 bg-[#070B16] border border-white/10 text-white focus:bg-[#0E1626] focus:outline-none focus:border-[#00F0FF] transition-all font-mono"
+                className="w-full px-3.5 py-2.5 bg-[#070B16] border border-white/10 text-white focus:bg-[#0E1626] focus:outline-none focus:border-[#D4AF37] transition-all font-mono"
               />
             </div>
 
@@ -1038,12 +1039,12 @@ export const AdminPage: React.FC = () => {
                     if (authError) setAuthError('');
                   }}
                   placeholder="Enter administrator password"
-                  className="w-full px-3.5 py-2.5 bg-[#070B16] border border-white/10 text-white focus:bg-[#0E1626] focus:outline-none focus:border-[#00F0FF] pr-10 transition-all font-mono"
+                  className="w-full px-3.5 py-2.5 bg-[#070B16] border border-white/10 text-white focus:bg-[#0E1626] focus:outline-none focus:border-[#D4AF37] pr-10 transition-all font-mono"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#00F0FF]"
+                  className="absolute right-3 top-2.5 text-neutral-400 hover:text-white focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
                   title={showPassword ? 'Hide password' : 'Show password'}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
@@ -1058,7 +1059,7 @@ export const AdminPage: React.FC = () => {
                 <span className="text-neutral-400 block font-mono text-[10px]">
                   Verified Admin Credentials:
                 </span>
-                <span className="font-mono text-[#00F0FF] font-semibold">
+                <span className="font-mono text-[#D4AF37] font-semibold">
                   admin / Niaz1977#
                 </span>
               </div>
@@ -1069,7 +1070,7 @@ export const AdminPage: React.FC = () => {
                   setLoginPassword('Niaz1977#');
                   if (authError) setAuthError('');
                 }}
-                className="px-2.5 py-1 bg-[#0E1626] border border-[#00F0FF]/40 hover:border-[#00F0FF] text-[11px] font-mono font-semibold text-[#00F0FF] transition-colors"
+                className="px-2.5 py-1 bg-[#0E1626] border border-[#D4AF37]/40 hover:border-[#D4AF37] text-[11px] font-mono font-semibold text-[#D4AF37] transition-colors"
               >
                 Auto Fill
               </button>
@@ -1078,7 +1079,7 @@ export const AdminPage: React.FC = () => {
             <button
               type="submit"
               disabled={isAuthenticating}
-              className="w-full py-3 bg-gradient-to-r from-[#00F0FF] to-[#06B6D4] hover:from-[#38BDF8] hover:to-[#00F0FF] disabled:opacity-50 text-black text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
+              className="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-[#06B6D4] hover:from-[#38BDF8] hover:to-[#D4AF37] disabled:opacity-50 text-black text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
             >
               {isAuthenticating ? (
                 <>
@@ -1115,11 +1116,11 @@ export const AdminPage: React.FC = () => {
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#1F293D] gap-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] uppercase font-mono tracking-widest text-[#00F0FF] font-semibold flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse shadow-[0_0_8px_#00F0FF]" />
+              <span className="text-[10px] uppercase font-mono tracking-widest text-[#D4AF37] font-semibold flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse shadow-[0_0_8px_#D4AF37]" />
                 QUANTUM ATELIER CONTROL · 2050 PROTOCOL
               </span>
-              <span className="inline-flex items-center gap-1 bg-[#00FF9D]/10 text-[#00FF9D] border border-[#00FF9D]/30 text-[10px] px-2 py-0.5 rounded-xs font-mono">
+              <span className="inline-flex items-center gap-1 bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 text-[10px] px-2 py-0.5 rounded-xs font-mono">
                 SECURE AES-256
               </span>
             </div>
@@ -1138,16 +1139,16 @@ export const AdminPage: React.FC = () => {
           <div className="flex flex-wrap items-center gap-2.5">
             {/* Admin Badge */}
             <div className="bg-[#0B1224] border border-[#1F293D] p-2 sm:px-3 sm:py-1.5 flex items-center gap-2.5 shadow-lg">
-              <div className="w-8 h-8 rounded-xs bg-gradient-to-br from-[#00F0FF] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.4)]">
+              <div className="w-8 h-8 rounded-xs bg-gradient-to-br from-[#D4AF37] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-xs shrink-0 shadow-[0_0_10px_rgba(0,240,255,0.4)]">
                 {currentAdmin.fullName.charAt(0)}
               </div>
               <div className="text-left text-xs leading-tight">
                 <span className="font-medium text-white block">
                   {currentAdmin.fullName}{' '}
-                  <span className="text-[#00F0FF] font-mono text-[11px]">(@{currentAdmin.username})</span>
+                  <span className="text-[#D4AF37] font-mono text-[11px]">(@{currentAdmin.username})</span>
                 </span>
-                <span className="text-[10px] text-[#00FF9D] font-mono flex items-center gap-1 mt-0.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] inline-block animate-pulse"></span>
+                <span className="text-[10px] text-[#10B981] font-mono flex items-center gap-1 mt-0.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] inline-block animate-pulse"></span>
                   Active Session · {currentAdmin.role}
                 </span>
               </div>
@@ -1155,19 +1156,19 @@ export const AdminPage: React.FC = () => {
 
             <button
               onClick={() => setIsFirebaseCheckupOpen(true)}
-              className="px-3 py-2 bg-[#0B1224] hover:bg-[#131F38] text-[#00FF9D] border border-[#00FF9D]/40 text-xs font-mono font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
+              className="px-3 py-2 bg-[#0B1224] hover:bg-[#131F38] text-[#10B981] border border-[#10B981]/40 text-xs font-mono font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
               title="Interactive Firebase Rules & Security Checkup"
             >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#00FF9D]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
               <span>Rules Checkup</span>
             </button>
 
             <button
               onClick={() => setIsStaffModalOpen(true)}
-              className="px-3 py-2 bg-[#0B1224] border border-[#1F293D] hover:border-[#00F0FF] text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1.5 transition-all"
+              className="px-3 py-2 bg-[#0B1224] border border-[#1F293D] hover:border-[#D4AF37] text-xs font-mono text-slate-300 hover:text-white flex items-center gap-1.5 transition-all"
               title="Admin account credentials & authentication"
             >
-              <KeyRound className="w-3.5 h-3.5 text-[#00F0FF]" />
+              <KeyRound className="w-3.5 h-3.5 text-[#D4AF37]" />
               <span>Credentials</span>
             </button>
 
@@ -1201,7 +1202,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('dashboard')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'dashboard'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1213,7 +1214,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('inventory')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'inventory'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1225,7 +1226,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('pricing')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'pricing'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1237,7 +1238,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('orders')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'orders'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1249,15 +1250,15 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('users')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'users'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
             <Users className="w-4 h-4" />
             <span>Patrons &amp; Users ({activeUserList.length})</span>
             {onlineUsersCount > 0 && (
-              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 text-[10px] font-mono rounded-xs">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-pulse"></span>
+              <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-[10px] font-mono rounded-xs">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
                 <span>{onlineUsersCount} Online</span>
               </span>
             )}
@@ -1267,7 +1268,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('categories')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'categories'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1279,7 +1280,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('homepage')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'homepage'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1291,7 +1292,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('settings')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'settings'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1303,7 +1304,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('audit')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'audit'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1315,7 +1316,7 @@ export const AdminPage: React.FC = () => {
             onClick={() => setActiveTab('feedback')}
             className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
               activeTab === 'feedback'
-                ? 'border-[#00F0FF] text-[#00F0FF] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
+                ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
@@ -1345,23 +1346,23 @@ export const AdminPage: React.FC = () => {
                 const waTotal = waOrders.reduce((sum, o) => sum + (o.total || 0), 0);
 
                 return (
-                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#00F0FF]/50 transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00F0FF]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#00F0FF]/10 transition-all" />
+                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#D4AF37]/50 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#D4AF37]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#D4AF37]/10 transition-all" />
                     
                     <div className="flex items-center justify-between border-b border-[#1F293D] pb-3 mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 bg-[#00F0FF]/10 border border-[#00F0FF]/30 text-[#00F0FF] rounded-xs">
+                        <div className="p-2 bg-[#D4AF37]/10 border border-[#D4AF37]/30 text-[#D4AF37] rounded-xs">
                           <DollarSign className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#00F0FF] font-bold block">
+                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#D4AF37] font-bold block">
                             WIDGET 01 // METRIC ENGINE
                           </span>
                           <h3 className="font-serif text-lg font-bold text-white">Gross Revenue Matrix</h3>
                         </div>
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 rounded-xs flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-ping" />
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 rounded-xs flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-ping" />
                         LIVE PKR
                       </span>
                     </div>
@@ -1402,28 +1403,28 @@ export const AdminPage: React.FC = () => {
 
                       <div className="flex justify-between items-center text-slate-300 pt-1">
                         <span className="flex items-center gap-1.5">
-                          <ShieldCheck className="w-3.5 h-3.5 text-[#00F0FF]" />
+                          <ShieldCheck className="w-3.5 h-3.5 text-[#D4AF37]" />
                           <span>Gateway / Card ({gatewayOrders.length})</span>
                         </span>
                         <span className="font-bold text-white">{formatPKR(gatewayTotal)}</span>
                       </div>
                       <div className="w-full bg-[#1F293D] h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-[#00F0FF] h-full transition-all"
+                          className="bg-[#D4AF37] h-full transition-all"
                           style={{ width: `${totalGrossRevenue > 0 ? (gatewayTotal / totalGrossRevenue) * 100 : 0}%` }}
                         />
                       </div>
 
                       <div className="flex justify-between items-center text-slate-300 pt-1">
                         <span className="flex items-center gap-1.5">
-                          <MessageCircle className="w-3.5 h-3.5 text-[#00FF9D]" />
+                          <MessageCircle className="w-3.5 h-3.5 text-[#10B981]" />
                           <span>WhatsApp Transfer ({waOrders.length})</span>
                         </span>
                         <span className="font-bold text-white">{formatPKR(waTotal)}</span>
                       </div>
                       <div className="w-full bg-[#1F293D] h-1.5 rounded-full overflow-hidden">
                         <div
-                          className="bg-[#00FF9D] h-full transition-all"
+                          className="bg-[#10B981] h-full transition-all"
                           style={{ width: `${totalGrossRevenue > 0 ? (waTotal / totalGrossRevenue) * 100 : 0}%` }}
                         />
                       </div>
@@ -1444,22 +1445,22 @@ export const AdminPage: React.FC = () => {
                 const fulfillmentRate = totalOrdersCount > 0 ? Math.round((deliveredCount / totalOrdersCount) * 100) : 100;
 
                 return (
-                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#00FF9D]/50 transition-all duration-300">
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#00FF9D]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#00FF9D]/10 transition-all" />
+                  <div className="bg-[#0B1224] border border-[#1F293D] p-5 relative overflow-hidden group hover:border-[#10B981]/50 transition-all duration-300">
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-[#10B981]/5 rounded-full blur-2xl pointer-events-none group-hover:bg-[#10B981]/10 transition-all" />
                     
                     <div className="flex items-center justify-between border-b border-[#1F293D] pb-3 mb-4">
                       <div className="flex items-center gap-2">
-                        <div className="p-2 bg-[#00FF9D]/10 border border-[#00FF9D]/30 text-[#00FF9D] rounded-xs">
+                        <div className="p-2 bg-[#10B981]/10 border border-[#10B981]/30 text-[#10B981] rounded-xs">
                           <Truck className="w-4 h-4" />
                         </div>
                         <div>
-                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#00FF9D] font-bold block">
+                          <span className="text-[10px] font-mono tracking-widest uppercase text-[#10B981] font-bold block">
                             WIDGET 02 // VELOCITY
                           </span>
                           <h3 className="font-serif text-lg font-bold text-white">Sales &amp; Dispatch Flow</h3>
                         </div>
                       </div>
-                      <span className="text-[10px] font-mono px-2 py-0.5 bg-[#00F0FF]/15 text-[#00F0FF] border border-[#00F0FF]/30 rounded-xs">
+                      <span className="text-[10px] font-mono px-2 py-0.5 bg-[#D4AF37]/15 text-[#D4AF37] border border-[#D4AF37]/30 rounded-xs">
                         {totalOrdersCount} TOTAL
                       </span>
                     </div>
@@ -1469,13 +1470,13 @@ export const AdminPage: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <div>
                           <span className="text-[11px] font-mono text-slate-400 block uppercase">Fulfillment Velocity</span>
-                          <span className="text-3xl font-mono font-bold text-[#00FF9D] mt-0.5 block">
+                          <span className="text-3xl font-mono font-bold text-[#10B981] mt-0.5 block">
                             {fulfillmentRate}%
                           </span>
                           <span className="text-[10px] font-mono text-slate-400">Order delivery rate</span>
                         </div>
-                        <div className="w-16 h-16 rounded-full border-4 border-[#1F293D] border-t-[#00FF9D] border-r-[#00F0FF] flex items-center justify-center font-mono text-xs text-white">
-                          <CheckCircle2 className="w-6 h-6 text-[#00FF9D]" />
+                        <div className="w-16 h-16 rounded-full border-4 border-[#1F293D] border-t-[#10B981] border-r-[#D4AF37] flex items-center justify-center font-mono text-xs text-white">
+                          <CheckCircle2 className="w-6 h-6 text-[#10B981]" />
                         </div>
                       </div>
                     </div>
@@ -1491,10 +1492,10 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       <div className="bg-[#050811] p-2.5 border border-[#1F293D]">
-                        <span className="text-[10px] uppercase text-[#00F0FF] font-bold block">Processing</span>
+                        <span className="text-[10px] uppercase text-[#D4AF37] font-bold block">Processing</span>
                         <div className="flex items-baseline justify-between mt-1">
                           <strong className="text-lg text-white font-mono">{processingCount}</strong>
-                          <Package className="w-3.5 h-3.5 text-[#00F0FF]" />
+                          <Package className="w-3.5 h-3.5 text-[#D4AF37]" />
                         </div>
                       </div>
 
@@ -1507,10 +1508,10 @@ export const AdminPage: React.FC = () => {
                       </div>
 
                       <div className="bg-[#050811] p-2.5 border border-[#1F293D]">
-                        <span className="text-[10px] uppercase text-[#00FF9D] font-bold block">Delivered</span>
+                        <span className="text-[10px] uppercase text-[#10B981] font-bold block">Delivered</span>
                         <div className="flex items-baseline justify-between mt-1">
                           <strong className="text-lg text-white font-mono">{deliveredCount}</strong>
-                          <CheckCircle2 className="w-3.5 h-3.5 text-[#00FF9D]" />
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#10B981]" />
                         </div>
                       </div>
                     </div>
@@ -1522,7 +1523,7 @@ export const AdminPage: React.FC = () => {
                           setActiveTab('orders');
                           setIsAddOrderModalOpen(true);
                         }}
-                        className="text-xs font-mono text-[#00F0FF] hover:underline flex items-center gap-1"
+                        className="text-xs font-mono text-[#D4AF37] hover:underline flex items-center gap-1"
                       >
                         <Plus className="w-3 h-3" />
                         <span>Create Manual Order</span>
@@ -1565,7 +1566,7 @@ export const AdminPage: React.FC = () => {
                       <span className={`text-[10px] font-mono px-2 py-0.5 rounded-xs border font-bold ${
                         outOfStockCount > 0
                           ? 'bg-rose-500/20 text-rose-300 border-rose-500/40 animate-pulse'
-                          : 'bg-[#00FF9D]/15 text-[#00FF9D] border-[#00FF9D]/30'
+                          : 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
                       }`}>
                         {outOfStockCount > 0 ? `${outOfStockCount} DEPLETED` : 'STOCKS OPTIMAL'}
                       </span>
@@ -1594,7 +1595,7 @@ export const AdminPage: React.FC = () => {
                         lowStockItems.slice(0, 4).map((p) => (
                           <div
                             key={p.id}
-                            className="p-2.5 bg-[#050811] border border-[#1F293D] hover:border-[#00F0FF]/40 flex items-center justify-between gap-2 transition-all"
+                            className="p-2.5 bg-[#050811] border border-[#1F293D] hover:border-[#D4AF37]/40 flex items-center justify-between gap-2 transition-all"
                           >
                             <div className="min-w-0">
                               <span className="font-medium text-xs text-white truncate block">{p.title}</span>
@@ -1610,7 +1611,7 @@ export const AdminPage: React.FC = () => {
                                     updateProduct({ ...p, inStock: true });
                                     showToast(`Restocked "${p.title}" to active status`);
                                   }}
-                                  className="px-2.5 py-1 bg-[#00FF9D]/15 hover:bg-[#00FF9D]/30 text-[#00FF9D] border border-[#00FF9D]/40 text-[10px] font-mono font-bold uppercase transition-all rounded-xs"
+                                  className="px-2.5 py-1 bg-[#10B981]/15 hover:bg-[#10B981]/30 text-[#10B981] border border-[#10B981]/40 text-[10px] font-mono font-bold uppercase transition-all rounded-xs"
                                 >
                                   ⚡ Restock
                                 </button>
@@ -1654,7 +1655,7 @@ export const AdminPage: React.FC = () => {
             <div className="p-4 bg-[#0B1224] border border-[#1F293D] flex flex-wrap items-center justify-between gap-3 shadow-xl">
               <div>
                 <strong className="text-xs font-mono uppercase tracking-wider text-white block flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-[#00F0FF]" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
                   <span>2050 Atelier Operations Terminal</span>
                 </strong>
                 <span className="text-[11px] text-slate-400 font-sans">
@@ -1669,7 +1670,7 @@ export const AdminPage: React.FC = () => {
                     setActiveTab('inventory');
                     setIsAddModalOpen(true);
                   }}
-                  className="px-3.5 py-2 bg-gradient-to-r from-[#00F0FF] to-[#0284C7] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all"
+                  className="px-3.5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#0284C7] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Product</span>
@@ -1680,7 +1681,7 @@ export const AdminPage: React.FC = () => {
                     setActiveTab('orders');
                     setIsAddOrderModalOpen(true);
                   }}
-                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#00FF9D] text-[#00FF9D] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
+                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#10B981] text-[#10B981] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
                 >
                   <Truck className="w-3.5 h-3.5" />
                   <span>+ Phone Order</span>
@@ -1701,7 +1702,7 @@ export const AdminPage: React.FC = () => {
                   onClick={() => setActiveTab('pricing')}
                   className="px-3 py-2 bg-[#050811] border border-[#1F293D] hover:border-white text-slate-300 hover:text-white text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
                 >
-                  <Percent className="w-3.5 h-3.5 text-[#00F0FF]" />
+                  <Percent className="w-3.5 h-3.5 text-[#D4AF37]" />
                   <span>Prices &amp; Rates</span>
                 </button>
               </div>
@@ -1714,13 +1715,13 @@ export const AdminPage: React.FC = () => {
                   <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
                     Live Real-Time Orders Dispatch Stream
                   </h3>
-                  <span className="text-[10px] font-mono px-2 py-0.5 bg-[#00F0FF]/10 text-[#00F0FF] border border-[#00F0FF]/30 rounded-xs">
+                  <span className="text-[10px] font-mono px-2 py-0.5 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 rounded-xs">
                     {orders.length} Logged
                   </span>
                 </div>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className="text-xs font-mono text-[#00F0FF] hover:underline"
+                  className="text-xs font-mono text-[#D4AF37] hover:underline"
                 >
                   View All Orders →
                 </button>
@@ -1745,7 +1746,7 @@ export const AdminPage: React.FC = () => {
                     <tbody className="divide-y divide-[#1F293D]">
                       {orders.slice(0, 6).map((order) => (
                         <tr key={order.id} className="hover:bg-[#131F38]/50 transition-colors">
-                          <td className="py-3 font-mono text-[11px] font-bold text-[#00F0FF]">
+                          <td className="py-3 font-mono text-[11px] font-bold text-[#D4AF37]">
                             #{order.id.slice(-6).toUpperCase()}
                           </td>
                           <td className="py-3">
@@ -1761,9 +1762,9 @@ export const AdminPage: React.FC = () => {
                             <span
                               className={`px-2 py-0.5 text-[10px] font-mono font-bold uppercase rounded-xs border ${
                                 order.status === 'Delivered'
-                                  ? 'bg-[#00FF9D]/15 text-[#00FF9D] border-[#00FF9D]/30'
+                                  ? 'bg-[#10B981]/15 text-[#10B981] border-[#10B981]/30'
                                   : order.status === 'Shipped'
-                                  ? 'bg-[#00F0FF]/15 text-[#00F0FF] border-[#00F0FF]/30'
+                                  ? 'bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30'
                                   : order.status === 'Processing'
                                   ? 'bg-amber-400/15 text-amber-300 border-amber-400/30'
                                   : 'bg-slate-700/30 text-slate-300 border-slate-600'
@@ -1777,7 +1778,7 @@ export const AdminPage: React.FC = () => {
                               <select
                                 value={order.status}
                                 onChange={(e) => updateOrderStatus(order.id, e.target.value as OrderStatus)}
-                                className="text-[11px] font-mono border border-[#1F293D] px-2 py-1 bg-[#050811] text-white focus:border-[#00F0FF] outline-none"
+                                className="text-[11px] font-mono border border-[#1F293D] px-2 py-1 bg-[#050811] text-white focus:border-[#D4AF37] outline-none"
                               >
                                 <option value="Pending">Pending</option>
                                 <option value="Processing">Processing</option>
@@ -1787,7 +1788,7 @@ export const AdminPage: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => setEditingOrder(order)}
-                                className="p-1 text-slate-400 hover:text-[#00F0FF]"
+                                className="p-1 text-slate-400 hover:text-[#D4AF37]"
                                 title="Edit Order Details"
                               >
                                 <Pencil className="w-3.5 h-3.5" />
@@ -2405,8 +2406,8 @@ export const AdminPage: React.FC = () => {
                       onClick={() => setOrderStatusFilter(status)}
                       className={`px-3 py-1 text-xs font-mono font-semibold transition-all rounded-xs border ${
                         orderStatusFilter === status
-                          ? 'bg-[#00F0FF] text-[#050811] border-[#00F0FF] shadow-[0_0_10px_rgba(0,240,255,0.4)]'
-                          : 'bg-[#050811] text-slate-400 border-[#1F293D] hover:border-[#00F0FF] hover:text-white'
+                          ? 'bg-[#D4AF37] text-[#050811] border-[#D4AF37] shadow-[0_0_10px_rgba(0,240,255,0.4)]'
+                          : 'bg-[#050811] text-slate-400 border-[#1F293D] hover:border-[#D4AF37] hover:text-white'
                       }`}
                     >
                       {status}
@@ -2419,7 +2420,7 @@ export const AdminPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsAddOrderModalOpen(true)}
-                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#00FF9D] to-[#00F0FF] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(0,255,157,0.3)] flex items-center justify-center gap-2"
+                className="w-full sm:w-auto px-4 py-2 bg-gradient-to-r from-[#10B981] to-[#D4AF37] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider transition-all shadow-[0_0_12px_rgba(0,255,157,0.3)] flex items-center justify-center gap-2"
               >
                 <Plus className="w-4 h-4 text-[#050811]" />
                 <span>+ Create Manual Order</span>
@@ -2435,11 +2436,11 @@ export const AdminPage: React.FC = () => {
                 filteredOrders.map((order) => (
                   <div
                     key={order.id}
-                    className="bg-[#0B1224] border border-[#1F293D] hover:border-[#00F0FF]/40 transition-all p-5 shadow-xl space-y-4 text-xs"
+                    className="bg-[#0B1224] border border-[#1F293D] hover:border-[#D4AF37]/40 transition-all p-5 shadow-xl space-y-4 text-xs"
                   >
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#1F293D] pb-3">
                       <div className="flex items-center gap-2.5">
-                        <span className="font-mono font-bold text-sm text-[#00F0FF]">
+                        <span className="font-mono font-bold text-sm text-[#D4AF37]">
                           #{order.id}
                         </span>
                         <span className="text-[11px] font-mono text-slate-400">
@@ -2455,7 +2456,7 @@ export const AdminPage: React.FC = () => {
                             onChange={(e) =>
                               updateOrderStatus(order.id, e.target.value as OrderStatus)
                             }
-                            className="py-1 px-2.5 border border-[#1F293D] bg-[#050811] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#00F0FF]"
+                            className="py-1 px-2.5 border border-[#1F293D] bg-[#050811] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#D4AF37]"
                           >
                             <option value="Pending">Pending</option>
                             <option value="Processing">Processing</option>
@@ -2468,7 +2469,7 @@ export const AdminPage: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => setEditingOrder(order)}
-                          className="px-2.5 py-1 bg-[#050811] hover:bg-[#131F38] border border-[#1F293D] hover:border-[#00F0FF] text-[#00F0FF] text-[11px] font-mono flex items-center gap-1 transition-all"
+                          className="px-2.5 py-1 bg-[#050811] hover:bg-[#131F38] border border-[#1F293D] hover:border-[#D4AF37] text-[#D4AF37] text-[11px] font-mono flex items-center gap-1 transition-all"
                           title="Edit Customer & Order Shipping Info"
                         >
                           <Pencil className="w-3 h-3" />
@@ -2489,7 +2490,7 @@ export const AdminPage: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {/* Customer Details */}
                       <div className="bg-[#050811] p-3 border border-[#1F293D] rounded-xs">
-                        <p className="font-mono text-[10px] uppercase tracking-wider text-[#00F0FF] font-bold mb-1.5 flex items-center gap-1.5">
+                        <p className="font-mono text-[10px] uppercase tracking-wider text-[#D4AF37] font-bold mb-1.5 flex items-center gap-1.5">
                           <Users className="w-3 h-3" />
                           <span>Customer Dispatch Profile</span>
                         </p>
@@ -2515,7 +2516,7 @@ export const AdminPage: React.FC = () => {
                           {order.items.map((it, idx) => (
                             <li key={idx} className="flex justify-between items-center text-[11px]">
                               <span className="text-white truncate max-w-[180px]">
-                                {it.product.title} <span className="text-[#00F0FF] font-mono font-bold">(x{it.quantity})</span>
+                                {it.product.title} <span className="text-[#D4AF37] font-mono font-bold">(x{it.quantity})</span>
                               </span>
                               <span className="font-mono text-[#F5B738] tabular-nums shrink-0">
                                 {formatPKR(it.product.price * it.quantity)}
@@ -2532,8 +2533,8 @@ export const AdminPage: React.FC = () => {
                             <span className="text-slate-400 font-mono text-[10px] uppercase shrink-0">Payment:</span>
                             <span className="font-semibold text-right text-xs">
                               {order.paymentMethod === 'Online Payment Gateway (Debit/Credit Card)' ? (
-                                <span className="inline-flex items-center gap-1 text-[#00F0FF] bg-[#00F0FF]/10 px-1.5 py-0.5 border border-[#00F0FF]/30 text-[11px] font-mono">
-                                  <ShieldCheck className="w-3 h-3 text-[#00F0FF]" />
+                                <span className="inline-flex items-center gap-1 text-[#D4AF37] bg-[#D4AF37]/10 px-1.5 py-0.5 border border-[#D4AF37]/30 text-[11px] font-mono">
+                                  <ShieldCheck className="w-3 h-3 text-[#D4AF37]" />
                                   Gateway ({order.paymentDetails?.cardBrand || 'Card'} •••• {order.paymentDetails?.cardLast4 || '4242'})
                                 </span>
                               ) : (
@@ -2545,7 +2546,7 @@ export const AdminPage: React.FC = () => {
                           {order.paymentDetails?.authCode && (
                             <div className="text-[10px] font-mono text-slate-300 flex justify-between bg-[#0B1224] p-1.5 border border-[#1F293D] my-1">
                               <span>Auth Ref:</span>
-                              <strong className="text-[#00F0FF]">{order.paymentDetails.authCode}</strong>
+                              <strong className="text-[#D4AF37]">{order.paymentDetails.authCode}</strong>
                             </div>
                           )}
 
@@ -2562,7 +2563,7 @@ export const AdminPage: React.FC = () => {
                             href={`https://wa.me/${order.customer.whatsapp?.replace(/[^0-9]/g, '') || order.customer.phone?.replace(/[^0-9]/g, '') || '923346565636'}?text=Hello%20${encodeURIComponent(order.customer.fullName)}%2C%20your%20order%20${order.id}%20from%20Niaz%20Cloth%20House%20is%20${order.status.toLowerCase()}.`}
                             target="_blank"
                             rel="noreferrer"
-                            className="flex-1 py-1.5 px-2 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#00FF9D] border border-[#25D366]/40 text-center text-[11px] font-mono font-semibold transition-all flex items-center justify-center gap-1.5 rounded-xs"
+                            className="flex-1 py-1.5 px-2 bg-[#25D366]/20 hover:bg-[#25D366]/30 text-[#10B981] border border-[#25D366]/40 text-center text-[11px] font-mono font-semibold transition-all flex items-center justify-center gap-1.5 rounded-xs"
                           >
                             <MessageCircle className="w-3.5 h-3.5" />
                             <span>WhatsApp Customer</span>
@@ -2886,16 +2887,16 @@ export const AdminPage: React.FC = () => {
           <div className="space-y-6">
             {/* Active Session Spotlight — 2050 Quantum HUD */}
             <div className="bg-[#0B1224] border border-[#1F293D] p-6 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#00F0FF]/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-3xl pointer-events-none" />
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1F293D]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xs bg-gradient-to-br from-[#00F0FF] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-lg shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                  <div className="w-12 h-12 rounded-xs bg-gradient-to-br from-[#D4AF37] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-lg shadow-[0_0_15px_rgba(0,240,255,0.4)]">
                     {(authUser?.displayName || authUser?.email || currentAdmin.fullName).charAt(0).toUpperCase()}
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-mono tracking-widest text-[#00F0FF] font-bold block flex items-center gap-1.5">
-                      <span className="w-2 h-2 rounded-full bg-[#00F0FF] animate-pulse" />
+                    <span className="text-[10px] uppercase font-mono tracking-widest text-[#D4AF37] font-bold block flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
                       ACTIVE TERMINAL OPERATOR PROFILE
                     </span>
                     <h3 className="font-serif text-xl font-bold text-white">
@@ -2905,8 +2906,8 @@ export const AdminPage: React.FC = () => {
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 text-xs font-mono font-semibold rounded-xs">
-                    <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-xs font-mono font-semibold rounded-xs">
+                    <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
                     <span>AUTHENTICATED · SECURE PROTOCOL</span>
                   </span>
 
@@ -2926,7 +2927,7 @@ export const AdminPage: React.FC = () => {
                   <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
                     Admin UID / Account
                   </span>
-                  <span className="font-mono font-bold text-sm text-[#00F0FF] mt-0.5 block truncate">
+                  <span className="font-mono font-bold text-sm text-[#D4AF37] mt-0.5 block truncate">
                     {authUser?.email || currentAdmin.email || 'uzairaliuzairali640@gmail.com'}
                   </span>
                 </div>
@@ -2953,7 +2954,7 @@ export const AdminPage: React.FC = () => {
                   <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
                     Database Encryption
                   </span>
-                  <span className="font-medium text-[#00FF9D] mt-0.5 block flex items-center gap-1">
+                  <span className="font-medium text-[#10B981] mt-0.5 block flex items-center gap-1">
                     <ShieldCheck className="w-3.5 h-3.5" />
                     <span>Firestore TLS 256-Bit</span>
                   </span>
@@ -2967,11 +2968,11 @@ export const AdminPage: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-2">
                     <h4 className="font-serif text-lg font-bold text-white flex items-center gap-2">
-                      <Users className="w-5 h-5 text-[#00F0FF]" />
+                      <Users className="w-5 h-5 text-[#D4AF37]" />
                       <span>Live Customer &amp; Patron Intelligence</span>
                     </h4>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#00FF9D]/15 text-[#00FF9D] border border-[#00FF9D]/30 text-[11px] font-mono font-bold rounded-xs">
-                      <span className="w-2 h-2 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-[11px] font-mono font-bold rounded-xs">
+                      <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
                       <span>{onlineUsersCount} Online Now</span>
                     </span>
                   </div>
@@ -2984,7 +2985,7 @@ export const AdminPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setIsAddCustomerModalOpen(true)}
-                    className="px-3.5 py-1.5 bg-[#00F0FF]/15 hover:bg-[#00F0FF]/25 border border-[#00F0FF]/40 text-xs font-mono font-bold text-[#00F0FF] flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,240,255,0.2)]"
+                    className="px-3.5 py-1.5 bg-[#D4AF37]/15 hover:bg-[#D4AF37]/25 border border-[#D4AF37]/40 text-xs font-mono font-bold text-[#D4AF37] flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,240,255,0.2)]"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Create Customer Profile</span>
@@ -2994,15 +2995,15 @@ export const AdminPage: React.FC = () => {
                     type="button"
                     onClick={handleTestFirestoreHealth}
                     disabled={dbConnectionStatus === 'checking'}
-                    className="px-3 py-1.5 bg-[#050811] border border-[#1F293D] hover:border-[#00F0FF] text-xs font-mono text-slate-300 flex items-center gap-1.5 transition-all"
+                    className="px-3 py-1.5 bg-[#050811] border border-[#1F293D] hover:border-[#D4AF37] text-xs font-mono text-slate-300 flex items-center gap-1.5 transition-all"
                     title="Ping Firestore database connection"
                   >
-                    <RefreshCw className={`w-3.5 h-3.5 text-[#00F0FF] ${dbConnectionStatus === 'checking' ? 'animate-spin' : ''}`} />
+                    <RefreshCw className={`w-3.5 h-3.5 text-[#D4AF37] ${dbConnectionStatus === 'checking' ? 'animate-spin' : ''}`} />
                     <span>{dbConnectionStatus === 'checking' ? 'Testing...' : 'Test DB Health'}</span>
                   </button>
 
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#050811] text-[#00FF9D] text-xs font-mono font-semibold rounded-xs border border-[#1F293D]">
-                    <Database className="w-3.5 h-3.5 text-[#00FF9D]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#050811] text-[#10B981] text-xs font-mono font-semibold rounded-xs border border-[#1F293D]">
+                    <Database className="w-3.5 h-3.5 text-[#10B981]" />
                     <span>Firestore Live</span>
                   </span>
                 </div>
@@ -3017,7 +3018,7 @@ export const AdminPage: React.FC = () => {
                     onClick={() => setUserFilter('all')}
                     className={`px-3 py-1.5 transition-all ${
                       userFilter === 'all'
-                        ? 'bg-[#00F0FF] text-[#050811] font-bold shadow-[0_0_8px_rgba(0,240,255,0.4)]'
+                        ? 'bg-[#D4AF37] text-[#050811] font-bold shadow-[0_0_8px_rgba(0,240,255,0.4)]'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
@@ -3028,11 +3029,11 @@ export const AdminPage: React.FC = () => {
                     onClick={() => setUserFilter('online')}
                     className={`px-3 py-1.5 transition-all flex items-center gap-1.5 ${
                       userFilter === 'online'
-                        ? 'bg-[#00FF9D] text-[#050811] font-bold shadow-[0_0_8px_rgba(0,255,157,0.4)]'
+                        ? 'bg-[#10B981] text-[#050811] font-bold shadow-[0_0_8px_rgba(0,255,157,0.4)]'
                         : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
                     <span>Online ({onlineUsersCount})</span>
                   </button>
                   <button
@@ -3055,7 +3056,7 @@ export const AdminPage: React.FC = () => {
                     value={userSearchQuery}
                     onChange={(e) => setUserSearchQuery(e.target.value)}
                     placeholder="Filter patrons by name, email, or city..."
-                    className="w-full pl-8 pr-3 py-1.5 bg-[#050811] border border-[#1F293D] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#00F0FF] transition-all"
+                    className="w-full pl-8 pr-3 py-1.5 bg-[#050811] border border-[#1F293D] text-xs font-mono text-white placeholder-slate-500 focus:outline-none focus:border-[#D4AF37] transition-all"
                   />
                   <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" />
                   {userSearchQuery && (
@@ -3090,12 +3091,12 @@ export const AdminPage: React.FC = () => {
                         const isCurrent = (authUser && usr.uid === authUser.uid) || (usr.email && usr.email === currentAdmin.email);
                         const isUserOnline = usr.isOnline || isCurrent;
                         return (
-                          <tr key={usr.uid || usr.email} className={isCurrent ? 'bg-[#00F0FF]/10 font-medium' : 'hover:bg-[#131F38]/50 transition-colors'}>
+                          <tr key={usr.uid || usr.email} className={isCurrent ? 'bg-[#D4AF37]/10 font-medium' : 'hover:bg-[#131F38]/50 transition-colors'}>
                             <td className="py-2.5 px-3 flex items-center gap-2.5">
                               {usr.photoURL ? (
                                 <img src={usr.photoURL} alt={usr.displayName} className="w-7 h-7 rounded-xs object-cover border border-[#1F293D]" />
                               ) : (
-                                <div className="w-7 h-7 rounded-xs bg-[#00F0FF]/20 text-[#00F0FF] border border-[#00F0FF]/30 flex items-center justify-center font-mono font-bold text-[10px]">
+                                <div className="w-7 h-7 rounded-xs bg-[#D4AF37]/20 text-[#D4AF37] border border-[#D4AF37]/30 flex items-center justify-center font-mono font-bold text-[10px]">
                                   {(usr.displayName || usr.email || 'U').charAt(0).toUpperCase()}
                                 </div>
                               )}
@@ -3103,7 +3104,7 @@ export const AdminPage: React.FC = () => {
                                 <div className="flex items-center gap-1.5">
                                   <span className="text-white font-medium block truncate">{usr.displayName || 'Customer'}</span>
                                   {isCurrent && (
-                                    <span className="text-[9px] px-1.5 py-0.2 bg-[#00F0FF] text-[#050811] font-mono font-bold rounded-xs shrink-0">
+                                    <span className="text-[9px] px-1.5 py-0.2 bg-[#D4AF37] text-[#050811] font-mono font-bold rounded-xs shrink-0">
                                       YOU
                                     </span>
                                   )}
@@ -3116,7 +3117,7 @@ export const AdminPage: React.FC = () => {
                                       navigator.clipboard.writeText(usr.uid);
                                       showToast(`UID copied: ${usr.uid}`);
                                     }}
-                                    className="text-[10px] text-slate-400 hover:text-[#00F0FF]"
+                                    className="text-[10px] text-slate-400 hover:text-[#D4AF37]"
                                     title="Copy UID"
                                   >
                                     <Copy className="w-2.5 h-2.5" />
@@ -3132,7 +3133,7 @@ export const AdminPage: React.FC = () => {
                                 usr.email === 'uzairaliuzairali640@gmail.com'
                                   ? 'bg-[#F5B738]/15 text-[#F5B738] border-[#F5B738]/30'
                                   : oopUser.canManageInventory()
-                                  ? 'bg-[#00F0FF]/15 text-[#00F0FF] border-[#00F0FF]/30'
+                                  ? 'bg-[#D4AF37]/15 text-[#D4AF37] border-[#D4AF37]/30'
                                   : 'bg-slate-800 text-slate-300 border-slate-700'
                               }`}>
                                 {usr.role || oopUser.getRole()}
@@ -3140,8 +3141,8 @@ export const AdminPage: React.FC = () => {
                             </td>
                             <td className="py-2.5 px-3 font-mono">
                               {isUserOnline ? (
-                                <span className="inline-flex items-center gap-1.5 text-[10px] text-[#00FF9D] font-bold">
-                                  <span className="w-1.5 h-1.5 rounded-full bg-[#00FF9D] animate-pulse"></span>
+                                <span className="inline-flex items-center gap-1.5 text-[10px] text-[#10B981] font-bold">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
                                   <span>ONLINE</span>
                                 </span>
                               ) : (
@@ -3162,7 +3163,7 @@ export const AdminPage: React.FC = () => {
                                 <button
                                   type="button"
                                   onClick={() => setEditingCustomer(usr)}
-                                  className="p-1.5 bg-[#050811] hover:bg-[#131F38] border border-[#1F293D] hover:border-[#00F0FF] text-[#00F0FF] transition-all rounded-xs"
+                                  className="p-1.5 bg-[#050811] hover:bg-[#131F38] border border-[#1F293D] hover:border-[#D4AF37] text-[#D4AF37] transition-all rounded-xs"
                                   title="Edit Profile & Role"
                                 >
                                   <Pencil className="w-3 h-3" />
@@ -3190,7 +3191,7 @@ export const AdminPage: React.FC = () => {
               )}
             </div>
 
-            {/* Customer User Profiles Directory (From Real Orders) — 2050 Style */}
+            {/* Customer User Profiles Directory (From Real Orders) — Master Client Directory */}
             <div className="bg-[#0B1224] border border-[#1F293D] p-5 space-y-4 shadow-xl">
               <div>
                 <h4 className="font-serif text-base font-bold text-white flex items-center gap-2">
@@ -3223,7 +3224,7 @@ export const AdminPage: React.FC = () => {
                             <td className="py-2.5 px-3 font-medium text-white">
                               {customerName}
                             </td>
-                            <td className="py-2.5 px-3 font-mono text-[#00F0FF]">
+                            <td className="py-2.5 px-3 font-mono text-[#D4AF37]">
                               {latestOrder.customer.phone}
                             </td>
                             <td className="py-2.5 px-3 text-slate-300 font-mono text-[11px]">
@@ -5058,14 +5059,14 @@ export const AdminPage: React.FC = () => {
         {/* MODAL 1: CREATE MANUAL / PHONE DISPATCH ORDER */}
         {isAddOrderModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0B1224] border border-[#00F0FF]/40 text-white max-w-xl w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-[#0B1224] border border-[#D4AF37]/40 text-white max-w-xl w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-[#00F0FF]/15 border border-[#00F0FF]/40 text-[#00F0FF]">
+                  <div className="p-2 bg-[#D4AF37]/15 border border-[#D4AF37]/40 text-[#D4AF37]">
                     <Truck className="w-4 h-4" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#00F0FF] font-bold block">
+                    <span className="text-[10px] font-mono uppercase tracking-widest text-[#D4AF37] font-bold block">
                       MANUAL DISPATCH TERMINAL
                     </span>
                     <h3 className="font-serif text-lg font-bold text-white">Create Phone / Counter Order</h3>
@@ -5090,7 +5091,7 @@ export const AdminPage: React.FC = () => {
                       value={newOrderForm.fullName}
                       onChange={(e) => setNewOrderForm({ ...newOrderForm, fullName: e.target.value })}
                       placeholder="e.g. Fatima Khan"
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                   <div>
@@ -5101,7 +5102,7 @@ export const AdminPage: React.FC = () => {
                       value={newOrderForm.phone}
                       onChange={(e) => setNewOrderForm({ ...newOrderForm, phone: e.target.value })}
                       placeholder="e.g. 0334-6565636"
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                 </div>
@@ -5114,7 +5115,7 @@ export const AdminPage: React.FC = () => {
                       value={newOrderForm.city}
                       onChange={(e) => setNewOrderForm({ ...newOrderForm, city: e.target.value })}
                       placeholder="e.g. Rawalpindi"
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                   <div>
@@ -5122,7 +5123,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={newOrderForm.paymentMethod}
                       onChange={(e) => setNewOrderForm({ ...newOrderForm, paymentMethod: e.target.value as PaymentMethod })}
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     >
                       <option value="Cash on Delivery">Cash on Delivery (COD)</option>
                       <option value="Direct WhatsApp / Bank Transfer">Direct WhatsApp / Bank Transfer</option>
@@ -5138,7 +5139,7 @@ export const AdminPage: React.FC = () => {
                     value={newOrderForm.address}
                     onChange={(e) => setNewOrderForm({ ...newOrderForm, address: e.target.value })}
                     placeholder="House / Shop address, Paris Bazaar"
-                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                   />
                 </div>
 
@@ -5148,7 +5149,7 @@ export const AdminPage: React.FC = () => {
                     <select
                       value={newOrderForm.selectedProductId || (products[0]?.id || '')}
                       onChange={(e) => setNewOrderForm({ ...newOrderForm, selectedProductId: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none truncate"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none truncate"
                     >
                       {products.map((p) => (
                         <option key={p.id} value={p.id}>
@@ -5165,7 +5166,7 @@ export const AdminPage: React.FC = () => {
                       max="50"
                       value={newOrderForm.quantity}
                       onChange={(e) => setNewOrderForm({ ...newOrderForm, quantity: Math.max(1, Number(e.target.value)) })}
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                 </div>
@@ -5176,7 +5177,8 @@ export const AdminPage: React.FC = () => {
                     {(() => {
                       const sel = products.find((p) => p.id === newOrderForm.selectedProductId) || products[0];
                       const sub = sel ? sel.price * (newOrderForm.quantity || 1) : 0;
-                      const ship = sub > 3000 ? 0 : 250;
+                      const threshold = storeSettings?.freeShippingThreshold ?? 5000;
+                      const ship = sub >= threshold ? 0 : (storeSettings?.shippingFee ?? 250);
                       return formatPKR(sub + ship);
                     })()}
                   </span>
@@ -5192,7 +5194,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2 bg-gradient-to-r from-[#00FF9D] to-[#00F0FF] hover:brightness-110 text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(0,255,157,0.3)]"
+                    className="px-6 py-2 bg-gradient-to-r from-[#10B981] to-[#D4AF37] hover:brightness-110 text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_12px_rgba(0,255,157,0.3)]"
                   >
                     Create &amp; Dispatch Order
                   </button>
@@ -5205,10 +5207,10 @@ export const AdminPage: React.FC = () => {
         {/* MODAL 2: EDIT ORDER DETAILS */}
         {editingOrder && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0B1224] border border-[#00F0FF]/40 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-[#0B1224] border border-[#D4AF37]/40 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#00F0FF] font-bold block">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#D4AF37] font-bold block">
                     ORDER MUTATION
                   </span>
                   <h3 className="font-serif text-lg font-bold text-white">Edit Order #{editingOrder.id}</h3>
@@ -5235,7 +5237,7 @@ export const AdminPage: React.FC = () => {
                         customer: { ...editingOrder.customer, fullName: e.target.value },
                       })
                     }
-                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                   />
                 </div>
 
@@ -5252,7 +5254,7 @@ export const AdminPage: React.FC = () => {
                           customer: { ...editingOrder.customer, phone: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                   <div>
@@ -5266,7 +5268,7 @@ export const AdminPage: React.FC = () => {
                           customer: { ...editingOrder.customer, city: e.target.value },
                         })
                       }
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                 </div>
@@ -5282,7 +5284,7 @@ export const AdminPage: React.FC = () => {
                         customer: { ...editingOrder.customer, address: e.target.value },
                       })
                     }
-                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                   />
                 </div>
 
@@ -5296,7 +5298,7 @@ export const AdminPage: React.FC = () => {
                         status: e.target.value as OrderStatus,
                       })
                     }
-                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                   >
                     <option value="Pending">Pending</option>
                     <option value="Processing">Processing</option>
@@ -5315,7 +5317,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#00F0FF] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                    className="px-5 py-2 bg-[#D4AF37] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(0,240,255,0.4)]"
                   >
                     Save Changes
                   </button>
@@ -5436,10 +5438,10 @@ export const AdminPage: React.FC = () => {
         {/* MODAL 4: EDIT CUSTOMER / PATRON PROFILE */}
         {editingCustomer && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-[#0B1224] border border-[#00F0FF]/40 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
+            <div className="bg-[#0B1224] border border-[#D4AF37]/40 text-white max-w-lg w-full p-6 shadow-2xl relative animate-in fade-in zoom-in-95 duration-150">
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#00F0FF] font-bold block">
+                  <span className="text-[10px] font-mono uppercase tracking-widest text-[#D4AF37] font-bold block">
                     PATRON RECORD MUTATION
                   </span>
                   <h3 className="font-serif text-lg font-bold text-white">
@@ -5463,7 +5465,7 @@ export const AdminPage: React.FC = () => {
                     required
                     value={editingCustomer.displayName || ''}
                     onChange={(e) => setEditingCustomer({ ...editingCustomer, displayName: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                   />
                 </div>
 
@@ -5475,7 +5477,7 @@ export const AdminPage: React.FC = () => {
                       value={editingCustomer.phone || ''}
                       onChange={(e) => setEditingCustomer({ ...editingCustomer, phone: e.target.value })}
                       placeholder="0334-xxxxxxx"
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                   <div>
@@ -5484,7 +5486,7 @@ export const AdminPage: React.FC = () => {
                       type="text"
                       value={editingCustomer.city || ''}
                       onChange={(e) => setEditingCustomer({ ...editingCustomer, city: e.target.value })}
-                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                      className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                     />
                   </div>
                 </div>
@@ -5494,7 +5496,7 @@ export const AdminPage: React.FC = () => {
                   <select
                     value={editingCustomer.role || 'Customer'}
                     onChange={(e) => setEditingCustomer({ ...editingCustomer, role: e.target.value })}
-                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#00F0FF] text-white outline-none"
+                    className="w-full px-3 py-2 bg-[#050811] border border-[#1F293D] focus:border-[#D4AF37] text-white outline-none"
                   >
                     <option value="Customer">Standard Customer</option>
                     <option value="VIP Patron">VIP Patron (Preferred Discounts)</option>
@@ -5513,7 +5515,7 @@ export const AdminPage: React.FC = () => {
                   </button>
                   <button
                     type="submit"
-                    className="px-5 py-2 bg-[#00F0FF] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(0,240,255,0.4)]"
+                    className="px-5 py-2 bg-[#D4AF37] text-[#050811] font-bold uppercase tracking-wider shadow-[0_0_10px_rgba(0,240,255,0.4)]"
                   >
                     Save Patron Changes
                   </button>

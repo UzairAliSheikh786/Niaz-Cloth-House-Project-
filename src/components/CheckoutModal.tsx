@@ -72,9 +72,16 @@ export const CheckoutModal: React.FC = () => {
     setIsCheckoutOpen,
     cart,
     cartSubtotal,
+    cartTotal,
     createOrder,
     generateWhatsAppOrderUrl,
+    storeSettings,
   } = useShop();
+
+  const freeShippingThreshold = storeSettings?.freeShippingThreshold ?? 5000;
+  const standardShippingFee = storeSettings?.shippingFee ?? 250;
+  const effectiveShipping = cartSubtotal >= freeShippingThreshold ? 0 : standardShippingFee;
+  const totalPayable = cartSubtotal + effectiveShipping;
 
   // Delivery destination toggle: domestic vs international
   const [destinationType, setDestinationType] = useState<'domestic' | 'international'>('domestic');
@@ -325,18 +332,18 @@ export const CheckoutModal: React.FC = () => {
     >
       <div className="bg-[#F8FAFC] max-w-2xl w-full border border-[#E2E8F0] shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 my-8">
         {/* Modal Header */}
-        <div className="flex items-center justify-between p-5 border-b border-[#E2E8F0] bg-[#F5EFEB]">
+        <div className="flex items-center justify-between p-5 border-b border-[#E8E0D2] bg-[#FAF8F5]">
           <div>
-            <h2 className="font-serif text-xl font-bold text-[#1C1917]">
+            <h2 className="font-serif text-xl font-bold text-[#1F1F1F]">
               {completedOrder ? 'Order Confirmed' : 'Checkout & Payment'}
             </h2>
-            <p className="text-xs text-[#0284C7] font-sans font-medium mt-0.5">
-              Niaz Cloth House · Original Unstitched Fabrics (Since 1977)
+            <p className="text-xs text-[#D4AF37] font-sans font-semibold tracking-wide mt-0.5">
+              Niaz Cloth House · Paris Bazaar, Rawalpindi · Established 1970
             </p>
           </div>
           <button
             onClick={handleClose}
-            className="p-1.5 text-[#1C1917]/70 hover:text-[#1C1917] hover:bg-[#E2E8F0] transition-colors"
+            className="p-1.5 text-[#1F1F1F]/70 hover:text-[#1F1F1F] hover:bg-[#E8E0D2] transition-colors"
             aria-label="Close checkout modal"
           >
             <X className="w-5 h-5" />
@@ -478,17 +485,29 @@ export const CheckoutModal: React.FC = () => {
             )}
 
             {/* Cart Summary Banner */}
-            <div className="bg-white p-3.5 border border-[#E2E8F0] flex items-center justify-between text-xs">
-              <div>
-                <span className="text-[#1C1917]/70">Order Value: </span>
-                <span className="font-semibold text-[#1C1917]">
-                  {cart.reduce((s, i) => s + i.quantity, 0)} Unstitched Article(s)
+            <div className="bg-white p-4 border border-[#E8E0D2] text-xs space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-[#8C827A] uppercase tracking-wider text-[11px] font-semibold">
+                  Items ({cart.reduce((s, i) => s + i.quantity, 0)} Unstitched Ensemble{cart.reduce((s, i) => s + i.quantity, 0) === 1 ? '' : 's'})
+                </span>
+                <span className="font-mono font-bold text-[#1F1F1F]">
+                  {formatPKR(cartSubtotal)}
                 </span>
               </div>
-              <div className="text-right">
-                <span className="text-[11px] text-[#1C1917]/60 mr-2">Total:</span>
-                <span className="font-mono font-bold text-base text-[#0284C7] tabular-nums">
-                  {formatPKR(cartSubtotal)}
+              <div className="flex items-center justify-between text-[11px]">
+                <span className="text-[#8C827A] uppercase tracking-wider font-semibold">Shipping (Tracked Dispatch)</span>
+                <span className="font-semibold">
+                  {effectiveShipping === 0 ? (
+                    <span className="text-[#2E7D32] font-bold">FREE (Unlocked over {formatPKR(freeShippingThreshold)})</span>
+                  ) : (
+                    <span className="font-mono text-[#1F1F1F]">{formatPKR(standardShippingFee)}</span>
+                  )}
+                </span>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-[#F0EAE1]">
+                <span className="font-serif font-bold text-sm text-[#1F1F1F]">Total Payable</span>
+                <span className="font-mono font-bold text-lg text-[#D4AF37] tabular-nums">
+                  {formatPKR(totalPayable)}
                 </span>
               </div>
             </div>

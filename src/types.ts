@@ -251,18 +251,18 @@ export interface StoreSettings {
 
 export const DEFAULT_STORE_SETTINGS: StoreSettings = {
   storeName: 'Niaz Cloth House',
-  tagline: 'Haute Couture Unstitched Fabrics · Established 1977',
+  tagline: 'Dress To Impress · Established 1970',
   phone: '0334-6565636',
   whatsapp: '0334-6565636',
-  address: 'Shop #170, Paris Bazaar, Committee Chowk, Rawalpindi, Pakistan',
-  announcementText: 'Certified Pure Chinese Boski Silk & Authentic Pakistani Mill Unstitched Fabrics · Worldwide Shipping',
+  address: 'Shop # 166-C, Paris Bazaar, Committee Chowk, Rawalpindi, Pakistan',
+  announcementText: 'Authentic Pakistani Mills & Pure Chinese Boski Silk · Established 1970 · Paris Bazaar, Rawalpindi · Free Shipping over PKR 5,000',
   easypaisaNumber: '0334-6565636',
-  easypaisaTitle: 'Haji Niaz Ahmad / Niaz Cloth House',
+  easypaisaTitle: 'Muhammad Niaz / Niaz Cloth House',
   jazzcashNumber: '0334-6565636',
-  jazzcashTitle: 'Haji Niaz Ahmad / Niaz Cloth House',
+  jazzcashTitle: 'Muhammad Niaz / Niaz Cloth House',
   shippingFee: 250,
   freeShippingThreshold: 5000,
-  heroAnnouncement: 'Summer & Festive Unstitched Collections 2026',
+  heroAnnouncement: 'Authentic Unstitched Lawn, Embroidered & Pure Boski Collections',
   promotions: [],
 };
 

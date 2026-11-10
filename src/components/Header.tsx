@@ -46,7 +46,7 @@ export const Header: React.FC = () => {
   // Announcement bar rotating ticker
   const tickerMessages = [
     "SUMMER FESTIVE UNSTITCHED '26 IS LIVE · 100% ORIGINAL DESIGNER FABRICS",
-    "FREE NATIONWIDE EXPRESS SHIPPING ON ALL ORDERS OVER PKR 3,000",
+    "FREE NATIONWIDE EXPRESS SHIPPING ON ALL ORDERS OVER PKR 5,000",
     "WHATSAPP CONCIERGE & VIDEO SUIT INSPECTION: 0334-6565636",
     "AUTHENTIC PAKISTANI FABRICS · SHOP # 166-C PARIS BAZAAR RAWALPINDI"
   ];
@@ -81,52 +81,52 @@ export const Header: React.FC = () => {
     : 0;
 
   return (
-    <header className="w-full bg-[#050811]/92 backdrop-blur-2xl border-b border-white/10 sticky top-0 z-40 transition-all shadow-[0_4px_30px_rgba(0,0,0,0.6)]">
-      {/* 1. 2050s Cyber Top Announcement Bar */}
-      <div className="bg-[#030610] text-neutral-200 py-2 px-4 sm:px-6 lg:px-12 text-[11px] font-sans font-medium tracking-wider flex items-center justify-between border-b border-white/10">
+    <header className="w-full bg-[#F7F4EE]/95 backdrop-blur-md border-b border-[#E8E0D2] sticky top-0 z-40 transition-all shadow-[0_2px_15px_rgba(0,0,0,0.04)]">
+      {/* 1. Luxury Heritage Top Announcement Bar */}
+      <div className="bg-[#1F1F1F] text-[#F7F4EE] py-2 px-4 sm:px-6 lg:px-12 text-[11px] font-sans font-medium tracking-wider flex items-center justify-between border-b border-[#D4AF37]/20">
         <div className="flex-1 text-center sm:text-left overflow-hidden">
-          <p className="truncate animate-fadeIn text-neutral-200">
-            <span className="text-[#00F0FF] mr-2">◈ 2050 ATELIER</span>
+          <p className="truncate animate-fadeIn text-[#F7F4EE]/90">
+            <span className="text-[#D4AF37] mr-2">◈ HERITAGE ATELIER</span>
             {tickerMessages[currentTicker]}
           </p>
         </div>
 
-        <div className="hidden md:flex items-center gap-6 shrink-0 text-neutral-300">
+        <div className="hidden md:flex items-center gap-6 shrink-0 text-[#E8E0D2]/80">
           <a
             href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20inquire%20about%20your%20unstitched%20fabrics"
             target="_blank"
             rel="noopener noreferrer"
-            className="hover:text-[#00FF9D] flex items-center gap-1.5 transition-colors"
+            className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors"
           >
-            <Phone className="w-3 h-3 text-[#00FF9D]" />
-            <span className="font-mono">0334-6565636</span>
+            <Phone className="w-3 h-3 text-[#D4AF37]" />
+            <span className="font-sans">0334-6565636</span>
           </a>
 
           <button
             onClick={() => navigateTo('location')}
             className="hover:text-white flex items-center gap-1.5 transition-colors"
           >
-            <MapPin className="w-3 h-3 text-[#00F0FF]" />
+            <MapPin className="w-3 h-3 text-[#D4AF37]" />
             <span>Paris Bazaar, Rawalpindi</span>
           </button>
 
           <button
             onClick={() => setIsMapAgentOpen(true)}
-            className="hover:text-[#00F0FF] text-[#00F0FF]/90 flex items-center gap-1.5 transition-colors font-semibold"
+            className="hover:text-[#D4AF37] text-[#D4AF37] flex items-center gap-1.5 transition-colors font-medium"
             title="Open Interactive Google Maps Route & Places Agent"
           >
-            <Compass className="w-3.5 h-3.5 animate-pulse text-[#00F0FF]" />
-            <span>Maps &amp; Route Agent</span>
+            <Compass className="w-3.5 h-3.5 text-[#D4AF37]" />
+            <span>Store Route &amp; Maps</span>
           </button>
 
           {/* Currency selector */}
-          <div className="flex items-center gap-1 text-[10px] text-neutral-400 pl-3 border-l border-white/10">
+          <div className="flex items-center gap-1 text-[10px] text-[#E8E0D2]/60 pl-3 border-l border-white/20">
             {(['PKR', 'USD', 'AED'] as const).map((curr) => (
               <button
                 key={curr}
                 onClick={() => setCurrency(curr)}
-                className={`px-1.5 py-0.5 font-semibold transition-colors ${
-                  currency === curr ? 'text-[#F5B738] underline underline-offset-2' : 'hover:text-white'
+                className={`px-1.5 py-0.5 font-medium transition-colors ${
+                  currency === curr ? 'text-[#D4AF37] underline underline-offset-2' : 'hover:text-white'
                 }`}
               >
                 {curr}
@@ -144,7 +144,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 text-white hover:text-[#00F0FF] focus:outline-none min-w-[40px] min-h-[40px] flex items-center justify-center"
+              className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] focus:outline-none min-w-[40px] min-h-[40px] flex items-center justify-center"
               aria-label="Open navigation menu"
             >
               <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -152,7 +152,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-white hover:text-[#00F0FF] min-w-[40px] min-h-[40px] flex items-center justify-center"
+              className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] min-w-[40px] min-h-[40px] flex items-center justify-center"
               aria-label="Search catalog"
             >
               <Search className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -163,10 +163,10 @@ export const Header: React.FC = () => {
           <div className="hidden lg:flex items-center flex-1 max-w-xs">
             <button
               onClick={() => setIsSearchOpen(true)}
-              className="w-full flex items-center justify-between bg-[#0A0F1D]/80 hover:bg-[#0E1626] border border-white/10 hover:border-[#00F0FF]/40 text-neutral-400 px-3.5 py-2 text-xs tracking-wide transition-all group cursor-text rounded-xs"
+              className="w-full flex items-center justify-between bg-white hover:bg-[#F7F4EE] border border-[#E8E0D2] hover:border-[#D4AF37] text-[#1F1F1F]/60 px-3.5 py-2 text-xs tracking-wide transition-all group cursor-text rounded-xs"
             >
-              <span className="truncate">Search luxury fabrics, weaves, silk...</span>
-              <Search className="w-4 h-4 text-neutral-400 group-hover:text-[#00F0FF] shrink-0 ml-2" />
+              <span className="truncate">Search unstitched fabrics, silk, lawn...</span>
+              <Search className="w-4 h-4 text-[#1F1F1F]/50 group-hover:text-[#D4AF37] shrink-0 ml-2" />
             </button>
           </div>
 
@@ -180,11 +180,11 @@ export const Header: React.FC = () => {
               }}
               className="inline-block group focus:outline-none max-w-full"
             >
-              <span className="block font-sans font-black text-sm sm:text-2xl lg:text-3xl tracking-[0.16em] sm:tracking-[0.24em] uppercase text-white group-hover:text-[#F5B738] transition-colors truncate drop-shadow-[0_0_20px_rgba(245,183,56,0.3)]">
+              <span className="block font-serif text-lg sm:text-2xl lg:text-3xl tracking-[0.14em] uppercase text-[#1F1F1F] group-hover:text-[#D4AF37] transition-colors truncate font-light">
                 NIAZ CLOTH HOUSE
               </span>
-              <span className="block text-[7.5px] sm:text-[10px] tracking-[0.2em] sm:tracking-[0.32em] uppercase text-[#00F0FF]/80 font-mono font-medium mt-0.5 truncate">
-                EST. 1970 · PARIS BAZAAR RAWALPINDI · 2050 ATELIER
+              <span className="block text-[8px] sm:text-[10px] tracking-[0.25em] uppercase text-[#D4AF37] font-sans font-medium mt-0.5 truncate">
+                DRESS TO IMPRESS · ESTABLISHED 1970
               </span>
             </a>
           </div>
@@ -201,36 +201,36 @@ export const Header: React.FC = () => {
                     openAuthModal();
                   }
                 }}
-                className="p-2 text-neutral-200 hover:text-white flex items-center gap-1.5 transition-colors focus:outline-none"
+                className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors focus:outline-none"
                 aria-label="Account login and profile"
               >
-                <UserIcon className="w-5 h-5 text-neutral-300" />
-                <span className="hidden xl:inline text-xs font-semibold tracking-wider uppercase text-neutral-300 hover:text-white">
+                <UserIcon className="w-5 h-5 text-[#1F1F1F]" />
+                <span className="hidden xl:inline text-xs font-medium tracking-wider uppercase text-[#1F1F1F] hover:text-[#D4AF37]">
                   {user ? (user.displayName || 'Patron').split(' ')[0] : 'SIGN IN'}
                 </span>
               </button>
 
               {user && userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-[#0A0F1D] border border-white/10 shadow-2xl py-2 z-50 text-xs text-neutral-200 backdrop-blur-xl">
-                  <div className="px-4 py-2 border-b border-white/10">
-                    <p className="font-semibold text-white truncate">{user.displayName || 'Distinguished Patron'}</p>
-                    <p className="text-[11px] text-neutral-400 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-white border border-[#E8E0D2] shadow-xl py-2 z-50 text-xs text-[#1F1F1F]">
+                  <div className="px-4 py-2 border-b border-[#E8E0D2]">
+                    <p className="font-semibold text-[#1F1F1F] truncate">{user.displayName || 'Distinguished Patron'}</p>
+                    <p className="text-[11px] text-[#1F1F1F]/60 truncate">{user.email}</p>
                   </div>
                   <button
                     onClick={() => {
                       navigateTo('admin');
                       setUserDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-white/5 font-medium text-[#00F0FF]"
+                    className="w-full text-left px-4 py-2 hover:bg-[#F7F4EE] font-medium text-[#D4AF37]"
                   >
-                    Admin Command Desk
+                    Admin Control Centre
                   </button>
                   <button
                     onClick={() => {
                       logout();
                       setUserDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-white/5 text-red-400 flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 hover:bg-[#F7F4EE] text-red-600 flex items-center gap-2"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
@@ -242,13 +242,13 @@ export const Header: React.FC = () => {
             {/* Wishlist Button */}
             <button
               onClick={() => navigateTo('shop', { favoritesOnly: true })}
-              className="p-2 text-neutral-300 hover:text-[#F5B738] relative transition-colors focus:outline-none hidden sm:flex items-center"
+              className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] relative transition-colors focus:outline-none hidden sm:flex items-center"
               aria-label={`Wishlist (${wishlist.length} items)`}
               title="Wishlist"
             >
               <Heart className="w-5 h-5" />
               {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 bg-[#F5B738] text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                <span className="absolute top-1 right-1 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                   {wishlist.length}
                 </span>
               )}
@@ -257,20 +257,20 @@ export const Header: React.FC = () => {
             {/* Shopping Bag / Cart Drawer Trigger */}
             <button
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-white hover:bg-white/5 border border-white/5 hover:border-[#00F0FF]/30 transition-all focus:outline-none rounded-xs"
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-[#1F1F1F] hover:bg-white border border-[#E8E0D2] hover:border-[#D4AF37] transition-all focus:outline-none rounded-xs"
               aria-label={`View cart (${cartCount} items)`}
             >
               <div className="relative">
-                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[#00F0FF]" />
+                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[#1F1F1F]" />
                 {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[#F5B738] text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                  <span className="absolute -top-1.5 -right-2 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
                     {cartCount}
                   </span>
                 )}
               </div>
               <div className="hidden lg:flex flex-col text-left">
-                <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-semibold leading-tight font-mono">Bag</span>
-                <span className="text-xs font-bold text-[#F5B738] leading-tight font-mono">
+                <span className="text-[10px] uppercase tracking-wider text-[#1F1F1F]/60 font-medium leading-tight font-sans">Bag</span>
+                <span className="text-xs font-semibold text-[#1F1F1F] leading-tight font-sans">
                   {cartTotal > 0 ? formatPKR(cartTotal) : 'PKR 0'}
                 </span>
               </div>
@@ -298,14 +298,14 @@ export const Header: React.FC = () => {
 
             {/* Mega Menu Dropdown */}
             {activeMegaMenu === 'women' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[920px] bg-[#0B1224] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-8 z-50 animate-fadeIn text-white">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[920px] bg-white border border-[#E8E0D2] shadow-[0_20px_50px_rgba(0,0,0,0.12)] p-8 z-50 animate-fadeIn text-[#1F1F1F]">
                 <div className="grid grid-cols-4 gap-8">
                   {/* Col 1: Embroidered Collection */}
                   <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-white pb-2 border-b border-white/10 mb-3 flex items-center justify-between">
-                      <span className="text-[#00F0FF]">Embroidered Collection</span>
+                    <h3 className="text-xs font-semibold tracking-widest uppercase text-[#1F1F1F] pb-2 border-b border-[#E8E0D2] mb-3 flex items-center justify-between">
+                      <span className="text-[#D4AF37]">Embroidered Collection</span>
                     </h3>
-                    <ul className="space-y-2 text-[11px] font-medium text-neutral-300">
+                    <ul className="space-y-2 text-[11px] font-medium text-[#1F1F1F]/70">
                       {WOMEN_EMBROIDERY_BRANDS.map((brand) => (
                         <li key={brand}>
                           <button
@@ -313,19 +313,19 @@ export const Header: React.FC = () => {
                               navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand });
                               setActiveMegaMenu(null);
                             }}
-                            className="hover:text-[#00F0FF] hover:translate-x-1 transition-all block text-left"
+                            className="hover:text-[#D4AF37] hover:translate-x-1 transition-all block text-left"
                           >
                             {brand}
                           </button>
                         </li>
                       ))}
-                      <li className="pt-2 border-t border-white/10">
+                      <li className="pt-2 border-t border-[#E8E0D2]">
                         <button
                           onClick={() => {
                             navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
                             setActiveMegaMenu(null);
                           }}
-                          className="text-[#00F0FF] font-bold flex items-center gap-1 hover:underline"
+                          className="text-[#D4AF37] font-semibold flex items-center gap-1 hover:underline"
                         >
                           View All Embroidered →
                         </button>
@@ -465,14 +465,14 @@ export const Header: React.FC = () => {
 
             {/* Men's Mega Menu Dropdown */}
             {activeMegaMenu === 'men' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[760px] bg-[#0B1224] border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.85)] p-8 z-50 animate-fadeIn text-white">
+              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[760px] bg-white border border-[#E8E0D2] shadow-[0_20px_50px_rgba(0,0,0,0.12)] p-8 z-50 animate-fadeIn text-[#1F1F1F]">
                 <div className="grid grid-cols-3 gap-8">
                   {/* Col 1: Fabrics */}
                   <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-white pb-2 border-b border-white/10 mb-3">
-                      <span className="text-[#F5B738]">Men's Signature Fabrics</span>
+                    <h3 className="text-xs font-semibold tracking-widest uppercase text-[#1F1F1F] pb-2 border-b border-[#E8E0D2] mb-3">
+                      <span className="text-[#D4AF37]">Men's Signature Fabrics</span>
                     </h3>
-                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-300">
+                    <ul className="space-y-2.5 text-[11px] font-medium text-[#1F1F1F]/70">
                       {MENS_FABRICS.map((fabric) => (
                         <li key={fabric}>
                           <button
@@ -480,19 +480,19 @@ export const Header: React.FC = () => {
                               navigateTo('shop', { gender: 'Men', fabric });
                               setActiveMegaMenu(null);
                             }}
-                            className="hover:text-[#F5B738] hover:translate-x-1 transition-all block text-left font-medium"
+                            className="hover:text-[#D4AF37] hover:translate-x-1 transition-all block text-left font-medium"
                           >
                             {fabric} Suiting
                           </button>
                         </li>
                       ))}
-                      <li className="pt-2 border-t border-white/10">
+                      <li className="pt-2 border-t border-[#E8E0D2]">
                         <button
                           onClick={() => {
                             navigateTo('shop', { gender: 'Men' });
                             setActiveMegaMenu(null);
                           }}
-                          className="text-[#F5B738] font-bold flex items-center gap-1 hover:underline"
+                          className="text-[#D4AF37] font-semibold flex items-center gap-1 hover:underline"
                         >
                           View All Men's Fabrics →
                         </button>

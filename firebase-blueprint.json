@@ -101,12 +101,31 @@
         "createdAt": { "type": "string", "description": "Creation timestamp" }
       },
       "required": ["id", "messagesCount"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Store operational metadata, pricing rules, shipping rates, and promotions",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string", "description": "Store name" },
+        "tagline": { "type": "string", "description": "Store tagline" },
+        "phone": { "type": "string", "description": "Official phone number" },
+        "whatsapp": { "type": "string", "description": "WhatsApp number" },
+        "address": { "type": "string", "description": "Physical store address in Paris Bazaar" },
+        "shippingFee": { "type": "number", "description": "Standard delivery fee in PKR" },
+        "freeShippingThreshold": { "type": "number", "description": "Free shipping order threshold in PKR" }
+      },
+      "required": ["storeName", "shippingFee"]
     }
   },
   "firestore": {
     "/products/{productId}": {
       "schema": "Product",
       "description": "Catalog of authentic unstitched fabrics"
+    },
+    "/storeSettings/{settingId}": {
+      "schema": "StoreSettings",
+      "description": "Official store settings and pricing policies"
     },
     "/users/{userId}": {
       "schema": "User",

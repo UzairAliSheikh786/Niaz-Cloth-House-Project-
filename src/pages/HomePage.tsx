@@ -262,34 +262,34 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 2. Worldwide Shipping & International Patron Assurance Bar */}
-      <section className="bg-[#030610] text-neutral-300 border-y border-white/10 py-3.5 px-4 sm:px-8">
+      <section className="bg-[#1F1F1F] text-[#F7F4EE] border-y border-[#D4AF37]/20 py-3.5 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto grid grid-cols-2 lg:grid-cols-4 gap-4 text-center sm:text-left">
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <Globe className="w-4 h-4 text-[#00F0FF] shrink-0" />
+            <Globe className="w-4 h-4 text-[#D4AF37] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block text-white font-mono">Worldwide Delivery</span>
-              <span className="text-neutral-400">UK, USA, UAE, Canada & Global</span>
+              <span className="font-semibold uppercase tracking-wider block text-[#F7F4EE] font-sans">Worldwide Delivery</span>
+              <span className="text-[#E8E0D2]/70 font-sans">UK, USA, UAE, Canada & Global</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <Video className="w-4 h-4 text-[#F5B738] shrink-0" />
+            <Video className="w-4 h-4 text-[#D4AF37] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block text-white font-mono">Live Video Inspection</span>
-              <span className="text-neutral-400">Inspect fabric drape before dispatch</span>
+              <span className="font-semibold uppercase tracking-wider block text-[#F7F4EE] font-sans">Live Video Inspection</span>
+              <span className="text-[#E8E0D2]/70 font-sans">Inspect fabric drape before dispatch</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <ShieldCheck className="w-4 h-4 text-[#00FF9D] shrink-0" />
+            <ShieldCheck className="w-4 h-4 text-[#D4AF37] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block text-white font-mono">100% Original Mills</span>
-              <span className="text-neutral-400">Certified seals & brand packaging</span>
+              <span className="font-semibold uppercase tracking-wider block text-[#F7F4EE] font-sans">100% Original Mills</span>
+              <span className="text-[#E8E0D2]/70 font-sans">Certified seals & brand packaging</span>
             </div>
           </div>
           <div className="flex items-center justify-center sm:justify-start gap-2.5">
-            <MessageCircle className="w-4 h-4 text-[#00F0FF] shrink-0" />
+            <MessageCircle className="w-4 h-4 text-[#D4AF37] shrink-0" />
             <div className="text-[11px] leading-tight">
-              <span className="font-bold uppercase tracking-wider block text-white font-mono">WhatsApp Concierge</span>
-              <span className="text-[#00FF9D] font-mono">+92 334 6565636 (24/7 Desk)</span>
+              <span className="font-semibold uppercase tracking-wider block text-[#F7F4EE] font-sans">WhatsApp Concierge</span>
+              <span className="text-[#D4AF37] font-sans">0334-6565636 (24/7 Desk)</span>
             </div>
           </div>
         </div>
@@ -299,15 +299,15 @@ export const HomePage: React.FC = () => {
       <Interactive3DStorefronts />
 
       {/* 3. Quick Category Highlights */}
-      <section className="py-8 sm:py-12 border-b border-white/10 bg-[#060A16]">
+      <section className="py-8 sm:py-12 border-b border-[#E8E0D2] bg-[#F7F4EE]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-xs sm:text-sm font-black tracking-[0.2em] uppercase text-white font-mono">
-              ◈ Explore Collections
+            <h2 className="text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase text-[#1F1F1F] font-sans">
+              Explore Collections
             </h2>
             <button
               onClick={() => navigateTo('shop')}
-              className="text-xs font-bold tracking-wider uppercase text-[#00F0FF] hover:text-white flex items-center gap-1 font-mono transition-colors"
+              className="text-xs font-medium tracking-wider uppercase text-[#D4AF37] hover:text-[#1F1F1F] flex items-center gap-1 font-sans transition-colors"
             >
               <span>View All</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -321,22 +321,22 @@ export const HomePage: React.FC = () => {
                 onClick={cat.action}
                 className="group flex flex-col items-center shrink-0 w-16 sm:w-22 text-center focus:outline-none"
               >
-                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border-2 border-white/20 group-hover:border-[#00F0FF] p-0.5 transition-all duration-300 shadow-md bg-[#0A0F1D] group-hover:shadow-[0_0_20px_rgba(0,240,255,0.4)]">
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border border-[#D4AF37]/30 group-hover:border-[#D4AF37] p-0.5 transition-all duration-300 shadow-sm bg-white group-hover:shadow-[0_4px_16px_rgba(212,175,55,0.25)]">
                   <img
                     src={cat.image}
                     alt={cat.label}
-                    className="w-full h-full object-cover rounded-full group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-cover rounded-full group-hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
                     }}
                   />
                   {cat.badge && (
-                    <span className="absolute bottom-0 inset-x-0 bg-red-600 text-white text-[8px] sm:text-[9px] font-black tracking-wider uppercase py-0.5 text-center leading-none">
+                    <span className="absolute bottom-0 inset-x-0 bg-[#1F1F1F] text-[#D4AF37] text-[8px] sm:text-[9px] font-bold tracking-wider uppercase py-0.5 text-center leading-none">
                       {cat.badge}
                     </span>
                   )}
                 </div>
-                <span className="text-[10px] sm:text-xs font-semibold text-neutral-300 group-hover:text-[#00F0FF] mt-1.5 sm:mt-2 tracking-wide leading-tight line-clamp-1 transition-colors">
+                <span className="text-[10px] sm:text-xs font-medium text-[#1F1F1F]/80 group-hover:text-[#D4AF37] mt-1.5 sm:mt-2 tracking-wide leading-tight line-clamp-1 transition-colors">
                   {cat.label}
                 </span>
               </button>
@@ -346,19 +346,19 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 4. Interactive Curated Collections Atelier */}
-      <section className="py-10 sm:py-16 bg-[#050811] border-b border-white/10 text-white">
+      <section className="py-10 sm:py-16 bg-white border-b border-[#E8E0D2] text-[#1F1F1F]">
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           
           {/* Section Header */}
           <div className="text-center mb-6 sm:mb-8">
-            <span className="text-[10px] sm:text-[11px] font-mono font-bold tracking-[0.25em] uppercase text-[#00F0FF] block mb-1">
+            <span className="text-[10px] sm:text-[11px] font-sans font-medium tracking-[0.25em] uppercase text-[#D4AF37] block mb-1">
               Curated Unstitched Fabrics
             </span>
-            <h2 className="font-sans font-black text-xl sm:text-3xl tracking-[0.14em] uppercase text-white mb-2.5">
+            <h2 className="font-serif text-2xl sm:text-4xl tracking-[0.06em] uppercase text-[#1F1F1F] font-light mb-2.5">
               Select By Department & Designer Mill
             </h2>
-            <div className="w-16 h-0.5 bg-gradient-to-r from-transparent via-[#00F0FF] to-transparent mx-auto mb-4" />
-            <p className="text-xs text-neutral-500 max-w-xl mx-auto">
+            <div className="w-16 h-0.5 bg-[#D4AF37] mx-auto mb-4" />
+            <p className="text-xs text-[#1F1F1F]/60 max-w-xl mx-auto">
               Filter unstitched suits instantly by craft, fabric, and renowned Pakistani textile mills. Shipped worldwide from Paris Bazaar Rawalpindi.
             </p>
 
@@ -748,7 +748,7 @@ export const HomePage: React.FC = () => {
                 FREE NATIONWIDE SHIPPING
               </h4>
               <p className="text-[11px] text-neutral-500 max-w-[200px]">
-                Complimentary delivery on all orders over PKR 3,000 across Pakistan.
+                Complimentary delivery on all orders over PKR 5,000 across Pakistan.
               </p>
             </div>
 

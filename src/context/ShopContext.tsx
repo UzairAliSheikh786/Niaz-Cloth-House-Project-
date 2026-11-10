@@ -448,7 +448,27 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCart([]);
   };
 
-  const cartSubtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
+  const getItemUnitPrice = (item: CartItem): number => {
+    let designAddon = 0;
+    if (item.selectedDesign && item.product.designOptions) {
+      const designOpt = item.product.designOptions.find(
+        (d) => d.name === item.selectedDesign || d.id === item.selectedDesign
+      );
+      if (designOpt && designOpt.additionalPrice) {
+        designAddon = designOpt.additionalPrice;
+      }
+    }
+    return item.product.price + designAddon;
+  };
+
+  const cartSubtotal = cart.reduce(
+    (sum, item) => sum + getItemUnitPrice(item) * item.quantity,
+    0
+  );
+  const freeShippingThreshold = storeSettings.freeShippingThreshold ?? 5000;
+  const standardShippingFee = storeSettings.shippingFee ?? 250;
+  const shippingFee = cart.length === 0 ? 0 : cartSubtotal >= freeShippingThreshold ? 0 : standardShippingFee;
+  const cartTotal = cartSubtotal + shippingFee;
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const createOrder = async (
@@ -456,38 +476,71 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     paymentMethod: PaymentMethod,
     paymentDetails?: OrderPaymentDetails
   ): Promise<Order> => {
-    const newOrder: Order = {
-      id: `NCH-1977-${Math.floor(1000 + Math.random() * 9000)}`,
+    let finalOrder: Order = {
+      id: `NCH-1970-${Math.floor(10000 + Math.random() * 90000)}`,
       date: new Date().toISOString(),
       customer,
       items: [...cart],
       subtotal: cartSubtotal,
-      shipping: 0,
-      total: cartSubtotal,
+      shipping: shippingFee,
+      total: cartTotal,
       status: 'Pending',
       paymentMethod,
       paymentDetails,
     };
 
+    // Attempt server-authoritative verification & registration
+    try {
+      const resp = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          customer,
+          items: cart.map((i) => ({
+            productId: i.product.id,
+            quantity: i.quantity,
+            selectedColor: i.selectedColor,
+            selectedDesign: i.selectedDesign,
+          })),
+          paymentMethod,
+          paymentDetails,
+        }),
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        if (data?.order) {
+          finalOrder = {
+            ...finalOrder,
+            id: data.order.id,
+            subtotal: data.order.subtotal,
+            shipping: data.order.shipping ?? (data.order.total - data.order.subtotal),
+            total: data.order.total,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('Backend server order placement offline or unreachable, registering via client & Firestore:', err);
+    }
+
     // Save to local state
-    setOrders((prev) => [newOrder, ...prev]);
+    setOrders((prev) => [finalOrder, ...prev]);
 
     // Save to Firestore
     try {
-      const orderRef = doc(db, 'orders', newOrder.id);
+      const orderRef = doc(db, 'orders', finalOrder.id);
       await setDoc(orderRef, {
-        ...newOrder,
+        ...finalOrder,
         userId: auth.currentUser?.uid || null,
         createdAt: new Date().toISOString(),
       });
     } catch (err) {
-      handleFirestoreError(err, OperationType.CREATE, `orders/${newOrder.id}`);
+      handleFirestoreError(err, OperationType.CREATE, `orders/${finalOrder.id}`);
     }
 
     clearCart();
     setIsCartOpen(false);
-    showToast(`Order #${newOrder.id} registered successfully via ${paymentMethod}!`);
-    return newOrder;
+    showToast(`Order #${finalOrder.id} registered successfully via ${paymentMethod}!`);
+    return finalOrder;
   };
 
   const updateOrderStatus = async (orderId: string, status: OrderStatus) => {
@@ -690,7 +743,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
         removeFromCart,
         clearCart,
         cartSubtotal,
-        cartTotal: cartSubtotal,
+        cartTotal,
         cartCount,
         wishlist,
         toggleWishlist,
