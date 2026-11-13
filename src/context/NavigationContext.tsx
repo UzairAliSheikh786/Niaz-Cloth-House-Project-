@@ -29,6 +29,7 @@ export interface NavFilterParams {
   weaveType?: string;
   brand?: string;
   craftType?: string;
+  collection?: string;
   search?: string;
   favoritesOnly?: boolean;
   newArrivalsOnly?: boolean;
@@ -52,6 +53,7 @@ interface NavigationContextType {
       weaveType?: string;
       brand?: string;
       craftType?: string;
+      collection?: string;
       search?: string;
       favoritesOnly?: boolean;
       newArrivalsOnly?: boolean;
@@ -84,6 +86,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const weaveType = search.get('weaveType') || search.get('weave') || undefined;
     const brand = search.get('brand') || undefined;
     const craftType = search.get('craftType') || search.get('craft') || undefined;
+    const collectionParam = search.get('collection') || undefined;
     const searchQuery = search.get('search') || search.get('q') || undefined;
 
     let page: PageRoute = 'home';
@@ -147,6 +150,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         weaveType,
         brand,
         craftType,
+        collection: collectionParam,
         search: searchQuery
       } 
     };
@@ -204,6 +208,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         weaveType: params.weaveType,
         brand: params.brand,
         craftType: params.craftType,
+        collection: params.collection,
         search: params.search,
         favoritesOnly: params.favoritesOnly,
         newArrivalsOnly: params.newArrivalsOnly,
@@ -238,6 +243,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       if (params?.fabricWeight) query.set('fabricWeight', params.fabricWeight);
       if (params?.threadCount) query.set('threadCount', params.threadCount);
       if (params?.weaveType) query.set('weaveType', params.weaveType);
+      if (params?.collection) query.set('collection', params.collection);
       if (params?.search) query.set('search', params.search);
     } else if (page === 'product-detail') {
       const targetId = resolvedId || productId || 'nch-001';

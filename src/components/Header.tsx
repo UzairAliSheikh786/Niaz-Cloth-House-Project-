@@ -1,70 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Search, 
-  ShoppingBag, 
-  Heart, 
-  User as UserIcon, 
-  Menu, 
-  X, 
-  ChevronDown, 
-  ChevronRight, 
-  Phone, 
-  MapPin, 
-  LogOut, 
-  Truck, 
-  Check, 
-  Flame, 
+import {
+  Search,
+  ShoppingCart,
+  Heart,
+  User as UserIcon,
+  Menu,
+  X,
+  ChevronRight,
+  Phone,
+  MapPin,
+  LogOut,
   ArrowRight,
-  Compass,
-  Sparkles
 } from 'lucide-react';
-import { useShop, formatPKR } from '../context/ShopContext';
+import { useShop } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { useAuth } from '../context/AuthContext';
 import { WOMEN_EMBROIDERY_BRANDS, WOMEN_PRINTED_BRANDS, MENS_FABRICS } from '../types';
+import { PWAInstallPrompt } from './PWAInstallPrompt';
 
 export const Header: React.FC = () => {
-  const { cartCount, cartTotal, setIsCartOpen, setIsSearchOpen, wishlist, orders } = useShop();
-  const { currentPage, filterParams, navigateTo, setIsMapAgentOpen } = useNavigation();
+  const { cartCount, setIsCartOpen, setIsSearchOpen, wishlist } = useShop();
+  const { currentPage, filterParams, navigateTo } = useNavigation();
   const { user, openAuthModal, logout } = useAuth();
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [activeMegaMenu, setActiveMegaMenu] = useState<'women' | 'men' | null>(null);
   const [mobileActiveTab, setMobileActiveTab] = useState<'women' | 'men'>('women');
   const [mobileAccordion, setMobileAccordion] = useState<{
     womenEmbroidered: boolean;
     womenPrinted: boolean;
-    menFabrics: boolean;
   }>({
     womenEmbroidered: true,
     womenPrinted: false,
-    menFabrics: true,
   });
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [currency, setCurrency] = useState<'PKR' | 'USD' | 'AED' | 'GBP'>('PKR');
 
-  // Announcement bar rotating ticker
-  const tickerMessages = [
-    "SUMMER FESTIVE UNSTITCHED '26 IS LIVE · 100% ORIGINAL DESIGNER FABRICS",
-    "FREE NATIONWIDE EXPRESS SHIPPING ON ALL ORDERS OVER PKR 5,000",
-    "WHATSAPP CONCIERGE & VIDEO SUIT INSPECTION: 0334-6565636",
-    "AUTHENTIC PAKISTANI FABRICS · SHOP # 166-C PARIS BAZAAR RAWALPINDI"
-  ];
-  const [currentTicker, setCurrentTicker] = useState(0);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTicker((prev) => (prev + 1) % tickerMessages.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [tickerMessages.length]);
-
-  // Close menus on Escape key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setMobileMenuOpen(false);
-        setActiveMegaMenu(null);
         setUserDropdownOpen(false);
       }
     };
@@ -72,165 +45,176 @@ export const Header: React.FC = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const userOrdersCount = user
-    ? orders.filter(
-        (o) =>
-          (o as any).userId === user.uid ||
-          o.customer.fullName.toLowerCase().includes((user.displayName || '').toLowerCase())
-      ).length
-    : 0;
+  const isNavActive = (key: string) => {
+    if (currentPage !== 'shop') return false;
+    switch (key) {
+      case 'new-in':
+        return Boolean(filterParams.newArrivalsOnly);
+      case 'mens':
+        return filterParams.gender === 'Men';
+      case 'womens':
+        return filterParams.gender === 'Women';
+      case 'luxury':
+        return filterParams.collection === 'The Shahi Collection';
+      case 'sale':
+        return Boolean(filterParams.saleOnly);
+      default:
+        return false;
+    }
+  };
 
   return (
-    <header className="w-full bg-[#F7F4EE]/95 backdrop-blur-md border-b border-[#E8E0D2] sticky top-0 z-40 transition-all shadow-[0_2px_15px_rgba(0,0,0,0.04)]">
-      {/* 1. Luxury Heritage Top Announcement Bar */}
-      <div className="bg-[#1F1F1F] text-[#F7F4EE] py-2 px-4 sm:px-6 lg:px-12 text-[11px] font-sans font-medium tracking-wider flex items-center justify-between border-b border-[#D4AF37]/20">
-        <div className="flex-1 text-center sm:text-left overflow-hidden">
-          <p className="truncate animate-fadeIn text-[#F7F4EE]/90">
-            <span className="text-[#D4AF37] mr-2">◈ HERITAGE ATELIER</span>
-            {tickerMessages[currentTicker]}
-          </p>
-        </div>
-
-        <div className="hidden md:flex items-center gap-6 shrink-0 text-[#E8E0D2]/80">
+    <header className="w-full bg-[#060608]/95 backdrop-blur-md border-b border-[#C5A059]/25 sticky top-0 z-40 text-[#F7F4EE]">
+      {/* Clean Single-Row 3-Zone Top Bar */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-8 h-18 sm:h-20">
+          {/* Zone 1: Brand Wordmark */}
           <a
-            href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20inquire%20about%20your%20unstitched%20fabrics"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors"
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo('home');
+            }}
+            className="flex flex-col text-left group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37] whitespace-nowrap shrink-0"
+            aria-label="Niaz Cloth House Home"
           >
-            <Phone className="w-3 h-3 text-[#D4AF37]" />
-            <span className="font-sans">0334-6565636</span>
+            <span className="font-serif text-2xl sm:text-[28px] font-semibold tracking-[0.22em] text-[#D4AF37] group-hover:text-[#E8D5A7] transition-colors leading-none">
+              NIAZ
+            </span>
+            <span className="text-[9px] tracking-[0.34em] font-sans font-medium text-[#C5A059]/85 group-hover:text-[#E8D5A7] uppercase mt-1 leading-none">
+              CLOTH HOUSE
+            </span>
           </a>
 
-          <button
-            onClick={() => navigateTo('location')}
-            className="hover:text-white flex items-center gap-1.5 transition-colors"
+          {/* Zone 2: Clean Single-Line Nav Links */}
+          <nav
+            aria-label="Primary Navigation"
+            className="hidden lg:flex items-center justify-center gap-7 text-[13px] font-sans font-medium tracking-wide text-[#F7F4EE]/90"
           >
-            <MapPin className="w-3 h-3 text-[#D4AF37]" />
-            <span>Paris Bazaar, Rawalpindi</span>
-          </button>
-
-          <button
-            onClick={() => setIsMapAgentOpen(true)}
-            className="hover:text-[#D4AF37] text-[#D4AF37] flex items-center gap-1.5 transition-colors font-medium"
-            title="Open Interactive Google Maps Route & Places Agent"
-          >
-            <Compass className="w-3.5 h-3.5 text-[#D4AF37]" />
-            <span>Store Route &amp; Maps</span>
-          </button>
-
-          {/* Currency selector */}
-          <div className="flex items-center gap-1 text-[10px] text-[#E8E0D2]/60 pl-3 border-l border-white/20">
-            {(['PKR', 'USD', 'AED'] as const).map((curr) => (
-              <button
-                key={curr}
-                onClick={() => setCurrency(curr)}
-                className={`px-1.5 py-0.5 font-medium transition-colors ${
-                  currency === curr ? 'text-[#D4AF37] underline underline-offset-2' : 'hover:text-white'
-                }`}
-              >
-                {curr}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* 2. Main Brand Row */}
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-22">
-          {/* Mobile Hamburger & Search Buttons */}
-          <div className="flex items-center lg:hidden gap-0.5 shrink-0">
             <button
               type="button"
-              onClick={() => setMobileMenuOpen(true)}
-              className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] focus:outline-none min-w-[40px] min-h-[40px] flex items-center justify-center"
-              aria-label="Open navigation menu"
+              onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
+              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+                isNavActive('new-in')
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
             >
-              <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
+              New In
             </button>
             <button
               type="button"
-              onClick={() => setIsSearchOpen(true)}
-              className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] min-w-[40px] min-h-[40px] flex items-center justify-center"
-              aria-label="Search catalog"
+              onClick={() => navigateTo('shop', { gender: 'Men' })}
+              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+                isNavActive('mens')
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
             >
-              <Search className="w-4 h-4 sm:w-5 sm:h-5" />
+              Mens Collection
             </button>
-          </div>
-
-          {/* Desktop Search Bar */}
-          <div className="hidden lg:flex items-center flex-1 max-w-xs">
             <button
-              onClick={() => setIsSearchOpen(true)}
-              className="w-full flex items-center justify-between bg-white hover:bg-[#F7F4EE] border border-[#E8E0D2] hover:border-[#D4AF37] text-[#1F1F1F]/60 px-3.5 py-2 text-xs tracking-wide transition-all group cursor-text rounded-xs"
+              type="button"
+              onClick={() => navigateTo('shop', { gender: 'Women' })}
+              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+                isNavActive('womens')
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
             >
-              <span className="truncate">Search unstitched fabrics, silk, lawn...</span>
-              <Search className="w-4 h-4 text-[#1F1F1F]/50 group-hover:text-[#D4AF37] shrink-0 ml-2" />
+              Womens Collection
             </button>
-          </div>
-
-          {/* Center Brand Identity */}
-          <div className="flex-1 lg:flex-initial text-center px-1 sm:px-4 min-w-0 overflow-hidden">
-            <a
-              href="/"
-              onClick={(e) => {
-                e.preventDefault();
-                navigateTo('home');
-              }}
-              className="inline-block group focus:outline-none max-w-full"
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { collection: 'The Shahi Collection' })}
+              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+                isNavActive('luxury')
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
             >
-              <span className="block font-serif text-lg sm:text-2xl lg:text-3xl tracking-[0.14em] uppercase text-[#1F1F1F] group-hover:text-[#D4AF37] transition-colors truncate font-light">
-                NIAZ CLOTH HOUSE
-              </span>
-              <span className="block text-[8px] sm:text-[10px] tracking-[0.25em] uppercase text-[#D4AF37] font-sans font-medium mt-0.5 truncate">
-                DRESS TO IMPRESS · ESTABLISHED 1970
-              </span>
-            </a>
-          </div>
+              Luxury
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { saleOnly: true })}
+              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+                isNavActive('sale')
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
+            >
+              Sale
+            </button>
+          </nav>
 
-          {/* Right Action Icons: User Account, Wishlist, Cart */}
-          <div className="flex items-center justify-end shrink-0 lg:flex-1 lg:max-w-xs gap-1 sm:gap-3">
-            {/* User Account / Profile */}
+          {/* Zone 3: Cart Primary Action + Essential Utilities */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsSearchOpen(true)}
+              className="p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              aria-label="Search fabrics"
+              title="Search"
+            >
+              <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { favoritesOnly: true })}
+              className="hidden sm:flex p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] relative transition-colors min-w-[40px] min-h-[40px] items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              aria-label={`Wishlist (${wishlist.length} items)`}
+              title="Saved Fabrics"
+            >
+              <Heart className="w-[18px] h-[18px]" />
+              {wishlist.length > 0 && (
+                <span className="absolute top-1.5 right-1.5 bg-[#D4AF37] text-[#060608] text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold tabular-nums">
+                  {wishlist.length}
+                </span>
+              )}
+            </button>
+
             <div className="relative">
               <button
+                type="button"
                 onClick={() => {
                   if (user) {
-                    setUserDropdownOpen(!userDropdownOpen);
+                    setUserDropdownOpen((prev) => !prev);
                   } else {
                     openAuthModal();
                   }
                 }}
-                className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] flex items-center gap-1.5 transition-colors focus:outline-none"
-                aria-label="Account login and profile"
+                className="p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+                aria-label="Account and store manager login"
+                title={user ? user.displayName || 'Account' : 'Sign In'}
               >
-                <UserIcon className="w-5 h-5 text-[#1F1F1F]" />
-                <span className="hidden xl:inline text-xs font-medium tracking-wider uppercase text-[#1F1F1F] hover:text-[#D4AF37]">
-                  {user ? (user.displayName || 'Patron').split(' ')[0] : 'SIGN IN'}
-                </span>
+                <UserIcon className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               </button>
 
               {user && userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-white border border-[#E8E0D2] shadow-xl py-2 z-50 text-xs text-[#1F1F1F]">
-                  <div className="px-4 py-2 border-b border-[#E8E0D2]">
-                    <p className="font-semibold text-[#1F1F1F] truncate">{user.displayName || 'Distinguished Patron'}</p>
-                    <p className="text-[11px] text-[#1F1F1F]/60 truncate">{user.email}</p>
+                <div className="absolute right-0 mt-2 w-56 bg-[#111115] border border-[#C5A059]/35 shadow-2xl py-2 z-50 text-xs text-[#F7F4EE]">
+                  <div className="px-4 py-2 border-b border-white/10">
+                    <p className="font-semibold text-[#F7F4EE] truncate">{user.displayName || 'Patron'}</p>
+                    <p className="text-[11px] text-[#F7F4EE]/60 truncate">{user.email}</p>
                   </div>
                   <button
+                    type="button"
                     onClick={() => {
                       navigateTo('admin');
                       setUserDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-[#F7F4EE] font-medium text-[#D4AF37]"
+                    className="w-full text-left px-4 py-2 hover:bg-white/5 font-medium text-[#D4AF37]"
                   >
-                    Admin Control Centre
+                    Store Management Portal
                   </button>
                   <button
+                    type="button"
                     onClick={() => {
                       logout();
                       setUserDropdownOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 hover:bg-[#F7F4EE] text-red-600 flex items-center gap-2"
+                    className="w-full text-left px-4 py-2 hover:bg-white/5 text-red-400 flex items-center gap-2"
                   >
                     <LogOut className="w-3.5 h-3.5" />
                     <span>Sign Out</span>
@@ -239,466 +223,128 @@ export const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Wishlist Button */}
+            {/* Primary Cart Control matching screenshot: Cart 🛒 (2) */}
             <button
-              onClick={() => navigateTo('shop', { favoritesOnly: true })}
-              className="p-2 text-[#1F1F1F] hover:text-[#D4AF37] relative transition-colors focus:outline-none hidden sm:flex items-center"
-              aria-label={`Wishlist (${wishlist.length} items)`}
-              title="Wishlist"
+              type="button"
+              onClick={() => setIsCartOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-2 text-[#D4AF37] hover:text-[#F7F4EE] transition-colors text-xs sm:text-[13px] font-medium whitespace-nowrap shrink-0 min-h-[40px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              aria-label={`Open shopping cart with ${cartCount} items`}
             >
-              <Heart className="w-5 h-5" />
-              {wishlist.length > 0 && (
-                <span className="absolute top-1 right-1 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                  {wishlist.length}
-                </span>
-              )}
+              <span>Cart</span>
+              <ShoppingCart className="w-4 h-4 text-[#D4AF37]" />
+              <span className="tabular-nums">({cartCount})</span>
             </button>
 
-            {/* Shopping Bag / Cart Drawer Trigger */}
+            {/* Mobile Hamburger */}
             <button
-              onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-[#1F1F1F] hover:bg-white border border-[#E8E0D2] hover:border-[#D4AF37] transition-all focus:outline-none rounded-xs"
-              aria-label={`View cart (${cartCount} items)`}
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="p-2 text-[#E8D5A7] hover:text-[#D4AF37] lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              aria-label="Open menu"
             >
-              <div className="relative">
-                <ShoppingBag className="w-5 h-5 sm:w-6 sm:h-6 text-[#1F1F1F]" />
-                {cartCount > 0 && (
-                  <span className="absolute -top-1.5 -right-2 bg-[#D4AF37] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">
-                    {cartCount}
-                  </span>
-                )}
-              </div>
-              <div className="hidden lg:flex flex-col text-left">
-                <span className="text-[10px] uppercase tracking-wider text-[#1F1F1F]/60 font-medium leading-tight font-sans">Bag</span>
-                <span className="text-xs font-semibold text-[#1F1F1F] leading-tight font-sans">
-                  {cartTotal > 0 ? formatPKR(cartTotal) : 'PKR 0'}
-                </span>
-              </div>
+              <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
-
-        {/* 3. Primary Navigation Bar */}
-        <nav className="hidden lg:flex items-center justify-center border-t border-white/10 py-3 gap-8 text-[12px] font-sans font-semibold tracking-[0.16em] uppercase text-neutral-300 select-none">
-          {/* WOMEN DROP-DOWN */}
-          <div
-            className="relative group py-1"
-            onMouseEnter={() => setActiveMegaMenu('women')}
-            onMouseLeave={() => setActiveMegaMenu(null)}
-          >
-            <button
-              onClick={() => navigateTo('shop', { gender: 'Women' })}
-              className={`hover:text-black flex items-center gap-1 transition-colors ${
-                filterParams.gender === 'Women' ? 'text-black underline underline-offset-8 decoration-2' : ''
-              }`}
-            >
-              <span>WOMEN</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black transition-transform group-hover:rotate-180" />
-            </button>
-
-            {/* Mega Menu Dropdown */}
-            {activeMegaMenu === 'women' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[920px] bg-white border border-[#E8E0D2] shadow-[0_20px_50px_rgba(0,0,0,0.12)] p-8 z-50 animate-fadeIn text-[#1F1F1F]">
-                <div className="grid grid-cols-4 gap-8">
-                  {/* Col 1: Embroidered Collection */}
-                  <div>
-                    <h3 className="text-xs font-semibold tracking-widest uppercase text-[#1F1F1F] pb-2 border-b border-[#E8E0D2] mb-3 flex items-center justify-between">
-                      <span className="text-[#D4AF37]">Embroidered Collection</span>
-                    </h3>
-                    <ul className="space-y-2 text-[11px] font-medium text-[#1F1F1F]/70">
-                      {WOMEN_EMBROIDERY_BRANDS.map((brand) => (
-                        <li key={brand}>
-                          <button
-                            onClick={() => {
-                              navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand });
-                              setActiveMegaMenu(null);
-                            }}
-                            className="hover:text-[#D4AF37] hover:translate-x-1 transition-all block text-left"
-                          >
-                            {brand}
-                          </button>
-                        </li>
-                      ))}
-                      <li className="pt-2 border-t border-[#E8E0D2]">
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="text-[#D4AF37] font-semibold flex items-center gap-1 hover:underline"
-                        >
-                          View All Embroidered →
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Col 2: Printed Collection */}
-                  <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3 flex items-center justify-between">
-                      <span>Printed Collection</span>
-                    </h3>
-                    <ul className="space-y-2 text-[11px] font-medium text-neutral-600">
-                      {WOMEN_PRINTED_BRANDS.map((brand) => (
-                        <li key={brand}>
-                          <button
-                            onClick={() => {
-                              navigateTo('shop', { gender: 'Women', craftType: 'Printed', brand });
-                              setActiveMegaMenu(null);
-                            }}
-                            className="hover:text-black hover:translate-x-1 transition-all block text-left"
-                          >
-                            {brand}
-                          </button>
-                        </li>
-                      ))}
-                      <li className="pt-2 border-t border-neutral-100">
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Women', craftType: 'Printed' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="text-black font-bold flex items-center gap-1 hover:underline"
-                        >
-                          View All Printed →
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Col 3: Shop By Suit Type */}
-                  <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3">
-                      Shop By Suit Type
-                    </h3>
-                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-600">
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Women' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Unstitched 3-Piece Suits
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Women', fabric: 'Luxury Lawn' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Premium Swiss & Luxury Lawn
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Women', fabric: 'Embroidered Chiffon' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Chiffon & Organza Dupatta Suits
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Women', fabric: 'Silk Jacquard' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Festive Silk & Jacquard
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Col 4: Visual Promo Banner */}
-                  <div className="bg-neutral-100 p-4 flex flex-col justify-between border border-neutral-200">
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-red-600 block mb-1">
-                        Festive Volume '26
-                      </span>
-                      <h4 className="text-sm font-black uppercase text-black mb-1">
-                        Embroidered Luxury Lawn
-                      </h4>
-                      <p className="text-[11px] text-neutral-600 normal-case mb-4">
-                        Featuring Johara, Tawakkal & Bin Rashid unstitched 3-piece collections.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' });
-                        setActiveMegaMenu(null);
-                      }}
-                      className="w-full py-2.5 bg-black text-white hover:bg-neutral-800 text-center text-[10px] font-bold tracking-widest uppercase transition-colors"
-                    >
-                      Shop Collection
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* MEN DROP-DOWN */}
-          <div
-            className="relative group py-1"
-            onMouseEnter={() => setActiveMegaMenu('men')}
-            onMouseLeave={() => setActiveMegaMenu(null)}
-          >
-            <button
-              onClick={() => navigateTo('shop', { gender: 'Men' })}
-              className={`hover:text-black flex items-center gap-1 transition-colors ${
-                filterParams.gender === 'Men' ? 'text-black underline underline-offset-8 decoration-2' : ''
-              }`}
-            >
-              <span>MEN</span>
-              <ChevronDown className="w-3.5 h-3.5 text-neutral-400 group-hover:text-black transition-transform group-hover:rotate-180" />
-            </button>
-
-            {/* Men's Mega Menu Dropdown */}
-            {activeMegaMenu === 'men' && (
-              <div className="absolute top-full left-1/2 -translate-x-1/2 w-[760px] bg-white border border-[#E8E0D2] shadow-[0_20px_50px_rgba(0,0,0,0.12)] p-8 z-50 animate-fadeIn text-[#1F1F1F]">
-                <div className="grid grid-cols-3 gap-8">
-                  {/* Col 1: Fabrics */}
-                  <div>
-                    <h3 className="text-xs font-semibold tracking-widest uppercase text-[#1F1F1F] pb-2 border-b border-[#E8E0D2] mb-3">
-                      <span className="text-[#D4AF37]">Men's Signature Fabrics</span>
-                    </h3>
-                    <ul className="space-y-2.5 text-[11px] font-medium text-[#1F1F1F]/70">
-                      {MENS_FABRICS.map((fabric) => (
-                        <li key={fabric}>
-                          <button
-                            onClick={() => {
-                              navigateTo('shop', { gender: 'Men', fabric });
-                              setActiveMegaMenu(null);
-                            }}
-                            className="hover:text-[#D4AF37] hover:translate-x-1 transition-all block text-left font-medium"
-                          >
-                            {fabric} Suiting
-                          </button>
-                        </li>
-                      ))}
-                      <li className="pt-2 border-t border-[#E8E0D2]">
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Men' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="text-[#D4AF37] font-semibold flex items-center gap-1 hover:underline"
-                        >
-                          View All Men's Fabrics →
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Col 2: Cuts & Occasion */}
-                  <div>
-                    <h3 className="text-xs font-black tracking-widest uppercase text-black pb-2 border-b border-neutral-200 mb-3">
-                      Suiting Cuts & Grades
-                    </h3>
-                    <ul className="space-y-2.5 text-[11px] font-medium text-neutral-600">
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Wash & Wear (Wrinkle-Resistant)
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Men', fabric: 'Boski' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Pure Chinese Boski (6 & 8-Pound)
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Men', fabric: 'Cotton' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Crisp Finish & Combed Cotton
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Men', fabric: 'Khaddar' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Authentic Kamalia Khaddar
-                        </button>
-                      </li>
-                      <li>
-                        <button
-                          onClick={() => {
-                            navigateTo('shop', { gender: 'Men', fabric: 'Lelan' });
-                            setActiveMegaMenu(null);
-                          }}
-                          className="hover:text-black block text-left"
-                        >
-                          Textured Lelan Unstitched Cut
-                        </button>
-                      </li>
-                    </ul>
-                  </div>
-
-                  {/* Col 3: Banner */}
-                  <div className="bg-neutral-100 p-4 flex flex-col justify-between border border-neutral-200">
-                    <div>
-                      <span className="text-[10px] font-black uppercase tracking-widest text-neutral-800 block mb-1">
-                        Executive Wardrobe
-                      </span>
-                      <h4 className="text-sm font-black uppercase text-black mb-1">
-                        Wash & Wear Suiting
-                      </h4>
-                      <p className="text-[11px] text-neutral-600 normal-case mb-4">
-                        Full 4.5m unstitched cuts in Bara Arz (double width) with certified finish.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' });
-                        setActiveMegaMenu(null);
-                      }}
-                      className="w-full py-2.5 bg-black text-white hover:bg-neutral-800 text-center text-[10px] font-bold tracking-widest uppercase transition-colors"
-                    >
-                      Shop Wash & Wear
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* DIRECT CATEGORY LINKS */}
-          <button
-            onClick={() => navigateTo('shop', { craftType: 'Embroidery', gender: 'Women' })}
-            className="hover:text-black transition-colors"
-          >
-            EMBROIDERED
-          </button>
-
-          <button
-            onClick={() => navigateTo('shop', { craftType: 'Printed', gender: 'Women' })}
-            className="hover:text-black transition-colors"
-          >
-            PRINTED
-          </button>
-
-          <button
-            onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Wash & Wear' })}
-            className="hover:text-black transition-colors"
-          >
-            WASH & WEAR
-          </button>
-
-          <button
-            onClick={() => navigateTo('shop', { gender: 'Men', fabric: 'Boski' })}
-            className="hover:text-black transition-colors"
-          >
-            PURE BOSKI
-          </button>
-
-          <button
-            onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
-            className="hover:text-black transition-colors"
-          >
-            NEW ARRIVALS
-          </button>
-
-          <button
-            onClick={() => navigateTo('shop', { saleOnly: true })}
-            className="text-red-600 hover:text-red-700 font-bold transition-colors flex items-center gap-1"
-          >
-            <Flame className="w-3.5 h-3.5 fill-red-600" />
-            <span>SPECIAL OFFERS</span>
-          </button>
-        </nav>
       </div>
 
-      {/* 4. Mobile Limelight Slide-Out Drawer */}
+      {/* Mobile Slide-Out Drawer (Noir & Gold) */}
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
           />
 
-          {/* Drawer Panel */}
-          <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-white shadow-2xl flex flex-col z-50">
-            {/* Drawer Header */}
-            <div className="p-4 border-b border-neutral-200 flex items-center justify-between bg-white">
-              <span className="font-sans font-black tracking-widest uppercase text-base text-black">
+          <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-[#0B0B0E] border-r border-[#C5A059]/30 shadow-2xl flex flex-col z-50 text-[#F7F4EE]">
+            <div className="p-4 border-b border-[#C5A059]/25 flex items-center justify-between bg-[#060608]">
+              <span className="font-serif tracking-[0.2em] uppercase text-base text-[#D4AF37]">
                 NIAZ CLOTH HOUSE
               </span>
+              <div className="flex items-center gap-2">
+                <PWAInstallPrompt />
+                <button
+                  type="button"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="p-2 text-[#E8D5A7] hover:text-white min-w-[40px] min-h-[40px] flex items-center justify-center"
+                  aria-label="Close menu"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Mobile Links */}
+            <div className="grid grid-cols-3 gap-2 p-4 border-b border-white/10 text-xs font-medium">
               <button
                 type="button"
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-1.5 text-neutral-600 hover:text-black"
-                aria-label="Close menu"
+                onClick={() => {
+                  navigateTo('shop', { newArrivalsOnly: true });
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37]"
               >
-                <X className="w-5 h-5" />
+                New In
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigateTo('shop', { collection: 'The Shahi Collection' });
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-2 border border-[#D4AF37] bg-[#D4AF37]/10 text-[#D4AF37]"
+              >
+                Luxury
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigateTo('shop', { saleOnly: true });
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37]"
+              >
+                Sale
               </button>
             </div>
 
-            {/* Department Tabs: Women vs Men */}
-            <div className="grid grid-cols-2 border-b border-neutral-200 text-center font-bold text-xs uppercase tracking-widest">
+            {/* Department Tabs */}
+            <div className="grid grid-cols-2 border-b border-white/10 text-center font-semibold text-xs uppercase tracking-widest">
               <button
+                type="button"
                 onClick={() => setMobileActiveTab('women')}
                 className={`py-3 transition-colors ${
                   mobileActiveTab === 'women'
-                    ? 'border-b-2 border-black text-black bg-neutral-50'
-                    : 'text-neutral-500 hover:text-black'
+                    ? 'border-b-2 border-[#D4AF37] text-[#D4AF37] bg-white/5'
+                    : 'text-[#F7F4EE]/60 hover:text-white'
                 }`}
               >
-                Women's Collection
+                Women's
               </button>
               <button
+                type="button"
                 onClick={() => setMobileActiveTab('men')}
                 className={`py-3 transition-colors ${
                   mobileActiveTab === 'men'
-                    ? 'border-b-2 border-black text-black bg-neutral-50'
-                    : 'text-neutral-500 hover:text-black'
+                    ? 'border-b-2 border-[#D4AF37] text-[#D4AF37] bg-white/5'
+                    : 'text-[#F7F4EE]/60 hover:text-white'
                 }`}
               >
                 Men's Suiting
               </button>
             </div>
 
-            {/* Drawer Scrollable Content */}
+            {/* Drawer Content */}
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {mobileActiveTab === 'women' ? (
                 <>
-                  {/* Embroidered Brands Accordion */}
-                  <div className="border border-neutral-200">
+                  <div className="border border-white/10">
                     <button
+                      type="button"
                       onClick={() =>
                         setMobileAccordion((p) => ({ ...p, womenEmbroidered: !p.womenEmbroidered }))
                       }
-                      className="w-full flex items-center justify-between p-3 bg-neutral-50 text-xs font-black tracking-wider uppercase text-black"
+                      className="w-full flex items-center justify-between p-3 bg-white/5 text-xs font-semibold tracking-wider uppercase text-[#D4AF37]"
                     >
                       <span>Embroidered Collection</span>
                       <ChevronRight
@@ -708,15 +354,16 @@ export const Header: React.FC = () => {
                       />
                     </button>
                     {mobileAccordion.womenEmbroidered && (
-                      <div className="p-3 bg-white grid grid-cols-2 gap-2 text-xs text-neutral-700">
+                      <div className="p-3 grid grid-cols-2 gap-2 text-xs text-[#F7F4EE]/80">
                         {WOMEN_EMBROIDERY_BRANDS.map((b) => (
                           <button
                             key={b}
+                            type="button"
                             onClick={() => {
                               navigateTo('shop', { gender: 'Women', craftType: 'Embroidery', brand: b });
                               setMobileMenuOpen(false);
                             }}
-                            className="text-left py-1 hover:text-black hover:font-bold"
+                            className="text-left py-1 hover:text-[#D4AF37]"
                           >
                             {b}
                           </button>
@@ -725,13 +372,13 @@ export const Header: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Printed Brands Accordion */}
-                  <div className="border border-neutral-200">
+                  <div className="border border-white/10">
                     <button
+                      type="button"
                       onClick={() =>
                         setMobileAccordion((p) => ({ ...p, womenPrinted: !p.womenPrinted }))
                       }
-                      className="w-full flex items-center justify-between p-3 bg-neutral-50 text-xs font-black tracking-wider uppercase text-black"
+                      className="w-full flex items-center justify-between p-3 bg-white/5 text-xs font-semibold tracking-wider uppercase text-[#D4AF37]"
                     >
                       <span>Printed Collection</span>
                       <ChevronRight
@@ -741,15 +388,16 @@ export const Header: React.FC = () => {
                       />
                     </button>
                     {mobileAccordion.womenPrinted && (
-                      <div className="p-3 bg-white grid grid-cols-2 gap-2 text-xs text-neutral-700">
+                      <div className="p-3 grid grid-cols-2 gap-2 text-xs text-[#F7F4EE]/80">
                         {WOMEN_PRINTED_BRANDS.map((b) => (
                           <button
                             key={b}
+                            type="button"
                             onClick={() => {
                               navigateTo('shop', { gender: 'Women', craftType: 'Printed', brand: b });
                               setMobileMenuOpen(false);
                             }}
-                            className="text-left py-1 hover:text-black hover:font-bold"
+                            className="text-left py-1 hover:text-[#D4AF37]"
                           >
                             {b}
                           </button>
@@ -758,91 +406,89 @@ export const Header: React.FC = () => {
                     )}
                   </div>
 
-                  {/* Quick Links */}
-                  <div className="pt-2 space-y-2 text-xs font-semibold uppercase tracking-wider text-black">
-                    <button
-                      onClick={() => {
-                        navigateTo('shop', { gender: 'Women' });
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full py-2.5 px-3 bg-neutral-100 hover:bg-neutral-200 text-left flex items-center justify-between"
-                    >
-                      <span>All Women's Unstitched</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigateTo('shop', { gender: 'Women' });
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-3 px-4 border border-[#C5A059]/40 hover:border-[#D4AF37] text-xs font-semibold uppercase tracking-wider text-[#F7F4EE] flex items-center justify-between"
+                  >
+                    <span>All Women's Fabrics</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  </button>
                 </>
               ) : (
                 <>
-                  {/* Men's Fabrics Accordion */}
-                  <div className="border border-neutral-200">
-                    <div className="p-3 bg-neutral-50 text-xs font-black tracking-wider uppercase text-black border-b border-neutral-200">
-                      Men's Fabrics & Cuts
+                  <div className="border border-white/10">
+                    <div className="p-3 bg-white/5 text-xs font-semibold tracking-wider uppercase text-[#D4AF37] border-b border-white/10">
+                      Men's Signature Cuts
                     </div>
-                    <div className="p-3 bg-white space-y-2 text-xs text-neutral-800">
+                    <div className="p-3 space-y-2 text-xs text-[#F7F4EE]/85">
                       {MENS_FABRICS.map((f) => (
                         <button
                           key={f}
+                          type="button"
                           onClick={() => {
                             navigateTo('shop', { gender: 'Men', fabric: f });
                             setMobileMenuOpen(false);
                           }}
-                          className="w-full py-1.5 text-left flex items-center justify-between hover:text-black font-medium border-b border-neutral-100 last:border-0"
+                          className="w-full py-1.5 text-left flex items-center justify-between hover:text-[#D4AF37] border-b border-white/5 last:border-0"
                         >
                           <span>{f} Suiting</span>
-                          <span className="text-[10px] text-neutral-400">4.5m Cut</span>
+                          <span className="text-[10px] text-[#F7F4EE]/50">4.5m Cut</span>
                         </button>
                       ))}
                     </div>
                   </div>
 
-                  <div className="pt-2 space-y-2 text-xs font-semibold uppercase tracking-wider text-black">
-                    <button
-                      onClick={() => {
-                        navigateTo('shop', { gender: 'Men' });
-                        setMobileMenuOpen(false);
-                      }}
-                      className="w-full py-2.5 px-3 bg-neutral-100 hover:bg-neutral-200 text-left flex items-center justify-between"
-                    >
-                      <span>All Men's Fabrics</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      navigateTo('shop', { gender: 'Men' });
+                      setMobileMenuOpen(false);
+                    }}
+                    className="w-full py-3 px-4 border border-[#C5A059]/40 hover:border-[#D4AF37] text-xs font-semibold uppercase tracking-wider text-[#F7F4EE] flex items-center justify-between"
+                  >
+                    <span>All Men's Fabrics</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  </button>
                 </>
               )}
 
-              {/* Utility Links in Mobile Menu */}
-              <div className="pt-4 border-t border-neutral-200 space-y-3 text-xs text-neutral-700 font-medium">
+              <div className="pt-4 border-t border-white/10 space-y-3 text-xs text-[#F7F4EE]/80">
                 <a
-                  href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20order%20unstitched%20fabrics"
+                  href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20want%20to%20order%20fabrics"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white flex items-center justify-center gap-2 font-bold uppercase tracking-wider text-[11px]"
+                  className="w-full py-2.5 bg-[#25D366] hover:bg-[#20BD5A] text-black flex items-center justify-center gap-2 font-bold uppercase tracking-wider text-[11px]"
                 >
                   <Phone className="w-3.5 h-3.5" />
-                  <span>WhatsApp Order (0334-6565636)</span>
+                  <span>WhatsApp Concierge (0334-6565636)</span>
                 </a>
 
                 <button
+                  type="button"
                   onClick={() => {
                     navigateTo('location');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full py-2 text-left flex items-center gap-2 hover:text-black"
+                  className="w-full py-2 text-left flex items-center gap-2 hover:text-[#D4AF37]"
                 >
-                  <MapPin className="w-4 h-4 text-neutral-500" />
-                  <span>Visit Shop # 166-C Paris Bazaar Rawalpindi</span>
+                  <MapPin className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Paris Bazaar, Committee Chowk, Rawalpindi</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={() => {
                     navigateTo('admin');
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full py-2 text-left flex items-center gap-2 hover:text-black font-semibold"
+                  className="w-full py-2 text-left flex items-center gap-2 hover:text-[#D4AF37] font-semibold"
                 >
-                  <UserIcon className="w-4 h-4 text-neutral-500" />
-                  <span>Merchant Admin Portal</span>
+                  <UserIcon className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Store Management Portal</span>
                 </button>
               </div>
             </div>

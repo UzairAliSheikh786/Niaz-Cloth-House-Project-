@@ -16,21 +16,11 @@ export const BrandEntranceReveal: React.FC<BrandEntranceRevealProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Respect reduced motion
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced && !forceShow) {
-      if (onComplete) onComplete();
-      return;
-    }
-
-    const hasSeenIntro = sessionStorage.getItem('nch_brand_intro_seen');
-    if (!hasSeenIntro || forceShow) {
+    if (forceShow) {
       setIsVisible(true);
-      // Fast luxury reveal: 3.2s auto-exit
       const exitTimer = setTimeout(() => {
         handleDismiss();
       }, 3200);
-
       return () => clearTimeout(exitTimer);
     }
   }, [forceShow]);

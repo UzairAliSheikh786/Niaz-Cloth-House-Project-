@@ -182,24 +182,22 @@ export const ProductDetailPage: React.FC = () => {
   ];
 
   return (
-    <div className="w-full bg-white pb-16">
+    <div className="w-full bg-[#060608] text-[#F7F4EE] pb-16">
       {/* Crawlable Breadcrumb Navigation */}
-      <div className="border-b border-neutral-200 bg-[#FAFAFA]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5">
-          <Breadcrumbs items={breadcrumbItems} />
-        </div>
+      <div className="border-b border-[#C5A059]/20 bg-[#0A0A0E]">
+        <Breadcrumbs items={breadcrumbItems} />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
         {/* Navigation Action Bar */}
-        <div className="flex items-center justify-between pb-4 mb-8 border-b border-neutral-200">
+        <div className="flex items-center justify-between pb-4 mb-8 border-b border-white/10">
           <a
             href={returnPath}
             onClick={(e) => {
               e.preventDefault();
               navigateTo(returnRoute);
             }}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600 hover:text-black transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#E8D5A7]/75 hover:text-[#D4AF37] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Return to {returnLabel}</span>
@@ -207,7 +205,7 @@ export const ProductDetailPage: React.FC = () => {
 
           <button
             onClick={handleShare}
-            className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-neutral-600 hover:text-black transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#E8D5A7]/75 hover:text-[#D4AF37] transition-colors"
             title="Share this fabric"
           >
             <Share2 className="w-4 h-4" />
@@ -217,27 +215,26 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* PDP Main Grid: Gallery Left + Contiguous Purchase Module Right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
-          {/* Gallery Module (Left Column: Limelight 3:4 Portrait Ratio Clear Presentation) */}
+          {/* Gallery Module (Left Column: 3:4 Portrait Ratio) */}
           <div className="lg:col-span-7 space-y-4">
-            
             {/* Gallery Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-[#E7E0D8]">
+            <div className="flex items-center justify-between pb-2 border-b border-[#C5A059]/25">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-black">
+                <span className="text-xs font-semibold uppercase tracking-wider text-[#F7F4EE]">
                   Fabric Presentation
                 </span>
-                <span className="text-[11px] text-[#8C4830] font-medium">
+                <span className="text-[11px] text-[#D4AF37] font-medium">
                   {product.gender === 'Women' ? '3-Piece Unstitched Ensemble' : "Men's Unstitched Suiting"}
                 </span>
               </div>
 
-              <span className="text-[11px] font-sans text-neutral-400 hidden sm:inline">
+              <span className="text-[11px] font-sans text-[#F7F4EE]/45 hidden sm:inline">
                 Paris Bazaar Atelier Photography
               </span>
             </div>
 
             {/* Clear High-Resolution Photo Display */}
-            <div className="aspect-[3/4] w-full overflow-hidden bg-neutral-100 border border-neutral-200 relative group">
+            <div className="aspect-[3/4] w-full overflow-hidden bg-[#111115] border border-[#C5A059]/25 relative group">
               <img
                 src={selectedImage}
                 alt={`${product.title} - ${product.fabric} unstitched suit fabric in ${selectedColor}`}
@@ -246,13 +243,14 @@ export const ProductDetailPage: React.FC = () => {
                 loading="eager"
                 fetchPriority="high"
                 decoding="sync"
+                referrerPolicy="no-referrer"
                 className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
                 onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+                  (e.target as HTMLImageElement).src = '/images/shahi_hero_banner.jpg';
                 }}
               />
               {product.weightGrade && (
-                <div className="absolute top-4 left-4 bg-black/90 text-white text-[10px] font-sans tracking-widest uppercase px-3 py-1 font-bold">
+                <div className="absolute top-4 left-4 bg-[#060608]/90 border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-sans tracking-widest uppercase px-3 py-1 font-semibold">
                   {product.weightGrade}
                 </div>
               )}
@@ -267,10 +265,10 @@ export const ProductDetailPage: React.FC = () => {
                     type="button"
                     onClick={() => setSelectedImage(img)}
                     aria-label={`Select fabric gallery view ${idx + 1} for ${product.title}`}
-                    className={`aspect-[4/3] w-20 sm:w-24 shrink-0 overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#8C4830] ${
+                    className={`aspect-[4/3] w-20 sm:w-24 shrink-0 overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] ${
                       selectedImage === img
-                        ? 'border-[#8C4830] ring-1 ring-[#8C4830]'
-                        : 'border-[#E7E0D8] opacity-70 hover:opacity-100'
+                        ? 'border-[#D4AF37] ring-1 ring-[#D4AF37]'
+                        : 'border-white/15 opacity-65 hover:opacity-100'
                     }`}
                   >
                     <img
@@ -279,6 +277,9 @@ export const ProductDetailPage: React.FC = () => {
                       width={100}
                       height={75}
                       referrerPolicy="no-referrer"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = '/images/shahi_hero_banner.jpg';
+                      }}
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -287,21 +288,21 @@ export const ProductDetailPage: React.FC = () => {
             )}
 
             {/* Fabric Purity Verification Callout */}
-            <div className="p-4 bg-[#F5EFEB] border border-[#E7E0D8] flex items-start gap-3">
-              <ShieldCheck className="w-5 h-5 text-[#8C4830] shrink-0 mt-0.5" />
-              <div className="text-xs text-[#1C1917]/80 leading-relaxed">
-                <strong className="text-[#1C1917]">Niaz 1977 Purity Seal:</strong> Every unstitched bolt is inspected for thread density and fiber integrity. 100% natural sheen with zero polyester chemical adulteration.
+            <div className="p-4 bg-[#111115] border border-[#C5A059]/25 flex items-start gap-3">
+              <ShieldCheck className="w-5 h-5 text-[#D4AF37] shrink-0 mt-0.5" />
+              <div className="text-xs text-[#F7F4EE]/80 leading-relaxed">
+                <strong className="text-[#D4AF37]">Niaz 1970 Purity Seal:</strong> Every unstitched bolt is inspected for thread density and fiber integrity. 100% natural sheen with zero polyester chemical adulteration.
               </div>
             </div>
           </div>
 
           {/* Contiguous Purchase Module (PDP Right Column) */}
           <div className="lg:col-span-5 space-y-6">
-            <div className="border-b border-[#E7E0D8] pb-6 space-y-3">
+            <div className="border-b border-white/10 pb-6 space-y-3">
               {/* Unboxed Metadata */}
-              <div className="flex items-center gap-2 text-xs font-sans font-semibold text-[#8C4830] flex-wrap">
+              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#C5A059] flex-wrap">
                 {product.brand ? (
-                  <span className="font-bold uppercase tracking-wider text-[11px] bg-[#FAF8F5] border border-[#8C4830]/40 px-2 py-0.5 text-[#8C4830]">
+                  <span className="font-semibold uppercase tracking-wider text-[11px] bg-[#141419] border border-[#C5A059]/40 px-2.5 py-0.5 text-[#D4AF37]">
                     {product.brand}
                   </span>
                 ) : (
@@ -310,7 +311,7 @@ export const ProductDetailPage: React.FC = () => {
                 {product.craftType && (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span className="text-[#1C1917]/85">{product.craftType}</span>
+                    <span className="text-[#F7F4EE]/80">{product.craftType}</span>
                   </>
                 )}
                 <span aria-hidden="true">·</span>
@@ -320,34 +321,34 @@ export const ProductDetailPage: React.FC = () => {
                 {product.season && (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span className="text-[#1C1917]/70">{product.season} Edition</span>
+                    <span className="text-[#F7F4EE]/60">{product.season} Edition</span>
                   </>
                 )}
               </div>
 
               {/* Title */}
-              <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#1C1917] leading-snug">
+              <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F7F4EE] leading-snug">
                 {product.title}
               </h1>
 
               {/* Weave Subtitle */}
-              <p className="text-xs sm:text-sm text-[#1C1917]/70 font-sans">
+              <p className="text-xs sm:text-sm text-[#F7F4EE]/65 font-sans">
                 {product.subtitle}
               </p>
 
               {/* Price & Rating */}
               <div className="pt-2 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
                 <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3">
-                  <span className="font-mono text-2xl sm:text-3xl font-bold text-[#1C1917] tabular-nums">
+                  <span className="font-sans text-2xl sm:text-3xl font-semibold text-[#D4AF37] tabular-nums">
                     {formatPKR(unitPrice)}
                   </span>
                   {product.originalPrice && (
-                    <span className="font-mono text-sm text-[#1C1917]/40 line-through tabular-nums">
+                    <span className="font-sans text-sm text-[#F7F4EE]/40 line-through tabular-nums">
                       {formatPKR(product.originalPrice + additionalPrice)}
                     </span>
                   )}
                   {additionalPrice > 0 && (
-                    <span className="text-[11px] font-mono text-[#8C4830]">
+                    <span className="text-[11px] font-mono text-[#E8D5A7]">
                       (+{formatPKR(additionalPrice)} design upgrade)
                     </span>
                   )}
@@ -361,22 +362,22 @@ export const ProductDetailPage: React.FC = () => {
                       const el = document.getElementById('product-tabs-section');
                       el?.scrollIntoView({ behavior: 'smooth' });
                     }}
-                    className="flex items-center gap-1.5 text-xs text-[#8C4830] hover:underline cursor-pointer group"
+                    className="flex items-center gap-1.5 text-xs text-[#D4AF37] hover:underline cursor-pointer group"
                     title="Read customer reviews"
                   >
-                    <Star className="w-4 h-4 fill-[#8C4830]" />
-                    <span className="font-semibold">{stats.averageRating.toFixed(1)}</span>
-                    <span className="text-[#1C1917]/60 group-hover:text-[#1C1917]">({stats.totalReviews} reviews)</span>
+                    <Star className="w-4 h-4 fill-[#D4AF37]" />
+                    <span className="font-semibold tabular-nums">{stats.averageRating.toFixed(1)}</span>
+                    <span className="text-[#F7F4EE]/60 group-hover:text-[#F7F4EE]">({stats.totalReviews} reviews)</span>
                   </button>
-                  <span className="text-[#1C1917]/30 hidden sm:inline" aria-hidden="true">·</span>
+                  <span className="text-white/25 hidden sm:inline" aria-hidden="true">·</span>
                   <div className="flex items-center gap-1 text-xs font-semibold">
                     {product.inStock ? (
-                      <span className="text-emerald-700 flex items-center gap-1">
+                      <span className="text-emerald-400 flex items-center gap-1">
                         <Check className="w-3.5 h-3.5" />
                         <span>In Stock (Ready to Dispatch)</span>
                       </span>
                     ) : (
-                      <span className="text-red-700 font-medium">Temporarily Out of Stock</span>
+                      <span className="text-red-400 font-medium">Temporarily Out of Stock</span>
                     )}
                   </div>
                 </div>
@@ -385,17 +386,15 @@ export const ProductDetailPage: React.FC = () => {
 
             {/* Dynamic Presentation: Clear Parts (Dupatta, Kameez, Shalwar) for Women, Pure Color for Men */}
             {product.gender === 'Women' ? (
-              /* WOMEN'S ENSEMBLE PRESENTATION: COLOURS + DUPATTA, KAMEEZ, SHALWAR PARTS */
-              <div className="space-y-5 pb-5 border-b border-[#E7E0D8]">
-                {/* 1. Women's Colour Selection */}
+              <div className="space-y-5 pb-5 border-b border-white/10">
                 {product.colorOptions && product.colorOptions.length > 0 && (
                   <div className="space-y-2.5">
                     <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#1C1917]">
-                        <Palette className="w-3.5 h-3.5 text-[#8C4830]" />
+                      <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#E8D5A7]">
+                        <Palette className="w-3.5 h-3.5 text-[#D4AF37]" />
                         <span>Suit Colour / Shade:</span>
                       </div>
-                      <span className="font-semibold text-[#8C4830]">{selectedColor}</span>
+                      <span className="font-semibold text-[#D4AF37]">{selectedColor}</span>
                     </div>
 
                     <div className="flex items-center gap-2 flex-wrap">
@@ -411,17 +410,17 @@ export const ProductDetailPage: React.FC = () => {
                             }}
                             className={`flex items-center gap-2 px-3 py-2 border text-xs transition-all ${
                               isSelected
-                                ? 'border-[#8C4830] bg-[#FAF5EE] ring-1 ring-[#8C4830] text-[#1C1917] font-semibold'
-                                : 'border-[#E7E0D8] bg-white text-[#1C1917]/75 hover:border-[#8C4830]/40'
+                                ? 'border-[#D4AF37] bg-[#D4AF37]/15 text-[#F7F4EE] font-semibold'
+                                : 'border-white/15 bg-[#111115] text-[#F7F4EE]/80 hover:border-[#C5A059]/60'
                             }`}
                             title={opt.previewLabel || opt.name}
                           >
                             <span
-                              className="w-4 h-4 rounded-full border border-black/20 shrink-0 shadow-xs"
+                              className="w-4 h-4 rounded-full border border-white/30 shrink-0 shadow-xs"
                               style={{ backgroundColor: opt.hex }}
                             />
                             <span>{opt.name}</span>
-                            {isSelected && <Check className="w-3 h-3 text-[#8C4830]" />}
+                            {isSelected && <Check className="w-3 h-3 text-[#D4AF37]" />}
                           </button>
                         );
                       })}
@@ -429,25 +428,25 @@ export const ProductDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* 2. Women's Unstitched Suit Parts Breakdown: Kameez, Dupatta, Shalwar */}
-                <div className="space-y-3 pt-3 border-t border-[#F0EAE1]">
+                {/* Women's Unstitched Suit Parts Breakdown */}
+                <div className="space-y-3 pt-3 border-t border-white/10">
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-[#1C1917]">
-                      <Layers className="w-4 h-4 text-[#8C4830]" />
+                    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#F7F4EE]">
+                      <Layers className="w-4 h-4 text-[#D4AF37]" />
                       <span>3-Piece Suit Parts Breakdown:</span>
                     </div>
-                    <span className="text-[11px] text-[#8C4830] font-medium">Unstitched Fabric Cuts</span>
+                    <span className="text-[11px] text-[#C5A059] font-medium">Unstitched Fabric Cuts</span>
                   </div>
 
                   {/* Part Filter Tabs */}
-                  <div className="flex items-center gap-1 bg-[#F5EFEB] p-1 rounded-md text-[11px] font-sans font-medium overflow-x-auto">
+                  <div className="flex items-center gap-1 bg-[#111115] border border-white/10 p-1 text-[11px] font-sans font-medium overflow-x-auto">
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('all')}
-                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
                         selectedPartTab === 'all'
-                          ? 'bg-white text-black font-bold shadow-xs'
-                          : 'text-neutral-600 hover:text-black'
+                          ? 'bg-[#D4AF37] text-[#060608] font-semibold'
+                          : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
                       }`}
                     >
                       All Parts (3-Piece)
@@ -455,10 +454,10 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('kameez')}
-                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
                         selectedPartTab === 'kameez'
-                          ? 'bg-white text-black font-bold shadow-xs'
-                          : 'text-neutral-600 hover:text-black'
+                          ? 'bg-[#D4AF37] text-[#060608] font-semibold'
+                          : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
                       }`}
                     >
                       Kameez (Shirt)
@@ -466,10 +465,10 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('dupatta')}
-                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
                         selectedPartTab === 'dupatta'
-                          ? 'bg-white text-black font-bold shadow-xs'
-                          : 'text-neutral-600 hover:text-black'
+                          ? 'bg-[#D4AF37] text-[#060608] font-semibold'
+                          : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
                       }`}
                     >
                       Dupatta (Shawl)
@@ -477,10 +476,10 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('shalwar')}
-                      className={`px-2.5 py-1 rounded transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
                         selectedPartTab === 'shalwar'
-                          ? 'bg-white text-black font-bold shadow-xs'
-                          : 'text-neutral-600 hover:text-black'
+                          ? 'bg-[#D4AF37] text-[#060608] font-semibold'
+                          : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
                       }`}
                     >
                       Shalwar (Trouser)
@@ -489,83 +488,79 @@ export const ProductDetailPage: React.FC = () => {
 
                   {/* Suit Parts Display Cards */}
                   <div className="space-y-2 text-xs">
-                    {/* Kameez (Shirt) */}
                     {(selectedPartTab === 'all' || selectedPartTab === 'kameez') && (
-                      <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] rounded-sm transition-all hover:border-[#8C4830]/50">
-                        <div className="flex items-center justify-between pb-1 border-b border-[#EFE8DF]">
-                          <div className="flex items-center gap-1.5 font-bold text-[#1C1917]">
-                            <Scissors className="w-3.5 h-3.5 text-[#8C4830]" />
+                      <div className="p-3 bg-[#111115] border border-white/10 hover:border-[#C5A059]/45 transition-all">
+                        <div className="flex items-center justify-between pb-1 border-b border-white/10">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE]">
+                            <Scissors className="w-3.5 h-3.5 text-[#D4AF37]" />
                             <span>1. Kameez (Shirt / Kurta)</span>
                           </div>
-                          <span className="font-mono text-[11px] font-bold text-[#8C4830] bg-white px-2 py-0.5 border border-[#8C4830]/30 rounded">
+                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30">
                             3.0m - 3.2m Cut
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#1C1917]/75 mt-1.5 leading-relaxed">
+                        <p className="text-[11px] text-[#F7F4EE]/70 mt-1.5 leading-relaxed">
                           {product.craftType === 'Embroidery'
                             ? 'Delicate resham needlework on front shirt panel, with matching back and full sleeves cut. Includes neck/gala & daman borders.'
                             : 'High-definition digital floral & geometric print on fine combed lawn, featuring separate front, back, and sleeves.'}
                         </p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#1C1917]/60">
+                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#F7F4EE]/55">
                           <span>Fabric: {product.fabric}</span>
                           <span>Width: 42"-44" Arz</span>
                         </div>
                       </div>
                     )}
 
-                    {/* Dupatta */}
                     {(selectedPartTab === 'all' || selectedPartTab === 'dupatta') && (
-                      <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] rounded-sm transition-all hover:border-[#8C4830]/50">
-                        <div className="flex items-center justify-between pb-1 border-b border-[#EFE8DF]">
-                          <div className="flex items-center gap-1.5 font-bold text-[#1C1917]">
-                            <Sparkles className="w-3.5 h-3.5 text-[#8C4830]" />
+                      <div className="p-3 bg-[#111115] border border-white/10 hover:border-[#C5A059]/45 transition-all">
+                        <div className="flex items-center justify-between pb-1 border-b border-white/10">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE]">
+                            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
                             <span>2. Dupatta (Draped Shawl)</span>
                           </div>
-                          <span className="font-mono text-[11px] font-bold text-[#8C4830] bg-white px-2 py-0.5 border border-[#8C4830]/30 rounded">
+                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30">
                             2.5m Standard Cut
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#1C1917]/75 mt-1.5 leading-relaxed">
+                        <p className="text-[11px] text-[#F7F4EE]/70 mt-1.5 leading-relaxed">
                           {product.fabric.includes('Chiffon')
                             ? 'Pure crinkle chiffon with 4-sided finished borders, lightweight drape, and soft airy fall.'
                             : product.fabric.includes('Silk')
                             ? 'Digital luxury silk dupatta with vibrant botanical borders and natural sheen.'
                             : 'Lightweight summer voile / lawn dupatta with coordinated border prints.'}
                         </p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#1C1917]/60">
+                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#F7F4EE]/55">
                           <span>Style: Draped Fluid Fall</span>
                           <span>Width: 40"-42" Standard</span>
                         </div>
                       </div>
                     )}
 
-                    {/* Shalwar (Trouser) */}
                     {(selectedPartTab === 'all' || selectedPartTab === 'shalwar') && (
-                      <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] rounded-sm transition-all hover:border-[#8C4830]/50">
-                        <div className="flex items-center justify-between pb-1 border-b border-[#EFE8DF]">
-                          <div className="flex items-center gap-1.5 font-bold text-[#1C1917]">
-                            <Ruler className="w-3.5 h-3.5 text-[#8C4830]" />
+                      <div className="p-3 bg-[#111115] border border-white/10 hover:border-[#C5A059]/45 transition-all">
+                        <div className="flex items-center justify-between pb-1 border-b border-white/10">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE]">
+                            <Ruler className="w-3.5 h-3.5 text-[#D4AF37]" />
                             <span>3. Shalwar (Trouser / Bottom)</span>
                           </div>
-                          <span className="font-mono text-[11px] font-bold text-[#8C4830] bg-white px-2 py-0.5 border border-[#8C4830]/30 rounded">
+                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30">
                             2.5m Dyed Cut
                           </span>
                         </div>
-                        <p className="text-[11px] text-[#1C1917]/75 mt-1.5 leading-relaxed">
+                        <p className="text-[11px] text-[#F7F4EE]/70 mt-1.5 leading-relaxed">
                           Solid dyed premium cambric cotton fabric matched to the ensemble palette. Pre-shrunk and suitable for classic shalwar, culottes, or tailored cigarette trousers.
                         </p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#1C1917]/60">
+                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#F7F4EE]/55">
                           <span>Fabric: Dyed Cambric Cotton</span>
                           <span>Width: 54" Double Width</span>
                         </div>
                       </div>
                     )}
 
-                    {/* Included Accents & Patches if listed in data */}
                     {product.cutDetails.suitPieces && product.cutDetails.suitPieces.some(p => p.toLowerCase().includes('border') || p.toLowerCase().includes('patch')) && (
-                      <div className="p-2.5 bg-white border border-[#E7E0D8] rounded-sm text-[11px] text-[#1C1917]/80">
-                        <strong className="text-[#8C4830] block mb-1">Included Borders & Embellishments:</strong>
-                        <ul className="list-disc list-inside space-y-0.5 text-[#1C1917]/70">
+                      <div className="p-2.5 bg-[#111115] border border-white/10 text-[11px] text-[#F7F4EE]/80">
+                        <strong className="text-[#D4AF37] block mb-1">Included Borders & Embellishments:</strong>
+                        <ul className="list-disc list-inside space-y-0.5 text-[#F7F4EE]/70">
                           {product.cutDetails.suitPieces
                             .filter(p => p.toLowerCase().includes('border') || p.toLowerCase().includes('patch'))
                             .map((p, i) => (
@@ -578,20 +573,17 @@ export const ProductDetailPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              /* MEN'S PRESENTATION: PURE COLOR PALETTE & UNSTITCHED SUITING CUT */
-              <div className="space-y-5 pb-5 border-b border-[#E7E0D8]">
-                {/* 1. Men's Dedicated Colour Selection */}
+              <div className="space-y-5 pb-5 border-b border-white/10">
                 {product.colorOptions && product.colorOptions.length > 0 && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#1C1917]">
-                        <Palette className="w-4 h-4 text-[#8C4830]" />
+                      <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#E8D5A7]">
+                        <Palette className="w-4 h-4 text-[#D4AF37]" />
                         <span>Fabric Colour & Shade:</span>
                       </div>
-                      <span className="font-bold text-[#8C4830] text-xs">{selectedColor}</span>
+                      <span className="font-semibold text-[#D4AF37] text-xs">{selectedColor}</span>
                     </div>
 
-                    {/* Rich Tactile Swatches for Men */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                       {product.colorOptions.map((opt) => {
                         const isSelected = selectedColor === opt.name;
@@ -605,22 +597,22 @@ export const ProductDetailPage: React.FC = () => {
                             }}
                             className={`flex items-center gap-2.5 p-2.5 border text-left transition-all ${
                               isSelected
-                                ? 'border-[#8C4830] bg-[#FAF5EE] ring-2 ring-[#8C4830] shadow-xs'
-                                : 'border-[#E7E0D8] bg-white hover:border-[#8C4830]/50 hover:bg-[#FAF8F5]'
+                                ? 'border-[#D4AF37] bg-[#D4AF37]/15 ring-1 ring-[#D4AF37]'
+                                : 'border-white/15 bg-[#111115] hover:border-[#C5A059]/60'
                             }`}
                           >
                             <span
-                              className="w-5 h-5 rounded-full border border-black/25 shrink-0 shadow-inner flex items-center justify-center"
+                              className="w-5 h-5 rounded-full border border-white/30 shrink-0 shadow-inner flex items-center justify-center"
                               style={{ backgroundColor: opt.hex }}
                             >
                               {isSelected && <Check className="w-3 h-3 text-white drop-shadow-sm" />}
                             </span>
                             <div className="min-w-0 flex-1">
-                              <span className="block text-xs font-semibold text-[#1C1917] truncate leading-tight">
+                              <span className="block text-xs font-semibold text-[#F7F4EE] truncate leading-tight">
                                 {opt.name}
                               </span>
                               {opt.previewLabel && (
-                                <span className="block text-[10px] text-[#1C1917]/55 truncate">
+                                <span className="block text-[10px] text-[#F7F4EE]/55 truncate">
                                   {opt.previewLabel}
                                 </span>
                               )}
@@ -630,15 +622,14 @@ export const ProductDetailPage: React.FC = () => {
                       })}
                     </div>
 
-                    {/* Selected Shade Guarantee Box */}
-                    <div className="p-3 bg-[#FAF8F5] border border-[#E7E0D8] flex items-center gap-3">
+                    <div className="p-3 bg-[#111115] border border-white/10 flex items-center gap-3">
                       <span
-                        className="w-8 h-8 rounded-full border-2 border-white shadow-md shrink-0"
+                        className="w-8 h-8 rounded-full border-2 border-[#D4AF37]/40 shadow-md shrink-0"
                         style={{ backgroundColor: selectedColorHex }}
                       />
-                      <div className="text-xs text-[#1C1917]/80">
-                        <strong className="text-[#1C1917] block">Selected Shade: {selectedColor}</strong>
-                        <span className="text-[11px] text-[#1C1917]/65">
+                      <div className="text-xs text-[#F7F4EE]/80">
+                        <strong className="text-[#D4AF37] block">Selected Shade: {selectedColor}</strong>
+                        <span className="text-[11px] text-[#F7F4EE]/60">
                           100% Vat-Dyed Reactive Color: Guaranteed zero color bleed and color fastness across washes.
                         </span>
                       </div>
@@ -646,50 +637,49 @@ export const ProductDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* 2. Men's Unstitched Suiting Yardage & Cut (No Women's Parts) */}
-                <div className="p-4 bg-white border border-[#E7E0D8] space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-[#F0EAE1]">
-                    <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-[#1C1917]">
-                      <Ruler className="w-4 h-4 text-[#8C4830]" />
+                <div className="p-4 bg-[#111115] border border-white/10 space-y-2.5 text-xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
+                    <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#F7F4EE]">
+                      <Ruler className="w-4 h-4 text-[#D4AF37]" />
                       <span>Men's Suiting Cut & Yardage:</span>
                     </div>
-                    <span className="font-mono text-xs font-bold text-[#8C4830]">{product.cutDetails.length}</span>
+                    <span className="font-mono text-xs font-semibold text-[#D4AF37]">{product.cutDetails.length}</span>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-[11px] pt-1">
                     <div>
-                      <span className="text-[#1C1917]/60 block">Fabric Width (Bada Arz):</span>
-                      <strong className="text-[#1C1917] font-semibold">{product.cutDetails.width}</strong>
+                      <span className="text-[#F7F4EE]/55 block">Fabric Width (Bada Arz):</span>
+                      <strong className="text-[#F7F4EE] font-semibold">{product.cutDetails.width}</strong>
                     </div>
                     <div>
-                      <span className="text-[#1C1917]/60 block">Weave & Texture:</span>
-                      <strong className="text-[#1C1917] font-semibold">{product.weaveType || product.fabric}</strong>
+                      <span className="text-[#F7F4EE]/55 block">Weave & Texture:</span>
+                      <strong className="text-[#F7F4EE] font-semibold">{product.weaveType || product.fabric}</strong>
                     </div>
                     <div>
-                      <span className="text-[#1C1917]/60 block">Fabric Weight:</span>
-                      <strong className="text-[#1C1917] font-semibold">{product.fabricWeight || 'Medium Weight'}</strong>
+                      <span className="text-[#F7F4EE]/55 block">Fabric Weight:</span>
+                      <strong className="text-[#F7F4EE] font-semibold">{product.fabricWeight || 'Medium Weight'}</strong>
                     </div>
                     <div>
-                      <span className="text-[#1C1917]/60 block">Thread Quality:</span>
-                      <strong className="text-[#1C1917] font-semibold">{product.threadCount || 'High Count Master Grade'}</strong>
+                      <span className="text-[#F7F4EE]/55 block">Thread Quality:</span>
+                      <strong className="text-[#F7F4EE] font-semibold">{product.threadCount || 'High Count Master Grade'}</strong>
                     </div>
                   </div>
 
-                  <div className="pt-2 border-t border-[#F0EAE1] text-[11px] text-[#1C1917]/70">
-                    <strong className="text-[#1C1917]">Continuous Bolt:</strong> Standard 4.5m cut provides ample yardage for full Shalwar Kameez suit with collar, cuffs, placket facings, and matching trouser.
+                  <div className="pt-2 border-t border-white/10 text-[11px] text-[#F7F4EE]/70">
+                    <strong className="text-[#D4AF37]">Continuous Bolt:</strong> Standard 4.5m cut provides ample yardage for full Shalwar Kameez suit with collar, cuffs, placket facings, and matching trouser.
                   </div>
                 </div>
               </div>
             )}
 
-            {/* Design & Cut Style Options (Preserved for both) */}
+            {/* Design & Cut Style Options */}
             {product.designOptions && product.designOptions.length > 0 && (
-              <div className="space-y-2.5 pb-4 border-b border-[#E7E0D8]">
+              <div className="space-y-2.5 pb-4 border-b border-white/10">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="font-semibold uppercase tracking-wider text-[#1C1917]">
+                  <span className="font-semibold uppercase tracking-wider text-[#E8D5A7]">
                     Design & Cut Style:
                   </span>
-                  <span className="text-[11px] text-[#1C1917]/60">
+                  <span className="text-[11px] text-[#F7F4EE]/55">
                     {product.designOptions.length} Options
                   </span>
                 </div>
@@ -704,25 +694,25 @@ export const ProductDetailPage: React.FC = () => {
                         onClick={() => setSelectedDesignId(design.id)}
                         className={`w-full text-left p-3 border transition-all ${
                           isSelected
-                            ? 'border-[#8C4830] bg-white ring-1 ring-[#8C4830]'
-                            : 'border-[#E7E0D8] bg-[#FAF8F5] hover:bg-white'
+                            ? 'border-[#D4AF37] bg-[#D4AF37]/15 ring-1 ring-[#D4AF37]'
+                            : 'border-white/15 bg-[#111115] hover:border-[#C5A059]/60'
                         }`}
                       >
                         <div className="flex items-center justify-between">
-                          <span className="font-semibold text-xs text-[#1C1917]">
+                          <span className="font-semibold text-xs text-[#F7F4EE]">
                             {design.name}
                           </span>
                           {design.additionalPrice ? (
-                            <span className="text-[11px] font-mono font-bold text-[#8C4830]">
+                            <span className="text-[11px] font-mono font-semibold text-[#D4AF37]">
                               +{formatPKR(design.additionalPrice)}
                             </span>
                           ) : (
-                            <span className="text-[10px] text-[#1C1917]/50 font-medium uppercase tracking-wider">
+                            <span className="text-[10px] text-[#F7F4EE]/50 font-medium uppercase tracking-wider">
                               Included
                             </span>
                           )}
                         </div>
-                        <p className="text-[11px] text-[#1C1917]/70 mt-1 leading-normal font-sans">
+                        <p className="text-[11px] text-[#F7F4EE]/65 mt-1 leading-normal font-sans">
                           {design.description}
                         </p>
                       </button>
@@ -735,21 +725,21 @@ export const ProductDetailPage: React.FC = () => {
             {/* Quantity Selector & Purchase CTAs */}
             <div className="space-y-4 pt-2">
               <div className="flex items-center gap-4">
-                <span className="text-xs font-semibold text-[#1C1917]">Quantity (Suits):</span>
-                <div className="flex items-center border border-[#E7E0D8] bg-white">
+                <span className="text-xs font-semibold text-[#E8D5A7]">Quantity (Suits):</span>
+                <div className="flex items-center border border-[#C5A059]/40 bg-[#111115]">
                   <button
                     onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="px-3 py-1.5 text-sm hover:bg-[#F2ECE5] transition-colors"
+                    className="px-3 py-1.5 text-sm hover:bg-white/10 text-[#F7F4EE] transition-colors"
                     aria-label="Decrease quantity"
                   >
                     -
                   </button>
-                  <span className="px-4 text-xs font-mono font-bold tabular-nums">
+                  <span className="px-4 text-xs font-mono font-bold tabular-nums text-[#F7F4EE]">
                     {quantity}
                   </span>
                   <button
                     onClick={() => setQuantity(quantity + 1)}
-                    className="px-3 py-1.5 text-sm hover:bg-[#F2ECE5] transition-colors"
+                    className="px-3 py-1.5 text-sm hover:bg-white/10 text-[#F7F4EE] transition-colors"
                     aria-label="Increase quantity"
                   >
                     +
@@ -767,26 +757,26 @@ export const ProductDetailPage: React.FC = () => {
                       selectedDesign: activeDesign?.name || 'Standard Cut',
                     })
                   }
-                  className="w-full py-4 px-6 bg-black hover:bg-neutral-800 text-white text-xs font-bold tracking-widest uppercase transition-all flex items-center justify-center gap-2 shadow-md active:scale-98"
+                  className="w-full py-4 px-6 bg-transparent border border-[#D4AF37] hover:bg-[#D4AF37] text-[#E8D5A7] hover:text-[#060608] text-xs font-semibold tracking-widest uppercase transition-all flex items-center justify-center gap-2 active:scale-98"
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>
-                    Add to Bag · {formatPKR(totalPrice)}
+                    Add to Cart · {formatPKR(totalPrice)}
                   </span>
                 </button>
 
                 <button
                   onClick={handleDirectWhatsAppBuy}
-                  className="w-full py-3.5 px-6 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-3.5 px-6 bg-[#25D366] hover:bg-[#20BD5A] text-black text-xs font-bold tracking-wider uppercase transition-all flex items-center justify-center gap-2 shadow-sm"
                 >
                   <MessageCircle className="w-4 h-4" />
                   <span>Order via WhatsApp (0334-6565636)</span>
                 </button>
               </div>
 
-              <div className="pt-2 flex items-center justify-between text-[11px] text-neutral-500">
+              <div className="pt-2 flex items-center justify-between text-[11px] text-[#F7F4EE]/60">
                 <div className="flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-black" />
+                  <Truck className="w-3.5 h-3.5 text-[#D4AF37]" />
                   <span>Nationwide Express COD Dispatch</span>
                 </div>
                 <span>Free Shipping over {formatPKR(storeSettings?.freeShippingThreshold ?? 5000)}</span>
@@ -795,88 +785,86 @@ export const ProductDetailPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Tabbed Technical & Care Specifications Accordion */}
-        <div id="product-tabs-section" className="mt-16 sm:mt-20 border-t border-neutral-200 pt-12">
-          {/* Tab Headers */}
-          <div className="flex border-b border-neutral-200 gap-4 sm:gap-8 overflow-x-auto scrollbar-none pb-0.5">
+        {/* Tabbed Technical & Care Specifications */}
+        <div id="product-tabs-section" className="mt-16 sm:mt-20 border-t border-white/10 pt-12">
+          <div className="flex border-b border-white/10 gap-4 sm:gap-8 overflow-x-auto scrollbar-none pb-0.5">
             <button
               onClick={() => setActiveTab('care')}
-              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'care'
-                  ? 'border-black text-black'
-                  : 'border-transparent text-neutral-500 hover:text-black'
+                  ? 'border-[#D4AF37] text-[#D4AF37]'
+                  : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
               }`}
             >
               Fabric Details & Care
             </button>
             <button
               onClick={() => setActiveTab('guide')}
-              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'guide'
-                  ? 'border-black text-black'
-                  : 'border-transparent text-neutral-500 hover:text-black'
+                  ? 'border-[#D4AF37] text-[#D4AF37]'
+                  : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
               }`}
             >
               Suiting Cut & Dimensions
             </button>
             <button
               onClick={() => setActiveTab('heritage')}
-              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'heritage'
-                  ? 'border-black text-black'
-                  : 'border-transparent text-neutral-500 hover:text-black'
+                  ? 'border-[#D4AF37] text-[#D4AF37]'
+                  : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
               }`}
             >
               Niaz Cloth House Guarantee
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`pb-3 text-xs sm:text-sm font-bold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
                 activeTab === 'reviews'
-                  ? 'border-black text-black'
-                  : 'border-transparent text-neutral-500 hover:text-black'
+                  ? 'border-[#D4AF37] text-[#D4AF37]'
+                  : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
               }`}
             >
               Customer Reviews ({stats.totalReviews})
             </button>
           </div>
 
-          {/* Tab Contents */}
           <div className="py-8">
             {activeTab === 'care' && (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
-                <div className="p-4 bg-white border border-[#E7E0D8]">
-                  <h4 className="font-serif text-sm font-bold text-[#1C1917]">
+                <div className="p-4 bg-[#111115] border border-white/10">
+                  <h4 className="font-serif text-sm font-semibold text-[#D4AF37]">
                     Washing Instructions
                   </h4>
-                  <p className="text-xs text-[#1C1917]/75 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#F7F4EE]/75 mt-1 leading-relaxed">
                     {product.care.washing}
                   </p>
                 </div>
 
-                <div className="p-4 bg-white border border-[#E7E0D8]">
-                  <h4 className="font-serif text-sm font-bold text-[#1C1917]">
+                <div className="p-4 bg-[#111115] border border-white/10">
+                  <h4 className="font-serif text-sm font-semibold text-[#D4AF37]">
                     Shrinkage Allowance
                   </h4>
-                  <p className="text-xs text-[#1C1917]/75 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#F7F4EE]/75 mt-1 leading-relaxed">
                     {product.care.shrinkage}
                   </p>
                 </div>
 
-                <div className="p-4 bg-white border border-[#E7E0D8]">
-                  <h4 className="font-serif text-sm font-bold text-[#1C1917]">
+                <div className="p-4 bg-[#111115] border border-white/10">
+                  <h4 className="font-serif text-sm font-semibold text-[#D4AF37]">
                     Ironing & Press Guidelines
                   </h4>
-                  <p className="text-xs text-[#1C1917]/75 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#F7F4EE]/75 mt-1 leading-relaxed">
                     {product.care.ironing}
                   </p>
                 </div>
 
-                <div className="p-4 bg-white border border-[#E7E0D8]">
-                  <h4 className="font-serif text-sm font-bold text-[#1C1917]">
+                <div className="p-4 bg-[#111115] border border-white/10">
+                  <h4 className="font-serif text-sm font-semibold text-[#D4AF37]">
                     Long-Term Preservation
                   </h4>
-                  <p className="text-xs text-[#1C1917]/75 mt-1 leading-relaxed">
+                  <p className="text-xs text-[#F7F4EE]/75 mt-1 leading-relaxed">
                     {product.care.preservation}
                   </p>
                 </div>
@@ -884,9 +872,9 @@ export const ProductDetailPage: React.FC = () => {
             )}
 
             {activeTab === 'guide' && (
-              <div className="max-w-3xl space-y-4 text-xs text-[#1C1917]/80 leading-relaxed">
-                <div className="p-5 bg-white border border-[#E7E0D8] space-y-2">
-                  <h4 className="font-serif text-base font-bold text-[#1C1917]">
+              <div className="max-w-3xl space-y-4 text-xs text-[#F7F4EE]/80 leading-relaxed">
+                <div className="p-5 bg-[#111115] border border-white/10 space-y-2">
+                  <h4 className="font-serif text-base font-semibold text-[#D4AF37]">
                     Fabric Cut & Yardage Guide for Unstitched Suiting
                   </h4>
                   <p>
@@ -895,22 +883,22 @@ export const ProductDetailPage: React.FC = () => {
                   <p>
                     For ladies' 3-piece sets, our 80s lawn and chiffon shirts include 3.2 meters of unstitched fabric to allow flared kurtas, kalidar panels, or long shirt styles without piecing.
                   </p>
-                  <p className="text-[#8C4830] font-medium pt-1">
-                    * Please note: Niaz Cloth House is exclusively an authentic unstitched cloth shop—not a tailor shop. We provide fresh unstitched cuts and rolls for you to get stitched by your personal tailor (Darzi).
+                  <p className="text-[#C5A059] font-medium pt-1">
+                    * Please note: Niaz Cloth House provides authentic unstitched cuts and seasonal ensembles from Paris Bazaar, Rawalpindi.
                   </p>
                 </div>
               </div>
             )}
 
             {activeTab === 'heritage' && (
-              <div className="max-w-3xl space-y-4 text-xs text-[#1C1917]/80 leading-relaxed">
-                <div className="p-5 bg-white border border-[#E7E0D8] space-y-2">
-                  <h4 className="font-serif text-base font-bold text-[#1C1917]">
+              <div className="max-w-3xl space-y-4 text-xs text-[#F7F4EE]/80 leading-relaxed">
+                <div className="p-5 bg-[#111115] border border-white/10 space-y-2">
+                  <h4 className="font-serif text-base font-semibold text-[#D4AF37]">
                     Archival Provenance
                   </h4>
                   <p>{product.heritageNotes}</p>
                   <p>
-                    Established in 1970 by Haji Niaz Ahmad and faithfully preserved today by his sons with the shop name unchanged, our founding pledge remains: Dedicated exclusively to pure unstitched textiles, certified yarn density, and authentic Pakistani fabric craftsmanship.
+                    Established in 1970 by Haji Sh. Niaz Ahmed and faithfully preserved today by his sons with the shop name unchanged, our founding pledge remains: authentic unstitched textiles, certified yarn density, and pure Pakistani heritage craftsmanship.
                   </p>
                 </div>
               </div>
@@ -918,39 +906,36 @@ export const ProductDetailPage: React.FC = () => {
 
             {activeTab === 'reviews' && (
               <div className="space-y-8 max-w-4xl">
-                {/* Summary Card & Write Review CTA */}
-                <div className="p-6 bg-white border border-[#E7E0D8] rounded-none shadow-xs">
+                <div className="p-6 bg-[#111115] border border-[#C5A059]/25">
                   <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                    {/* Average Score */}
-                    <div className="md:col-span-4 flex flex-col items-center md:items-start text-center md:text-left border-b md:border-b-0 md:border-r border-[#E7E0D8] pb-6 md:pb-0 md:pr-6">
+                    <div className="md:col-span-4 flex flex-col items-center md:items-start text-center md:text-left border-b md:border-b-0 md:border-r border-white/10 pb-6 md:pb-0 md:pr-6">
                       <div className="flex items-baseline gap-2">
-                        <span className="font-mono text-4xl sm:text-5xl font-bold text-[#1C1917]">
+                        <span className="font-mono text-4xl sm:text-5xl font-bold text-[#D4AF37] tabular-nums">
                           {stats.averageRating.toFixed(1)}
                         </span>
-                        <span className="text-xs text-[#1C1917]/50 font-mono">/ 5.0</span>
+                        <span className="text-xs text-[#F7F4EE]/50 font-mono">/ 5.0</span>
                       </div>
-                      <div className="flex items-center gap-1 text-amber-500 my-2">
+                      <div className="flex items-center gap-1 text-[#D4AF37] my-2">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
                             className={`w-4 h-4 ${
                               star <= Math.round(stats.averageRating)
-                                ? 'fill-amber-500 text-amber-500'
-                                : 'text-gray-300'
+                                ? 'fill-[#D4AF37] text-[#D4AF37]'
+                                : 'text-white/20'
                             }`}
                           />
                         ))}
                       </div>
-                      <p className="text-xs text-[#1C1917]/70 font-sans">
-                        Based on <strong className="text-[#1C1917]">{stats.totalReviews}</strong> customer reviews
+                      <p className="text-xs text-[#F7F4EE]/70 font-sans">
+                        Based on <strong className="text-[#F7F4EE]">{stats.totalReviews}</strong> customer reviews
                       </p>
-                      <div className="mt-3 flex items-center gap-1.5 text-[11px] text-emerald-800 bg-emerald-50 px-2.5 py-1 border border-emerald-200">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                        <span>IndexedDB Verified Reviews</span>
+                      <div className="mt-3 flex items-center gap-1.5 text-[11px] text-emerald-400 bg-emerald-500/10 px-2.5 py-1 border border-emerald-500/25">
+                        <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                        <span>Verified Customer Reviews</span>
                       </div>
                     </div>
 
-                    {/* Star Breakdown Bars */}
                     <div className="md:col-span-5 space-y-2">
                       {([5, 4, 3, 2, 1] as const).map((star) => {
                         const count = stats.distribution[star] || 0;
@@ -962,16 +947,16 @@ export const ProductDetailPage: React.FC = () => {
                             onClick={() => setSelectedStarFilter(selectedStarFilter === star ? 'all' : star)}
                             className="w-full flex items-center gap-2.5 text-xs text-left group hover:opacity-85"
                           >
-                            <span className="w-12 text-[#1C1917]/80 font-medium shrink-0 group-hover:text-[#8C4830]">
+                            <span className="w-12 text-[#F7F4EE]/75 font-medium shrink-0 group-hover:text-[#D4AF37]">
                               {star} Star{star > 1 ? 's' : ''}
                             </span>
-                            <div className="flex-1 h-2 bg-[#F3EFEA] rounded-full overflow-hidden">
+                            <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-amber-500 transition-all duration-300"
+                                className="h-full bg-[#D4AF37] transition-all duration-300"
                                 style={{ width: `${pct}%` }}
                               />
                             </div>
-                            <span className="w-8 text-right font-mono text-[11px] text-[#1C1917]/50">
+                            <span className="w-8 text-right font-mono text-[11px] text-[#F7F4EE]/50 tabular-nums">
                               {count}
                             </span>
                           </button>
@@ -979,10 +964,9 @@ export const ProductDetailPage: React.FC = () => {
                       })}
                     </div>
 
-                    {/* Write Review Button */}
-                    <div className="md:col-span-3 flex flex-col justify-center items-center md:items-end text-center md:text-right border-t md:border-t-0 border-[#E7E0D8] pt-6 md:pt-0">
-                      <p className="text-xs text-[#1C1917]/70 mb-3 max-w-[200px]">
-                        Bought this fabric from us? Share your experience with other customers!
+                    <div className="md:col-span-3 flex flex-col justify-center items-center md:items-end text-center md:text-right border-t md:border-t-0 border-white/10 pt-6 md:pt-0">
+                      <p className="text-xs text-[#F7F4EE]/65 mb-3 max-w-[200px]">
+                        Bought this fabric from us? Share your experience with fellow patrons.
                       </p>
                       <button
                         type="button"
@@ -991,7 +975,7 @@ export const ProductDetailPage: React.FC = () => {
                           setReviewErrorMsg('');
                           setReviewSuccessMsg('');
                         }}
-                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#8C4830] hover:bg-[#723824] text-white text-xs font-semibold tracking-wide transition-colors shadow-xs"
+                        className="inline-flex items-center gap-2 px-4 py-2.5 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-wide transition-colors"
                       >
                         <PenSquare className="w-4 h-4" />
                         <span>{isReviewFormOpen ? 'Close Review Form' : 'Write a Review'}</span>
@@ -1000,22 +984,21 @@ export const ProductDetailPage: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Collapsible Write Review Form */}
                 {isReviewFormOpen && (
-                  <div className="p-6 bg-[#FAF8F5] border border-[#8C4830]/30 shadow-sm transition-all animate-fadeIn">
-                    <div className="flex items-center justify-between pb-3 border-b border-[#E7E0D8]">
+                  <div className="p-6 bg-[#111115] border border-[#D4AF37]/40 shadow-sm transition-all animate-fadeIn">
+                    <div className="flex items-center justify-between pb-3 border-b border-white/10">
                       <div>
-                        <h3 className="font-serif text-base font-bold text-[#1C1917]">
+                        <h3 className="font-serif text-base font-semibold text-[#D4AF37]">
                           Write Your Customer Review
                         </h3>
-                        <p className="text-xs text-[#1C1917]/65 mt-0.5">
-                          Your review is saved in client-side IndexedDB and visible instantly to Pakistani shoppers.
+                        <p className="text-xs text-[#F7F4EE]/60 mt-0.5">
+                          Share your feedback on fabric texture, stitching fall, and wash quality.
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setIsReviewFormOpen(false)}
-                        className="text-[#1C1917]/40 hover:text-[#1C1917] p-1"
+                        className="text-[#F7F4EE]/50 hover:text-[#F7F4EE] p-1"
                         aria-label="Close review form"
                       >
                         <X className="w-4 h-4" />
@@ -1023,9 +1006,8 @@ export const ProductDetailPage: React.FC = () => {
                     </div>
 
                     <form onSubmit={handleSubmitReview} className="mt-5 space-y-4">
-                      {/* Interactive Star Rating */}
                       <div>
-                        <label className="block text-xs font-semibold text-[#1C1917] mb-1.5">
+                        <label className="block text-xs font-semibold text-[#E8D5A7] mb-1.5">
                           Overall Rating (Click to Select 1 to 5 Stars) *
                         </label>
                         <div className="flex items-center gap-1.5 flex-wrap">
@@ -1044,26 +1026,25 @@ export const ProductDetailPage: React.FC = () => {
                               >
                                 <Star
                                   className={`w-6 h-6 ${
-                                    isFilled ? 'fill-amber-500 text-amber-500' : 'text-gray-300'
+                                    isFilled ? 'fill-[#D4AF37] text-[#D4AF37]' : 'text-white/25'
                                   }`}
                                 />
                               </button>
                             );
                           })}
-                          <span className="text-xs font-semibold text-[#8C4830] ml-2 font-sans">
-                            {(reviewHoverRating || reviewRating) === 5 && '★ 5 Stars - Outstanding Quality & Drape'}
-                            {(reviewHoverRating || reviewRating) === 4 && '★ 4 Stars - Very Good Fabric'}
-                            {(reviewHoverRating || reviewRating) === 3 && '★ 3 Stars - Standard / Average Fabric'}
-                            {(reviewHoverRating || reviewRating) === 2 && '★ 2 Stars - Below Expectations'}
-                            {(reviewHoverRating || reviewRating) === 1 && '★ 1 Star - Poor / Needs Improvement'}
+                          <span className="text-xs font-semibold text-[#D4AF37] ml-2 font-sans">
+                            {(reviewHoverRating || reviewRating) === 5 && '5 Stars - Outstanding Quality & Drape'}
+                            {(reviewHoverRating || reviewRating) === 4 && '4 Stars - Very Good Fabric'}
+                            {(reviewHoverRating || reviewRating) === 3 && '3 Stars - Standard Fabric'}
+                            {(reviewHoverRating || reviewRating) === 2 && '2 Stars - Below Expectations'}
+                            {(reviewHoverRating || reviewRating) === 1 && '1 Star - Needs Improvement'}
                           </span>
                         </div>
                       </div>
 
-                      {/* Name & City Grid */}
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                          <label className="block text-xs font-semibold text-[#1C1917] mb-1">
+                          <label className="block text-xs font-semibold text-[#E8D5A7] mb-1">
                             Your Name *
                           </label>
                           <input
@@ -1072,13 +1053,13 @@ export const ProductDetailPage: React.FC = () => {
                             placeholder="e.g. Tariq Mehmood"
                             value={reviewName}
                             onChange={(e) => setReviewName(e.target.value)}
-                            className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                            className="w-full px-3 py-2 text-xs bg-[#060608] border border-white/20 text-[#F7F4EE] focus:border-[#D4AF37] focus:outline-none"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-[#1C1917] mb-1">
-                            City in Pakistan *
+                          <label className="block text-xs font-semibold text-[#E8D5A7] mb-1">
+                            City *
                           </label>
                           <input
                             type="text"
@@ -1086,14 +1067,13 @@ export const ProductDetailPage: React.FC = () => {
                             placeholder="e.g. Rawalpindi, Lahore, Islamabad, Karachi"
                             value={reviewCity}
                             onChange={(e) => setReviewCity(e.target.value)}
-                            className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                            className="w-full px-3 py-2 text-xs bg-[#060608] border border-white/20 text-[#F7F4EE] focus:border-[#D4AF37] focus:outline-none"
                           />
                         </div>
                       </div>
 
-                      {/* Review Title */}
                       <div>
-                        <label className="block text-xs font-semibold text-[#1C1917] mb-1">
+                        <label className="block text-xs font-semibold text-[#E8D5A7] mb-1">
                           Review Headline (Optional)
                         </label>
                         <input
@@ -1101,53 +1081,50 @@ export const ProductDetailPage: React.FC = () => {
                           placeholder="e.g. Pure Boski - excellent shine, weight, and smooth fall"
                           value={reviewTitle}
                           onChange={(e) => setReviewTitle(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none"
+                          className="w-full px-3 py-2 text-xs bg-[#060608] border border-white/20 text-[#F7F4EE] focus:border-[#D4AF37] focus:outline-none"
                         />
                       </div>
 
-                      {/* Comment */}
                       <div>
-                        <label className="block text-xs font-semibold text-[#1C1917] mb-1">
+                        <label className="block text-xs font-semibold text-[#E8D5A7] mb-1">
                           Fabric Review & Tailoring Feedback *
                         </label>
                         <textarea
                           required
                           rows={4}
-                          placeholder="Tell fellow Pakistani buyers about the fabric handfeel, wash results, color stability, drape (fall), or stitching experience with your tailor..."
+                          placeholder="Tell fellow buyers about the fabric handfeel, wash results, color stability, drape, or stitching experience..."
                           value={reviewComment}
                           onChange={(e) => setReviewComment(e.target.value)}
-                          className="w-full px-3 py-2 text-xs bg-white border border-[#E7E0D8] focus:border-[#8C4830] focus:outline-none leading-relaxed"
+                          className="w-full px-3 py-2 text-xs bg-[#060608] border border-white/20 text-[#F7F4EE] focus:border-[#D4AF37] focus:outline-none leading-relaxed"
                         />
                       </div>
 
-                      {/* Error or Success Notice */}
                       {reviewErrorMsg && (
-                        <div className="p-3 bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
-                          <X className="w-4 h-4 shrink-0 text-red-500" />
+                        <div className="p-3 bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+                          <X className="w-4 h-4 shrink-0" />
                           <span>{reviewErrorMsg}</span>
                         </div>
                       )}
 
                       {reviewSuccessMsg && (
-                        <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs flex items-center gap-2">
-                          <CheckCircle2 className="w-4 h-4 shrink-0 text-emerald-600" />
+                        <div className="p-3 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 shrink-0" />
                           <span>{reviewSuccessMsg}</span>
                         </div>
                       )}
 
-                      {/* Submit Actions */}
                       <div className="flex items-center gap-3 pt-2">
                         <button
                           type="submit"
                           disabled={isSubmittingReview}
-                          className="px-5 py-2.5 bg-[#8C4830] hover:bg-[#723824] text-white text-xs font-semibold tracking-wide transition-colors disabled:opacity-50"
+                          className="px-5 py-2.5 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-wide transition-colors disabled:opacity-50"
                         >
-                          {isSubmittingReview ? 'Saving in IndexedDB...' : 'Submit Review'}
+                          {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
                         </button>
                         <button
                           type="button"
                           onClick={() => setIsReviewFormOpen(false)}
-                          className="px-4 py-2.5 bg-white border border-[#E7E0D8] text-xs text-[#1C1917]/70 hover:text-[#1C1917]"
+                          className="px-4 py-2.5 bg-transparent border border-white/20 text-xs text-[#F7F4EE]/75 hover:text-[#F7F4EE]"
                         >
                           Cancel
                         </button>
@@ -1156,9 +1133,8 @@ export const ProductDetailPage: React.FC = () => {
                   </div>
                 )}
 
-                {/* Filter Chips Bar */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 pb-1 border-b border-[#E7E0D8]">
-                  <span className="text-xs font-medium text-[#1C1917]/60 flex items-center gap-1.5 mr-2">
+                <div className="flex flex-wrap items-center gap-2 pt-2 pb-1 border-b border-white/10">
+                  <span className="text-xs font-medium text-[#F7F4EE]/60 flex items-center gap-1.5 mr-2">
                     <Filter className="w-3.5 h-3.5" />
                     <span>Filter:</span>
                   </span>
@@ -1167,8 +1143,8 @@ export const ProductDetailPage: React.FC = () => {
                     onClick={() => setSelectedStarFilter('all')}
                     className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
                       selectedStarFilter === 'all'
-                        ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                        : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#8C4830]/50'
+                        ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                        : 'bg-[#111115] text-[#F7F4EE]/75 border-white/15 hover:border-[#C5A059]/60'
                     }`}
                   >
                     All ({stats.totalReviews})
@@ -1180,8 +1156,8 @@ export const ProductDetailPage: React.FC = () => {
                       onClick={() => setSelectedStarFilter(star)}
                       className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
                         selectedStarFilter === star
-                          ? 'bg-[#8C4830] text-white border-[#8C4830]'
-                          : 'bg-white text-[#1C1917]/70 border-[#E7E0D8] hover:border-[#8C4830]/50'
+                          ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                          : 'bg-[#111115] text-[#F7F4EE]/75 border-white/15 hover:border-[#C5A059]/60'
                       }`}
                     >
                       {star} ★ ({stats.distribution[star] || 0})
@@ -1189,7 +1165,6 @@ export const ProductDetailPage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Reviews List */}
                 <div className="space-y-4">
                   {reviews
                     .filter((r) => {
@@ -1199,21 +1174,21 @@ export const ProductDetailPage: React.FC = () => {
                     .map((rev) => (
                       <div
                         key={rev.id}
-                        className="p-5 bg-white border border-[#E7E0D8] space-y-2.5 transition-shadow hover:shadow-xs"
+                        className="p-5 bg-[#111115] border border-white/10 space-y-2.5"
                       >
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-xs text-[#1C1917]">
+                            <span className="font-semibold text-xs text-[#F7F4EE]">
                               {rev.authorName} {rev.authorCity && `· ${rev.authorCity}`}
                             </span>
                             {rev.verifiedBuyer && (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-400 bg-emerald-500/10 px-2 py-0.5 border border-emerald-500/25">
+                                <CheckCircle2 className="w-3 h-3" />
                                 <span>Verified Buyer</span>
                               </span>
                             )}
                           </div>
-                          <span className="text-[11px] text-[#1C1917]/50 font-mono">
+                          <span className="text-[11px] text-[#F7F4EE]/50 font-mono">
                             {new Date(rev.createdAt).toLocaleDateString('en-GB', {
                               day: 'numeric',
                               month: 'short',
@@ -1222,34 +1197,27 @@ export const ProductDetailPage: React.FC = () => {
                           </span>
                         </div>
 
-                        {/* Stars & Title */}
                         <div className="flex items-center gap-2 flex-wrap">
-                          <div className="flex items-center gap-0.5 text-amber-500">
+                          <div className="flex items-center gap-0.5 text-[#D4AF37]">
                             {[1, 2, 3, 4, 5].map((star) => (
                               <Star
                                 key={star}
                                 className={`w-3.5 h-3.5 ${
-                                  star <= rev.rating ? 'fill-amber-500 text-amber-500' : 'text-gray-300'
+                                  star <= rev.rating ? 'fill-[#D4AF37] text-[#D4AF37]' : 'text-white/20'
                                 }`}
                               />
                             ))}
                           </div>
                           {rev.title && (
-                            <h4 className="font-serif text-xs font-bold text-[#1C1917]">
+                            <h4 className="font-serif text-xs font-semibold text-[#E8D5A7]">
                               {rev.title}
                             </h4>
                           )}
                         </div>
 
-                        {/* Comment */}
-                        <p className="text-xs text-[#1C1917]/80 leading-relaxed font-sans">
+                        <p className="text-xs text-[#F7F4EE]/80 leading-relaxed font-sans">
                           {rev.comment}
                         </p>
-
-                        <div className="pt-2 flex items-center justify-between text-[10px] text-[#1C1917]/40 border-t border-[#F3EFEA]">
-                          <span>Unstitched Suit Quality Review</span>
-                          <span className="font-mono">ID: {rev.id.slice(0, 8)} · IndexedDB</span>
-                        </div>
                       </div>
                     ))}
 
@@ -1257,7 +1225,7 @@ export const ProductDetailPage: React.FC = () => {
                     if (selectedStarFilter === 'all') return true;
                     return r.rating === selectedStarFilter;
                   }).length === 0 && (
-                    <div className="p-8 text-center bg-white border border-[#E7E0D8] text-xs text-[#1C1917]/60">
+                    <div className="p-8 text-center bg-[#111115] border border-white/10 text-xs text-[#F7F4EE]/60">
                       No customer reviews found matching {selectedStarFilter} star rating.
                     </div>
                   )}
@@ -1269,19 +1237,19 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Related Fabrics */}
         {relatedProducts.length > 0 && (
-          <div className="mt-16 pt-12 border-t border-[#E7E0D8]">
+          <div className="mt-16 pt-12 border-t border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
               <div>
-                <h2 className="font-serif text-2xl font-bold text-[#1C1917]">
-                  Related Unstitched Varieties
+                <h2 className="font-serif text-2xl font-normal text-[#D4AF37]">
+                  Related Luxury Varieties
                 </h2>
-                <p className="text-xs text-[#1C1917]/60 font-sans mt-0.5">
-                  Complementary {product.gender.toLowerCase()}'s fabrics from our 1977 archive
+                <p className="text-xs text-[#F7F4EE]/60 font-sans mt-0.5">
+                  Complementary {product.gender.toLowerCase()}'s fabrics from our 1970 archive
                 </p>
               </div>
               <button
                 onClick={() => navigateTo('shop')}
-                className="text-xs font-semibold text-[#8C4830] hover:underline self-start sm:self-auto"
+                className="text-xs font-semibold text-[#D4AF37] hover:underline self-start sm:self-auto"
               >
                 View Full Collection →
               </button>

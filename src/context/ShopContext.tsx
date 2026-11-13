@@ -20,6 +20,8 @@ import {
   UserPreferences, 
   DEFAULT_USER_PREFERENCES 
 } from '../core/storage/IndexedDBStore';
+import { PricingEngine } from '../core/domain/PricingEngine';
+import { ProductFactory } from '../core/domain/ProductHierarchy';
 
 interface ShopContextType {
   products: Product[];
@@ -87,7 +89,16 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [products, setProducts] = useState<Product[]>(() => {
     try {
       const saved = localStorage.getItem('nch_products_v3');
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed: Product[] = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((p) => p.id));
+          const missingFlagships = INITIAL_PRODUCTS.filter(
+            (p) => p.id.startsWith('nch-shahi-') && !existingIds.has(p.id)
+          );
+          return missingFlagships.length > 0 ? [...missingFlagships, ...parsed] : parsed;
+        }
+      }
     } catch {
       // fallback
     }
@@ -465,10 +476,14 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     (sum, item) => sum + getItemUnitPrice(item) * item.quantity,
     0
   );
-  const freeShippingThreshold = storeSettings.freeShippingThreshold ?? 5000;
-  const standardShippingFee = storeSettings.shippingFee ?? 250;
-  const shippingFee = cart.length === 0 ? 0 : cartSubtotal >= freeShippingThreshold ? 0 : standardShippingFee;
-  const cartTotal = cartSubtotal + shippingFee;
+  
+  // Encapsulated OOP Domain Pricing Computation
+  const pricingEngine = new PricingEngine(
+    storeSettings.freeShippingThreshold ?? 5000,
+    storeSettings.shippingFee ?? 250
+  );
+  const cartPricing = pricingEngine.computeOrder(cartSubtotal);
+  const cartTotal = cart.length === 0 ? 0 : cartPricing.finalTotal;
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const createOrder = async (
@@ -482,7 +497,7 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       customer,
       items: [...cart],
       subtotal: cartSubtotal,
-      shipping: shippingFee,
+      shipping: cartPricing.shippingFee,
       total: cartTotal,
       status: 'Pending',
       paymentMethod,

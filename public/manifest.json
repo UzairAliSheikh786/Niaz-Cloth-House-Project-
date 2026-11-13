@@ -1,0 +1,50 @@
+{
+  "id": "/",
+  "name": "Niaz Cloth House | Est. 1970",
+  "short_name": "Niaz Cloth",
+  "description": "Authentic Pakistani unstitched fabrics since 1970. Pure Chinese Boski silk, luxury unstitched lawn, and bespoke gents suiting.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#0A0F1D",
+  "background_color": "#050811",
+  "categories": ["shopping", "lifestyle", "business"],
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Men's Boski & Suiting",
+      "short_name": "Men's Collection",
+      "description": "Browse pure Chinese Boski and gents fabrics",
+      "url": "/?filter=Men",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Women's Luxury Lawn",
+      "short_name": "Women's Collection",
+      "description": "Explore embroidered lawn and chiffon cuts",
+      "url": "/?filter=Women",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    },
+    {
+      "name": "Store Management",
+      "short_name": "Shop Admin",
+      "description": "Manager order & inventory dashboard",
+      "url": "/admin",
+      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+    }
+  ]
+}

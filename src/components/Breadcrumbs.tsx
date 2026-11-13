@@ -40,17 +40,17 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
 
   return (
     <nav aria-label="Breadcrumb" className="w-full py-3 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#1C1917]/70 font-sans">
+      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#F7F4EE]/60 font-sans">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
 
           return (
             <li key={item.path} className="flex items-center gap-1.5">
-              {index > 0 && <ChevronRight className="w-3.5 h-3.5 text-[#1C1917]/40 shrink-0" aria-hidden="true" />}
+              {index > 0 && <ChevronRight className="w-3.5 h-3.5 text-[#C5A059]/45 shrink-0" aria-hidden="true" />}
               {isLast ? (
                 <span
                   aria-current="page"
-                  className="font-semibold text-[#0284C7] truncate max-w-[200px] sm:max-w-xs"
+                  className="font-semibold text-[#D4AF37] truncate max-w-[200px] sm:max-w-xs"
                 >
                   {item.name}
                 </span>
@@ -77,9 +77,9 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
                       navigateTo('women-winter');
                     }
                   }}
-                  className="hover:text-[#0284C7] transition-colors flex items-center gap-1 hover:underline"
+                  className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 hover:underline"
                 >
-                  {index === 0 && <Home className="w-3.5 h-3.5" aria-hidden="true" />}
+                  {index === 0 && <Home className="w-3.5 h-3.5 text-[#C5A059]" aria-hidden="true" />}
                   <span>{item.name}</span>
                 </a>
               )}

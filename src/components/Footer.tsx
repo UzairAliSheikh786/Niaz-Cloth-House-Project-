@@ -29,34 +29,34 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#111111] text-white pt-16 pb-10 border-t border-neutral-800 select-none">
+    <footer className="bg-[#050507] text-[#F7F4EE] pt-16 pb-10 border-t border-[#C5A059]/25 select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* 1. Newsletter & VIP Fabric Alerts Strip (Limelight fast-fashion signature) */}
-        <div className="border-b border-neutral-800 pb-12 mb-12 flex flex-col md:flex-row items-center justify-between gap-8">
+        {/* 1. Newsletter & VIP Fabric Alerts Strip */}
+        <div className="border-b border-white/10 pb-12 mb-12 flex flex-col md:flex-row items-center justify-between gap-8">
           <div>
-            <h3 className="font-sans font-black text-xl tracking-[0.16em] uppercase text-white mb-1">
-              BE THE FIRST TO KNOW
+            <h3 className="font-serif text-xl tracking-[0.14em] uppercase text-[#D4AF37] mb-1">
+              Join The Heritage Registry
             </h3>
-            <p className="text-xs text-neutral-400 font-normal">
-              Subscribe for new lawn drops, festive embroidered releases, and VIP sale previews.
+            <p className="text-xs text-[#F7F4EE]/60 font-normal">
+              Subscribe for new Shahi releases, unstitched drops, and private previews.
             </p>
           </div>
 
           <form onSubmit={handleSubscribe} className="w-full md:w-auto flex-1 max-w-md">
-            <div className="flex items-center border border-neutral-700 bg-neutral-900 focus-within:border-white">
+            <div className="flex items-center border border-[#C5A059]/35 bg-[#0D0D11] focus-within:border-[#D4AF37]">
               <input
                 type="email"
                 required
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="w-full px-4 py-3 bg-transparent text-xs text-white placeholder-neutral-500 focus:outline-none"
+                className="w-full px-4 py-3 bg-transparent text-xs text-[#F7F4EE] placeholder-[#F7F4EE]/40 focus:outline-none"
               />
               <button
                 type="submit"
-                className="py-3 px-6 bg-white hover:bg-neutral-200 text-black text-xs font-bold tracking-widest uppercase transition-colors shrink-0"
+                className="py-3 px-6 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0"
               >
-                {subscribed ? 'Subscribed!' : 'Join'}
+                {subscribed ? 'Subscribed' : 'Join'}
               </button>
             </div>
             {subscribed && (

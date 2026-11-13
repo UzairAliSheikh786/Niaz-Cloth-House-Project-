@@ -35,7 +35,7 @@ const AppContent: React.FC = () => {
   } = useNavigation();
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#F7F4EE] text-[#1F1F1F] w-full max-w-full overflow-x-hidden relative selection:bg-[#D4AF37]/30 selection:text-[#1F1F1F]">
+    <div className="min-h-screen flex flex-col bg-[#060608] text-[#F7F4EE] w-full max-w-full overflow-x-hidden relative selection:bg-[#D4AF37]/30 selection:text-[#D4AF37]">
       {/* 3D Global Depth & Floating Gold Thread Parallax Layer */}
       <AtelierAmbient3DBackground />
 

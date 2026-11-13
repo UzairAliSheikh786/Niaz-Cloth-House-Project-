@@ -139,25 +139,16 @@ export const GeminiChatbot: React.FC = () => {
   return (
     <>
       {/* Floating Concierge Launcher Button */}
-      <div className="fixed bottom-5 right-20 sm:bottom-6 sm:right-52 z-40 select-none print:hidden">
+      <div className="fixed bottom-5 right-36 sm:bottom-6 sm:right-40 z-40 select-none print:hidden">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          aria-label="Open Fabric Assistant Chat"
-          className="group flex items-center gap-2 bg-[#1C1917] hover:bg-[#2A2622] active:bg-[#151312] text-[#F8FAFC] p-3 sm:px-4 sm:py-3 rounded-full shadow-[0_10px_25px_-5px_rgba(28,25,23,0.5)] hover:shadow-[0_15px_30px_-5px_rgba(28,25,23,0.7)] transition-all duration-300 border border-[#38BDF8]/40 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[#0284C7]"
+          aria-label="Open Fabric Concierge Chat"
+          className="group flex items-center gap-2 bg-[#111115] hover:bg-[#18181D] text-[#E8D5A7] px-3.5 py-3 rounded-full shadow-xl transition-all duration-200 border border-[#C5A059]/40 hover:border-[#D4AF37] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
         >
-          <div className="relative">
-            <Sparkles className="w-5 h-5 text-[#38BDF8] group-hover:scale-110 transition-transform" />
-            <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          </div>
-
-          <div className="hidden sm:flex flex-col text-left leading-tight">
-            <span className="text-[10px] font-sans font-semibold uppercase tracking-wider text-[#38BDF8]">
-              Fabric Assistant
-            </span>
-            <span className="text-xs font-bold text-white tracking-wide">
-              Ask Any Question
-            </span>
-          </div>
+          <Sparkles className="w-4 h-4 text-[#D4AF37]" />
+          <span className="hidden sm:inline text-xs font-medium tracking-wide text-[#F7F4EE]">
+            Fabric Concierge
+          </span>
         </button>
       </div>
 

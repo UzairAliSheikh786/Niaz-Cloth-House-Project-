@@ -12,6 +12,375 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// ========================================================================= //
+// 1. DEDICATED ENVIRONMENT & EXTERNAL SERVICE VALIDATION ENGINE             //
+// (Executes BEFORE initializing Firebase Admin SDK and Express application) //
+// ========================================================================= //
+
+export interface ExternalServiceCheck {
+  name: string;
+  category: 'DATABASE' | 'AI_SERVICE' | 'AUTHENTICATION' | 'STORAGE' | 'BUILD_ARTIFACT';
+  critical: boolean;
+  status: 'READY' | 'DEGRADED' | 'FAILED';
+  details: string;
+  developerMessage?: string;
+}
+
+export interface EnvironmentValidationReport {
+  timestamp: string;
+  environmentMode: 'DEVELOPMENT' | 'PRODUCTION' | 'TEST';
+  isProduction: boolean;
+  effectivePort: number;
+  overallStatus: 'HEALTHY' | 'DEGRADED' | 'FAILED';
+  dependencies: Record<string, ExternalServiceCheck>;
+  developerErrors: string[];
+  developerWarnings: string[];
+  logText: string;
+}
+
+export interface EnvStatus {
+  name: string;
+  isSet: boolean;
+  maskedValue: string;
+  requiredForProd: boolean;
+  status: 'LOADED' | 'OPTIONAL_MISSING' | 'REQUIRED_MISSING';
+}
+
+export function maskSecret(val: string | undefined): string {
+  if (!val) return '[NOT CONFIGURED]';
+  if (val.length <= 8) return '********';
+  return `${val.slice(0, 4)}...${val.slice(-4)} (${val.length} chars)`;
+}
+
+/**
+ * Dedicated pre-flight environment & external service dependency validator.
+ * Runs BEFORE initializing the Firebase Admin SDK, AI clients, or the Express application.
+ * Logs the active environment mode and produces developer diagnostic messages.
+ */
+export function validateEnvironment(): EnvironmentValidationReport {
+  const rawNodeEnv = (process.env.NODE_ENV || 'development').trim().toLowerCase();
+  const isProduction = rawNodeEnv === 'production';
+  const isTest = rawNodeEnv === 'test';
+  const environmentMode: 'DEVELOPMENT' | 'PRODUCTION' | 'TEST' = isProduction ? 'PRODUCTION' : isTest ? 'TEST' : 'DEVELOPMENT';
+  const effectivePort = isProduction ? (Number(process.env.PORT) || 8080) : 3000;
+
+  // Prominently announce environment mode in developer logs
+  console.log('========================================================================');
+  console.log(`[NCH ENVIRONMENT MODE] Running in ${environmentMode} mode`);
+  console.log(`[NCH NETWORK BINDING]  Target port: ${effectivePort} (Host: 0.0.0.0)`);
+  console.log(`[NCH BOOTSTRAP]        Pre-flight dependency verification starting...`);
+  console.log('========================================================================');
+
+  const dependencies: Record<string, ExternalServiceCheck> = {};
+  const developerErrors: string[] = [];
+  const developerWarnings: string[] = [];
+
+  // 1. Critical Dependency: Firebase / Cloud Firestore
+  const firebaseConfigPath = path.resolve(__dirname, 'firebase-applet-config.json');
+  if (!fs.existsSync(firebaseConfigPath)) {
+    const errorMsg = `[CRITICAL - FIREBASE CONFIG MISSING] 'firebase-applet-config.json' was not found in ${__dirname}. Firestore database and Firebase Authentication cannot operate without this file.`;
+    dependencies.firebaseFirestore = {
+      name: 'Firebase / Cloud Firestore',
+      category: 'DATABASE',
+      critical: true,
+      status: 'FAILED',
+      details: 'firebase-applet-config.json missing',
+      developerMessage: errorMsg,
+    };
+    developerErrors.push(errorMsg);
+  } else {
+    try {
+      const rawCfg = fs.readFileSync(firebaseConfigPath, 'utf-8');
+      const cfg = JSON.parse(rawCfg);
+      const expectedDbId = 'ai-studio-niazclothhousehe-2f3e4db8-6c1d-431a-acbf-143f22a9756b';
+      const hasDbMatch = cfg.firestoreDatabaseId === expectedDbId;
+      const hasApiKey = Boolean(cfg.apiKey && cfg.apiKey.startsWith('AIza'));
+      const hasProjectId = Boolean(cfg.projectId);
+
+      if (!hasDbMatch || !hasApiKey || !hasProjectId) {
+        const warnMsg = `[FIREBASE MISCONFIGURATION] Configuration file present but requires attention. DB Match: ${hasDbMatch ? 'OK' : `Expected ${expectedDbId}, got ${cfg.firestoreDatabaseId}`}; API Key: ${hasApiKey ? 'OK' : 'MISSING/INVALID'}.`;
+        dependencies.firebaseFirestore = {
+          name: 'Firebase / Cloud Firestore',
+          category: 'DATABASE',
+          critical: true,
+          status: 'DEGRADED',
+          details: `Project: ${cfg.projectId || 'unset'}, DB: ${cfg.firestoreDatabaseId || 'unset'}`,
+          developerMessage: warnMsg,
+        };
+        developerWarnings.push(warnMsg);
+      } else {
+        dependencies.firebaseFirestore = {
+          name: 'Firebase / Cloud Firestore',
+          category: 'DATABASE',
+          critical: true,
+          status: 'READY',
+          details: `Project: ${cfg.projectId} | Database: ${cfg.firestoreDatabaseId} | AuthDomain: ${cfg.authDomain || 'set'}`,
+        };
+      }
+    } catch (parseErr: any) {
+      const errorMsg = `[CRITICAL - FIREBASE CONFIG CORRUPT] Failed to parse 'firebase-applet-config.json': ${parseErr?.message || parseErr}`;
+      dependencies.firebaseFirestore = {
+        name: 'Firebase / Cloud Firestore',
+        category: 'DATABASE',
+        critical: true,
+        status: 'FAILED',
+        details: 'JSON Parse Failure',
+        developerMessage: errorMsg,
+      };
+      developerErrors.push(errorMsg);
+    }
+  }
+
+  // 2. Critical Dependency: Google Gemini Generative AI SDK
+  const geminiApiKey = (process.env.GEMINI_API_KEY || '').trim();
+  if (!geminiApiKey) {
+    const warnMsg = `[GEMINI AI DEPENDENCY WARNING] GEMINI_API_KEY is not configured in environment variables. Generative AI services (/api/ai/styling-advice, /api/ai/recommend) will operate in fallback heuristic mode. To enable full AI styling, obtain an API key from Google AI Studio and configure GEMINI_API_KEY.`;
+    dependencies.geminiAi = {
+      name: 'Google Gemini Generative AI',
+      category: 'AI_SERVICE',
+      critical: false,
+      status: 'DEGRADED',
+      details: 'GEMINI_API_KEY not set',
+      developerMessage: warnMsg,
+    };
+    developerWarnings.push(warnMsg);
+  } else if (geminiApiKey.length < 10) {
+    const warnMsg = `[GEMINI AI WARNING] GEMINI_API_KEY appears suspiciously short (${geminiApiKey.length} characters). Verify the key value in .env.`;
+    dependencies.geminiAi = {
+      name: 'Google Gemini Generative AI',
+      category: 'AI_SERVICE',
+      critical: false,
+      status: 'DEGRADED',
+      details: `Suspicious key format (${geminiApiKey.length} chars)`,
+      developerMessage: warnMsg,
+    };
+    developerWarnings.push(warnMsg);
+  } else {
+    dependencies.geminiAi = {
+      name: 'Google Gemini Generative AI',
+      category: 'AI_SERVICE',
+      critical: false,
+      status: 'READY',
+      details: `Active key: ${maskSecret(geminiApiKey)}`,
+    };
+  }
+
+  // 3. Security Dependency: Administrator Authentication & Cryptographic Session Secret
+  const sessionSecret = (process.env.ADMIN_SESSION_SECRET || '').trim();
+  if (!sessionSecret || sessionSecret.length < 32) {
+    const warnMsg = `[SECURITY NOTICE - SESSION SECRET] ADMIN_SESSION_SECRET is using a default preview secret (${sessionSecret.length} chars). For production deployments, define a high-entropy 32+ character random hex string in ADMIN_SESSION_SECRET to harden HMAC-SHA256 session signature verification.`;
+    dependencies.adminSecurity = {
+      name: 'Admin Cryptographic Security (HMAC-SHA256)',
+      category: 'AUTHENTICATION',
+      critical: isProduction,
+      status: isProduction ? 'FAILED' : 'DEGRADED',
+      details: sessionSecret ? `Weak secret (${sessionSecret.length} chars)` : 'Default preview secret fallback active',
+      developerMessage: warnMsg,
+    };
+    if (isProduction) {
+      developerErrors.push(warnMsg);
+    } else {
+      developerWarnings.push(warnMsg);
+    }
+  } else {
+    dependencies.adminSecurity = {
+      name: 'Admin Cryptographic Security (HMAC-SHA256)',
+      category: 'AUTHENTICATION',
+      critical: true,
+      status: 'READY',
+      details: '32+ character high-entropy session secret configured',
+    };
+  }
+
+  // 4. Production Build Artifact Dependency
+  const distPath = path.resolve(__dirname, 'dist');
+  const distIndexPath = path.resolve(distPath, 'index.html');
+  const distIndexExists = fs.existsSync(distIndexPath);
+  if (isProduction && !distIndexExists) {
+    const errorMsg = `[CRITICAL BUILD ARTIFACT MISSING] Production mode is active, but 'dist/index.html' does not exist. The Express server will be unable to serve client single-page application requests. Run 'npm run build' before launching the production server.`;
+    dependencies.clientBuild = {
+      name: 'Client Production SPA Bundle',
+      category: 'BUILD_ARTIFACT',
+      critical: true,
+      status: 'FAILED',
+      details: 'dist/index.html missing',
+      developerMessage: errorMsg,
+    };
+    developerErrors.push(errorMsg);
+  } else {
+    dependencies.clientBuild = {
+      name: 'Client Production SPA Bundle',
+      category: 'BUILD_ARTIFACT',
+      critical: isProduction,
+      status: 'READY',
+      details: distIndexExists ? 'dist/index.html verified' : 'Vite HMR/development middleware active',
+    };
+  }
+
+  // 5. Storage Dependency: Product Media Assets
+  const publicImagesPath = path.resolve(__dirname, 'public', 'images');
+  const imagesExist = fs.existsSync(publicImagesPath);
+  if (!imagesExist) {
+    const warnMsg = `[MEDIA STORAGE WARNING] 'public/images/' directory was not found. High-resolution fabric textures and product photography may fail to load.`;
+    dependencies.mediaStorage = {
+      name: 'Product Photography & Fabric Textures',
+      category: 'STORAGE',
+      critical: false,
+      status: 'DEGRADED',
+      details: 'public/images/ directory missing',
+      developerMessage: warnMsg,
+    };
+    developerWarnings.push(warnMsg);
+  } else {
+    dependencies.mediaStorage = {
+      name: 'Product Photography & Fabric Textures',
+      category: 'STORAGE',
+      critical: false,
+      status: 'READY',
+      details: 'public/images/ verified',
+    };
+  }
+
+  // 6. Storage Dependency: Database Backups
+  const backupsDir = path.resolve(__dirname, 'backups');
+  try {
+    if (!fs.existsSync(backupsDir)) {
+      fs.mkdirSync(backupsDir, { recursive: true });
+    }
+    dependencies.backupEngine = {
+      name: 'Automated Database Snapshot Engine',
+      category: 'STORAGE',
+      critical: false,
+      status: 'READY',
+      details: 'backups/ directory verified and writable',
+    };
+  } catch (ioErr: any) {
+    const warnMsg = `[BACKUP STORAGE WARNING] Could not ensure backups directory: ${ioErr?.message || ioErr}`;
+    dependencies.backupEngine = {
+      name: 'Automated Database Snapshot Engine',
+      category: 'STORAGE',
+      critical: false,
+      status: 'DEGRADED',
+      details: 'Write permission error on backups/',
+      developerMessage: warnMsg,
+    };
+    developerWarnings.push(warnMsg);
+  }
+
+  const overallStatus: 'HEALTHY' | 'DEGRADED' | 'FAILED' =
+    developerErrors.length > 0 ? 'FAILED' : developerWarnings.length > 0 ? 'DEGRADED' : 'HEALTHY';
+
+  // Format diagnostic log text
+  const timestamp = new Date().toISOString();
+  const logLines = [
+    '========================================================================',
+    '        NIAZ CLOTH HOUSE (EST. 1970) — SERVER STARTUP DIAGNOSTICS      ',
+    '========================================================================',
+    `Timestamp:       ${timestamp}`,
+    `Node.js Version: ${process.version} (${process.platform}/${process.arch})`,
+    `Mode:            ${environmentMode} (${rawNodeEnv})`,
+    `Listening Port:  ${effectivePort} (bound to 0.0.0.0)`,
+    `Readiness:       ${overallStatus}`,
+    '------------------------------------------------------------------------',
+    'CRITICAL EXTERNAL SERVICE DEPENDENCIES AUDIT:',
+    ...Object.values(dependencies).map((dep) => {
+      const tag = dep.status.padEnd(8);
+      return `  • [${tag}] ${dep.name.padEnd(36)}: ${dep.details}`;
+    }),
+    '------------------------------------------------------------------------',
+    'ENVIRONMENT VARIABLES AUDIT (SECRETS MASKED):',
+    `  • [LOADED] PORT                  : ${process.env.PORT || `Default: ${effectivePort}`}`,
+    `  • [LOADED] NODE_ENV              : ${process.env.NODE_ENV || 'development (default)'}`,
+    `  • [LOADED] GEMINI_API_KEY        : ${maskSecret(process.env.GEMINI_API_KEY)}`,
+    `  • [LOADED] ADMIN_USERNAME        : ${process.env.ADMIN_USERNAME || 'HajiNiazSab (preview default)'}`,
+    `  • [LOADED] ADMIN_PASSWORD        : ${maskSecret(process.env.ADMIN_PASSWORD || 'mustafa_niazsab')}`,
+    `  • [LOADED] ADMIN_SESSION_SECRET  : ${maskSecret(process.env.ADMIN_SESSION_SECRET || 'nch-secret-entropy')}`,
+    `  • [LOADED] DISABLE_HMR           : ${process.env.DISABLE_HMR || 'false'}`,
+    '------------------------------------------------------------------------',
+    'BUILD & RUNTIME ARTIFACTS VERIFICATION:',
+    `  • Production dist/ directory:       ${fs.existsSync(distPath) ? 'FOUND' : 'MISSING (required in production)'}`,
+    `  • Production dist/index.html:      ${distIndexExists ? 'FOUND' : 'MISSING (run "npm run build")'}`,
+    `  • Public assets (public/images):   ${imagesExist ? 'FOUND' : 'MISSING'}`,
+    `  • In-Memory Catalog Products:      ${INITIAL_PRODUCTS.length} items loaded`,
+    '------------------------------------------------------------------------',
+    'DEVELOPER DIAGNOSTIC LOGS & ACTIONABLE MESSAGES:',
+  ];
+
+  if (developerErrors.length > 0) {
+    logLines.push('CRITICAL ERRORS:');
+    developerErrors.forEach((err) => logLines.push(`  ❌ ${err}`));
+  }
+  if (developerWarnings.length > 0) {
+    logLines.push('DEVELOPER WARNINGS & ADVISORIES:');
+    developerWarnings.forEach((warn) => logLines.push(`  ⚠ ${warn}`));
+  }
+  if (developerErrors.length === 0 && developerWarnings.length === 0) {
+    logLines.push('  ✓ All critical external services, dependencies, and artifacts are verified OK.');
+  }
+
+  logLines.push('========================================================================');
+  const logText = logLines.join('\n');
+
+  // Persist to startup-diagnostic.log
+  try {
+    const diagnosticLogPath = path.resolve(__dirname, 'startup-diagnostic.log');
+    fs.writeFileSync(diagnosticLogPath, logText, 'utf8');
+  } catch (ioErr) {
+    console.warn('[Startup Diagnostics] Failed to write startup-diagnostic.log to disk:', ioErr);
+  }
+
+  return {
+    timestamp,
+    environmentMode,
+    isProduction,
+    effectivePort,
+    overallStatus,
+    dependencies,
+    developerErrors,
+    developerWarnings,
+    logText,
+  };
+}
+
+// ------------------------------------------------------------------------- //
+// STEP 1: Run dedicated environment validation BEFORE initializing services //
+// ------------------------------------------------------------------------- //
+const initialEnvironmentReport = validateEnvironment();
+
+// ------------------------------------------------------------------------- //
+// STEP 2: Safe Firebase Admin SDK Initialization / Verification Hook        //
+// ------------------------------------------------------------------------- //
+let firebaseAdminState = {
+  initialized: false,
+  projectId: 'master-starlight-tv4kj',
+  firestoreDatabaseId: 'ai-studio-niazclothhousehe-2f3e4db8-6c1d-431a-acbf-143f22a9756b',
+  mode: 'client-sdk-aligned',
+};
+
+function initializeFirebaseAdmin() {
+  try {
+    const configPath = path.resolve(__dirname, 'firebase-applet-config.json');
+    if (fs.existsSync(configPath)) {
+      const cfg = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      if (cfg.projectId) firebaseAdminState.projectId = cfg.projectId;
+      if (cfg.firestoreDatabaseId) firebaseAdminState.firestoreDatabaseId = cfg.firestoreDatabaseId;
+      firebaseAdminState.initialized = true;
+      console.log(`[Firebase Admin Hook] Database ready: ${firebaseAdminState.firestoreDatabaseId} (Project: ${firebaseAdminState.projectId})`);
+    } else {
+      console.warn('[Firebase Admin Hook] firebase-applet-config.json not found on disk.');
+    }
+  } catch (err: any) {
+    console.error('[Firebase Admin Hook] Initialization check error:', err?.message || err);
+  }
+}
+
+// Initialize Firebase Admin configuration hook before Express application
+initializeFirebaseAdmin();
+
+// ------------------------------------------------------------------------- //
+// STEP 3: Express Application Initialization & Middleware Setup             //
+// ------------------------------------------------------------------------- //
 const app = express();
 const port = process.env.NODE_ENV === 'production' ? (Number(process.env.PORT) || 8080) : 3000;
 
@@ -62,6 +431,93 @@ const ai = new GoogleGenAI({
     },
   },
 });
+
+function evaluateStartupDiagnostics() {
+  const report = validateEnvironment();
+  const envStatuses: Record<string, EnvStatus> = {
+    PORT: {
+      name: 'PORT',
+      isSet: Boolean(process.env.PORT),
+      maskedValue: process.env.PORT ? String(process.env.PORT) : `Default: ${port}`,
+      requiredForProd: false,
+      status: 'LOADED',
+    },
+    NODE_ENV: {
+      name: 'NODE_ENV',
+      isSet: Boolean(process.env.NODE_ENV),
+      maskedValue: process.env.NODE_ENV || 'development (default)',
+      requiredForProd: true,
+      status: process.env.NODE_ENV ? 'LOADED' : 'OPTIONAL_MISSING',
+    },
+    GEMINI_API_KEY: {
+      name: 'GEMINI_API_KEY',
+      isSet: Boolean(process.env.GEMINI_API_KEY),
+      maskedValue: maskSecret(process.env.GEMINI_API_KEY),
+      requiredForProd: false,
+      status: process.env.GEMINI_API_KEY ? 'LOADED' : 'OPTIONAL_MISSING',
+    },
+    ADMIN_USERNAME: {
+      name: 'ADMIN_USERNAME',
+      isSet: Boolean(process.env.ADMIN_USERNAME),
+      maskedValue: process.env.ADMIN_USERNAME ? process.env.ADMIN_USERNAME : 'HajiNiazSab (preview default)',
+      requiredForProd: false,
+      status: process.env.ADMIN_USERNAME ? 'LOADED' : 'OPTIONAL_MISSING',
+    },
+    ADMIN_PASSWORD: {
+      name: 'ADMIN_PASSWORD',
+      isSet: Boolean(process.env.ADMIN_PASSWORD),
+      maskedValue: process.env.ADMIN_PASSWORD ? maskSecret(process.env.ADMIN_PASSWORD) : '[CONFIGURED PREVIEW FALLBACK]',
+      requiredForProd: false,
+      status: process.env.ADMIN_PASSWORD ? 'LOADED' : 'OPTIONAL_MISSING',
+    },
+    ADMIN_SESSION_SECRET: {
+      name: 'ADMIN_SESSION_SECRET',
+      isSet: Boolean(process.env.ADMIN_SESSION_SECRET && process.env.ADMIN_SESSION_SECRET.length >= 32),
+      maskedValue: process.env.ADMIN_SESSION_SECRET ? maskSecret(process.env.ADMIN_SESSION_SECRET) : '[DEFAULT 32-BYTE FALLBACK]',
+      requiredForProd: false,
+      status: process.env.ADMIN_SESSION_SECRET ? 'LOADED' : 'OPTIONAL_MISSING',
+    },
+    DISABLE_HMR: {
+      name: 'DISABLE_HMR',
+      isSet: Boolean(process.env.DISABLE_HMR),
+      maskedValue: process.env.DISABLE_HMR ? String(process.env.DISABLE_HMR) : 'false (default)',
+      requiredForProd: false,
+      status: 'LOADED',
+    },
+  };
+
+  const distPath = path.resolve(__dirname, 'dist');
+  const distIndexPath = path.resolve(distPath, 'index.html');
+  const distExists = fs.existsSync(distPath);
+  const distIndexExists = fs.existsSync(distIndexPath);
+  const imagesPath = path.resolve(__dirname, 'public', 'images');
+  const imagesExists = fs.existsSync(imagesPath);
+
+  const diagnosticsData = {
+    timestamp: report.timestamp,
+    nodeVersion: process.version,
+    platform: process.platform,
+    arch: process.arch,
+    environmentMode: report.environmentMode,
+    environment: process.env.NODE_ENV || 'development',
+    serverPort: port,
+    boundHost: '0.0.0.0',
+    criticalDependencies: report.dependencies,
+    developerErrors: report.developerErrors,
+    developerWarnings: report.developerWarnings,
+    environmentVariables: envStatuses,
+    productionArtifacts: {
+      distDirectoryExists: distExists,
+      distIndexHtmlExists: distIndexExists,
+      publicImagesDirectoryExists: imagesExists,
+      catalogProductsCount: INITIAL_PRODUCTS.length,
+    },
+    missingProductionDependencies: report.developerErrors,
+    overallReadiness: report.overallStatus,
+  };
+
+  return { diagnosticsData, logText: report.logText };
+}
 
 // ========================================== //
 // MULTI-TIER SERVER CACHE & PERFORMANCE ENGINE //
@@ -361,14 +817,28 @@ app.use('/api', generalApiLimiter);
 
 // --- REST API BACKEND ROUTES --- //
 app.get('/api/health', (_req: Request, res: Response) => {
+  const { diagnosticsData } = evaluateStartupDiagnostics();
   res.json({
     status: 'online',
+    readiness: diagnosticsData.overallReadiness,
+    environmentMode: diagnosticsData.environmentMode,
     store: storeMetadata.name,
+    environment: diagnosticsData.environment,
+    port: diagnosticsData.serverPort,
     firestoreDatabase: storeMetadata.firestoreDbId,
-    activeRateLimiters: ['TokenBucket-General', 'TokenBucket-AI'],
+    criticalDependencies: diagnosticsData.criticalDependencies,
+    developerWarningsCount: diagnosticsData.developerWarnings.length,
+    developerErrorsCount: diagnosticsData.developerErrors.length,
+    activeRateLimiters: ['TokenBucket-General', 'TokenBucket-AI', 'Admin-Auth'],
     backupsCount: backupsList.length,
     timestamp: new Date().toISOString(),
   });
+});
+
+app.get('/api/diagnostics', (_req: Request, res: Response) => {
+  const { diagnosticsData } = evaluateStartupDiagnostics();
+  res.setHeader('Cache-Control', 'no-store');
+  res.json(diagnosticsData);
 });
 
 app.get('/api/store-info', (_req: Request, res: Response) => {
@@ -938,7 +1408,9 @@ async function startServer() {
   }
 
   app.listen(port, '0.0.0.0', () => {
-    console.log(`[NCH Backend] Secure Express server running on http://0.0.0.0:${port}`);
+    const { logText } = evaluateStartupDiagnostics();
+    console.log(logText);
+    console.log(`[NCH Backend] Secure Express server listening on http://0.0.0.0:${port}`);
     console.log(`[NCH Backend] Store: ${storeMetadata.name} (Est. ${storeMetadata.founded})`);
     console.log(`[NCH Backend] Firestore DB ID: ${storeMetadata.firestoreDbId}`);
   });

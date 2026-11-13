@@ -57,7 +57,6 @@ import {
   Pencil
 } from 'lucide-react';
 import { WhatsAppCatalogSyncModal } from '../components/WhatsAppCatalogSyncModal';
-import { FirebaseSecurityCheckup } from '../components/FirebaseSecurityCheckup';
 import { clientCache } from '../utils/cache';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useReviews } from '../context/ReviewContext';
@@ -66,6 +65,7 @@ import { db, auth } from '../firebase';
 import { collection, onSnapshot, doc, getDocFromServer, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { AdminInactivityManager } from '../core/security/AdminInactivityManager';
 import { UserFactory } from '../core/security/UserHierarchy';
+import { ProductFactory, DomainOrder } from '../core';
 import { 
   Product, 
   Order, 
@@ -646,6 +646,19 @@ export const AdminPage: React.FC = () => {
     });
   };
 
+  // OOP Domain Order State Machine Handler
+  const handleDomainOrderStatusChange = async (orderId: string, newStatus: OrderStatus) => {
+    const existingOrder = orders.find((o) => o.id === orderId);
+    if (existingOrder) {
+      const domainOrder = new DomainOrder(existingOrder);
+      if (!domainOrder.canTransitionTo(newStatus)) {
+        showToast(`Cannot change order from ${existingOrder.status} to ${newStatus}`);
+        return;
+      }
+    }
+    await updateOrderStatus(orderId, newStatus);
+  };
+
   const handleUpdateOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingOrder) return;
@@ -657,7 +670,7 @@ export const AdminPage: React.FC = () => {
   };
 
   const handleDeleteOrder = async (orderId: string) => {
-    if (!window.confirm(`Are you sure you want to remove Order #${orderId} from Firestore?`)) return;
+    if (!window.confirm(`Are you sure you want to delete Order #${orderId}?`)) return;
     await deleteOrder(orderId);
   };
 
@@ -684,11 +697,11 @@ export const AdminPage: React.FC = () => {
     try {
       await setDoc(doc(db, 'users', newUid), newProfile);
       setRealUsers((prev) => [newProfile, ...prev]);
-      showToast(`Customer "${newProfile.displayName}" created in Firestore`);
+      showToast(`Customer "${newProfile.displayName}" saved successfully`);
       setIsAddCustomerModalOpen(false);
       setNewCustomerForm({ displayName: '', email: '', phone: '', city: 'Rawalpindi', address: '', role: 'Customer' });
     } catch (err) {
-      showToast('Error saving customer to Firestore');
+      showToast('Error saving customer records');
       console.error(err);
     }
   };
@@ -702,17 +715,17 @@ export const AdminPage: React.FC = () => {
       showToast(`Customer profile for "${editingCustomer.displayName}" updated`);
       setEditingCustomer(null);
     } catch (err) {
-      showToast('Error updating customer');
+      showToast('Error updating customer profile');
       console.error(err);
     }
   };
 
   const handleDeleteCustomer = async (uid: string, name: string) => {
-    if (!window.confirm(`Are you sure you want to permanently delete customer "${name}" from Firestore?`)) return;
+    if (!window.confirm(`Are you sure you want to permanently delete customer "${name}"?`)) return;
     try {
       await deleteDoc(doc(db, 'users', uid));
       setRealUsers((prev) => prev.filter((u) => u.uid !== uid));
-      showToast(`Customer "${name}" removed from Firestore`);
+      showToast(`Customer "${name}" removed successfully`);
     } catch (err) {
       showToast('Error deleting customer');
       console.error(err);
@@ -723,7 +736,6 @@ export const AdminPage: React.FC = () => {
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [showPresetPicker, setShowPresetPicker] = useState(false);
   const [showAddPresetPicker, setShowAddPresetPicker] = useState(false);
-  const [isFirebaseCheckupOpen, setIsFirebaseCheckupOpen] = useState(false);
 
   const handleImageFileChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
@@ -953,7 +965,7 @@ export const AdminPage: React.FC = () => {
   if (!currentAdmin) {
     return (
       <div className="w-full bg-[#050811] min-h-[85vh] py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center relative overflow-hidden">
-        {/* Cyber Glow Orbs */}
+        {/* Ambient Gold Glow */}
         <div className="absolute w-96 h-96 rounded-full bg-[#D4AF37]/10 blur-[120px] -top-20 -left-20 pointer-events-none" />
         <div className="absolute w-96 h-96 rounded-full bg-[#F5B738]/10 blur-[120px] -bottom-20 -right-20 pointer-events-none" />
 
@@ -964,13 +976,13 @@ export const AdminPage: React.FC = () => {
               <Lock className="w-6 h-6" />
             </div>
             <div className="text-[10px] uppercase tracking-[0.25em] text-[#D4AF37] font-mono font-bold">
-              ◈ 2050 CYBER COMMAND DECK ◈
+              ◈ NIAZ CLOTH HOUSE (EST. 1970) ◈
             </div>
             <h1 className="font-sans text-2xl font-black text-white uppercase tracking-wider">
-              Admin Authentication
+              Shop Manager Login
             </h1>
             <p className="text-xs text-neutral-400 leading-relaxed font-sans">
-              Sign in with your verified administrator credentials to access real-time Firestore CRUD, telemetry widgets, and stock control.
+              Sign in to manage fabric products, update prices and sale discounts, view customer orders, and check stock.
             </p>
           </div>
 
@@ -1079,17 +1091,17 @@ export const AdminPage: React.FC = () => {
             <button
               type="submit"
               disabled={isAuthenticating}
-              className="w-full py-3 bg-gradient-to-r from-[#D4AF37] to-[#06B6D4] hover:from-[#38BDF8] hover:to-[#D4AF37] disabled:opacity-50 text-black text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(0,240,255,0.4)]"
+              className="w-full py-3 bg-[#D4AF37] hover:bg-[#c5a02e] disabled:opacity-50 text-black text-xs font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg"
             >
               {isAuthenticating ? (
                 <>
                   <div className="w-3.5 h-3.5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                  <span>Verifying Credentials...</span>
+                  <span>Signing In...</span>
                 </>
               ) : (
                 <>
                   <Lock className="w-3.5 h-3.5" />
-                  <span>Launch 2050 Admin Command Deck</span>
+                  <span>Open Shop Dashboard</span>
                 </>
               )}
             </button>
@@ -1098,7 +1110,7 @@ export const AdminPage: React.FC = () => {
           {/* Security Note */}
           <div className="pt-2 text-center border-t border-white/10">
             <p className="text-[10px] text-neutral-400 font-mono leading-relaxed">
-              Secured with 30-Minute Inactivity Auto-Timeout · TLS 256-Bit Protection
+              Protected Store Session · Niaz Cloth House Management
             </p>
           </div>
         </div>
@@ -1112,26 +1124,26 @@ export const AdminPage: React.FC = () => {
   return (
     <div className="w-full max-w-full overflow-x-hidden bg-[#050811] text-[#F3F4F6] min-h-screen py-8 sm:py-14">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8 w-full max-w-full min-w-0">
-        {/* Header Bar with 2050 Cyber Command Profile */}
+        {/* Header Bar — Store Management */}
         <div className="flex flex-col md:flex-row md:items-center justify-between pb-6 border-b border-[#1F293D] gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] uppercase font-mono tracking-widest text-[#D4AF37] font-semibold flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse shadow-[0_0_8px_#D4AF37]" />
-                QUANTUM ATELIER CONTROL · 2050 PROTOCOL
+                PARIS BAZAAR, COMMITTEE CHOWK, RAWALPINDI
               </span>
               <span className="inline-flex items-center gap-1 bg-[#10B981]/10 text-[#10B981] border border-[#10B981]/30 text-[10px] px-2 py-0.5 rounded-xs font-mono">
-                SECURE AES-256
+                SECURE STORE
               </span>
             </div>
             <h1 className="font-serif text-3xl font-bold text-white tracking-wide mt-1.5 flex items-center gap-3">
-              <span>Admin Cyber Command</span>
+              <span>Shop Admin Dashboard</span>
               <span className="text-xs font-mono px-2 py-0.5 border border-[#F5B738]/40 text-[#F5B738] bg-[#F5B738]/10 rounded-xs">
-                v2050.4
+                Est. 1970
               </span>
             </h1>
             <p className="text-xs text-slate-400 font-sans mt-1">
-              Real-time multi-dimensional orchestration of fabrics, automated dispatch telemetry, and customer intelligence.
+              Manage your fabric catalog, adjust selling prices and sale discount offers, view customer orders, and track shop sales.
             </p>
           </div>
 
@@ -1154,14 +1166,7 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={() => setIsFirebaseCheckupOpen(true)}
-              className="px-3 py-2 bg-[#0B1224] hover:bg-[#131F38] text-[#10B981] border border-[#10B981]/40 text-xs font-mono font-semibold flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
-              title="Interactive Firebase Rules & Security Checkup"
-            >
-              <ShieldCheck className="w-3.5 h-3.5 text-[#10B981]" />
-              <span>Rules Checkup</span>
-            </button>
+
 
             <button
               onClick={() => setIsStaffModalOpen(true)}
@@ -1188,15 +1193,15 @@ export const AdminPage: React.FC = () => {
             <button
               onClick={handleLogout}
               className="px-3.5 py-2 bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-white text-xs font-mono font-semibold flex items-center gap-1.5 transition-all uppercase tracking-wider shadow-[0_0_12px_rgba(239,68,68,0.3)]"
-              title="End admin session and lock portal"
+              title="End session and log out"
             >
               <LogOut className="w-3.5 h-3.5" />
-              <span>Lock Terminal</span>
+              <span>Log Out</span>
             </button>
           </div>
         </div>
 
-        {/* Portal Tabs - 2050 Cyber Deck Navigation */}
+        {/* Portal Tabs - Shop Navigation */}
         <div className="flex border-b border-[#1F293D] gap-2 sm:gap-4 overflow-x-auto scrollbar-none pb-0.5">
           <button
             onClick={() => setActiveTab('dashboard')}
@@ -1207,7 +1212,7 @@ export const AdminPage: React.FC = () => {
             }`}
           >
             <LayoutDashboard className="w-4 h-4" />
-            <span>Dashboard Hub</span>
+            <span>Shop Overview</span>
           </button>
 
           <button
@@ -1231,7 +1236,7 @@ export const AdminPage: React.FC = () => {
             }`}
           >
             <Percent className="w-4 h-4" />
-            <span>Prices &amp; Rates</span>
+            <span>Prices &amp; Sale Discounts</span>
           </button>
 
           <button
@@ -1308,8 +1313,8 @@ export const AdminPage: React.FC = () => {
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <ShieldCheck className="w-4 h-4" />
-            <span>Security</span>
+            <Download className="w-4 h-4" />
+            <span>Shop Backup &amp; Activity</span>
           </button>
 
           <button
@@ -1325,7 +1330,7 @@ export const AdminPage: React.FC = () => {
           </button>
         </div>
 
-        {/* MODULE A: DASHBOARD OVERVIEW — 2050 CYBER HUDS */}
+        {/* MODULE A: DASHBOARD OVERVIEW — STORE PERFORMANCE */}
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* ======================================================== */}
@@ -1333,7 +1338,7 @@ export const AdminPage: React.FC = () => {
             {/* ======================================================== */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* ---------------------------------------------------- */}
-              {/* WIDGET 1: REVENUE MATRIX 2050 */}
+              {/* WIDGET 1: GROSS SALES & REVENUE */}
               {/* ---------------------------------------------------- */}
               {(() => {
                 const totalGrossRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
@@ -1356,9 +1361,9 @@ export const AdminPage: React.FC = () => {
                         </div>
                         <div>
                           <span className="text-[10px] font-mono tracking-widest uppercase text-[#D4AF37] font-bold block">
-                            WIDGET 01 // METRIC ENGINE
+                            SALES SUMMARY
                           </span>
-                          <h3 className="font-serif text-lg font-bold text-white">Gross Revenue Matrix</h3>
+                          <h3 className="font-serif text-lg font-bold text-white">Total Shop Sales</h3>
                         </div>
                       </div>
                       <span className="text-[10px] font-mono px-2 py-0.5 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 rounded-xs flex items-center gap-1">
@@ -1369,7 +1374,7 @@ export const AdminPage: React.FC = () => {
 
                     {/* Big Metric */}
                     <div className="mb-5 bg-[#050811] p-4 border border-[#1F293D]/80 rounded-xs">
-                      <span className="text-[11px] font-mono text-slate-400 block uppercase">Total Realized Volume</span>
+                      <span className="text-[11px] font-mono text-slate-400 block uppercase">Total Sales Revenue (PKR)</span>
                       <div className="flex items-baseline justify-between mt-1">
                         <span className="text-2xl sm:text-3xl font-mono font-bold text-[#F5B738] tracking-tight">
                           {formatPKR(totalGrossRevenue)}
@@ -1651,15 +1656,15 @@ export const AdminPage: React.FC = () => {
               })()}
             </div>
 
-            {/* Quick Action Bar — 2050 Command Hub */}
+            {/* Quick Action Bar */}
             <div className="p-4 bg-[#0B1224] border border-[#1F293D] flex flex-wrap items-center justify-between gap-3 shadow-xl">
               <div>
                 <strong className="text-xs font-mono uppercase tracking-wider text-white block flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>2050 Atelier Operations Terminal</span>
+                  <span>Quick Shop Actions</span>
                 </strong>
                 <span className="text-[11px] text-slate-400 font-sans">
-                  Execute catalog mutations, dispatch phone orders, synchronise WhatsApp inventory, and manage client accounts.
+                  Add new fabric products, create phone or counter orders, update sale prices, and manage customer records.
                 </span>
               </div>
 
@@ -1670,7 +1675,7 @@ export const AdminPage: React.FC = () => {
                     setActiveTab('inventory');
                     setIsAddModalOpen(true);
                   }}
-                  className="px-3.5 py-2 bg-gradient-to-r from-[#D4AF37] to-[#0284C7] hover:brightness-110 text-[#050811] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-[0_0_12px_rgba(0,240,255,0.3)] transition-all"
+                  className="px-3.5 py-2 bg-[#D4AF37] hover:bg-[#c5a02e] text-[#050811] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-md transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Add Product</span>
@@ -1681,7 +1686,7 @@ export const AdminPage: React.FC = () => {
                     setActiveTab('orders');
                     setIsAddOrderModalOpen(true);
                   }}
-                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#10B981] text-[#10B981] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(0,255,157,0.15)]"
+                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#10B981] text-[#10B981] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
                 >
                   <Truck className="w-3.5 h-3.5" />
                   <span>+ Phone Order</span>
@@ -1692,7 +1697,7 @@ export const AdminPage: React.FC = () => {
                     setActiveTab('users');
                     setIsAddCustomerModalOpen(true);
                   }}
-                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#F5B738] text-[#F5B738] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-[0_0_10px_rgba(245,183,56,0.15)]"
+                  className="px-3.5 py-2 bg-[#050811] border border-[#1F293D] hover:border-[#F5B738] text-[#F5B738] text-xs font-mono font-bold uppercase tracking-wider flex items-center gap-1.5 transition-all shadow-xs"
                 >
                   <Users className="w-3.5 h-3.5" />
                   <span>+ New Customer</span>
@@ -1703,17 +1708,17 @@ export const AdminPage: React.FC = () => {
                   className="px-3 py-2 bg-[#050811] border border-[#1F293D] hover:border-white text-slate-300 hover:text-white text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-all"
                 >
                   <Percent className="w-3.5 h-3.5 text-[#D4AF37]" />
-                  <span>Prices &amp; Rates</span>
+                  <span>Prices &amp; Sale Discounts</span>
                 </button>
               </div>
             </div>
 
-            {/* Recent Orders List — 2050 Cyber Terminal Table */}
+            {/* Recent Orders List */}
             <div className="bg-[#0B1224] border border-[#1F293D] p-5 shadow-xl">
               <div className="flex items-center justify-between pb-3 mb-4 border-b border-[#1F293D]">
                 <div className="flex items-center gap-2">
                   <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-white">
-                    Live Real-Time Orders Dispatch Stream
+                    Recent Customer Orders &amp; Dispatches
                   </h3>
                   <span className="text-[10px] font-mono px-2 py-0.5 bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 rounded-xs">
                     {orders.length} Logged
@@ -1777,7 +1782,7 @@ export const AdminPage: React.FC = () => {
                             <div className="flex items-center justify-end gap-1.5">
                               <select
                                 value={order.status}
-                                onChange={(e) => updateOrderStatus(order.id, e.target.value as OrderStatus)}
+                                onChange={(e) => handleDomainOrderStatusChange(order.id, e.target.value as OrderStatus)}
                                 className="text-[11px] font-mono border border-[#1F293D] px-2 py-1 bg-[#050811] text-white focus:border-[#D4AF37] outline-none"
                               >
                                 <option value="Pending">Pending</option>
@@ -2173,19 +2178,19 @@ export const AdminPage: React.FC = () => {
               {/* Add New Campaign Form */}
               <div className="p-4 bg-[#F8FAFC] border border-[#E2E8F0] grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-1">
-                    Campaign Title
+                  <label className="block text-[10px] uppercase font-bold text-neutral-800 mb-1">
+                    Campaign / Sale Title
                   </label>
                   <input
                     type="text"
-                    placeholder="e.g. Eid Festive Unstitched Gala"
+                    placeholder="e.g. Eid Festive Sale"
                     value={newPromoTitle}
                     onChange={(e) => setNewPromoTitle(e.target.value)}
-                    className="w-full p-2 border border-[#E2E8F0] bg-white text-xs"
+                    className="w-full p-2.5 border border-neutral-400 bg-white text-black font-semibold text-xs focus:border-black focus:outline-none placeholder:text-neutral-400"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-1">
+                  <label className="block text-[10px] uppercase font-bold text-neutral-800 mb-1">
                     Discount Rate (%)
                   </label>
                   <input
@@ -2194,18 +2199,18 @@ export const AdminPage: React.FC = () => {
                     max="50"
                     value={newPromoPercent}
                     onChange={(e) => setNewPromoPercent(Number(e.target.value))}
-                    className="w-full p-2 border border-[#E2E8F0] bg-white text-xs font-mono"
+                    className="w-full p-2.5 border border-neutral-400 bg-white text-black font-mono font-bold text-xs focus:border-black focus:outline-none"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] uppercase font-bold text-neutral-600 mb-1">
+                  <label className="block text-[10px] uppercase font-bold text-neutral-800 mb-1">
                     Expiry Date
                   </label>
                   <input
                     type="date"
                     value={newPromoEnd}
                     onChange={(e) => setNewPromoEnd(e.target.value)}
-                    className="w-full p-2 border border-[#E2E8F0] bg-white text-xs"
+                    className="w-full p-2.5 border border-neutral-400 bg-white text-black font-medium text-xs focus:border-black focus:outline-none"
                   />
                 </div>
                 <div className="flex items-end">
@@ -2302,69 +2307,78 @@ export const AdminPage: React.FC = () => {
 
             {/* Custom Edit Price Modal */}
             {editingPriceProduct && (
-              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-                <div className="bg-white max-w-md w-full p-6 shadow-2xl border border-neutral-300 space-y-4">
+              <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+                <div className="bg-white max-w-md w-full p-6 shadow-2xl border-2 border-neutral-300 space-y-4">
                   <div className="flex items-center justify-between pb-3 border-b border-neutral-200">
-                    <h4 className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
-                      Edit Product Pricing & Offer
-                    </h4>
+                    <div>
+                      <h4 className="text-sm font-bold uppercase tracking-wider text-black">
+                        Edit Product Pricing &amp; Offer
+                      </h4>
+                      <p className="text-[11px] text-neutral-600">
+                        Update regular selling price or add a discount offer.
+                      </p>
+                    </div>
                     <button
                       onClick={() => setEditingPriceProduct(null)}
-                      className="text-neutral-500 hover:text-black"
+                      className="text-neutral-500 hover:text-black p-1"
+                      title="Close"
                     >
-                      <X className="w-4 h-4" />
+                      <X className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <div>
-                    <strong className="text-xs text-[#1C1917] block">{editingPriceProduct.title}</strong>
-                    <span className="text-[10px] text-neutral-500 font-mono">
-                      SKU: {editingPriceProduct.id} · {editingPriceProduct.fabric}
+                  <div className="bg-neutral-50 p-3 border border-neutral-200">
+                    <strong className="text-sm text-black block">{editingPriceProduct.title}</strong>
+                    <span className="text-xs text-neutral-600 font-mono">
+                      SKU: {editingPriceProduct.id} · Fabric: {editingPriceProduct.fabric}
                     </span>
                   </div>
 
-                  <div className="space-y-3 text-xs">
+                  <div className="space-y-4 text-xs">
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
-                        Selling Price (PKR) — Actual Customer Charge
+                      <label className="block text-xs uppercase font-bold text-black mb-1.5">
+                        Selling Price (PKR) — What customer pays
                       </label>
                       <input
                         type="number"
                         min="100"
                         value={editPriceSelling}
                         onChange={(e) => setEditPriceSelling(Number(e.target.value))}
-                        className="w-full p-2 border border-neutral-300 font-mono font-bold"
+                        className="w-full p-2.5 bg-white text-black font-mono font-bold text-base border-2 border-neutral-400 rounded-none focus:border-black focus:outline-none"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-[10px] uppercase font-bold text-neutral-700 mb-1">
-                        Original Price (PKR) — Displayed as Crossed Out if Higher
+                      <label className="block text-xs uppercase font-bold text-black mb-1.5">
+                        Original Price (PKR) — Shown crossed out for sale discount
                       </label>
                       <input
                         type="number"
                         min="0"
                         value={editPriceOriginal}
                         onChange={(e) => setEditPriceOriginal(Number(e.target.value))}
-                        className="w-full p-2 border border-neutral-300 font-mono"
+                        className="w-full p-2.5 bg-white text-black font-mono font-bold text-base border-2 border-neutral-400 rounded-none focus:border-black focus:outline-none"
                       />
-                      <span className="text-[10px] text-neutral-500 mt-0.5 block">
-                        Set equal to or lower than Selling Price to remove any discount badge.
+                      <span className="text-[11px] text-neutral-600 mt-1 block">
+                        To remove sale discount, keep this equal to or lower than the Selling Price.
                       </span>
                     </div>
 
                     {editPriceOriginal > editPriceSelling && (
-                      <div className="p-2.5 bg-red-50 border border-red-200 text-[11px] text-red-700 font-bold">
-                        Resulting Customer Discount: -{Math.round(((editPriceOriginal - editPriceSelling) / editPriceOriginal) * 100)}%
+                      <div className="p-3 bg-red-50 border border-red-300 text-xs text-red-800 font-bold flex items-center justify-between">
+                        <span>Sale Offer Active:</span>
+                        <span className="text-sm font-black bg-red-100 px-2 py-0.5 rounded text-red-900">
+                          -{Math.round(((editPriceOriginal - editPriceSelling) / editPriceOriginal) * 100)}% DISCOUNT
+                        </span>
                       </div>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-end gap-2 pt-3 border-t border-neutral-200">
+                  <div className="flex items-center justify-end gap-3 pt-3 border-t border-neutral-200">
                     <button
                       type="button"
                       onClick={() => setEditingPriceProduct(null)}
-                      className="px-4 py-2 border border-neutral-300 text-xs font-semibold"
+                      className="px-4 py-2 border border-neutral-400 text-xs font-bold text-neutral-800 hover:bg-neutral-100"
                     >
                       Cancel
                     </button>
@@ -2380,7 +2394,7 @@ export const AdminPage: React.FC = () => {
                         setEditingPriceProduct(null);
                         showToast(`Updated pricing for ${editingPriceProduct.title}`);
                       }}
-                      className="px-5 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-bold uppercase tracking-wider"
+                      className="px-5 py-2.5 bg-[#8C4830] hover:bg-[#723a26] text-white text-xs font-bold uppercase tracking-wider shadow-sm"
                     >
                       Save Pricing
                     </button>
@@ -2454,7 +2468,7 @@ export const AdminPage: React.FC = () => {
                           <select
                             value={order.status}
                             onChange={(e) =>
-                              updateOrderStatus(order.id, e.target.value as OrderStatus)
+                              handleDomainOrderStatusChange(order.id, e.target.value as OrderStatus)
                             }
                             className="py-1 px-2.5 border border-[#1F293D] bg-[#050811] text-xs font-mono font-bold text-white focus:outline-none focus:border-[#D4AF37]"
                           >
@@ -2885,19 +2899,19 @@ export const AdminPage: React.FC = () => {
         {/* TAB 3: REAL-TIME CUSTOMERS & PATRON ACCOUNTS — FULL CRUD */}
         {activeTab === 'users' && (
           <div className="space-y-6">
-            {/* Active Session Spotlight — 2050 Quantum HUD */}
+            {/* Active Store Manager Session */}
             <div className="bg-[#0B1224] border border-[#1F293D] p-6 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-[#D4AF37]/5 rounded-full blur-3xl pointer-events-none" />
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#1F293D]">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xs bg-gradient-to-br from-[#D4AF37] to-[#0284C7] text-[#050811] flex items-center justify-center font-mono font-bold text-lg shadow-[0_0_15px_rgba(0,240,255,0.4)]">
+                  <div className="w-12 h-12 rounded-xs bg-[#D4AF37] text-[#050811] flex items-center justify-center font-mono font-bold text-lg shadow-md">
                     {(authUser?.displayName || authUser?.email || currentAdmin.fullName).charAt(0).toUpperCase()}
                   </div>
                   <div>
                     <span className="text-[10px] uppercase font-mono tracking-widest text-[#D4AF37] font-bold block flex items-center gap-1.5">
                       <span className="w-2 h-2 rounded-full bg-[#D4AF37] animate-pulse" />
-                      ACTIVE TERMINAL OPERATOR PROFILE
+                      ACTIVE STORE MANAGER
                     </span>
                     <h3 className="font-serif text-xl font-bold text-white">
                       {authUser?.displayName || currentAdmin.fullName || 'Store Administrator'}
@@ -2908,7 +2922,7 @@ export const AdminPage: React.FC = () => {
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-xs font-mono font-semibold rounded-xs">
                     <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
-                    <span>AUTHENTICATED · SECURE PROTOCOL</span>
+                    <span>LOGGED IN · SECURE SHOP ACCESS</span>
                   </span>
 
                   <button
@@ -2925,7 +2939,7 @@ export const AdminPage: React.FC = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 pt-4 text-xs font-mono">
                 <div className="bg-[#050811] p-3 border border-[#1F293D]">
                   <span className="text-slate-400 block text-[10px] uppercase tracking-wider font-semibold">
-                    Admin UID / Account
+                    Manager Account ID
                   </span>
                   <span className="font-mono font-bold text-sm text-[#D4AF37] mt-0.5 block truncate">
                     {authUser?.email || currentAdmin.email || 'uzairaliuzairali640@gmail.com'}
@@ -3468,19 +3482,19 @@ export const AdminPage: React.FC = () => {
           </div>
         )}
 
-        {/* TAB 4: SECURITY AUDIT & BACKUP */}
+        {/* TAB 4: SHOP DATA BACKUP & ACTIVITY */}
         {activeTab === 'audit' && (
           <div className="space-y-6">
-            {/* Database Backup & Recovery Box (NFR-12) */}
+            {/* Database Backup & Recovery Box */}
             <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[#E2E8F0]">
                 <div>
                   <h4 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
-                    <Download className="w-5 h-5 text-[#0284C7]" />
-                    <span>Database Backup & Disaster Recovery (NFR-12)</span>
+                    <Download className="w-5 h-5 text-[#8C4830]" />
+                    <span>Shop Data Backup &amp; File Export</span>
                   </h4>
                   <p className="text-xs text-[#1C1917]/70 font-sans mt-1">
-                    Export complete database records (products, stock levels, orders, and staff accounts) as a portable JSON backup.
+                    Download complete records of all products, current prices, stock levels, and customer orders as a safe backup file.
                   </p>
                 </div>
 
@@ -3499,51 +3513,46 @@ export const AdminPage: React.FC = () => {
                       const url = URL.createObjectURL(blob);
                       const a = document.createElement('a');
                       a.href = url;
-                      a.download = `nch_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                      a.download = `nch_shop_backup_${new Date().toISOString().slice(0, 10)}.json`;
                       document.body.appendChild(a);
                       a.click();
                       document.body.removeChild(a);
                       URL.revokeObjectURL(url);
-                      showToast('Database JSON backup downloaded successfully');
+                      showToast('Shop backup file downloaded successfully');
                     }}
-                    className="px-4 py-2 bg-[#0284C7] hover:bg-[#0369A1] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5"
+                    className="px-4 py-2 bg-[#8C4830] hover:bg-[#723a26] text-white text-xs font-semibold uppercase tracking-wider transition-colors flex items-center gap-1.5"
                   >
                     <Download className="w-4 h-4" />
-                    <span>Export JSON Backup</span>
+                    <span>Download Shop Backup</span>
                   </button>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 text-xs">
                 <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Total Fabrics Backed Up</span>
+                  <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Total Fabrics in Store</span>
                   <span className="font-bold text-base text-[#1C1917] mt-0.5 block">{products.length} Products</span>
                 </div>
                 <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Total Orders Recorded</span>
+                  <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Total Customer Orders</span>
                   <span className="font-bold text-base text-[#1C1917] mt-0.5 block">{orders.length} Orders</span>
                 </div>
                 <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0]">
-                  <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Audit Status</span>
-                  <span className="font-bold text-base text-emerald-700 mt-0.5 block">100% Consistent</span>
+                  <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Catalog Health</span>
+                  <span className="font-bold text-base text-emerald-700 mt-0.5 block">Active &amp; Ready</span>
                 </div>
               </div>
             </div>
 
-            {/* Interactive Firebase Security Rules Checkup Suite (5 Steps, 5 Minutes) */}
-            <div className="pt-2">
-              <FirebaseSecurityCheckup />
-            </div>
-
-            {/* Audit & Event Log (NFR-18) */}
+            {/* Recent Store Activity History */}
             <div className="bg-white border border-[#E2E8F0] p-6 space-y-4">
               <div>
                 <h4 className="font-serif text-lg font-bold text-[#1C1917] flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-emerald-700" />
-                  <span>Security Audit & System Activity Logs (NFR-18)</span>
+                  <Clock className="w-5 h-5 text-emerald-700" />
+                  <span>Recent Store Management Activities</span>
                 </h4>
                 <p className="text-xs text-[#1C1917]/70 font-sans mt-0.5">
-                  Immutable record of administrative logins, order processing, and system lifecycle events.
+                  Chronological record of recent store actions, price changes, and staff logins.
                 </p>
               </div>
 
@@ -3551,36 +3560,36 @@ export const AdminPage: React.FC = () => {
                 <table className="w-full text-left text-xs min-w-[550px]">
                   <thead className="bg-[#F5EFEB] text-[#1C1917] uppercase tracking-wider text-[11px] font-semibold border-b border-[#E2E8F0]">
                     <tr>
-                      <th className="py-2.5 px-3">Timestamp (PKT)</th>
-                      <th className="py-2.5 px-3">Event Type</th>
-                      <th className="py-2.5 px-3">Initiated By</th>
-                      <th className="py-2.5 px-3">Status / Outcome</th>
+                      <th className="py-2.5 px-3">Date &amp; Time</th>
+                      <th className="py-2.5 px-3">Activity Type</th>
+                      <th className="py-2.5 px-3">User / Manager</th>
+                      <th className="py-2.5 px-3">Status</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-[#E2E8F0]">
                     <tr className="hover:bg-[#F8FAFC]">
-                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-15 10:00 PKT</td>
-                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Staff Authentication</td>
-                      <td className="py-2.5 px-3 font-mono text-[#0284C7]">@{currentAdmin.username}</td>
-                      <td className="py-2.5 px-3 text-emerald-700 font-semibold">Success (TLS 1.3)</td>
+                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">Today, 10:00 AM</td>
+                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Manager Sign In</td>
+                      <td className="py-2.5 px-3 font-mono text-[#8C4830]">@{currentAdmin.username}</td>
+                      <td className="py-2.5 px-3 text-emerald-700 font-semibold">Verified &amp; Active</td>
                     </tr>
                     <tr className="hover:bg-[#F8FAFC]">
-                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-15 09:45 PKT</td>
-                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Sitemap Generation</td>
-                      <td className="py-2.5 px-3 text-[#1C1917]/70">Technical SEO Engine</td>
-                      <td className="py-2.5 px-3 text-emerald-700 font-semibold">22 URLs Indexed</td>
+                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">Today, 09:45 AM</td>
+                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Catalog Inventory Sync</td>
+                      <td className="py-2.5 px-3 text-[#1C1917]/70">Store System</td>
+                      <td className="py-2.5 px-3 text-emerald-700 font-semibold">{products.length} Fabrics In Stock</td>
                     </tr>
                     <tr className="hover:bg-[#F8FAFC]">
-                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-14 19:35 PKT</td>
-                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">3D Secure Payment Verification</td>
-                      <td className="py-2.5 px-3 text-[#1C1917]/70">Customer Checkout</td>
-                      <td className="py-2.5 px-3 text-emerald-700 font-semibold">Authorized & Settled</td>
+                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">Yesterday, 07:35 PM</td>
+                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Customer Order Placed</td>
+                      <td className="py-2.5 px-3 text-[#1C1917]/70">Online Customer</td>
+                      <td className="py-2.5 px-3 text-emerald-700 font-semibold">Payment Confirmed</td>
                     </tr>
                     <tr className="hover:bg-[#F8FAFC]">
-                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">2026-10-14 18:20 PKT</td>
-                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Failed Login Attempt</td>
-                      <td className="py-2.5 px-3 font-mono text-red-700">@unknown_guest</td>
-                      <td className="py-2.5 px-3 text-red-700 font-semibold">Blocked (Invalid Pass)</td>
+                      <td className="py-2.5 px-3 font-mono text-[#1C1917]/80">Yesterday, 06:20 PM</td>
+                      <td className="py-2.5 px-3 font-semibold text-[#1C1917]">Unrecognized Sign In Attempt</td>
+                      <td className="py-2.5 px-3 font-mono text-red-700">@unknown</td>
+                      <td className="py-2.5 px-3 text-red-700 font-semibold">Blocked by Password</td>
                     </tr>
                   </tbody>
                 </table>
@@ -3596,13 +3605,13 @@ export const AdminPage: React.FC = () => {
             <div className="bg-white border border-[#E2E8F0] p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
-                  <Gauge className="w-5 h-5 text-[#0284C7]" />
+                  <Gauge className="w-5 h-5 text-[#8C4830]" />
                   <h3 className="font-serif text-lg font-bold text-[#1C1917]">
-                    Database Indexes, Caching & Load Testing Engine
+                    Store Speed &amp; Performance Center
                   </h3>
                 </div>
                 <p className="text-xs text-[#1C1917]/70">
-                  Real-time diagnostics for Firestore composite indexes, server/client cache hit rates, and synthetic load testing.
+                  Real-time status for store page load speed and fast catalog data delivery.
                 </p>
               </div>
 
@@ -4533,18 +4542,18 @@ export const AdminPage: React.FC = () => {
                 {/* 5. PRICING & STOCK */}
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block font-semibold mb-1 text-[11px]">Price (PKR)</label>
+                    <label className="block font-semibold mb-1 text-[11px] text-neutral-800">Price (PKR)</label>
                     <input
                       type="number"
                       required
                       value={newProductForm.price}
                       onChange={(e) => setNewProductForm({ ...newProductForm, price: Number(e.target.value) })}
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0] font-bold"
+                      className="w-full px-3 py-2 bg-white text-black border border-neutral-400 font-bold text-sm focus:border-black focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1 text-[11px]">Original Price (PKR)</label>
+                    <label className="block font-semibold mb-1 text-[11px] text-neutral-800">Original Price (PKR)</label>
                     <input
                       type="number"
                       value={newProductForm.originalPrice || ''}
@@ -4555,7 +4564,7 @@ export const AdminPage: React.FC = () => {
                         })
                       }
                       placeholder="e.g. 18500 (Sale)"
-                      className="w-full px-3 py-2 bg-white border border-[#E2E8F0]"
+                      className="w-full px-3 py-2 bg-white text-black border border-neutral-400 font-bold text-sm focus:border-black focus:outline-none"
                     />
                   </div>
 
@@ -4946,18 +4955,18 @@ export const AdminPage: React.FC = () => {
                 {/* 5. PRICING & STOCK */}
                 <div className="grid grid-cols-3 gap-3">
                   <div>
-                    <label className="block font-semibold mb-1 text-[11px]">Selling Price (PKR)</label>
+                    <label className="block font-semibold mb-1 text-[11px] text-neutral-800">Selling Price (PKR)</label>
                     <input
                       type="number"
                       required
                       value={editingProduct.price}
                       onChange={(e) => setEditingProduct({ ...editingProduct, price: Number(e.target.value) })}
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0] font-bold"
+                      className="w-full px-2.5 py-1.5 bg-white text-black border border-neutral-400 font-bold text-sm focus:border-black focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block font-semibold mb-1 text-[11px]">Original Price (PKR)</label>
+                    <label className="block font-semibold mb-1 text-[11px] text-neutral-800">Original Price (PKR)</label>
                     <input
                       type="number"
                       value={editingProduct.originalPrice || ''}
@@ -4968,7 +4977,7 @@ export const AdminPage: React.FC = () => {
                         })
                       }
                       placeholder="e.g. 18500 (Sale)"
-                      className="w-full px-2.5 py-1.5 bg-white border border-[#E2E8F0]"
+                      className="w-full px-2.5 py-1.5 bg-white text-black border border-neutral-400 font-bold text-sm focus:border-black focus:outline-none"
                     />
                   </div>
 
@@ -5067,9 +5076,9 @@ export const AdminPage: React.FC = () => {
                   </div>
                   <div>
                     <span className="text-[10px] font-mono uppercase tracking-widest text-[#D4AF37] font-bold block">
-                      MANUAL DISPATCH TERMINAL
+                      NEW ORDER ENTRY
                     </span>
-                    <h3 className="font-serif text-lg font-bold text-white">Create Phone / Counter Order</h3>
+                    <h3 className="font-serif text-lg font-bold text-white">Create Phone or Counter Order</h3>
                   </div>
                 </div>
                 <button
@@ -5579,13 +5588,7 @@ export const AdminPage: React.FC = () => {
           initialSelectedProductId={selectedSyncProductId}
         />
 
-        {/* Firebase Security Checkup Modal */}
-        {isFirebaseCheckupOpen && (
-          <FirebaseSecurityCheckup 
-            isModal 
-            onClose={() => setIsFirebaseCheckupOpen(false)} 
-          />
-        )}
+
 
         {/* MODAL: 30-MINUTE INACTIVITY TIMEOUT WARNING */}
         {inactivityRemainingSeconds !== null && (
@@ -5597,7 +5600,7 @@ export const AdminPage: React.FC = () => {
 
               <div className="space-y-1.5">
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 block">
-                  Security Defense Protocol
+                  Security Protection Notice
                 </span>
                 <h3 className="font-serif text-xl font-bold text-[#1C1917]">
                   Administrative Inactivity Alert
