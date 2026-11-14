@@ -93,7 +93,7 @@ export const PWAInstallPrompt: React.FC = () => {
             {/* App Icon & Badge */}
             <div className="flex flex-col items-center text-center">
               <div className="w-16 h-16 rounded-2xl overflow-hidden border border-[#D4AF37]/40 shadow-lg mb-3 bg-[#050811] flex items-center justify-center p-2">
-                <img src="/icon.svg" alt="Niaz Cloth House Icon" className="w-full h-full object-contain" />
+                <img src="/icon.svg" alt="Niaz Cloth House Icon" width={48} height={48} loading="lazy" decoding="async" className="w-full h-full object-contain" />
               </div>
               <h3 className="font-serif text-lg font-bold text-[#F3E7C4]">
                 Niaz Cloth House App

@@ -13,6 +13,7 @@ export type PageRoute =
   | 'product-detail' 
   | 'admin'
   | 'compare'
+  | 'track-order'
   | 'privacy'
   | 'terms'
   | 'cookies'
@@ -34,6 +35,7 @@ export interface NavFilterParams {
   favoritesOnly?: boolean;
   newArrivalsOnly?: boolean;
   saleOnly?: boolean;
+  orderId?: string;
 }
 
 interface NavigationContextType {
@@ -58,6 +60,7 @@ interface NavigationContextType {
       favoritesOnly?: boolean;
       newArrivalsOnly?: boolean;
       saleOnly?: boolean;
+      orderId?: string;
     }
   ) => void;
   filterParams: NavFilterParams;
@@ -90,8 +93,11 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const searchQuery = search.get('search') || search.get('q') || undefined;
 
     let page: PageRoute = 'home';
+    const orderIdParam = search.get('orderId') || (path.includes('track') ? search.get('id') || undefined : undefined);
 
-    if (path.startsWith('/product/') || path.includes('/product-detail') || id || slugParam) {
+    if (path.includes('track')) {
+      page = 'track-order';
+    } else if (path.startsWith('/product/') || path.includes('/product-detail') || id || slugParam) {
       page = 'product-detail';
       if (path.startsWith('/product/')) {
         const slug = path.replace('/product/', '').replace('.html', '').split('/')[0];
@@ -151,7 +157,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         brand,
         craftType,
         collection: collectionParam,
-        search: searchQuery
+        search: searchQuery,
+        orderId: orderIdParam
       } 
     };
   };
@@ -213,6 +220,7 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         favoritesOnly: params.favoritesOnly,
         newArrivalsOnly: params.newArrivalsOnly,
         saleOnly: params.saleOnly,
+        orderId: params.orderId,
       });
     } else {
       setFilterParams({});
@@ -253,6 +261,9 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       path = '/admin';
     } else if (page === 'compare') {
       path = '/compare';
+    } else if (page === 'track-order') {
+      path = '/track-order';
+      if (params?.orderId) query.set('id', params.orderId);
     } else if (page === 'privacy') {
       path = '/privacy-policy';
     } else if (page === 'terms') {

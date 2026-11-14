@@ -2,6 +2,7 @@ import React from 'react';
 import { X, Trash2, Plus, Minus, ShoppingBag, MessageCircle, ArrowRight, ShieldCheck, Truck, Check } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
+import { OptimizedImage } from './OptimizedImage';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -146,15 +147,16 @@ export const CartDrawer: React.FC = () => {
                   className="flex gap-3.5 p-3.5 bg-white border border-[#E8E0D2] shadow-xs relative group"
                 >
                   {/* Thumbnail */}
-                  <img
+                  <OptimizedImage
                     src={item.product.primaryImage}
                     alt={item.product.title}
                     width={80}
-                    height={106}
-                    className="w-20 h-24 object-cover bg-[#F7F4EE] shrink-0 border border-[#E8E0D2]"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
-                    }}
+                    height={96}
+                    maxWidth={400}
+                    sizes="80px"
+                    loading="lazy"
+                    pictureClassName="w-20 h-24 shrink-0 border border-[#E8E0D2] bg-[#F7F4EE] block overflow-hidden"
+                    className="w-full h-full object-cover"
                   />
 
                   {/* Info */}

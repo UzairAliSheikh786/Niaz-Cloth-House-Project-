@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
+import { OptimizedImage } from '../components/OptimizedImage';
 import { Product } from '../types';
 import { 
   CURATED_COMPARISONS, 
@@ -211,10 +212,15 @@ export const ComparePage: React.FC = () => {
               </div>
 
               <div className="flex gap-4">
-                <img
+                <OptimizedImage
                   src={productA.primaryImage}
                   alt={productA.title}
-                  className="w-24 h-28 object-cover bg-[#F2EDE7] border border-[#E2E8F0] shrink-0"
+                  width={96}
+                  height={112}
+                  maxWidth={400}
+                  sizes="96px"
+                  pictureClassName="w-24 h-28 shrink-0 bg-[#F2EDE7] border border-[#E2E8F0] block overflow-hidden"
+                  className="w-full h-full object-cover"
                 />
                 <div className="space-y-1 min-w-0">
                   <span className="text-[10px] text-[#0284C7] font-bold uppercase tracking-wider block">
@@ -277,10 +283,15 @@ export const ComparePage: React.FC = () => {
               </div>
 
               <div className="flex gap-4">
-                <img
+                <OptimizedImage
                   src={productB.primaryImage}
                   alt={productB.title}
-                  className="w-24 h-28 object-cover bg-[#F2EDE7] border border-[#E2E8F0] shrink-0"
+                  width={96}
+                  height={112}
+                  maxWidth={400}
+                  sizes="96px"
+                  pictureClassName="w-24 h-28 shrink-0 bg-[#F2EDE7] border border-[#E2E8F0] block overflow-hidden"
+                  className="w-full h-full object-cover"
                 />
                 <div className="space-y-1 min-w-0">
                   <span className="text-[10px] text-[#0284C7] font-bold uppercase tracking-wider block">
@@ -669,10 +680,16 @@ export const ComparePage: React.FC = () => {
                       }`}
                     >
                       <div className="flex items-center gap-3 min-w-0">
-                        <img
+                        <OptimizedImage
                           src={p.primaryImage}
                           alt={p.title}
-                          className="w-12 h-14 object-cover bg-[#F2EDE7] border border-[#E2E8F0] shrink-0"
+                          width={48}
+                          height={56}
+                          maxWidth={400}
+                          sizes="48px"
+                          loading="lazy"
+                          pictureClassName="w-12 h-14 shrink-0 bg-[#F2EDE7] border border-[#E2E8F0] block overflow-hidden"
+                          className="w-full h-full object-cover"
                         />
                         <div className="min-w-0">
                           <span className="text-[10px] text-[#0284C7] font-semibold uppercase tracking-wider block">

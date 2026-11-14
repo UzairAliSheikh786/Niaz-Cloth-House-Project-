@@ -1,5 +1,6 @@
 import express from 'express';
 import type { Request, Response, NextFunction } from 'express';
+import compression from 'compression';
 import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
@@ -384,13 +385,59 @@ initializeFirebaseAdmin();
 const app = express();
 const port = process.env.NODE_ENV === 'production' ? (Number(process.env.PORT) || 8080) : 3000;
 
+// Enable Gzip compression for HTML, JSON, JS, CSS, and SVG responses
+app.use(compression({ threshold: 1024 }));
+
 app.use(express.json({ limit: '25mb' }));
 app.use(express.urlencoded({ extended: true, limit: '25mb' }));
 
+// Immutable long-term caching for responsive AVIF/WebP image variants
+app.use(
+  '/images/opt',
+  express.static(path.resolve(__dirname, 'public', 'images', 'opt'), {
+    maxAge: '365d',
+    immutable: true,
+    etag: true,
+    lastModified: true,
+    setHeaders: (res: Response, filePath: string) => {
+      if (filePath.endsWith('.avif')) {
+        res.setHeader('Content-Type', 'image/avif');
+      } else if (filePath.endsWith('.webp')) {
+        res.setHeader('Content-Type', 'image/webp');
+      }
+      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+    },
+  })
+);
+
+// Long-lived browser + CDN caching with stale-while-revalidate for source images
+const imageStaticOptions = {
+  maxAge: '7d',
+  etag: true,
+  lastModified: true,
+  setHeaders: (res: Response, filePath: string) => {
+    if (filePath.endsWith('.avif')) {
+      res.setHeader('Content-Type', 'image/avif');
+    } else if (filePath.endsWith('.webp')) {
+      res.setHeader('Content-Type', 'image/webp');
+    }
+    res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+  },
+};
+
 // Explicit static handlers for image assets
-// Correct order: Path first, express.static middleware second
-app.use('/images', express.static(path.resolve(__dirname, 'public', 'images')));
-app.use('/src/assets/images', express.static(path.resolve(__dirname, 'public', 'images')));
+app.use('/images', express.static(path.resolve(__dirname, 'public', 'images'), imageStaticOptions));
+app.use('/src/assets/images', express.static(path.resolve(__dirname, 'public', 'images'), imageStaticOptions));
+
+// Cache public static SVG icon & manifest cleanly
+app.get('/icon.svg', (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+  res.sendFile(path.resolve(__dirname, 'public', 'icon.svg'));
+});
+app.get('/favicon.ico', (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'public, max-age=604800, stale-while-revalidate=86400');
+  res.sendFile(path.resolve(__dirname, 'public', 'favicon.ico'));
+});
 
 // Serve static XML sitemap
 app.get('/sitemap.xml', (_req: Request, res: Response) => {
@@ -815,6 +862,13 @@ const serverAnalyticsStream: ClientAnalyticsEvent[] = [];
 
 app.use('/api', generalApiLimiter);
 
+// Enforce strict private no-store caching for customer orders, tracking, and admin endpoints
+app.use(['/api/orders', '/api/admin', '/api/diagnostics', '/api/cache'], (_req: Request, res: Response, next: NextFunction) => {
+  res.setHeader('Cache-Control', 'private, no-store, no-cache, must-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  next();
+});
+
 // --- REST API BACKEND ROUTES --- //
 app.get('/api/health', (_req: Request, res: Response) => {
   const { diagnosticsData } = evaluateStartupDiagnostics();
@@ -1013,18 +1067,19 @@ app.get('/api/orders', requireAdminAuth, (_req: Request, res: Response) => {
   res.json(backendOrders);
 });
 
-// Customer Safe Order Tracking (requires matching phone suffix for security)
+// Customer Safe Order Tracking (requires matching phone suffix when phone is provided)
 app.get('/api/orders/track/:id', (req: Request, res: Response) => {
   const { id } = req.params;
   const { phone } = req.query;
-  const order = backendOrders.find((o) => o.id === id);
+  const normalizedId = String(id || '').trim().replace(/^#/, '').toUpperCase();
+  const order = backendOrders.find((o) => o.id.toUpperCase() === normalizedId);
   if (!order) {
     return res.status(404).json({ error: 'Order Not Found', message: `No order found with reference '${id}'.` });
   }
   if (phone) {
     const cleanQuery = String(phone).replace(/\D/g, '');
     const cleanCustomer = String(order.customer.phone || '').replace(/\D/g, '');
-    if (cleanCustomer && !cleanCustomer.endsWith(cleanQuery.slice(-7))) {
+    if (cleanCustomer && cleanQuery && !cleanCustomer.endsWith(cleanQuery.slice(-7))) {
       return res.status(403).json({ error: 'Verification Failed', message: 'Phone number verification failed for this order.' });
     }
   }
@@ -1032,9 +1087,17 @@ app.get('/api/orders/track/:id', (req: Request, res: Response) => {
     id: order.id,
     date: order.date,
     status: order.status,
+    subtotal: order.subtotal,
+    shipping: Math.max(0, order.total - order.subtotal),
     total: order.total,
-    itemsCount: order.items.length,
-    city: order.customer.city,
+    itemsCount: order.items.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0),
+    items: order.items.map((item) => ({
+      title: item.title || item.product?.title || 'Unstitched Fabric Ensemble',
+      fabric: item.fabric || item.product?.fabric || 'Signature Unstitched',
+      quantity: Number(item.quantity) || 1,
+      selectedColor: item.selectedColor,
+    })),
+    city: order.customer?.city || 'Pakistan',
     paymentMethod: order.paymentMethod,
   });
 });
@@ -1151,6 +1214,7 @@ app.patch('/api/orders/:id/status', requireAdminAuth, (req: Request, res: Respon
 });
 
 app.get('/api/reviews', (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'public, max-age=300, stale-while-revalidate=600');
   res.json(backendReviews);
 });
 
@@ -1379,9 +1443,34 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 // ========================================== //
 async function startServer() {
   if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.resolve(__dirname, 'dist')));
+    const distDir = path.resolve(__dirname, 'dist');
+    app.use(
+      '/assets',
+      express.static(path.join(distDir, 'assets'), {
+        maxAge: '365d',
+        immutable: true,
+        etag: true,
+      })
+    );
+    app.use(
+      express.static(distDir, {
+        maxAge: '1h',
+        etag: true,
+        setHeaders: (res: Response, filePath: string) => {
+          if (filePath.endsWith('.avif')) {
+            res.setHeader('Content-Type', 'image/avif');
+          } else if (filePath.endsWith('.webp')) {
+            res.setHeader('Content-Type', 'image/webp');
+          }
+          if (filePath.endsWith('index.html')) {
+            res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+          }
+        },
+      })
+    );
     app.get('*', (_req: Request, res: Response) => {
-      res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+      res.setHeader('Cache-Control', 'no-cache, must-revalidate');
+      res.sendFile(path.join(distDir, 'index.html'));
     });
   } else {
     const { createServer: createViteServer } = await import('vite');

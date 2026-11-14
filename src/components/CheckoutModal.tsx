@@ -436,7 +436,19 @@ export const CheckoutModal: React.FC = () => {
               </div>
             </div>
 
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  const idToTrack = completedOrder.id;
+                  handleClose();
+                  navigateTo('track-order', { orderId: idToTrack });
+                }}
+                className="w-full sm:w-auto px-4 py-2.5 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-bold tracking-wide transition-colors flex items-center justify-center gap-1.5 shadow-xs"
+              >
+                <Truck className="w-4 h-4" />
+                <span>Track Order Status</span>
+              </button>
               <button
                 type="button"
                 onClick={() => window.print()}

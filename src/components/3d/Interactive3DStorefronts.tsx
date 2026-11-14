@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigation } from '../../context/NavigationContext';
 import { useShop, formatPKR } from '../../context/ShopContext';
+import { OptimizedImage } from '../OptimizedImage';
 
 export const Interactive3DStorefronts: React.FC = () => {
   const { navigateTo } = useNavigation();
@@ -97,14 +98,16 @@ export const Interactive3DStorefronts: React.FC = () => {
               }}
             />
 
-            <img
+            <OptimizedImage
               src="/images/khaadi_unstitched_palace_1791658025090.jpg"
               alt="Women's Festive & Unstitched Collection"
-              referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
-              }}
+              width={800}
+              height={447}
+              maxWidth={800}
+              sizes="(max-width: 1024px) 100vw, 600px"
+              loading="lazy"
+              pictureClassName="absolute inset-0 w-full h-full"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-[#060608]/55 to-transparent" />
 
@@ -168,14 +171,16 @@ export const Interactive3DStorefronts: React.FC = () => {
               }}
             />
 
-            <img
+            <OptimizedImage
               src="/images/khaadi_mens_boski_display_1791657195697.jpg"
               alt="Men's Pure Boski & Suiting"
-              referrerPolicy="no-referrer"
-              className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
-              }}
+              width={800}
+              height={597}
+              maxWidth={800}
+              sizes="(max-width: 1024px) 100vw, 600px"
+              loading="lazy"
+              pictureClassName="absolute inset-0 w-full h-full"
+              className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-[#060608]/55 to-transparent" />
 

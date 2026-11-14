@@ -235,9 +235,10 @@ export const AdminPage: React.FC = () => {
       setDbConnectionStatus('connected');
       showToast('Firestore connection verified: Database is online and responsive.');
       setTimeout(() => setDbConnectionStatus('idle'), 4000);
-    } catch {
-      setDbConnectionStatus('connected');
-      showToast('Firestore connected via offline cache & long-polling.');
+    } catch (err) {
+      console.warn('Firestore health check failed:', err);
+      setDbConnectionStatus('error');
+      showToast('Firestore backend is currently unreachable. Operating in local cache mode.');
       setTimeout(() => setDbConnectionStatus('idle'), 4000);
     }
   };
@@ -337,8 +338,18 @@ export const AdminPage: React.FC = () => {
   const { user: authUser, userProfile } = useAuth();
   const [realUsers, setRealUsers] = useState<PatronProfile[]>([]);
 
-  // Real-time Firestore Registered & Logged-In Users Listener
+  // Real-time Firestore Registered & Logged-In Users Listener (Admin-auth gated)
   useEffect(() => {
+    const isAdminFirebaseAuth =
+      authUser &&
+      (authUser.email === 'uzairaliuzairali640@gmail.com' ||
+        authUser.email === 'admin@nch.com' ||
+        authUser.email === 'admin@niazclothhouse.com');
+
+    if (!isAdminFirebaseAuth) {
+      return;
+    }
+
     try {
       const usersCol = collection(db, 'users');
       const unsubscribe = onSnapshot(
@@ -359,7 +370,7 @@ export const AdminPage: React.FC = () => {
     } catch (err) {
       console.warn('Users listener initialization note:', err);
     }
-  }, []);
+  }, [authUser]);
 
   // Compute active user list combining real registered users and current active session
   const activeUserList = useMemo(() => {

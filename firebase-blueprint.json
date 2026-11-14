@@ -76,6 +76,22 @@
       },
       "required": ["id", "title", "fabric", "price", "inStock"]
     },
+    "ProductSummary": {
+      "title": "ProductSummary",
+      "description": "Lightweight listing projection of unstitched fabric products for paginated Shop queries",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "description": "Product SKU ID" },
+        "title": { "type": "string", "description": "Product title" },
+        "slug": { "type": "string", "description": "URL slug" },
+        "fabric": { "type": "string", "description": "Fabric type" },
+        "gender": { "type": "string", "description": "Gender classification" },
+        "price": { "type": "number", "description": "Price in PKR" },
+        "inStock": { "type": "boolean", "description": "Inventory stock status" },
+        "primaryImage": { "type": "string", "description": "Primary card image path" }
+      },
+      "required": ["id", "title", "fabric", "price", "inStock"]
+    },
     "VideoGeneration": {
       "title": "VideoGeneration",
       "description": "Veo 3 cinematic unstitched fabric video runway preview",
@@ -122,6 +138,10 @@
     "/products/{productId}": {
       "schema": "Product",
       "description": "Catalog of authentic unstitched fabrics"
+    },
+    "/productSummaries/{productId}": {
+      "schema": "ProductSummary",
+      "description": "Slim field-projected catalog summaries for paginated Shop and related-product queries"
     },
     "/storeSettings/{settingId}": {
       "schema": "StoreSettings",

@@ -1,6 +1,7 @@
 import { collection, doc, getDocs, setDoc, query, limit } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from './firebase';
 import { INITIAL_PRODUCTS } from './data/products';
+import { projectProductSummary } from './services/firestoreProductService';
 
 export async function seedFirestoreDatabase() {
   try {
@@ -13,8 +14,17 @@ export async function seedFirestoreDatabase() {
       console.log('Seeding initial luxury unstitched catalog into Firestore...');
       for (const prod of INITIAL_PRODUCTS) {
         await setDoc(doc(db, 'products', prod.id), prod);
+        await setDoc(doc(db, 'productSummaries', prod.id), projectProductSummary(prod));
       }
-      console.log('Firestore products seeded successfully.');
+      console.log('Firestore products and summaries seeded successfully.');
+    } else {
+      // Ensure slim productSummaries projection exists for paginated Shop queries
+      const summariesSnap = await getDocs(query(collection(db, 'productSummaries'), limit(1)));
+      if (summariesSnap.empty) {
+        for (const prod of INITIAL_PRODUCTS) {
+          await setDoc(doc(db, 'productSummaries', prod.id), projectProductSummary(prod));
+        }
+      }
     }
 
     // Seed Google Maps verified review

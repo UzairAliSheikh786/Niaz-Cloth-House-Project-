@@ -134,6 +134,40 @@ export interface Product {
   heritageNotes: string;
 }
 
+/**
+ * Slim summary projection for catalog grids, related cards, and paginated Firestore queries.
+ * Excludes bulky detail-only fields (description, galleryImages, care, heritageNotes, colorOptions, designOptions).
+ */
+export interface ProductSummary {
+  id: string;
+  title: string;
+  slug: string;
+  subtitle: string;
+  gender: Gender;
+  brand?: string;
+  craftType?: 'Embroidery' | 'Printed' | 'Plain / Solid' | 'Self-Dobby';
+  fabric: FabricType;
+  collection: string;
+  season?: 'Summer' | 'Winter' | 'All Season';
+  price: number;
+  originalPrice?: number;
+  inStock: boolean;
+  featured: boolean;
+  newArrival: boolean;
+  rating: number;
+  reviewsCount: number;
+  primaryImage: string;
+  color: string;
+  colorHex: string;
+  weightGrade?: string;
+  cutDetails: {
+    length: string;
+    width: string;
+  };
+}
+
+export type ProductCardItem = Product | ProductSummary;
+
 export interface CartItem {
   product: Product;
   quantity: number;

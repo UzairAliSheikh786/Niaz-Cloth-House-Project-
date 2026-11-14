@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense, lazy } from 'react';
 import {
   ChevronLeft,
   ChevronRight,
@@ -12,17 +12,23 @@ import {
 import { useShop } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { ProductCard } from '../components/ProductCard';
-import { QuickViewModal } from '../components/QuickViewModal';
+import { OptimizedImage } from '../components/OptimizedImage';
+import { OrderTracker } from '../components/OrderTracker';
 import { Interactive3DStorefronts } from '../components/3d/Interactive3DStorefronts';
-import { Product } from '../types';
+import { ProductCardItem } from '../types';
 import { ProductFactory } from '../core';
+
+const QuickViewModal = lazy(() =>
+  import('../components/QuickViewModal').then((m) => ({ default: m.QuickViewModal }))
+);
 
 export const HomePage: React.FC = () => {
   const { products } = useShop();
   const { navigateTo } = useNavigation();
 
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductCardItem | null>(null);
   const [activeSlide, setActiveSlide] = useState(0);
+  const [mountedSlides, setMountedSlides] = useState<Set<number>>(() => new Set([0]));
   const [showcaseMode, setShowcaseMode] = useState<'mens' | 'womens'>('womens');
   const [subFilter, setSubFilter] = useState<'all' | 'shahi' | 'embroidery' | 'printed' | 'boski'>('shahi');
 
@@ -46,6 +52,15 @@ export const HomePage: React.FC = () => {
       image: '/images/khaadi_editorial_hero_1791657181176.jpg',
     },
   ];
+
+  useEffect(() => {
+    setMountedSlides((prev) => {
+      if (prev.has(activeSlide)) return prev;
+      const next = new Set(prev);
+      next.add(activeSlide);
+      return next;
+    });
+  }, [activeSlide]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -88,50 +103,59 @@ export const HomePage: React.FC = () => {
       {/* 1. Editorial Hero Banner (Exact Reference Match: THE SHAHI COLLECTION) */}
       <section className="relative w-full overflow-hidden bg-[#060608] border-b border-[#C5A059]/20">
         <div className="relative h-[380px] sm:h-[460px] lg:h-[540px] w-full">
-          {heroSlides.map((slide, index) => (
-            <div
-              key={slide.title}
-              className={`absolute inset-0 transition-opacity duration-700 ease-out ${
-                index === activeSlide ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
-              }`}
-            >
-              <img
-                src={slide.image}
-                alt={slide.title}
-                width={1920}
-                height={1080}
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover object-center"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
-                }}
-              />
-              {/* Atmospheric Left Contrast Scrim */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#060608]/95 via-[#060608]/55 to-transparent" />
+          {heroSlides.map((slide, index) => {
+            const isActive = index === activeSlide;
+            const shouldMountSlide = index === 0 || isActive || mountedSlides.has(index);
+            return (
+              <div
+                key={slide.title}
+                className={`absolute inset-0 transition-opacity duration-700 ease-out ${
+                  isActive ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
+                }`}
+              >
+                {shouldMountSlide && (
+                  <OptimizedImage
+                    src={slide.image}
+                    alt={slide.title}
+                    width={1376}
+                    height={768}
+                    sizes="100vw"
+                    priority={index === 0}
+                    loading={index === 0 ? 'eager' : 'lazy'}
+                    fetchPriority={index === 0 ? 'high' : 'low'}
+                    decoding={index === 0 ? 'sync' : 'async'}
+                    showPlaceholder={index !== 0}
+                    fallbackSrc="/images/hero_niaz_luxury_fabric_1791569218384.jpg"
+                    className="w-full h-full object-cover object-center"
+                  />
+                )}
+                {/* Atmospheric Left Contrast Scrim */}
+                <div className="absolute inset-0 bg-gradient-to-r from-[#060608]/95 via-[#060608]/55 to-transparent" />
 
-              {/* Left Editorial Typography */}
-              <div className="absolute inset-0 flex items-center">
-                <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 w-full">
-                  <div className="max-w-lg">
-                    <h1
-                      className="font-serif text-3xl sm:text-5xl lg:text-[54px] font-normal tracking-[0.06em] uppercase text-[#D4AF37] leading-[1.12] mb-5"
-                      style={{ textWrap: 'balance' }}
-                    >
-                      {slide.title}
-                    </h1>
+                {/* Left Editorial Typography */}
+                <div className="absolute inset-0 flex items-center">
+                  <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-14 w-full">
+                    <div className="max-w-lg">
+                      <h1
+                        className="font-serif text-3xl sm:text-5xl lg:text-[54px] font-normal tracking-[0.06em] uppercase text-[#D4AF37] leading-[1.12] mb-5"
+                        style={{ textWrap: 'balance' }}
+                      >
+                        {slide.title}
+                      </h1>
 
-                    <button
-                      type="button"
-                      onClick={slide.action}
-                      className="inline-block text-sm sm:text-base font-sans font-medium text-[#E8D5A7] hover:text-[#D4AF37] border-b border-[#C5A059] hover:border-[#D4AF37] pb-0.5 transition-colors tracking-wide"
-                    >
-                      {slide.ctaLabel}
-                    </button>
+                      <button
+                        type="button"
+                        onClick={slide.action}
+                        className="inline-block text-sm sm:text-base font-sans font-medium text-[#E8D5A7] hover:text-[#D4AF37] border-b border-[#C5A059] hover:border-[#D4AF37] pb-0.5 transition-colors tracking-wide"
+                      >
+                        {slide.ctaLabel}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {/* Subtle Side Arrows */}
           <button
@@ -305,7 +329,14 @@ export const HomePage: React.FC = () => {
       {/* 3. Interactive 3D Couture Storefronts */}
       <Interactive3DStorefronts />
 
-      {/* 4. Heritage Flagship & Overseas Concierge */}
+      {/* 4. Order Status Tracking */}
+      <section className="py-12 sm:py-16 bg-[#060608] border-t border-[#C5A059]/20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <OrderTracker compact />
+        </div>
+      </section>
+
+      {/* 5. Heritage Flagship & Overseas Concierge */}
       <section className="py-14 sm:py-16 bg-[#09090D] border-t border-[#C5A059]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
@@ -363,12 +394,16 @@ export const HomePage: React.FC = () => {
         </div>
       </section>
 
-      {/* Quick View Modal */}
-      <QuickViewModal
-        product={quickViewProduct}
-        isOpen={!!quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-      />
+      {/* Quick View Modal (Loaded on demand) */}
+      {quickViewProduct && (
+        <Suspense fallback={null}>
+          <QuickViewModal
+            product={quickViewProduct}
+            isOpen={!!quickViewProduct}
+            onClose={() => setQuickViewProduct(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

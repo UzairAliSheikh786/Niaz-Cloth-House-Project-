@@ -1,46 +1,148 @@
-import React, { useEffect } from 'react';
+import React, { Suspense, lazy, useEffect, useState } from 'react';
 import { AuthProvider } from './context/AuthContext';
 import { ShopProvider, useShop } from './context/ShopContext';
 import { ReviewProvider } from './context/ReviewContext';
 import { NavigationProvider, useNavigation } from './context/NavigationContext';
 import { Header } from './components/Header';
 import { Footer } from './components/Footer';
-import { CartDrawer } from './components/CartDrawer';
-import { SearchModal } from './components/SearchModal';
-import { CheckoutModal } from './components/CheckoutModal';
 import { HomePage } from './pages/HomePage';
-import { ShopPage } from './pages/ShopPage';
-import { ProductDetailPage } from './pages/ProductDetailPage';
-import { LocationPage } from './pages/LocationPage';
-import { AdminPage } from './pages/AdminPage';
-import { ComparePage } from './pages/ComparePage';
-import { LegalPage } from './pages/LegalPage';
-import { NotFoundPage } from './pages/NotFoundPage';
-import { CookieConsent } from './components/CookieConsent';
 import { FloatingWhatsAppButton } from './components/FloatingWhatsAppButton';
-import { GeminiChatbot } from './components/GeminiChatbot';
-import { BrandEntranceReveal } from './components/BrandEntranceReveal';
-import { PatronAuthModal } from './components/PatronAuthModal';
-import { OnboardingTutorial } from './components/OnboardingTutorial';
-import { InteractiveStoreMapModal } from './components/InteractiveStoreMapModal';
-import { AtelierAmbient3DBackground } from './components/3d/AtelierAmbient3DBackground';
-
 import { SEOHead } from './components/SEOHead';
 
+// Route-level code splitting (loaded on demand)
+const ShopPage = lazy(() => import('./pages/ShopPage').then((m) => ({ default: m.ShopPage })));
+const ProductDetailPage = lazy(() =>
+  import('./pages/ProductDetailPage').then((m) => ({ default: m.ProductDetailPage }))
+);
+const LocationPage = lazy(() =>
+  import('./pages/LocationPage').then((m) => ({ default: m.LocationPage }))
+);
+const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
+const ComparePage = lazy(() =>
+  import('./pages/ComparePage').then((m) => ({ default: m.ComparePage }))
+);
+const OrderTrackingPage = lazy(() =>
+  import('./pages/OrderTrackingPage').then((m) => ({ default: m.OrderTrackingPage }))
+);
+const LegalPage = lazy(() => import('./pages/LegalPage').then((m) => ({ default: m.LegalPage })));
+const NotFoundPage = lazy(() =>
+  import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
+);
+
+// Modal & secondary overlay code splitting (loaded only when needed or idle)
+const CartDrawer = lazy(() =>
+  import('./components/CartDrawer').then((m) => ({ default: m.CartDrawer }))
+);
+const SearchModal = lazy(() =>
+  import('./components/SearchModal').then((m) => ({ default: m.SearchModal }))
+);
+const CheckoutModal = lazy(() =>
+  import('./components/CheckoutModal').then((m) => ({ default: m.CheckoutModal }))
+);
+const InteractiveStoreMapModal = lazy(() =>
+  import('./components/InteractiveStoreMapModal').then((m) => ({
+    default: m.InteractiveStoreMapModal,
+  }))
+);
+const PatronAuthModal = lazy(() =>
+  import('./components/PatronAuthModal').then((m) => ({ default: m.PatronAuthModal }))
+);
+const CookieConsent = lazy(() =>
+  import('./components/CookieConsent').then((m) => ({ default: m.CookieConsent }))
+);
+const GeminiChatbot = lazy(() =>
+  import('./components/GeminiChatbot').then((m) => ({ default: m.GeminiChatbot }))
+);
+const BrandEntranceReveal = lazy(() =>
+  import('./components/BrandEntranceReveal').then((m) => ({ default: m.BrandEntranceReveal }))
+);
+const OnboardingTutorial = lazy(() =>
+  import('./components/OnboardingTutorial').then((m) => ({ default: m.OnboardingTutorial }))
+);
+const AtelierAmbient3DBackground = lazy(() =>
+  import('./components/3d/AtelierAmbient3DBackground').then((m) => ({
+    default: m.AtelierAmbient3DBackground,
+  }))
+);
+
+const RouteLoadingFallback: React.FC = () => (
+  <div className="min-h-[60vh] w-full flex items-center justify-center bg-[#060608] text-[#D4AF37]">
+    <div className="flex flex-col items-center gap-3">
+      <div className="w-8 h-8 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin" />
+      <span className="text-[11px] font-sans uppercase tracking-[0.25em] text-[#E8D5A7]/70">
+        Loading Collection
+      </span>
+    </div>
+  </div>
+);
+
 const AppContent: React.FC = () => {
-  const { 
-    currentPage, 
-    isMapAgentOpen, 
-    setIsMapAgentOpen
-  } = useNavigation();
+  const { currentPage, isMapAgentOpen, setIsMapAgentOpen } = useNavigation();
+  const { isCartOpen, isSearchOpen, setIsSearchOpen, isCheckoutOpen } = useShop();
+
+  const [idleReady, setIdleReady] = useState(false);
+  const [enableAmbient3D, setEnableAmbient3D] = useState(false);
+
+  // Global '/' keyboard shortcut to open search without keeping SearchModal mounted
+  useEffect(() => {
+    const handleSlashShortcut = (e: KeyboardEvent) => {
+      if (e.key === '/' && !isSearchOpen) {
+        const target = e.target as HTMLElement | null;
+        if (target && target.tagName !== 'INPUT' && target.tagName !== 'TEXTAREA') {
+          e.preventDefault();
+          setIsSearchOpen(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleSlashShortcut);
+    return () => window.removeEventListener('keydown', handleSlashShortcut);
+  }, [isSearchOpen, setIsSearchOpen]);
+
+  // Defer non-critical background widgets & WebGL until after initial LCP/idle
+  useEffect(() => {
+    const scheduleIdle = (cb: () => void, timeoutMs: number) => {
+      const w = window as unknown as {
+        requestIdleCallback?: (fn: () => void, opts?: { timeout: number }) => number;
+        cancelIdleCallback?: (id: number) => void;
+      };
+      if (typeof w.requestIdleCallback === 'function') {
+        const id = w.requestIdleCallback(cb, { timeout: timeoutMs });
+        return () => w.cancelIdleCallback?.(id);
+      }
+      const timer = setTimeout(cb, Math.min(timeoutMs, 1200));
+      return () => clearTimeout(timer);
+    };
+
+    const cancelWidgets = scheduleIdle(() => setIdleReady(true), 1400);
+
+    // Only load Three.js background on desktop viewports without reduced-motion or save-data
+    const prefersReducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const isDesktop = window.innerWidth >= 1024;
+    const saveData = Boolean((navigator as unknown as { connection?: { saveData?: boolean } }).connection?.saveData);
+
+    let cancel3D: (() => void) | undefined;
+    if (isDesktop && !prefersReducedMotion && !saveData) {
+      cancel3D = scheduleIdle(() => setEnableAmbient3D(true), 2400);
+    }
+
+    return () => {
+      cancelWidgets();
+      cancel3D?.();
+    };
+  }, []);
 
   return (
     <div className="min-h-screen flex flex-col bg-[#060608] text-[#F7F4EE] w-full max-w-full overflow-x-hidden relative selection:bg-[#D4AF37]/30 selection:text-[#D4AF37]">
-      {/* 3D Global Depth & Floating Gold Thread Parallax Layer */}
-      <AtelierAmbient3DBackground />
+      {/* Deferred 3D Global Depth Layer (Desktop & Idle Only) */}
+      {enableAmbient3D && (
+        <Suspense fallback={null}>
+          <AtelierAmbient3DBackground />
+        </Suspense>
+      )}
 
       {/* Central Technical SEO & Schema Head Engine */}
       <SEOHead />
+
       {/* WCAG Accessibility Skip Link */}
       <a
         href="#main-content"
@@ -49,66 +151,79 @@ const AppContent: React.FC = () => {
         Skip to main content
       </a>
 
-      {/* Limelight-Style Top Navigation & Mega Header */}
+      {/* Top Navigation & Header */}
       <Header />
 
-      {/* Main Page & Footer Container (Full Width Fast-Fashion Layout) */}
+      {/* Main Page & Footer Container */}
       <div className="flex-1 flex flex-col w-full min-w-0">
-        {/* Main Page View */}
         <main className="flex-1 w-full max-w-full min-w-0 overflow-x-hidden relative" id="main-content" tabIndex={-1}>
-          {currentPage === 'home' && <HomePage />}
-          {(currentPage === 'men-summer' ||
-            currentPage === 'men-winter' ||
-            currentPage === 'women-summer' ||
-            currentPage === 'women-winter' ||
-            currentPage === 'shop') && <ShopPage />}
-          {currentPage === 'location' && <LocationPage />}
-          {currentPage === 'product-detail' && <ProductDetailPage />}
-          {currentPage === 'compare' && <ComparePage />}
-          {currentPage === 'admin' && <AdminPage />}
-          {(currentPage === 'privacy' ||
-            currentPage === 'terms' ||
-            currentPage === 'cookies' ||
-            currentPage === 'refund') && <LegalPage initialTab={currentPage} />}
-          {currentPage === 'not-found' && <NotFoundPage />}
+          {currentPage === 'home' ? (
+            <HomePage />
+          ) : (
+            <Suspense fallback={<RouteLoadingFallback />}>
+              {(currentPage === 'men-summer' ||
+                currentPage === 'men-winter' ||
+                currentPage === 'women-summer' ||
+                currentPage === 'women-winter' ||
+                currentPage === 'shop') && <ShopPage />}
+              {currentPage === 'location' && <LocationPage />}
+              {currentPage === 'product-detail' && <ProductDetailPage />}
+              {currentPage === 'compare' && <ComparePage />}
+              {currentPage === 'track-order' && <OrderTrackingPage />}
+              {currentPage === 'admin' && <AdminPage />}
+              {(currentPage === 'privacy' ||
+                currentPage === 'terms' ||
+                currentPage === 'cookies' ||
+                currentPage === 'refund') && <LegalPage initialTab={currentPage} />}
+              {currentPage === 'not-found' && <NotFoundPage />}
+            </Suspense>
+          )}
         </main>
 
-        {/* Semantic Footer */}
         <Footer />
       </div>
 
-      {/* Global Slide-Out Cart Drawer */}
-      <CartDrawer />
+      {/* On-Demand Drawers & Modals (0 KB downloaded until triggered) */}
+      {isCartOpen && (
+        <Suspense fallback={null}>
+          <CartDrawer />
+        </Suspense>
+      )}
 
-      {/* Real-time Search Overlay */}
-      <SearchModal />
+      {isSearchOpen && (
+        <Suspense fallback={null}>
+          <SearchModal />
+        </Suspense>
+      )}
 
-      {/* Cash on Delivery Checkout Modal */}
-      <CheckoutModal />
+      {isCheckoutOpen && (
+        <Suspense fallback={null}>
+          <CheckoutModal />
+        </Suspense>
+      )}
 
-      {/* DPDP Act Compliant Cookie Consent & Preferences Manager */}
-      <CookieConsent />
+      {isMapAgentOpen && (
+        <Suspense fallback={null}>
+          <InteractiveStoreMapModal
+            isOpen={isMapAgentOpen}
+            onClose={() => setIsMapAgentOpen(false)}
+          />
+        </Suspense>
+      )}
 
-      {/* Gemini Multi-Turn AI Fabric Concierge Chatbot */}
-      <GeminiChatbot />
-
-      {/* Theme Sage Floating WhatsApp Action Button (0334-6565636) */}
+      {/* Lightweight WhatsApp CTA */}
       <FloatingWhatsAppButton />
 
-      {/* Real Patron Authentication Modal (Login, Signup, Forgot Pass, Profile, GDPR) */}
-      <PatronAuthModal />
-
-      {/* Patron Onboarding Tour & Heritage Tutorial (Triggered on demand, non-blocking) */}
-      <OnboardingTutorial />
-
-      {/* Google Maps Real-Time Route & Places Agent Modal */}
-      <InteractiveStoreMapModal
-        isOpen={isMapAgentOpen}
-        onClose={() => setIsMapAgentOpen(false)}
-      />
-
-      {/* Interactive 3D Brand Entrance Reveal */}
-      <BrandEntranceReveal />
+      {/* Deferred Secondary Overlays (Loaded post-idle so LCP/TBT remain pristine) */}
+      {idleReady && (
+        <Suspense fallback={null}>
+          <CookieConsent />
+          <GeminiChatbot />
+          <PatronAuthModal />
+          <OnboardingTutorial />
+          <BrandEntranceReveal />
+        </Suspense>
+      )}
     </div>
   );
 };

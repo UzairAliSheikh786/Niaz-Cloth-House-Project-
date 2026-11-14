@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { 
   ShoppingBag, 
   MessageCircle, 
@@ -19,7 +20,9 @@ import {
   Filter,
   Palette,
   Layers,
-  Scissors
+  Scissors,
+  ZoomIn,
+  ZoomOut
 } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -27,14 +30,48 @@ import { useReviews } from '../context/ReviewContext';
 import { useAuth } from '../context/AuthContext';
 import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs } from '../components/Breadcrumbs';
+import { OptimizedImage } from '../components/OptimizedImage';
+import { Product, ProductSummary } from '../types';
+import {
+  fetchProductByIdMemoized,
+  fetchRelatedProductsMemoized,
+  projectProductSummary,
+} from '../services/firestoreProductService';
+
+const REVIEWS_PAGE_SIZE = 6;
 
 export const ProductDetailPage: React.FC = () => {
   const { products, addToCart, generateWhatsAppOrderUrl, showToast, recordProductView, storeSettings } = useShop();
   const { productId, navigateTo } = useNavigation();
-  const { getReviewsForProduct, getProductStats, submitReview, isSubmittingReview } = useReviews();
+  const { getReviewsForProduct, getProductStats, loadProductReviewsPage, submitReview, isSubmittingReview } = useReviews();
   const { user } = useAuth();
 
-  const product = products.find((p) => p.id === productId) || products[0];
+  const localFallbackProduct = useMemo(
+    () => products.find((p) => p.id === productId || p.slug === productId) || products[0],
+    [products, productId]
+  );
+
+  const [fetchedProduct, setFetchedProduct] = useState<Product | null>(null);
+  const product = fetchedProduct && (fetchedProduct.id === localFallbackProduct.id || fetchedProduct.id === productId || fetchedProduct.slug === productId)
+    ? fetchedProduct
+    : localFallbackProduct;
+
+  // Targeted single-document Firestore fetch with in-memory TTL memoization & deduplication
+  useEffect(() => {
+    let cancelled = false;
+    const targetKey = productId || localFallbackProduct?.id;
+    if (!targetKey) return;
+
+    fetchProductByIdMemoized(targetKey, localFallbackProduct).then(({ product: resolved }) => {
+      if (!cancelled && resolved) {
+        setFetchedProduct(resolved);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [productId, localFallbackProduct]);
 
   useEffect(() => {
     if (product) {
@@ -56,10 +93,52 @@ export const ProductDetailPage: React.FC = () => {
   const [selectedPartTab, setSelectedPartTab] = useState<'all' | 'kameez' | 'dupatta' | 'shalwar'>('all');
   const [activeTab, setActiveTab] = useState<'care' | 'guide' | 'heritage' | 'reviews'>('care');
   const [openAccordion, setOpenAccordion] = useState<string>('washing');
+  const [isZoomed, setIsZoomed] = useState<boolean>(false);
+  const [zoomOrigin, setZoomOrigin] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
 
-  // Dynamic reviews & ratings from IndexedDB
+  // Dynamic reviews & ratings backed by IndexedDB + paginated per-product Firestore queries
   const stats = getProductStats(product.id);
   const reviews = getReviewsForProduct(product.id);
+  const reviewsCursorRef = useRef<QueryDocumentSnapshot<DocumentData> | null>(null);
+  const [hasMoreReviews, setHasMoreReviews] = useState<boolean>(false);
+  const [isLoadingReviews, setIsLoadingReviews] = useState<boolean>(false);
+
+  // Lazy paginated review fetch when opening Customer Reviews tab
+  useEffect(() => {
+    if (activeTab !== 'reviews') return;
+    let cancelled = false;
+    reviewsCursorRef.current = null;
+    setIsLoadingReviews(true);
+
+    loadProductReviewsPage(product.id, { pageSize: REVIEWS_PAGE_SIZE })
+      .then((res) => {
+        if (cancelled) return;
+        reviewsCursorRef.current = res.lastDoc;
+        setHasMoreReviews(res.hasMore);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingReviews(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTab, product.id, loadProductReviewsPage]);
+
+  const handleLoadMoreReviews = useCallback(async () => {
+    if (!hasMoreReviews || !reviewsCursorRef.current || isLoadingReviews) return;
+    setIsLoadingReviews(true);
+    try {
+      const next = await loadProductReviewsPage(product.id, {
+        pageSize: REVIEWS_PAGE_SIZE,
+        cursor: reviewsCursorRef.current,
+      });
+      reviewsCursorRef.current = next.lastDoc;
+      setHasMoreReviews(next.hasMore);
+    } finally {
+      setIsLoadingReviews(false);
+    }
+  }, [hasMoreReviews, isLoadingReviews, loadProductReviewsPage, product.id]);
 
   // Review Form & Filter States
   const [isReviewFormOpen, setIsReviewFormOpen] = useState(false);
@@ -132,9 +211,30 @@ export const ProductDetailPage: React.FC = () => {
   const unitPrice = product.price + additionalPrice;
   const totalPrice = unitPrice * quantity;
 
-  const relatedProducts = products
-    .filter((p) => p.id !== product.id && (p.gender === product.gender || p.fabric === product.fabric))
-    .slice(0, 3);
+  const fallbackRelated = useMemo<ProductSummary[]>(
+    () =>
+      products
+        .filter((p) => p.id !== product.id && (p.gender === product.gender || p.fabric === product.fabric))
+        .slice(0, 3)
+        .map(projectProductSummary),
+    [products, product.id, product.gender, product.fabric]
+  );
+
+  const [relatedProducts, setRelatedProducts] = useState<ProductSummary[]>(fallbackRelated);
+
+  // Bounded (limit 5) & memoized related product summary query
+  useEffect(() => {
+    let cancelled = false;
+    setRelatedProducts(fallbackRelated);
+    fetchRelatedProductsMemoized(product, products, 3).then((items) => {
+      if (!cancelled && items.length > 0) {
+        setRelatedProducts(items);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [product.id, product.gender, product.fabric, products, fallbackRelated]);
 
   const handleDirectWhatsAppBuy = () => {
     const message = [
@@ -233,27 +333,58 @@ export const ProductDetailPage: React.FC = () => {
               </span>
             </div>
 
-            {/* Clear High-Resolution Photo Display */}
-            <div className="aspect-[3/4] w-full overflow-hidden bg-[#111115] border border-[#C5A059]/25 relative group">
-              <img
+            {/* Clear High-Resolution Photo Display with Interactive Weave Zoom */}
+            <div
+              onClick={() => setIsZoomed((prev) => !prev)}
+              onMouseMove={(e) => {
+                if (!isZoomed) return;
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = Math.max(0, Math.min(100, ((e.clientX - rect.left) / rect.width) * 100));
+                const y = Math.max(0, Math.min(100, ((e.clientY - rect.top) / rect.height) * 100));
+                setZoomOrigin({ x, y });
+              }}
+              onMouseLeave={() => {
+                if (isZoomed) setIsZoomed(false);
+              }}
+              className={`aspect-[3/4] w-full overflow-hidden bg-[#111115] border border-[#C5A059]/25 relative group ${
+                isZoomed ? 'cursor-zoom-out' : 'cursor-zoom-in'
+              }`}
+            >
+              <OptimizedImage
                 src={selectedImage}
                 alt={`${product.title} - ${product.fabric} unstitched suit fabric in ${selectedColor}`}
-                width={800}
-                height={1067}
-                loading="eager"
-                fetchPriority="high"
-                decoding="sync"
-                referrerPolicy="no-referrer"
-                className="w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-105"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = '/images/shahi_hero_banner.jpg';
-                }}
+                width={896}
+                height={1200}
+                sizes="(max-width: 1024px) 100vw, 55vw"
+                priority
+                showPlaceholder={false}
+                fallbackSrc="/images/shahi_hero_banner.jpg"
+                style={
+                  isZoomed
+                    ? { transformOrigin: `${zoomOrigin.x}% ${zoomOrigin.y}%`, transform: 'scale(2)' }
+                    : undefined
+                }
+                className={`w-full h-full object-cover object-center transition-transform ${
+                  isZoomed ? 'duration-150 ease-out' : 'duration-500 group-hover:scale-105'
+                }`}
               />
               {product.weightGrade && (
-                <div className="absolute top-4 left-4 bg-[#060608]/90 border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-sans tracking-widest uppercase px-3 py-1 font-semibold">
+                <div className="absolute top-4 left-4 bg-[#060608]/90 border border-[#D4AF37]/50 text-[#D4AF37] text-[10px] font-sans tracking-widest uppercase px-3 py-1 font-semibold pointer-events-none">
                   {product.weightGrade}
                 </div>
               )}
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsZoomed((prev) => !prev);
+                }}
+                aria-label={isZoomed ? 'Exit fabric zoom' : 'Inspect fabric weave zoom'}
+                className="absolute bottom-3 right-3 bg-[#060608]/85 border border-[#D4AF37]/45 text-[#E8D5A7] hover:text-[#D4AF37] px-2.5 py-1.5 text-[10px] uppercase tracking-wider font-sans flex items-center gap-1.5 backdrop-blur-xs"
+              >
+                {isZoomed ? <ZoomOut className="w-3.5 h-3.5" /> : <ZoomIn className="w-3.5 h-3.5" />}
+                <span>{isZoomed ? 'Reset Zoom' : 'Inspect Weave'}</span>
+              </button>
             </div>
 
             {/* Thumbnail Selectors */}
@@ -263,7 +394,10 @@ export const ProductDetailPage: React.FC = () => {
                   <button
                     key={idx}
                     type="button"
-                    onClick={() => setSelectedImage(img)}
+                    onClick={() => {
+                      setSelectedImage(img);
+                      setIsZoomed(false);
+                    }}
                     aria-label={`Select fabric gallery view ${idx + 1} for ${product.title}`}
                     className={`aspect-[4/3] w-20 sm:w-24 shrink-0 overflow-hidden border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37] ${
                       selectedImage === img
@@ -271,15 +405,15 @@ export const ProductDetailPage: React.FC = () => {
                         : 'border-white/15 opacity-65 hover:opacity-100'
                     }`}
                   >
-                    <img
+                    <OptimizedImage
                       src={img}
                       alt={`${product.title} unstitched texture presentation view ${idx + 1}`}
                       width={100}
                       height={75}
-                      referrerPolicy="no-referrer"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/images/shahi_hero_banner.jpg';
-                      }}
+                      maxWidth={400}
+                      sizes="100px"
+                      loading="lazy"
+                      fallbackSrc="/images/shahi_hero_banner.jpg"
                       className="w-full h-full object-cover"
                     />
                   </button>
@@ -1226,7 +1360,22 @@ export const ProductDetailPage: React.FC = () => {
                     return r.rating === selectedStarFilter;
                   }).length === 0 && (
                     <div className="p-8 text-center bg-[#111115] border border-white/10 text-xs text-[#F7F4EE]/60">
-                      No customer reviews found matching {selectedStarFilter} star rating.
+                      {isLoadingReviews
+                        ? 'Loading verified customer reviews...'
+                        : `No customer reviews found matching ${selectedStarFilter === 'all' ? 'this article' : `${selectedStarFilter} star rating`}.`}
+                    </div>
+                  )}
+
+                  {hasMoreReviews && (
+                    <div className="pt-2 text-center">
+                      <button
+                        type="button"
+                        disabled={isLoadingReviews}
+                        onClick={handleLoadMoreReviews}
+                        className="px-6 py-2.5 bg-transparent border border-[#D4AF37]/60 hover:bg-[#D4AF37] hover:text-[#060608] text-xs font-semibold uppercase tracking-wider text-[#E8D5A7] transition-colors disabled:opacity-50"
+                      >
+                        {isLoadingReviews ? 'Loading Reviews...' : 'Load Older Reviews'}
+                      </button>
                     </div>
                   )}
                 </div>

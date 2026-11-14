@@ -85,6 +85,13 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // Product Summaries Collection (Slim Projection for Paginated Shop Queries)
+    match /productSummaries/{productId} {
+      allow get: if isValidId(productId);
+      allow list: if true;
+      allow write: if isValidId(productId) && isAdmin();
+    }
+
     // Video Generations (Veo 3 unstitched fabric runway visualizations)
     match /videoGenerations/{videoId} {
       allow read: if true;

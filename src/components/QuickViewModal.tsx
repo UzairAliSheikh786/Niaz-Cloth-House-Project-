@@ -12,12 +12,14 @@ import {
   Plus,
   Minus
 } from 'lucide-react';
-import { Product } from '../types';
+import { Product, ProductCardItem } from '../types';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
+import { OptimizedImage } from './OptimizedImage';
+import { fetchProductByIdMemoized } from '../services/firestoreProductService';
 
 interface QuickViewModalProps {
-  product: Product | null;
+  product: ProductCardItem | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -27,10 +29,11 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { addToCart, formatPKR, showToast, recordProductView } = useShop();
+  const { products, addToCart, showToast, recordProductView } = useShop();
   const { navigateTo } = useNavigation();
 
   const fallbackImage = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+  const [fullProduct, setFullProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedColor, setSelectedColor] = useState<string>('');
@@ -38,18 +41,38 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   const [selectedDesignId, setSelectedDesignId] = useState<string>('std');
   const [addedAnimation, setAddedAnimation] = useState(false);
 
-  // Sync state when product opens and persist to IndexedDB
+  // Hydrate full Product details via memoized single-doc fetch when Quick View opens
   useEffect(() => {
-    if (product) {
-      recordProductView(product);
-      setSelectedImage(product.primaryImage || fallbackImage);
-      setQuantity(1);
-      setSelectedColor(product.colorOptions?.[0]?.name || product.color || '');
-      setSelectedColorHex(product.colorOptions?.[0]?.hex || product.colorHex || '#111111');
-      setSelectedDesignId(product.designOptions?.[0]?.id || 'std');
-      setAddedAnimation(false);
+    if (!product || !isOpen) return;
+    let cancelled = false;
+
+    const localMatch =
+      ('care' in product ? product : products.find((p) => p.id === product.id)) || null;
+
+    if (localMatch) {
+      setFullProduct(localMatch);
+      recordProductView(localMatch);
     }
-  }, [product]);
+
+    fetchProductByIdMemoized(product.id, localMatch).then(({ product: resolved }) => {
+      if (cancelled || !resolved) return;
+      setFullProduct(resolved);
+      if (!localMatch) {
+        recordProductView(resolved);
+      }
+    });
+
+    setSelectedImage(product.primaryImage || fallbackImage);
+    setQuantity(1);
+    setSelectedColor(localMatch?.colorOptions?.[0]?.name || product.color || '');
+    setSelectedColorHex(localMatch?.colorOptions?.[0]?.hex || product.colorHex || '#111111');
+    setSelectedDesignId(localMatch?.designOptions?.[0]?.id || 'std');
+    setAddedAnimation(false);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.id, isOpen, products]);
 
   // Handle ESC key
   useEffect(() => {
@@ -64,13 +87,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
 
   if (!isOpen || !product) return null;
 
-  const activeDesign = product.designOptions?.find((d) => d.id === selectedDesignId);
+  const activeProduct = fullProduct || (product as Product);
+  const activeDesign = activeProduct.designOptions?.find((d) => d.id === selectedDesignId);
   const additionalPrice = activeDesign?.additionalPrice || 0;
-  const unitPrice = product.price + additionalPrice;
+  const unitPrice = activeProduct.price + additionalPrice;
   const totalPrice = unitPrice * quantity;
 
   const handleAddToCart = () => {
-    addToCart(product, quantity, {
+    addToCart(activeProduct, quantity, {
       selectedColor,
       selectedColorHex,
       selectedDesign: activeDesign?.name || 'Standard Cut',
@@ -120,16 +144,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           {/* Left Column: Visual Gallery (Aspect 3:4) */}
           <div className="md:col-span-6 bg-[#08080A] p-4 sm:p-6 flex flex-col justify-between border-b md:border-b-0 md:border-r border-[#C5A059]/20">
             <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#141418] border border-white/10">
-              <img
-                src={selectedImage}
+              <OptimizedImage
+                src={selectedImage || product.primaryImage || fallbackImage}
                 alt={product.title}
                 width={600}
                 height={800}
-                referrerPolicy="no-referrer"
+                maxWidth={896}
+                sizes="(max-width: 768px) 92vw, 420px"
+                priority
+                showPlaceholder={false}
+                fallbackSrc={fallbackImage}
                 className="w-full h-full object-cover object-center"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = fallbackImage;
-                }}
               />
               {product.originalPrice && product.originalPrice > product.price && (
                 <div className="absolute top-3 left-3 bg-[#D4AF37] text-[#060608] text-[10px] font-bold tracking-widest uppercase px-2.5 py-1 shadow-sm">
@@ -139,9 +164,9 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
             </div>
 
             {/* Thumbnail Row */}
-            {product.galleryImages && product.galleryImages.length > 1 && (
+            {activeProduct.galleryImages && activeProduct.galleryImages.length > 1 && (
               <div className="flex items-center gap-2 mt-3 overflow-x-auto pb-1">
-                {product.galleryImages.map((img, idx) => (
+                {activeProduct.galleryImages.map((img, idx) => (
                   <button
                     key={idx}
                     type="button"
@@ -150,14 +175,16 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                       selectedImage === img ? 'border-[#D4AF37]' : 'border-transparent opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img
+                    <OptimizedImage
                       src={img}
                       alt={`Thumbnail ${idx + 1}`}
-                      referrerPolicy="no-referrer"
+                      width={56}
+                      height={72}
+                      maxWidth={400}
+                      sizes="64px"
+                      loading="lazy"
+                      fallbackSrc={fallbackImage}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = fallbackImage;
-                      }}
                     />
                   </button>
                 ))}
@@ -230,14 +257,14 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               </div>
 
               {/* Color Shade Selection */}
-              {product.colorOptions && product.colorOptions.length > 0 && (
+              {activeProduct.colorOptions && activeProduct.colorOptions.length > 0 && (
                 <div className="mt-4 space-y-2">
                   <div className="flex justify-between text-xs">
                     <span className="font-semibold uppercase tracking-wider text-[#E8D5A7]">Color / Shade:</span>
                     <span className="font-medium text-[#D4AF37]">{selectedColor}</span>
                   </div>
                   <div className="flex items-center gap-2 flex-wrap">
-                    {product.colorOptions.map((opt) => (
+                    {activeProduct.colorOptions.map((opt) => (
                       <button
                         key={opt.name}
                         type="button"
@@ -264,13 +291,13 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               )}
 
               {/* Design Options */}
-              {product.designOptions && product.designOptions.length > 1 && (
+              {activeProduct.designOptions && activeProduct.designOptions.length > 1 && (
                 <div className="mt-4 space-y-2">
                   <span className="block text-xs font-semibold uppercase tracking-wider text-[#E8D5A7]">
                     Cut Option:
                   </span>
                   <div className="space-y-1.5">
-                    {product.designOptions.map((d) => (
+                    {activeProduct.designOptions.map((d) => (
                       <button
                         key={d.id}
                         type="button"

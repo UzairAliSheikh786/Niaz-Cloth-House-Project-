@@ -162,6 +162,11 @@ export const Footer: React.FC = () => {
             </h5>
             <ul className="space-y-2 text-neutral-400">
               <li>
+                <button onClick={() => navigateTo('track-order')} className="hover:text-[#D4AF37] text-[#E8D5A7] font-medium transition-colors text-left">
+                  Track Your Order
+                </button>
+              </li>
+              <li>
                 <button onClick={() => navigateTo('location')} className="hover:text-white transition-colors text-left">
                   Paris Bazaar Store Location
                 </button>

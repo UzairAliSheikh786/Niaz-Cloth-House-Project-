@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, ArrowRight, Sparkles } from 'lucide-react';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
+import { OptimizedImage } from './OptimizedImage';
 
 export const SearchModal: React.FC = () => {
   const { isSearchOpen, setIsSearchOpen, products } = useShop();
@@ -139,15 +140,16 @@ export const SearchModal: React.FC = () => {
                   onClick={() => handleSelectProduct(item.id, item.slug)}
                   className="flex items-center gap-3 p-2.5 bg-white hover:bg-neutral-50 border border-neutral-200 cursor-pointer transition-colors group"
                 >
-                  <img
+                  <OptimizedImage
                     src={item.primaryImage}
                     alt={`${item.title}`}
                     width={48}
                     height={64}
-                    className="w-12 h-16 object-cover bg-neutral-100 shrink-0"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
-                    }}
+                    maxWidth={400}
+                    sizes="48px"
+                    loading="lazy"
+                    pictureClassName="w-12 h-16 shrink-0 bg-neutral-100 block overflow-hidden"
+                    className="w-full h-full object-cover"
                   />
                   <div className="flex-1 min-w-0">
                     <span className="text-[10px] font-bold tracking-wider uppercase text-neutral-500 block">

@@ -37,10 +37,32 @@
     <meta name="twitter:description" content="Dress To Impress: Luxury Pakistani unstitched fabrics since 1970 at Shop # 166-C Paris Bazaar, Rawalpindi. Pure Chinese Boski silk, Ladies, Gents &amp; Children cloth variety." />
     <meta name="twitter:image" content="/images/hero_niaz_luxury_fabric_1791569218384.jpg" />
 
-    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans -->
+    <!-- Preload Primary Above-the-Fold Hero LCP Image -->
+    <link
+      rel="preload"
+      as="image"
+      type="image/webp"
+      href="/images/opt/shahi_hero_banner-1376w.webp"
+      imagesrcset="/images/opt/shahi_hero_banner-400w.webp 400w, /images/opt/shahi_hero_banner-800w.webp 800w, /images/opt/shahi_hero_banner-1376w.webp 1376w"
+      imagesizes="100vw"
+      fetchpriority="high"
+    />
+
+    <!-- Google Fonts: Playfair Display & Plus Jakarta Sans (Non-render-blocking with swap) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+      media="print"
+      onload="this.media='all'"
+    />
+    <noscript>
+      <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+      />
+    </noscript>
 
     <!-- Schema.org JSON-LD Structured Data for ClothingStore -->
     <script type="application/ld+json" id="store-schema-jsonld">

@@ -201,6 +201,16 @@ export const Header: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => {
+                      navigateTo('track-order');
+                      setUserDropdownOpen(false);
+                    }}
+                    className="w-full text-left px-4 py-2 hover:bg-white/5 font-medium text-[#F7F4EE]"
+                  >
+                    Track Order Status
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
                       navigateTo('admin');
                       setUserDropdownOpen(false);
                     }}
@@ -466,6 +476,18 @@ export const Header: React.FC = () => {
                   <Phone className="w-3.5 h-3.5" />
                   <span>WhatsApp Concierge (0334-6565636)</span>
                 </a>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigateTo('track-order');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full py-2 text-left flex items-center gap-2 hover:text-[#D4AF37] font-medium"
+                >
+                  <ArrowRight className="w-4 h-4 text-[#D4AF37]" />
+                  <span>Track Your Order</span>
+                </button>
 
                 <button
                   type="button"

@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, Suspense, lazy } from 'react';
 import {
   SlidersHorizontal,
   X,
@@ -10,23 +10,36 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { useShop, formatPKR } from '../context/ShopContext';
+import { useShop, formatPKR, ShopProductPageFilters } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import {
-  Product,
+  ProductCardItem,
   WOMEN_EMBROIDERY_BRANDS,
   WOMEN_PRINTED_BRANDS,
   MENS_FABRICS,
 } from '../types';
 import { ProductCard } from '../components/ProductCard';
 import { Breadcrumbs, BreadcrumbItem } from '../components/Breadcrumbs';
-import { QuickViewModal } from '../components/QuickViewModal';
+import { OptimizedImage } from '../components/OptimizedImage';
+
+const QuickViewModal = lazy(() =>
+  import('../components/QuickViewModal').then((m) => ({ default: m.QuickViewModal }))
+);
 
 export const ShopPage: React.FC = () => {
-  const { products, wishlist, recentlyViewed } = useShop();
+  const {
+    paginatedProducts,
+    hasMoreProducts,
+    isLoadingProducts,
+    isLoadingMoreProducts,
+    totalCatalogCount,
+    fetchInitialProductPage,
+    fetchNextProductPage,
+    recentlyViewed,
+  } = useShop();
   const { filterParams, navigateTo } = useNavigation();
 
-  const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [quickViewProduct, setQuickViewProduct] = useState<ProductCardItem | null>(null);
 
   const [searchQuery, setSearchQuery] = useState<string>(filterParams.search || '');
   const [selectedGender, setSelectedGender] = useState<string>(filterParams.gender || 'All');
@@ -60,73 +73,48 @@ export const ShopPage: React.FC = () => {
     setSearchQuery(filterParams.search || '');
   }, [filterParams]);
 
+  const activeFilters = useMemo<ShopProductPageFilters>(
+    () => ({
+      gender: selectedGender,
+      fabric: selectedFabric,
+      brand: selectedBrand,
+      craftType: selectedCraft,
+      collection: filterParams.collection,
+      priceRange,
+      inStockOnly,
+      sortBy,
+      searchQuery,
+      favoritesOnly: filterParams.favoritesOnly,
+      saleOnly: filterParams.saleOnly,
+      newArrivalsOnly: filterParams.newArrivalsOnly,
+    }),
+    [
+      selectedGender,
+      selectedFabric,
+      selectedBrand,
+      selectedCraft,
+      filterParams.collection,
+      filterParams.favoritesOnly,
+      filterParams.saleOnly,
+      filterParams.newArrivalsOnly,
+      priceRange,
+      inStockOnly,
+      sortBy,
+      searchQuery,
+    ]
+  );
+
+  // Trigger initial 12-item Firestore cursor query via ShopContext whenever active filters change
+  useEffect(() => {
+    void fetchInitialProductPage(activeFilters);
+  }, [activeFilters, fetchInitialProductPage]);
+
   const allBrands = useMemo(() => {
     return Array.from(new Set([...WOMEN_EMBROIDERY_BRANDS, ...WOMEN_PRINTED_BRANDS]));
   }, []);
 
-  const filteredProducts = useMemo(() => {
-    return products
-      .filter((p) => {
-        if (filterParams.favoritesOnly && !wishlist.includes(p.id)) return false;
+  const filteredProducts = paginatedProducts;
 
-        if (filterParams.collection) {
-          if (filterParams.collection === 'Stitched') {
-            const isCouture =
-              p.collection === 'Stitched' ||
-              p.collection === 'Bridal & Formal Soiree' ||
-              p.collection === 'Wedding & Festive Formals' ||
-              p.craftType === 'Embroidery';
-            if (!isCouture) return false;
-          } else if (p.collection !== filterParams.collection) {
-            return false;
-          }
-        }
-
-        if (searchQuery.trim()) {
-          const q = searchQuery.toLowerCase();
-          const matchTitle = p.title.toLowerCase().includes(q);
-          const matchBrand = (p.brand || '').toLowerCase().includes(q);
-          const matchFabric = p.fabric.toLowerCase().includes(q);
-          const matchSubtitle = (p.subtitle || '').toLowerCase().includes(q);
-          if (!matchTitle && !matchBrand && !matchFabric && !matchSubtitle) return false;
-        }
-
-        if (selectedGender !== 'All' && p.gender !== selectedGender) return false;
-        if (selectedCraft !== 'All' && p.craftType !== selectedCraft) return false;
-        if (selectedFabric !== 'All' && p.fabric !== selectedFabric) return false;
-        if (selectedBrand !== 'All' && p.brand !== selectedBrand) return false;
-        if (inStockOnly && !p.inStock) return false;
-
-        if (filterParams.saleOnly && !(p.originalPrice && p.originalPrice > p.price)) return false;
-        if (filterParams.newArrivalsOnly && !p.newArrival) return false;
-
-        if (priceRange === 'under-4000' && p.price >= 4000) return false;
-        if (priceRange === '4000-7000' && (p.price < 4000 || p.price > 7000)) return false;
-        if (priceRange === '7000-12000' && (p.price < 7000 || p.price > 12000)) return false;
-        if (priceRange === 'above-12000' && p.price <= 12000) return false;
-
-        return true;
-      })
-      .sort((a, b) => {
-        if (sortBy === 'price-asc') return a.price - b.price;
-        if (sortBy === 'price-desc') return b.price - a.price;
-        if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
-        if (sortBy === 'newest') return (b.newArrival ? 1 : 0) - (a.newArrival ? 1 : 0);
-        return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
-      });
-  }, [
-    products,
-    wishlist,
-    filterParams,
-    searchQuery,
-    selectedGender,
-    selectedCraft,
-    selectedFabric,
-    selectedBrand,
-    inStockOnly,
-    priceRange,
-    sortBy,
-  ]);
 
   const hasActiveFilters =
     selectedGender !== 'All' ||
@@ -204,7 +192,7 @@ export const ShopPage: React.FC = () => {
             {getHeaderTitle()}
           </h1>
           <p className="text-[11px] sm:text-xs text-[#E8D5A7]/65 uppercase tracking-[0.2em] font-medium">
-            Showing {filteredProducts.length} of {products.length} Curated Articles
+            Showing {filteredProducts.length} Loaded{hasMoreProducts ? '+' : ''} of {totalCatalogCount} Curated Articles
           </p>
         </div>
 
@@ -490,7 +478,13 @@ export const ShopPage: React.FC = () => {
 
           {/* Product Grid */}
           <main className="flex-1 min-w-0">
-            {filteredProducts.length === 0 ? (
+            {isLoadingProducts && filteredProducts.length === 0 ? (
+              <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="aspect-[3/4] bg-[#121216] border border-white/10 rounded-md animate-pulse" />
+                ))}
+              </div>
+            ) : filteredProducts.length === 0 ? (
               <div className="text-center py-20 border border-[#C5A059]/25 bg-[#0E0E12] p-8">
                 <h3 className="font-serif text-xl uppercase tracking-wider text-[#D4AF37] mb-2">
                   No Fabrics Found
@@ -507,6 +501,7 @@ export const ShopPage: React.FC = () => {
                 </button>
               </div>
             ) : (
+              <>
               <div
                 className={`grid gap-4 sm:gap-5 lg:gap-6 ${
                   gridCols === 1
@@ -518,14 +513,32 @@ export const ShopPage: React.FC = () => {
                     : 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
                 }`}
               >
-                {filteredProducts.map((product) => (
+                {filteredProducts.map((product, index) => (
                   <ProductCard
                     key={product.id}
                     product={product}
+                    priority={index < 4}
                     onQuickView={(p) => setQuickViewProduct(p)}
                   />
                 ))}
               </div>
+
+              {hasMoreProducts && (
+                <div className="mt-10 flex flex-col items-center gap-3">
+                  <p className="text-[11px] font-sans uppercase tracking-[0.2em] text-[#E8D5A7]/60 tabular-nums">
+                    Loaded {filteredProducts.length} Articles · More Available
+                  </p>
+                  <button
+                    type="button"
+                    disabled={isLoadingMoreProducts}
+                    onClick={() => void fetchNextProductPage()}
+                    className="py-3 px-8 bg-transparent border border-[#D4AF37] hover:bg-[#D4AF37] text-[#E8D5A7] hover:text-[#060608] text-xs font-semibold tracking-[0.2em] uppercase transition-colors rounded-xs disabled:opacity-50"
+                  >
+                    {isLoadingMoreProducts ? 'Loading Next 12 Articles...' : 'Load More Articles (12)'}
+                  </button>
+                </div>
+              )}
+              </>
             )}
           </main>
         </div>
@@ -555,13 +568,14 @@ export const ShopPage: React.FC = () => {
                 >
                   <div>
                     <div className="aspect-[3/4] overflow-hidden bg-[#18181D] relative mb-2.5">
-                      <img
+                      <OptimizedImage
                         src={item.primaryImage}
                         alt={item.title}
-                        referrerPolicy="no-referrer"
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src = '/images/shahi_hero_banner.jpg';
-                        }}
+                        width={240}
+                        height={320}
+                        maxWidth={400}
+                        sizes="(max-width: 640px) 45vw, 180px"
+                        loading="lazy"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
@@ -710,11 +724,15 @@ export const ShopPage: React.FC = () => {
         </div>
       )}
 
-      <QuickViewModal
-        product={quickViewProduct}
-        isOpen={!!quickViewProduct}
-        onClose={() => setQuickViewProduct(null)}
-      />
+      {quickViewProduct && (
+        <Suspense fallback={null}>
+          <QuickViewModal
+            product={quickViewProduct}
+            isOpen={!!quickViewProduct}
+            onClose={() => setQuickViewProduct(null)}
+          />
+        </Suspense>
+      )}
     </div>
   );
 };

@@ -405,6 +405,11 @@ export const PatronAuthModal: React.FC = () => {
                 <img
                   src={user.photoURL}
                   alt={user.displayName || 'Customer'}
+                  width={48}
+                  height={48}
+                  loading="lazy"
+                  decoding="async"
+                  referrerPolicy="no-referrer"
                   className="w-12 h-12 rounded-full object-cover border border-[#E2E8F0]"
                 />
               ) : (

@@ -1,20 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, memo } from 'react';
 import { Heart, Eye, Check } from 'lucide-react';
-import { Product } from '../types';
+import { ProductCardItem } from '../types';
 import { useShop, formatPKR } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
+import { OptimizedImage } from './OptimizedImage';
 
 interface ProductCardProps {
-  product: Product;
-  onQuickView?: (product: Product) => void;
+  product: ProductCardItem;
+  onQuickView?: (product: ProductCardItem) => void;
+  priority?: boolean;
 }
 
-export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
+const ProductCardComponent: React.FC<ProductCardProps> = ({
+  product,
+  onQuickView,
+  priority = false,
+}) => {
   const { addToCart, wishlist, toggleWishlist } = useShop();
   const { navigateTo } = useNavigation();
 
   const fallbackImage = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
-  const [currentImg, setCurrentImg] = useState<string>(product.primaryImage || fallbackImage);
   const [addedFeedback, setAddedFeedback] = useState(false);
 
   const isFavorite = wishlist.includes(product.id);
@@ -43,20 +48,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           className="block w-full h-full cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#D4AF37]"
           aria-label={`View ${product.title}`}
         >
-          <img
-            src={currentImg}
+          <OptimizedImage
+            src={product.primaryImage || fallbackImage}
             alt={`${product.title} - ${product.fabric} at Niaz Cloth House`}
-            width={600}
-            height={800}
-            loading="lazy"
+            width={400}
+            height={533}
+            maxWidth={640}
+            sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 280px"
+            priority={priority}
+            loading={priority ? 'eager' : 'lazy'}
             decoding="async"
-            referrerPolicy="no-referrer"
+            fallbackSrc={fallbackImage}
             className="h-full w-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
-            onError={() => {
-              if (currentImg !== fallbackImage) {
-                setCurrentImg(fallbackImage);
-              }
-            }}
           />
         </a>
 
@@ -97,7 +100,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </div>
       </div>
 
-      {/* 2. Clean Editorial Product Info (Exact Match to Reference Mockup) */}
+      {/* 2. Clean Editorial Product Info */}
       <div className="pt-3 flex flex-col flex-grow justify-between text-left min-w-0">
         <div>
           <h3 className="text-[13px] sm:text-[14px] font-medium text-[#F7F4EE] group-hover:text-[#D4AF37] truncate leading-snug transition-colors">
@@ -141,3 +144,5 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
     </article>
   );
 };
+
+export const ProductCard = memo(ProductCardComponent);

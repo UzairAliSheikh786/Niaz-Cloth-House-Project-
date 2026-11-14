@@ -1,19 +1,22 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore';
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import { collection, doc, getDocs, setDoc, query, orderBy, limit, QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 import { db } from '../firebase';
 import { ProductReview, NewsletterSubscriber } from '../types';
-import { 
-  seedReviewsIfEmpty, 
-  getReviewsForProductFromDB, 
-  getAllReviewsFromDB, 
-  addReviewToDB, 
+import {
+  seedReviewsIfEmpty,
+  getAllReviewsFromDB,
+  addReviewToDB,
   putReviewInDB,
   computeRatingStats,
   addNewsletterSubscriberToDB,
   getNewsletterSubscribersFromDB,
-  validateEmail
 } from '../utils/indexedDB';
 import { INITIAL_PRODUCTS } from '../data/products';
+import {
+  fetchProductReviewsPage,
+  invalidateProductReviewCache,
+  ProductReviewsPageResult,
+} from '../services/firestoreProductService';
 
 interface RatingStats {
   averageRating: number;
@@ -29,6 +32,14 @@ interface ReviewContextType {
   isSubscribingNewsletter: boolean;
   getReviewsForProduct: (productId: string) => ProductReview[];
   getProductStats: (productId: string) => RatingStats;
+  loadProductReviewsPage: (
+    productId: string,
+    options?: {
+      pageSize?: number;
+      cursor?: QueryDocumentSnapshot<DocumentData> | null;
+      forceRefresh?: boolean;
+    }
+  ) => Promise<ProductReviewsPageResult>;
   submitReview: (reviewData: {
     productId: string;
     authorName: string;
@@ -79,9 +90,14 @@ export const ReviewProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const subscribers = await getNewsletterSubscribersFromDB();
       setNewsletterSubscribers(subscribers);
 
-      // 3. Gracefully sync with Firestore Cloud Database if online
+      // 3. Gracefully sync bounded recent reviews (limit 20) from Cloud Firestore instead of full collection scan
       try {
-        const snap = await getDocs(collection(db, 'reviews'));
+        const recentReviewsQuery = query(
+          collection(db, 'reviews'),
+          orderBy('createdAt', 'desc'),
+          limit(20)
+        );
+        const snap = await getDocs(recentReviewsQuery);
         if (!snap.empty) {
           for (const docSnap of snap.docs) {
             const data = docSnap.data() as ProductReview;
@@ -106,7 +122,20 @@ export const ReviewProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   }, []);
 
   useEffect(() => {
-    loadAllData();
+    const w = window as unknown as {
+      requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number;
+      cancelIdleCallback?: (id: number) => void;
+    };
+    if (typeof w.requestIdleCallback === 'function') {
+      const id = w.requestIdleCallback(() => {
+        void loadAllData();
+      }, { timeout: 1500 });
+      return () => w.cancelIdleCallback?.(id);
+    }
+    const timer = setTimeout(() => {
+      void loadAllData();
+    }, 900);
+    return () => clearTimeout(timer);
   }, [loadAllData]);
 
   const getReviewsForProduct = useCallback((productId: string): ProductReview[] => {
@@ -121,6 +150,43 @@ export const ReviewProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
     return computeRatingStats(dbReviews, baseRating, baseReviewsCount);
   }, [reviewsMap]);
+
+  const loadProductReviewsPage = useCallback(
+    async (
+      productId: string,
+      options?: {
+        pageSize?: number;
+        cursor?: QueryDocumentSnapshot<DocumentData> | null;
+        forceRefresh?: boolean;
+      }
+    ): Promise<ProductReviewsPageResult> => {
+      const pageResult = await fetchProductReviewsPage(
+        productId,
+        options?.pageSize ?? 6,
+        options?.cursor ?? null,
+        Boolean(options?.forceRefresh)
+      );
+
+      if (pageResult.items.length > 0) {
+        for (const rev of pageResult.items) {
+          await putReviewInDB(rev).catch(() => {});
+        }
+        setReviewsMap((prev) => {
+          const existing = prev[productId] || [];
+          const byId = new Map<string, ProductReview>();
+          existing.forEach((r) => byId.set(r.id, r));
+          pageResult.items.forEach((r) => byId.set(r.id, r));
+          const mergedList = Array.from(byId.values()).sort(
+            (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          );
+          return { ...prev, [productId]: mergedList };
+        });
+      }
+
+      return pageResult;
+    },
+    []
+  );
 
   const submitReview = async (reviewData: {
     productId: string;
@@ -138,7 +204,8 @@ export const ReviewProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         verifiedBuyer: true,
       });
 
-      // 2. Update reactive state immediately
+      // 2. Update reactive state immediately and invalidate memoized review page cache
+      invalidateProductReviewCache(reviewData.productId);
       setAllReviews((prev) => [createdReview, ...prev]);
       setReviewsMap((prev) => {
         const currentList = prev[reviewData.productId] || [];
@@ -181,21 +248,35 @@ export const ReviewProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const contextValue = useMemo(
+    () => ({
+      reviewsMap,
+      allReviews,
+      newsletterSubscribers,
+      isSubmittingReview,
+      isSubscribingNewsletter,
+      getReviewsForProduct,
+      getProductStats,
+      loadProductReviewsPage,
+      submitReview,
+      subscribeNewsletter,
+      refreshData: loadAllData,
+    }),
+    [
+      reviewsMap,
+      allReviews,
+      newsletterSubscribers,
+      isSubmittingReview,
+      isSubscribingNewsletter,
+      getReviewsForProduct,
+      getProductStats,
+      loadProductReviewsPage,
+      loadAllData,
+    ]
+  );
+
   return (
-    <ReviewContext.Provider
-      value={{
-        reviewsMap,
-        allReviews,
-        newsletterSubscribers,
-        isSubmittingReview,
-        isSubscribingNewsletter,
-        getReviewsForProduct,
-        getProductStats,
-        submitReview,
-        subscribeNewsletter,
-        refreshData: loadAllData,
-      }}
-    >
+    <ReviewContext.Provider value={contextValue}>
       {children}
     </ReviewContext.Provider>
   );
