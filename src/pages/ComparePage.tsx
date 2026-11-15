@@ -368,14 +368,14 @@ export const ComparePage: React.FC = () => {
 
         {/* SECTION 1: RECOMMENDED SEASONAL USAGE & WEATHER SUITABILITY */}
         <div className="bg-white border border-[#E2E8F0] shadow-xs overflow-hidden">
-          <div className="bg-[#1C1917] text-white px-5 py-3.5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Sun className="w-4 h-4 text-[#38BDF8]" />
-              <h2 className="font-serif text-sm font-bold tracking-wide">
+          <div className="bg-[#1C1917] text-white px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Sun className="w-4 h-4 text-[#38BDF8] shrink-0" />
+              <h2 className="font-serif text-sm font-bold tracking-wide break-words">
                 1. Recommended Seasonal Usage & Weather Suitability
               </h2>
             </div>
-            <span className="text-[11px] text-white/70">Pakistani Climate Guide</span>
+            <span className="text-[11px] text-white/70 shrink-0">Pakistani Climate Guide</span>
           </div>
 
           <div className="divide-y divide-[#E2E8F0] text-xs">
@@ -477,14 +477,14 @@ export const ComparePage: React.FC = () => {
 
         {/* SECTION 2: CLOTH & TAILORING SPECIFICATIONS */}
         <div className="bg-white border border-[#E2E8F0] shadow-xs overflow-hidden">
-          <div className="bg-[#1C1917] text-white px-5 py-3.5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Scissors className="w-4 h-4 text-[#38BDF8]" />
-              <h2 className="font-serif text-sm font-bold tracking-wide">
+          <div className="bg-[#1C1917] text-white px-4 sm:px-5 py-3.5 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2 min-w-0">
+              <Scissors className="w-4 h-4 text-[#38BDF8] shrink-0" />
+              <h2 className="font-serif text-sm font-bold tracking-wide break-words">
                 2. Cloth Specifications & Sizing
               </h2>
             </div>
-            <span className="text-[11px] text-white/70">Unstitched Details</span>
+            <span className="text-[11px] text-white/70 shrink-0">Unstitched Details</span>
           </div>
 
           <div className="divide-y divide-[#E2E8F0] text-xs">
@@ -642,7 +642,7 @@ export const ComparePage: React.FC = () => {
               </div>
 
               {/* Category Pills */}
-              <div className="flex items-center gap-1.5 text-xs">
+              <div className="flex flex-wrap items-center gap-1.5 text-xs">
                 <span className="text-[11px] text-[#1C1917]/60 font-semibold mr-1">Filter:</span>
                 {(['All', 'Men', 'Women'] as const).map((gender) => (
                   <button

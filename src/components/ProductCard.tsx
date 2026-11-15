@@ -102,14 +102,14 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
 
       {/* 2. Clean Editorial Product Info */}
       <div className="pt-3 flex flex-col flex-grow justify-between text-left min-w-0">
-        <div>
-          <h3 className="text-[13px] sm:text-[14px] font-medium text-[#F7F4EE] group-hover:text-[#D4AF37] truncate leading-snug transition-colors">
+        <div className="min-w-0">
+          <h3 className="text-[13px] sm:text-[14px] font-medium text-[#F7F4EE] group-hover:text-[#D4AF37] line-clamp-2 break-words leading-snug min-h-[2.4em] transition-colors">
             <a href={productUrl} onClick={handleCardClick} title={product.title}>
               {product.title}
             </a>
           </h3>
 
-          <div className="mt-0.5 flex items-baseline gap-2">
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
             <span className="text-xs sm:text-[13px] font-medium text-[#D4AF37] tabular-nums whitespace-nowrap">
               {formatPKR(product.price)}
             </span>
@@ -125,7 +125,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleAddToCart}
-          className={`mt-2.5 w-full py-2 px-4 text-xs font-medium tracking-wider transition-all duration-200 rounded-xs border flex items-center justify-center gap-1.5 whitespace-nowrap ${
+          className={`mt-2.5 w-full py-2 px-2.5 sm:px-4 text-[11px] sm:text-xs font-medium tracking-wide sm:tracking-wider transition-all duration-200 rounded-xs border flex items-center justify-center gap-1.5 text-center leading-tight ${
             addedFeedback
               ? 'bg-[#D4AF37] border-[#D4AF37] text-[#060608] font-semibold'
               : 'bg-transparent border-[#C5A059]/45 hover:border-[#D4AF37] hover:bg-[#D4AF37] text-[#E8D5A7] hover:text-[#060608]'
@@ -133,7 +133,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
         >
           {addedFeedback ? (
             <>
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-3.5 h-3.5 shrink-0" />
               <span>Added to Cart</span>
             </>
           ) : (

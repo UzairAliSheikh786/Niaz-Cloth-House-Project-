@@ -111,14 +111,14 @@ export const Interactive3DStorefronts: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-[#060608]/55 to-transparent" />
 
-            <div className="relative z-10 p-6 sm:p-8 space-y-3">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#D4AF37]">
+            <div className="relative z-10 p-5 sm:p-8 space-y-3 min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#D4AF37]">
                 <span>Women's Couture</span>
                 <span aria-hidden="true">·</span>
                 <span>3-Piece Unstitched</span>
               </div>
 
-              <h3 className="font-serif text-3xl sm:text-4xl font-normal text-[#F7F4EE] tracking-wide">
+              <h3 className="font-serif text-2xl sm:text-4xl font-normal text-[#F7F4EE] tracking-wide break-words">
                 Festive Lawn &amp; Chiffon
               </h3>
 
@@ -126,15 +126,15 @@ export const Interactive3DStorefronts: React.FC = () => {
                 Embroidered silk, zari chiffon, and seasonal lawn ensembles by Johara, Bin Saeed, and Tawakkal.
               </p>
 
-              <div className="pt-3 border-t border-white/15 flex items-center justify-between gap-4">
+              <div className="pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-3">
                 {sampleWomenProduct && (
-                  <div className="text-xs text-[#E8D5A7]/85 truncate">
-                    <span className="block truncate font-medium text-[#F7F4EE]">{sampleWomenProduct.title}</span>
+                  <div className="text-xs text-[#E8D5A7]/85 min-w-0 flex-1">
+                    <span className="block line-clamp-1 font-medium text-[#F7F4EE]">{sampleWomenProduct.title}</span>
                     <span className="text-[#D4AF37] tabular-nums">{formatPKR(sampleWomenProduct.price)}</span>
                   </div>
                 )}
 
-                <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#D4AF37] group-hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0 rounded-xs">
+                <span className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#D4AF37] group-hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0 rounded-xs">
                   <span>Explore</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>
@@ -184,14 +184,14 @@ export const Interactive3DStorefronts: React.FC = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-[#060608] via-[#060608]/55 to-transparent" />
 
-            <div className="relative z-10 p-6 sm:p-8 space-y-3">
-              <div className="flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] text-[#D4AF37]">
+            <div className="relative z-10 p-5 sm:p-8 space-y-3 min-w-0">
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[11px] uppercase tracking-[0.16em] sm:tracking-[0.2em] text-[#D4AF37]">
                 <span>Men's Sartorial</span>
                 <span aria-hidden="true">·</span>
                 <span>4.5m Double Width</span>
               </div>
 
-              <h3 className="font-serif text-3xl sm:text-4xl font-normal text-[#F7F4EE] tracking-wide">
+              <h3 className="font-serif text-2xl sm:text-4xl font-normal text-[#F7F4EE] tracking-wide break-words">
                 Pure Boski &amp; Suiting
               </h3>
 
@@ -199,15 +199,15 @@ export const Interactive3DStorefronts: React.FC = () => {
                 Authentic 8-pound Chinese Boski silk, wrinkle-resistant Wash &amp; Wear, combed cotton, and Kamalia Khaddar.
               </p>
 
-              <div className="pt-3 border-t border-white/15 flex items-center justify-between gap-4">
+              <div className="pt-3 border-t border-white/15 flex flex-wrap items-center justify-between gap-3">
                 {sampleMenProduct && (
-                  <div className="text-xs text-[#E8D5A7]/85 truncate">
-                    <span className="block truncate font-medium text-[#F7F4EE]">{sampleMenProduct.title}</span>
+                  <div className="text-xs text-[#E8D5A7]/85 min-w-0 flex-1">
+                    <span className="block line-clamp-1 font-medium text-[#F7F4EE]">{sampleMenProduct.title}</span>
                     <span className="text-[#D4AF37] tabular-nums">{formatPKR(sampleMenProduct.price)}</span>
                   </div>
                 )}
 
-                <span className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#D4AF37] group-hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0 rounded-xs">
+                <span className="inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 bg-[#D4AF37] group-hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0 rounded-xs">
                   <span>Explore</span>
                   <ArrowRight className="w-3.5 h-3.5" />
                 </span>

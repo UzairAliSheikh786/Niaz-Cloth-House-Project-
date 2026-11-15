@@ -65,9 +65,9 @@ export const Header: React.FC = () => {
 
   return (
     <header className="w-full bg-[#060608]/95 backdrop-blur-md border-b border-[#C5A059]/25 sticky top-0 z-40 text-[#F7F4EE]">
-      {/* Clean Single-Row 3-Zone Top Bar */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between gap-8 h-18 sm:h-20">
+      {/* Clean Responsive Top Bar */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between gap-2 sm:gap-4 lg:gap-6 min-h-[68px] sm:min-h-[76px] py-2">
           {/* Zone 1: Brand Wordmark */}
           <a
             href="/"
@@ -75,26 +75,42 @@ export const Header: React.FC = () => {
               e.preventDefault();
               navigateTo('home');
             }}
-            className="flex flex-col text-left group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37] whitespace-nowrap shrink-0"
+            className="flex flex-col text-left group focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37] shrink-0 min-w-0"
             aria-label="Niaz Cloth House Home"
           >
-            <span className="font-serif text-2xl sm:text-[28px] font-semibold tracking-[0.22em] text-[#D4AF37] group-hover:text-[#E8D5A7] transition-colors leading-none">
+            <span className="font-serif text-xl sm:text-[26px] font-semibold tracking-[0.15em] sm:tracking-[0.22em] text-[#D4AF37] group-hover:text-[#E8D5A7] transition-colors leading-none">
               NIAZ
             </span>
-            <span className="text-[9px] tracking-[0.34em] font-sans font-medium text-[#C5A059]/85 group-hover:text-[#E8D5A7] uppercase mt-1 leading-none">
+            <span className="text-[8px] sm:text-[9px] tracking-[0.24em] sm:tracking-[0.34em] font-sans font-medium text-[#C5A059]/85 group-hover:text-[#E8D5A7] uppercase mt-1 leading-none">
               CLOTH HOUSE
             </span>
           </a>
 
-          {/* Zone 2: Clean Single-Line Nav Links */}
+          {/* Zone 2: Responsive Multi-Breakpoint Nav Links (No Hidden/Clipped Options) */}
           <nav
             aria-label="Primary Navigation"
-            className="hidden lg:flex items-center justify-center gap-7 text-[13px] font-sans font-medium tracking-wide text-[#F7F4EE]/90"
+            className="hidden md:flex items-center justify-center flex-wrap gap-x-3.5 lg:gap-x-5 xl:gap-x-6 gap-y-1 text-[11px] lg:text-[13px] font-sans font-medium tracking-wide text-[#F7F4EE]/90 min-w-0"
           >
             <button
               type="button"
+              onClick={() => navigateTo('shop')}
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
+                currentPage === 'shop' &&
+                !filterParams.newArrivalsOnly &&
+                !filterParams.gender &&
+                !filterParams.collection &&
+                !filterParams.saleOnly &&
+                !filterParams.favoritesOnly
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
+            >
+              All Collections
+            </button>
+            <button
+              type="button"
               onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
-              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
                 isNavActive('new-in')
                   ? 'text-[#D4AF37] border-[#D4AF37]'
                   : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
@@ -105,7 +121,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { gender: 'Men' })}
-              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
                 isNavActive('mens')
                   ? 'text-[#D4AF37] border-[#D4AF37]'
                   : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
@@ -116,7 +132,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { gender: 'Women' })}
-              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
                 isNavActive('womens')
                   ? 'text-[#D4AF37] border-[#D4AF37]'
                   : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
@@ -127,7 +143,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { collection: 'The Shahi Collection' })}
-              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
                 isNavActive('luxury')
                   ? 'text-[#D4AF37] border-[#D4AF37]'
                   : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
@@ -138,7 +154,7 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { saleOnly: true })}
-              className={`whitespace-nowrap shrink-0 py-1.5 transition-colors border-b-2 ${
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
                 isNavActive('sale')
                   ? 'text-[#D4AF37] border-[#D4AF37]'
                   : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
@@ -146,14 +162,47 @@ export const Header: React.FC = () => {
             >
               Sale
             </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('compare')}
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
+                currentPage === 'compare'
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
+            >
+              Compare
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('track-order')}
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
+                currentPage === 'track-order'
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
+            >
+              Track Order
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('location')}
+              className={`whitespace-nowrap shrink-0 py-1 transition-colors border-b-2 ${
+                currentPage === 'location'
+                  ? 'text-[#D4AF37] border-[#D4AF37]'
+                  : 'border-transparent hover:text-[#D4AF37] hover:border-[#D4AF37]/50'
+              }`}
+            >
+              Store Location
+            </button>
           </nav>
 
           {/* Zone 3: Cart Primary Action + Essential Utilities */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-0.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={() => setIsSearchOpen(true)}
-              className="p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              className="p-2 sm:p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
               aria-label="Search fabrics"
               title="Search"
             >
@@ -163,13 +212,13 @@ export const Header: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { favoritesOnly: true })}
-              className="hidden sm:flex p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] relative transition-colors min-w-[40px] min-h-[40px] items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              className="p-2 sm:p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] relative transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
               aria-label={`Wishlist (${wishlist.length} items)`}
               title="Saved Fabrics"
             >
-              <Heart className="w-[18px] h-[18px]" />
+              <Heart className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
               {wishlist.length > 0 && (
-                <span className="absolute top-1.5 right-1.5 bg-[#D4AF37] text-[#060608] text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold tabular-nums">
+                <span className="absolute top-1 right-1 bg-[#D4AF37] text-[#060608] text-[9px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold tabular-nums">
                   {wishlist.length}
                 </span>
               )}
@@ -185,7 +234,7 @@ export const Header: React.FC = () => {
                     openAuthModal();
                   }
                 }}
-                className="p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] transition-colors min-w-[40px] min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+                className="p-2 sm:p-2.5 text-[#E8D5A7]/80 hover:text-[#D4AF37] transition-colors min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
                 aria-label="Account and store manager login"
                 title={user ? user.displayName || 'Account' : 'Sign In'}
               >
@@ -193,7 +242,7 @@ export const Header: React.FC = () => {
               </button>
 
               {user && userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-[#111115] border border-[#C5A059]/35 shadow-2xl py-2 z-50 text-xs text-[#F7F4EE]">
+                <div className="absolute right-0 mt-2 w-56 max-w-[calc(100vw-2rem)] bg-[#111115] border border-[#C5A059]/35 shadow-2xl py-2 z-50 text-xs text-[#F7F4EE]">
                   <div className="px-4 py-2 border-b border-white/10">
                     <p className="font-semibold text-[#F7F4EE] truncate">{user.displayName || 'Patron'}</p>
                     <p className="text-[11px] text-[#F7F4EE]/60 truncate">{user.email}</p>
@@ -233,45 +282,139 @@ export const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Primary Cart Control matching screenshot: Cart 🛒 (2) */}
+            {/* Primary Cart Control */}
             <button
               type="button"
               onClick={() => setIsCartOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-2 text-[#D4AF37] hover:text-[#F7F4EE] transition-colors text-xs sm:text-[13px] font-medium whitespace-nowrap shrink-0 min-h-[40px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              className="flex items-center gap-1 px-2 sm:px-3 py-2 text-[#D4AF37] hover:text-[#F7F4EE] transition-colors text-xs sm:text-[13px] font-medium whitespace-nowrap shrink-0 min-h-[36px] sm:min-h-[40px] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
               aria-label={`Open shopping cart with ${cartCount} items`}
             >
-              <span>Cart</span>
+              <span className="hidden min-[380px]:inline">Cart</span>
               <ShoppingCart className="w-4 h-4 text-[#D4AF37]" />
               <span className="tabular-nums">({cartCount})</span>
             </button>
 
-            {/* Mobile Hamburger */}
+            {/* Mobile / Tablet Hamburger */}
             <button
               type="button"
               onClick={() => setMobileMenuOpen(true)}
-              className="p-2 text-[#E8D5A7] hover:text-[#D4AF37] lg:hidden min-w-[44px] min-h-[44px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
+              className="p-2 text-[#E8D5A7] hover:text-[#D4AF37] md:hidden min-w-[38px] min-h-[38px] flex items-center justify-center focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#D4AF37]"
               aria-label="Open menu"
             >
               <Menu className="w-5 h-5" />
             </button>
           </div>
         </div>
+
+        {/* Mobile Quick Navigation Strip (All primary nav links always visible below header on < md screens) */}
+        <nav
+          aria-label="Mobile Quick Navigation"
+          className="md:hidden flex items-center flex-wrap justify-center gap-x-3 gap-y-1.5 pb-2.5 pt-1 border-t border-[#C5A059]/15 text-[11px] font-sans font-medium text-[#F7F4EE]/90"
+        >
+          <button
+            type="button"
+            onClick={() => navigateTo('shop')}
+            className={`py-0.5 transition-colors ${
+              currentPage === 'shop' &&
+              !filterParams.newArrivalsOnly &&
+              !filterParams.gender &&
+              !filterParams.collection &&
+              !filterParams.saleOnly
+                ? 'text-[#D4AF37] underline underline-offset-4'
+                : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            All Catalog
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
+            className={`py-0.5 transition-colors ${
+              isNavActive('new-in') ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            New In
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('shop', { gender: 'Men' })}
+            className={`py-0.5 transition-colors ${
+              isNavActive('mens') ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Mens Collection
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('shop', { gender: 'Women' })}
+            className={`py-0.5 transition-colors ${
+              isNavActive('womens') ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Womens Collection
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('shop', { collection: 'The Shahi Collection' })}
+            className={`py-0.5 transition-colors ${
+              isNavActive('luxury') ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Luxury
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('shop', { saleOnly: true })}
+            className={`py-0.5 transition-colors ${
+              isNavActive('sale') ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Sale
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('compare')}
+            className={`py-0.5 transition-colors ${
+              currentPage === 'compare' ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Compare
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('track-order')}
+            className={`py-0.5 transition-colors ${
+              currentPage === 'track-order' ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Track Order
+          </button>
+          <button
+            type="button"
+            onClick={() => navigateTo('location')}
+            className={`py-0.5 transition-colors ${
+              currentPage === 'location' ? 'text-[#D4AF37] underline underline-offset-4' : 'hover:text-[#D4AF37]'
+            }`}
+          >
+            Location
+          </button>
+        </nav>
       </div>
 
       {/* Mobile Slide-Out Drawer (Noir & Gold) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
+        <div className="fixed inset-0 z-50 md:hidden">
           <div
             className="fixed inset-0 bg-black/75 backdrop-blur-xs transition-opacity"
             onClick={() => setMobileMenuOpen(false)}
           />
 
           <div className="fixed inset-y-0 left-0 w-full max-w-sm bg-[#0B0B0E] border-r border-[#C5A059]/30 shadow-2xl flex flex-col z-50 text-[#F7F4EE]">
-            <div className="p-4 border-b border-[#C5A059]/25 flex items-center justify-between bg-[#060608]">
-              <span className="font-serif tracking-[0.2em] uppercase text-base text-[#D4AF37]">
+            <div className="p-4 border-b border-[#C5A059]/25 flex items-center justify-between gap-2 bg-[#060608]">
+              <span className="font-serif tracking-[0.16em] uppercase text-sm sm:text-base text-[#D4AF37] truncate">
                 NIAZ CLOTH HOUSE
               </span>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <PWAInstallPrompt />
                 <button
                   type="button"
@@ -285,14 +428,24 @@ export const Header: React.FC = () => {
             </div>
 
             {/* Quick Mobile Links */}
-            <div className="grid grid-cols-3 gap-2 p-4 border-b border-white/10 text-xs font-medium">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 p-4 border-b border-white/10 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => {
+                  navigateTo('shop');
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37] text-center break-words"
+              >
+                All Catalog
+              </button>
               <button
                 type="button"
                 onClick={() => {
                   navigateTo('shop', { newArrivalsOnly: true });
                   setMobileMenuOpen(false);
                 }}
-                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37]"
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37] text-center break-words"
               >
                 New In
               </button>
@@ -302,7 +455,7 @@ export const Header: React.FC = () => {
                   navigateTo('shop', { collection: 'The Shahi Collection' });
                   setMobileMenuOpen(false);
                 }}
-                className="py-2 px-2 border border-[#D4AF37] bg-[#D4AF37]/10 text-[#D4AF37]"
+                className="py-2 px-2 border border-[#D4AF37] bg-[#D4AF37]/10 text-[#D4AF37] text-center break-words"
               >
                 Luxury
               </button>
@@ -312,9 +465,29 @@ export const Header: React.FC = () => {
                   navigateTo('shop', { saleOnly: true });
                   setMobileMenuOpen(false);
                 }}
-                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37]"
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37] text-center break-words"
               >
                 Sale
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigateTo('compare');
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37] text-center break-words"
+              >
+                Compare Fabrics
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  navigateTo('shop', { favoritesOnly: true });
+                  setMobileMenuOpen(false);
+                }}
+                className="py-2 px-2 border border-[#C5A059]/30 text-[#E8D5A7] hover:border-[#D4AF37] text-center break-words"
+              >
+                Wishlist ({wishlist.length})
               </button>
             </div>
 

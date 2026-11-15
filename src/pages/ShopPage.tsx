@@ -187,18 +187,166 @@ export const ShopPage: React.FC = () => {
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 sm:pt-9">
         {/* 2. Royal Noir Catalog Header */}
-        <div className="text-center mb-6 sm:mb-8 pb-5 sm:pb-6 border-b border-[#C5A059]/20 px-2">
+        <div className="text-center mb-5 sm:mb-7 pb-5 sm:pb-6 border-b border-[#C5A059]/20 px-2">
           <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl tracking-[0.12em] sm:tracking-[0.18em] uppercase text-[#D4AF37] mb-2 break-words">
             {getHeaderTitle()}
           </h1>
-          <p className="text-[11px] sm:text-xs text-[#E8D5A7]/65 uppercase tracking-[0.2em] font-medium">
+          <p className="text-[11px] sm:text-xs text-[#E8D5A7]/65 uppercase tracking-[0.16em] sm:tracking-[0.2em] font-medium mb-4">
             Showing {filteredProducts.length} Loaded{hasMoreProducts ? '+' : ''} of {totalCatalogCount} Curated Articles
           </p>
+
+          {/* Quick Wrapped Collection & Category Tags Strip (All options visible without clipping) */}
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+            <button
+              type="button"
+              onClick={resetFilters}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                !hasActiveFilters
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              All Collections
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { gender: 'Men' })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                selectedGender === 'Men' && !filterParams.collection
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              Mens Collection
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { gender: 'Women' })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                selectedGender === 'Women' && selectedCraft === 'All' && !filterParams.collection
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              Womens Collection
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { collection: 'The Shahi Collection' })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                filterParams.collection === 'The Shahi Collection'
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              The Shahi Edit
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                selectedCraft === 'Embroidery'
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              Embroidered
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { gender: 'Women', craftType: 'Printed' })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                selectedCraft === 'Printed'
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              Printed Lawn
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                filterParams.newArrivalsOnly
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              New In
+            </button>
+            <button
+              type="button"
+              onClick={() => navigateTo('shop', { saleOnly: true })}
+              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+                filterParams.saleOnly
+                  ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
+                  : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
+              }`}
+            >
+              Sale
+            </button>
+          </div>
+
+          {/* Active Secondary Filter Chips */}
+          {(selectedBrand !== 'All' || selectedFabric !== 'All' || priceRange !== 'All' || inStockOnly || searchQuery.trim().length > 0) && (
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+              {selectedBrand !== 'All' && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedBrand('All')}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                >
+                  <span>Brand: {selectedBrand}</span>
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              {selectedFabric !== 'All' && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedFabric('All')}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                >
+                  <span>Fabric: {selectedFabric}</span>
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              {priceRange !== 'All' && (
+                <button
+                  type="button"
+                  onClick={() => setPriceRange('All')}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                >
+                  <span>Price: {priceRange}</span>
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              {inStockOnly && (
+                <button
+                  type="button"
+                  onClick={() => setInStockOnly(false)}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                >
+                  <span>In Stock Only</span>
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+              {searchQuery.trim().length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                >
+                  <span>Search: {searchQuery}</span>
+                  <X className="w-3 h-3" />
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 3. Control Strip: Filters Toggle, Active Reset, Grid Switcher & Sort */}
-        <div className="flex items-center justify-between gap-2.5 pb-4 mb-6 border-b border-white/10 text-xs">
-          <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pb-4 mb-6 border-b border-white/10 text-xs">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
@@ -215,14 +363,13 @@ export const ShopPage: React.FC = () => {
                 className="text-[11px] sm:text-xs font-semibold text-[#D4AF37] hover:text-[#F7F4EE] flex items-center gap-1.5 uppercase tracking-wider shrink-0"
               >
                 <RotateCcw className="w-3 h-3" />
-                <span className="hidden sm:inline">Clear Filters</span>
-                <span className="sm:hidden">Reset</span>
+                <span>Clear Filters</span>
               </button>
             )}
           </div>
 
-          <div className="flex items-center gap-2 sm:gap-4 shrink-0">
-            <div className="flex items-center border border-[#C5A059]/30 bg-[#0E0E12] p-0.5 gap-0.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 max-w-full">
+            <div className="flex items-center border border-[#C5A059]/30 bg-[#0E0E12] p-0.5 gap-0.5 shrink-0">
               <button
                 type="button"
                 onClick={() => setGridCols(1)}
@@ -269,14 +416,14 @@ export const ShopPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
               <span className="text-[#E8D5A7]/60 uppercase tracking-wider text-[11px] font-medium hidden md:inline">
                 Sort:
               </span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="py-1.5 px-2.5 sm:py-2 sm:px-3 bg-[#111115] border border-[#C5A059]/35 text-[11px] sm:text-xs font-medium tracking-wider uppercase text-[#F7F4EE] focus:outline-none focus:border-[#D4AF37] cursor-pointer max-w-[150px] sm:max-w-none"
+                className="py-1.5 px-2.5 sm:py-2 sm:px-3 bg-[#111115] border border-[#C5A059]/35 text-[11px] sm:text-xs font-medium tracking-wider uppercase text-[#F7F4EE] focus:outline-none focus:border-[#D4AF37] cursor-pointer max-w-full"
                 aria-label="Sort products"
               >
                 <option value="featured">Featured</option>
@@ -579,11 +726,13 @@ export const ShopPage: React.FC = () => {
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     </div>
-                    <div className="space-y-0.5 text-xs">
-                      <div className="text-[10px] text-[#C5A059] font-medium uppercase truncate">
+                    <div className="space-y-1 text-xs min-w-0">
+                      <div className="text-[10px] text-[#C5A059] font-medium uppercase break-words leading-tight">
                         {item.brand || item.fabric}
                       </div>
-                      <div className="font-medium text-[#F7F4EE] truncate">{item.title}</div>
+                      <div className="font-medium text-[#F7F4EE] line-clamp-2 break-words leading-snug min-h-[2.4em]">
+                        {item.title}
+                      </div>
                       <div className="font-medium text-[#D4AF37] text-xs tabular-nums">
                         {formatPKR(item.price)}
                       </div>

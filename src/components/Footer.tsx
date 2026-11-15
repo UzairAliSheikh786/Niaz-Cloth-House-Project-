@@ -50,18 +50,18 @@ export const Footer: React.FC = () => {
                 value={newsletterEmail}
                 onChange={(e) => setNewsletterEmail(e.target.value)}
                 placeholder="Enter your email address"
-                className="w-full px-4 py-3 bg-transparent text-xs text-[#F7F4EE] placeholder-[#F7F4EE]/40 focus:outline-none"
+                className="w-full min-w-0 px-3.5 sm:px-4 py-3 bg-transparent text-xs text-[#F7F4EE] placeholder-[#F7F4EE]/40 focus:outline-none"
               />
               <button
                 type="submit"
-                className="py-3 px-6 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0"
+                className="py-3 px-4 sm:px-6 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-widest uppercase transition-colors shrink-0"
               >
                 {subscribed ? 'Subscribed' : 'Join'}
               </button>
             </div>
             {subscribed && (
               <p className="text-xs text-emerald-400 mt-2 flex items-center gap-1">
-                <CheckCircle2 className="w-3.5 h-3.5" />
+                <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
                 <span>Thank you for subscribing to Niaz Cloth House alerts!</span>
               </p>
             )}
@@ -69,9 +69,9 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* 2. Four Main Navigation Columns */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-14 border-b border-neutral-800 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 pb-14 border-b border-neutral-800 text-xs">
           {/* Col 1: About Niaz Cloth House */}
-          <div className="col-span-2 lg:col-span-2 space-y-4 pr-6">
+          <div className="sm:col-span-2 lg:col-span-2 space-y-4 sm:pr-6 min-w-0">
             <h4 className="font-sans font-black text-sm tracking-[0.2em] uppercase text-white">
               NIAZ CLOTH HOUSE
             </h4>
@@ -207,16 +207,16 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* 3. Bottom Bar: Copyright & Payment Icons */}
-        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500">
+        <div className="pt-8 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-neutral-500 text-center md:text-left">
           <p>© {new Date().getFullYear()} Niaz Cloth House (NCH). All Rights Reserved. Paris Bazaar, Rawalpindi.</p>
 
-          <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider font-semibold text-neutral-400">
+          <div className="flex flex-wrap items-center justify-center md:justify-end gap-x-3 gap-y-1.5 text-[11px] uppercase tracking-wider font-semibold text-neutral-400">
             <span>Cash on Delivery</span>
-            <span>·</span>
+            <span aria-hidden="true">·</span>
             <span>Direct Bank Transfer</span>
-            <span>·</span>
+            <span aria-hidden="true">·</span>
             <span>JazzCash / EasyPaisa</span>
-            <span>·</span>
+            <span aria-hidden="true">·</span>
             <span>WhatsApp Order</span>
           </div>
         </div>

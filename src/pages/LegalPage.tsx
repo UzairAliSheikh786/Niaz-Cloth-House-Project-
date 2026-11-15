@@ -135,57 +135,57 @@ export const LegalPage: React.FC<LegalPageProps> = ({ initialTab = 'privacy' }) 
         {/* 4-Tab Navigation Selector */}
         <nav
           aria-label="Policy Navigation Tabs"
-          className="flex items-center border-b border-[#E2E8F0] overflow-x-auto scrollbar-none gap-2 sm:gap-4"
+          className="flex flex-wrap items-center border-b border-[#E2E8F0] gap-x-2 gap-y-1 sm:gap-x-4"
         >
           <button
             type="button"
             onClick={() => handleTabChange('privacy')}
-            className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
+            className={`pb-2.5 px-2.5 sm:px-3 text-xs sm:text-sm font-semibold border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all ${
               activeTab === 'privacy'
                 ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
-            <Lock className="w-4 h-4" />
+            <Lock className="w-4 h-4 shrink-0" />
             <span>Privacy Policy (DPDP)</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('terms')}
-            className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
+            className={`pb-2.5 px-2.5 sm:px-3 text-xs sm:text-sm font-semibold border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all ${
               activeTab === 'terms'
                 ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
-            <FileText className="w-4 h-4" />
+            <FileText className="w-4 h-4 shrink-0" />
             <span>Terms & Conditions (T&C)</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('cookies')}
-            className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
+            className={`pb-2.5 px-2.5 sm:px-3 text-xs sm:text-sm font-semibold border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all ${
               activeTab === 'cookies'
                 ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
-            <Cookie className="w-4 h-4" />
+            <Cookie className="w-4 h-4 shrink-0" />
             <span>Cookies Policy</span>
           </button>
 
           <button
             type="button"
             onClick={() => handleTabChange('refund')}
-            className={`pb-3 px-3 text-xs sm:text-sm font-semibold whitespace-nowrap border-b-2 flex items-center gap-2 transition-all ${
+            className={`pb-2.5 px-2.5 sm:px-3 text-xs sm:text-sm font-semibold border-b-2 flex items-center gap-1.5 sm:gap-2 transition-all ${
               activeTab === 'refund'
                 ? 'border-[#0284C7] text-[#0284C7]'
                 : 'border-transparent text-[#1C1917]/70 hover:text-[#1C1917] hover:border-gray-300'
             }`}
           >
-            <Truck className="w-4 h-4" />
+            <Truck className="w-4 h-4 shrink-0" />
             <span>Order & Dispatch Policy</span>
           </button>
         </nav>

@@ -429,28 +429,28 @@ export const LocationPage: React.FC = () => {
 
               {/* Verified Digital Payments Info Card */}
               <div className="pt-3 border-t border-[#E2E8F0] space-y-2.5">
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="font-bold uppercase tracking-wider text-[#1C1917] text-[10px]">
                     Verified Payment Gateways
                   </span>
                   <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 border border-emerald-200">
-                    <ShieldCheck className="w-3 h-3" />
+                    <ShieldCheck className="w-3 h-3 shrink-0" />
                     Verified Merchant
                   </span>
                 </div>
 
                 <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] space-y-2 text-xs">
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
+                  <div className="flex flex-wrap justify-between items-center gap-2 pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="font-semibold text-[#1C1917]">EasyPaisa Account:</span>
                     <strong className="font-mono text-[#0284C7]">{storePhone}</strong>
                   </div>
-                  <div className="flex justify-between items-center pb-1.5 border-b border-[#E2E8F0]/60">
+                  <div className="flex flex-wrap justify-between items-center gap-2 pb-1.5 border-b border-[#E2E8F0]/60">
                     <span className="font-semibold text-[#1C1917]">JazzCash Account:</span>
                     <strong className="font-mono text-[#0284C7]">{storePhone}</strong>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
                     <span className="text-[#1C1917]/70">Account Title:</span>
-                    <span className="font-medium text-[#1C1917]">Muhammad Niaz / Niaz Cloth House</span>
+                    <span className="font-medium text-[#1C1917] break-words">Muhammad Niaz / Niaz Cloth House</span>
                   </div>
                 </div>
               </div>
@@ -461,15 +461,15 @@ export const LocationPage: React.FC = () => {
                   Store Visiting Hours
                 </span>
                 <div className="space-y-1.5 text-xs text-[#1C1917]">
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
                     <span className="text-[#1C1917]/70">Store Timings:</span>
                     <strong className="font-semibold text-[#0284C7]">Monday to Sunday 10am-9pm</strong>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
                     <span className="text-[#1C1917]/70">Friday Jummah Break:</span>
                     <span className="font-medium text-[#1C1917]">1:00 PM – 2:30 PM</span>
                   </div>
-                  <div className="flex justify-between items-center">
+                  <div className="flex flex-wrap justify-between items-center gap-2">
                     <span className="text-[#1C1917]/70">Website Orders:</span>
                     <span className="font-medium text-[#1C1917]">Dispatch cutoff at 9:00 PM</span>
                   </div>
@@ -480,7 +480,7 @@ export const LocationPage: React.FC = () => {
             {/* In-Store Bespoke Concierge Box */}
             <div className="bg-[#F8FAFC] border border-[#E2E8F0] p-5 space-y-3 text-xs">
               <div className="flex items-center gap-2 text-[#0284C7] font-semibold text-xs">
-                <Sparkles className="w-4 h-4" />
+                <Sparkles className="w-4 h-4 shrink-0" />
                 <span>What Awaits You at Our Paris Bazaar Shop</span>
               </div>
               <ul className="space-y-1.5 text-[#1C1917]/80 list-disc list-inside">
@@ -493,9 +493,9 @@ export const LocationPage: React.FC = () => {
 
             {/* Official Registered Business Identity & Legal Trust */}
             <div className="bg-white border border-[#E2E8F0] p-5 space-y-3 text-xs">
-              <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0]">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#E2E8F0]">
                 <strong className="font-serif text-sm font-bold text-[#1C1917]">Registered Business Identity</strong>
-                <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-300">
+                <span className="text-[10px] font-mono font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 border border-emerald-300 shrink-0">
                   Est. 1970
                 </span>
               </div>

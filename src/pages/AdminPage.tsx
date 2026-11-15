@@ -1213,64 +1213,64 @@ export const AdminPage: React.FC = () => {
         </div>
 
         {/* Portal Tabs - Shop Navigation */}
-        <div className="flex border-b border-[#1F293D] gap-2 sm:gap-4 overflow-x-auto scrollbar-none pb-0.5">
+        <div className="flex flex-wrap border-b border-[#1F293D] gap-x-3 sm:gap-x-5 gap-y-2 pb-1">
           <button
             onClick={() => setActiveTab('dashboard')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'dashboard'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <LayoutDashboard className="w-4 h-4" />
+            <LayoutDashboard className="w-4 h-4 shrink-0" />
             <span>Shop Overview</span>
           </button>
 
           <button
             onClick={() => setActiveTab('inventory')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'inventory'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Package className="w-4 h-4" />
+            <Package className="w-4 h-4 shrink-0" />
             <span>Products &amp; Stock ({products.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('pricing')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'pricing'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Percent className="w-4 h-4" />
+            <Percent className="w-4 h-4 shrink-0" />
             <span>Prices &amp; Sale Discounts</span>
           </button>
 
           <button
             onClick={() => setActiveTab('orders')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'orders'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Truck className="w-4 h-4" />
+            <Truck className="w-4 h-4 shrink-0" />
             <span>Orders Board ({orders.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('users')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'users'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Users className="w-4 h-4" />
+            <Users className="w-4 h-4 shrink-0" />
             <span>Patrons &amp; Users ({activeUserList.length})</span>
             {onlineUsersCount > 0 && (
               <span className="flex items-center gap-1 px-1.5 py-0.5 bg-[#10B981]/15 text-[#10B981] border border-[#10B981]/30 text-[10px] font-mono rounded-xs">
@@ -1282,61 +1282,61 @@ export const AdminPage: React.FC = () => {
 
           <button
             onClick={() => setActiveTab('categories')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'categories'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Layers className="w-4 h-4" />
+            <Layers className="w-4 h-4 shrink-0" />
             <span>Collections</span>
           </button>
 
           <button
             onClick={() => setActiveTab('homepage')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'homepage'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <ImageIcon className="w-4 h-4" />
+            <ImageIcon className="w-4 h-4 shrink-0" />
             <span>Banners</span>
           </button>
 
           <button
             onClick={() => setActiveTab('settings')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'settings'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="w-4 h-4 shrink-0" />
             <span>Settings</span>
           </button>
 
           <button
             onClick={() => setActiveTab('audit')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'audit'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Download className="w-4 h-4" />
+            <Download className="w-4 h-4 shrink-0" />
             <span>Shop Backup &amp; Activity</span>
           </button>
 
           <button
             onClick={() => setActiveTab('feedback')}
-            className={`pb-3 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 whitespace-nowrap shrink-0 ${
+            className={`pb-2.5 px-2 text-xs sm:text-sm font-mono tracking-wider transition-all flex items-center gap-2 border-b-2 ${
               activeTab === 'feedback'
                 ? 'border-[#D4AF37] text-[#D4AF37] shadow-[0_4px_12px_rgba(0,240,255,0.3)] font-bold'
                 : 'border-transparent text-slate-400 hover:text-white'
             }`}
           >
-            <Star className="w-4 h-4 text-[#F5B738] fill-[#F5B738]" />
+            <Star className="w-4 h-4 text-[#F5B738] fill-[#F5B738] shrink-0" />
             <span>Reviews ({allReviews.length})</span>
           </button>
         </div>

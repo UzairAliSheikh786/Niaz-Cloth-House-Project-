@@ -222,7 +222,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               </p>
 
               {/* Price Banner */}
-              <div className="mt-3.5 pt-3 border-t border-white/10 flex items-baseline gap-3">
+              <div className="mt-3.5 pt-3 border-t border-white/10 flex flex-wrap items-baseline gap-2.5">
                 <span className="text-2xl font-semibold text-[#D4AF37] tabular-nums">
                   {formatPKR(unitPrice)}
                 </span>
@@ -231,28 +231,28 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                     {formatPKR(product.originalPrice + additionalPrice)}
                   </span>
                 )}
-                <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 ml-auto border border-emerald-500/25">
+                <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 sm:ml-auto border border-emerald-500/25">
                   In Stock
                 </span>
               </div>
 
               {/* Specifications Grid */}
-              <div className="grid grid-cols-2 gap-2.5 mt-4 text-[11px] bg-[#141419] p-3 border border-white/10">
-                <div>
+              <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-2.5 mt-4 text-[11px] bg-[#141419] p-3 border border-white/10">
+                <div className="min-w-0">
                   <span className="text-[#F7F4EE]/55 block">Cut Length</span>
-                  <span className="font-semibold text-[#F7F4EE]">{product.cutDetails.length}</span>
+                  <span className="font-semibold text-[#F7F4EE] break-words block">{product.cutDetails.length}</span>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="text-[#F7F4EE]/55 block">Width (Arz)</span>
-                  <span className="font-semibold text-[#F7F4EE]">{product.cutDetails.width}</span>
+                  <span className="font-semibold text-[#F7F4EE] break-words block">{product.cutDetails.width}</span>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="text-[#F7F4EE]/55 block">Fabric Type</span>
-                  <span className="font-semibold text-[#F7F4EE]">{product.fabric}</span>
+                  <span className="font-semibold text-[#F7F4EE] break-words block">{product.fabric}</span>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <span className="text-[#F7F4EE]/55 block">Article Code</span>
-                  <span className="font-mono font-semibold text-[#D4AF37] uppercase">{product.id}</span>
+                  <span className="font-mono font-semibold text-[#D4AF37] uppercase break-all block">{product.id}</span>
                 </div>
               </div>
 
@@ -302,17 +302,17 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                         key={d.id}
                         type="button"
                         onClick={() => setSelectedDesignId(d.id)}
-                        className={`w-full text-left p-2.5 border text-xs flex items-center justify-between transition-all ${
+                        className={`w-full text-left p-2.5 border text-xs flex flex-wrap items-center justify-between gap-2 transition-all ${
                           selectedDesignId === d.id
                             ? 'border-[#D4AF37] bg-[#D4AF37]/15 text-[#F7F4EE] font-semibold'
                             : 'border-white/15 bg-[#141419] text-[#F7F4EE]/80 hover:border-[#C5A059]/60'
                         }`}
                       >
-                        <span>{d.name}</span>
+                        <span className="min-w-0 break-words">{d.name}</span>
                         {d.additionalPrice ? (
-                          <span className="text-[#D4AF37] font-mono">+{formatPKR(d.additionalPrice)}</span>
+                          <span className="text-[#D4AF37] font-mono shrink-0">+{formatPKR(d.additionalPrice)}</span>
                         ) : (
-                          <span className="text-[10px] text-[#F7F4EE]/50 uppercase">Included</span>
+                          <span className="text-[10px] text-[#F7F4EE]/50 uppercase shrink-0">Included</span>
                         )}
                       </button>
                     ))}

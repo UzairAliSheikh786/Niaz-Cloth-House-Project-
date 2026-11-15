@@ -195,16 +195,16 @@ export const HomePage: React.FC = () => {
       </section>
 
       {/* 2. Dual Category Selector Strip (MENS COLLECTION | WOMENS COLLECTION) + Featured 4-Column Grid */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-7 pb-14 sm:pb-18">
+      <section className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-7 pb-14 sm:pb-18">
         {/* Two Wide Gold-Bordered Action Buttons */}
-        <div className="grid grid-cols-2 gap-3 sm:gap-6 mb-9 sm:mb-11">
+        <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3 sm:gap-6 mb-9 sm:mb-11">
           <button
             type="button"
             onClick={() => {
               setShowcaseMode('mens');
               setSubFilter('all');
             }}
-            className={`py-3.5 sm:py-4 px-4 text-xs sm:text-sm font-sans font-medium tracking-[0.18em] sm:tracking-[0.22em] uppercase border transition-all duration-200 rounded-xs whitespace-nowrap ${
+            className={`py-3 sm:py-4 px-2.5 sm:px-5 text-[11px] sm:text-sm font-sans font-medium tracking-[0.08em] sm:tracking-[0.2em] uppercase border transition-all duration-200 rounded-xs text-center leading-snug break-words min-w-0 ${
               showcaseMode === 'mens'
                 ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-[#F7F4EE] shadow-[0_0_20px_rgba(212,175,55,0.12)]'
                 : 'border-[#C5A059]/45 bg-[#0C0C10] text-[#E8D5A7]/80 hover:border-[#D4AF37] hover:text-[#F7F4EE]'
@@ -219,7 +219,7 @@ export const HomePage: React.FC = () => {
               setShowcaseMode('womens');
               setSubFilter('shahi');
             }}
-            className={`py-3.5 sm:py-4 px-4 text-xs sm:text-sm font-sans font-medium tracking-[0.18em] sm:tracking-[0.22em] uppercase border transition-all duration-200 rounded-xs whitespace-nowrap ${
+            className={`py-3 sm:py-4 px-2.5 sm:px-5 text-[11px] sm:text-sm font-sans font-medium tracking-[0.08em] sm:tracking-[0.2em] uppercase border transition-all duration-200 rounded-xs text-center leading-snug break-words min-w-0 ${
               showcaseMode === 'womens'
                 ? 'border-[#D4AF37] bg-[#D4AF37]/10 text-[#F7F4EE] shadow-[0_0_20px_rgba(212,175,55,0.12)]'
                 : 'border-[#C5A059]/45 bg-[#0C0C10] text-[#E8D5A7]/80 hover:border-[#D4AF37] hover:text-[#F7F4EE]'
@@ -229,19 +229,19 @@ export const HomePage: React.FC = () => {
           </button>
         </div>
 
-        {/* Section Heading & Quiet Sub-Filter Controls */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-6">
+        {/* Section Heading & Quiet Sub-Filter Controls (All Tags Always Visible) */}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6">
           <h2 className="font-sans text-xl sm:text-2xl font-semibold tracking-tight text-[#F7F4EE]">
             {sectionHeading}
           </h2>
 
-          <div className="flex items-center gap-5 text-xs font-medium overflow-x-auto no-scrollbar">
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs font-medium min-w-0">
             {showcaseMode === 'womens' ? (
               <>
                 <button
                   type="button"
                   onClick={() => setSubFilter('shahi')}
-                  className={`whitespace-nowrap shrink-0 pb-1 border-b transition-colors ${
+                  className={`shrink-0 pb-1 border-b transition-colors ${
                     subFilter === 'shahi'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -252,7 +252,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('embroidery')}
-                  className={`whitespace-nowrap shrink-0 pb-1 border-b transition-colors ${
+                  className={`shrink-0 pb-1 border-b transition-colors ${
                     subFilter === 'embroidery'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -263,7 +263,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('printed')}
-                  className={`whitespace-nowrap shrink-0 pb-1 border-b transition-colors ${
+                  className={`shrink-0 pb-1 border-b transition-colors ${
                     subFilter === 'printed'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -277,7 +277,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('all')}
-                  className={`whitespace-nowrap shrink-0 pb-1 border-b transition-colors ${
+                  className={`shrink-0 pb-1 border-b transition-colors ${
                     subFilter === 'all'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -288,7 +288,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('boski')}
-                  className={`whitespace-nowrap shrink-0 pb-1 border-b transition-colors ${
+                  className={`shrink-0 pb-1 border-b transition-colors ${
                     subFilter === 'boski'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -306,7 +306,7 @@ export const HomePage: React.FC = () => {
                   gender: showcaseMode === 'mens' ? 'Men' : 'Women',
                 })
               }
-              className="whitespace-nowrap shrink-0 text-[#D4AF37] hover:text-[#E8D5A7] flex items-center gap-1 pb-1 transition-colors"
+              className="shrink-0 text-[#D4AF37] hover:text-[#E8D5A7] flex items-center gap-1 pb-1 transition-colors"
             >
               <span>View All ({products.length})</span>
               <ArrowRight className="w-3.5 h-3.5" />
@@ -315,7 +315,7 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* 4-Column Editorial Product Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
           {displayedProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -340,8 +340,8 @@ export const HomePage: React.FC = () => {
       <section className="py-14 sm:py-16 bg-[#09090D] border-t border-[#C5A059]/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-7 space-y-4">
-              <p className="text-xs font-medium tracking-[0.22em] uppercase text-[#D4AF37]">
+            <div className="lg:col-span-7 space-y-4 min-w-0">
+              <p className="text-xs font-medium tracking-[0.18em] sm:tracking-[0.22em] uppercase text-[#D4AF37] break-words">
                 Paris Bazaar, Rawalpindi · Established 1970
               </p>
               <h2
@@ -355,38 +355,38 @@ export const HomePage: React.FC = () => {
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 text-xs text-[#E8D5A7]">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <ShieldCheck className="w-4 h-4 text-[#D4AF37] shrink-0" />
                   <span>100% Original Mill Cuts</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <Video className="w-4 h-4 text-[#D4AF37] shrink-0" />
                   <span>Live Video Verification</span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <Globe className="w-4 h-4 text-[#D4AF37] shrink-0" />
                   <span>3–5 Days Global Shipping</span>
                 </div>
               </div>
             </div>
 
-            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-end">
+            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col gap-3 lg:items-end min-w-0">
               <a
                 href="https://wa.me/923346565636?text=Hello%20Niaz%20Cloth%20House!%20I%20would%20like%20to%20inquire%20about%20your%20collections."
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full sm:w-auto lg:w-72 py-3.5 px-6 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-[0.18em] uppercase flex items-center justify-center gap-2 transition-colors rounded-xs"
+                className="w-full sm:w-auto lg:min-w-[270px] max-w-full py-3.5 px-5 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-semibold tracking-[0.14em] sm:tracking-[0.18em] uppercase flex items-center justify-center gap-2 transition-colors rounded-xs text-center"
               >
-                <MessageCircle className="w-4 h-4" />
+                <MessageCircle className="w-4 h-4 shrink-0" />
                 <span>WhatsApp Desk · 0334-6565636</span>
               </a>
 
               <button
                 type="button"
                 onClick={() => navigateTo('location')}
-                className="w-full sm:w-auto lg:w-72 py-3.5 px-6 bg-transparent border border-[#C5A059]/45 hover:border-[#D4AF37] text-[#E8D5A7] hover:text-[#F7F4EE] text-xs font-medium tracking-[0.18em] uppercase flex items-center justify-center gap-2 transition-colors rounded-xs"
+                className="w-full sm:w-auto lg:min-w-[270px] max-w-full py-3.5 px-5 bg-transparent border border-[#C5A059]/45 hover:border-[#D4AF37] text-[#E8D5A7] hover:text-[#F7F4EE] text-xs font-medium tracking-[0.14em] sm:tracking-[0.18em] uppercase flex items-center justify-center gap-2 transition-colors rounded-xs text-center"
               >
-                <MapPin className="w-4 h-4 text-[#D4AF37]" />
+                <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0" />
                 <span>Visit Paris Bazaar Flagship</span>
               </button>
             </div>

@@ -345,32 +345,33 @@ export const SilkWeaveHeroCanvas: React.FC<SilkWeaveHeroCanvasProps> = ({ onExpl
       <div className="absolute top-0 right-1/4 w-96 h-96 bg-[#D4AF37]/10 rounded-full blur-[100px] pointer-events-none" />
       <div className="absolute bottom-10 left-10 w-80 h-80 bg-emerald-950/20 rounded-full blur-[90px] pointer-events-none" />
 
-      {/* Semantic Headline & Brand Content (Top Left Anchor) */}
-      <div className="absolute top-8 left-6 sm:left-12 z-10 max-w-xl pointer-events-none">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-black/60 backdrop-blur-md border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] sm:text-xs font-sans tracking-[0.25em] uppercase font-bold mb-3 shadow-lg">
-          <Compass className="w-3.5 h-3.5" />
-          <span>Interactive 3D Textile Atelier</span>
+      {/* Semantic Headline & Top-Right Direct Catalog Link */}
+      <div className="absolute inset-x-4 sm:inset-x-10 top-6 sm:top-8 z-10 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pointer-events-none">
+        <div className="max-w-xl min-w-0">
+          <div className="inline-flex flex-wrap items-center gap-2 px-3 py-1 bg-black/60 backdrop-blur-md border border-[#D4AF37]/30 text-[#D4AF37] text-[10px] sm:text-xs font-sans tracking-[0.18em] sm:tracking-[0.25em] uppercase font-bold mb-3 shadow-lg max-w-full">
+            <Compass className="w-3.5 h-3.5 shrink-0" />
+            <span>Interactive 3D Textile Atelier</span>
+          </div>
+          <h2 className="font-serif text-2xl sm:text-5xl lg:text-6xl text-white font-normal tracking-tight leading-[1.08] drop-shadow-md break-words">
+            Tactile Silk &amp; <br />
+            <span className="italic font-light text-[#D4AF37]">Woven Motion</span>
+          </h2>
+          <p className="text-xs sm:text-sm text-neutral-300 font-sans font-light mt-2.5 max-w-md leading-relaxed drop-shadow-sm">
+            Drag to ripple the pure unstitched drape. Experience authentic Pakistani mill fiber density, gold thread sheen, and selvedge kinematics in real-time 3D.
+          </p>
         </div>
-        <h2 className="font-serif text-3xl sm:text-5xl lg:text-6xl text-white font-normal tracking-tight leading-[1.08] drop-shadow-md">
-          Tactile Silk & <br />
-          <span className="italic font-light text-[#D4AF37]">Woven Motion</span>
-        </h2>
-        <p className="text-xs sm:text-sm text-neutral-300 font-sans font-light mt-2.5 max-w-md leading-relaxed drop-shadow-sm">
-          Drag to ripple the pure unstitched drape. Experience authentic Pakistani mill fiber density, gold thread sheen, and selvedge kinematics in real-time 3D.
-        </p>
-      </div>
 
-      {/* Top-Right Direct Catalog Link */}
-      {onExploreCatalog && (
-        <div className="absolute top-8 right-6 sm:right-12 z-10">
-          <button
-            onClick={onExploreCatalog}
-            className="pointer-events-auto px-4 py-2 sm:px-5 sm:py-2.5 bg-white/10 hover:bg-white text-white hover:text-black border border-white/30 text-[10px] sm:text-xs font-sans font-bold tracking-[0.2em] uppercase transition-all shadow-md active:scale-95 flex items-center gap-2"
-          >
-            <span>Enter Boutique</span>
-          </button>
-        </div>
-      )}
+        {onExploreCatalog && (
+          <div className="shrink-0">
+            <button
+              onClick={onExploreCatalog}
+              className="pointer-events-auto px-4 py-2 sm:px-5 sm:py-2.5 bg-white/10 hover:bg-white text-white hover:text-black border border-white/30 text-[10px] sm:text-xs font-sans font-bold tracking-[0.16em] sm:tracking-[0.2em] uppercase transition-all shadow-md active:scale-95 inline-flex items-center gap-2"
+            >
+              <span>Enter Boutique</span>
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* Unified Bottom Control Dock (Three.js Skill Ergonomic Standard: Zero Viewport Occlusion) */}
       <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 w-[94%] max-w-3xl pointer-events-auto transition-transform duration-300 ease-out">
@@ -397,15 +398,15 @@ export const SilkWeaveHeroCanvas: React.FC<SilkWeaveHeroCanvasProps> = ({ onExpl
 
         {/* Control Dock Panel */}
         {!isDockCollapsed && (
-          <div className="bg-[#141414]/90 backdrop-blur-md border border-white/15 p-3.5 sm:p-4 rounded-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
+          <div className="bg-[#141414]/90 backdrop-blur-md border border-white/15 p-3 sm:p-4 rounded-xl shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-3 text-white">
             
             {/* Fabric Swatch Selectors */}
-            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto max-w-full pb-1 sm:pb-0 scrollbar-none">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 sm:gap-2 max-w-full">
               {FABRIC_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
                   onClick={() => setSelectedPresetId(preset.id)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-sans font-medium transition-all flex items-center gap-2 whitespace-nowrap shrink-0 border ${
+                  className={`px-2.5 sm:px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-sans font-medium transition-all flex items-center gap-1.5 border ${
                     selectedPresetId === preset.id
                       ? 'bg-white text-black border-white shadow-md font-bold'
                       : 'bg-white/5 text-neutral-300 border-white/10 hover:border-white/30 hover:bg-white/10'

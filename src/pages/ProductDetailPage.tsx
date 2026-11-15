@@ -318,8 +318,8 @@ export const ProductDetailPage: React.FC = () => {
           {/* Gallery Module (Left Column: 3:4 Portrait Ratio) */}
           <div className="lg:col-span-7 space-y-4">
             {/* Gallery Header */}
-            <div className="flex items-center justify-between pb-2 border-b border-[#C5A059]/25">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-[#C5A059]/25">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
                 <span className="text-xs font-semibold uppercase tracking-wider text-[#F7F4EE]">
                   Fabric Presentation
                 </span>
@@ -564,20 +564,20 @@ export const ProductDetailPage: React.FC = () => {
 
                 {/* Women's Unstitched Suit Parts Breakdown */}
                 <div className="space-y-3 pt-3 border-t border-white/10">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#F7F4EE]">
-                      <Layers className="w-4 h-4 text-[#D4AF37]" />
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-[#F7F4EE] min-w-0">
+                      <Layers className="w-4 h-4 text-[#D4AF37] shrink-0" />
                       <span>3-Piece Suit Parts Breakdown:</span>
                     </div>
                     <span className="text-[11px] text-[#C5A059] font-medium">Unstitched Fabric Cuts</span>
                   </div>
 
-                  {/* Part Filter Tabs */}
-                  <div className="flex items-center gap-1 bg-[#111115] border border-white/10 p-1 text-[11px] font-sans font-medium overflow-x-auto">
+                  {/* Part Filter Tabs (All options always visible) */}
+                  <div className="flex flex-wrap items-center gap-1.5 bg-[#111115] border border-white/10 p-1.5 text-[11px] font-sans font-medium">
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('all')}
-                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors text-center ${
                         selectedPartTab === 'all'
                           ? 'bg-[#D4AF37] text-[#060608] font-semibold'
                           : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
@@ -588,7 +588,7 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('kameez')}
-                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors text-center ${
                         selectedPartTab === 'kameez'
                           ? 'bg-[#D4AF37] text-[#060608] font-semibold'
                           : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
@@ -599,7 +599,7 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('dupatta')}
-                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors text-center ${
                         selectedPartTab === 'dupatta'
                           ? 'bg-[#D4AF37] text-[#060608] font-semibold'
                           : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
@@ -610,7 +610,7 @@ export const ProductDetailPage: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setSelectedPartTab('shalwar')}
-                      className={`px-2.5 py-1 transition-colors whitespace-nowrap ${
+                      className={`px-2.5 py-1 transition-colors text-center ${
                         selectedPartTab === 'shalwar'
                           ? 'bg-[#D4AF37] text-[#060608] font-semibold'
                           : 'text-[#F7F4EE]/70 hover:text-[#F7F4EE]'
@@ -624,12 +624,12 @@ export const ProductDetailPage: React.FC = () => {
                   <div className="space-y-2 text-xs">
                     {(selectedPartTab === 'all' || selectedPartTab === 'kameez') && (
                       <div className="p-3 bg-[#111115] border border-white/10 hover:border-[#C5A059]/45 transition-all">
-                        <div className="flex items-center justify-between pb-1 border-b border-white/10">
-                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE]">
-                            <Scissors className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-white/10">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE] min-w-0">
+                            <Scissors className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                             <span>1. Kameez (Shirt / Kurta)</span>
                           </div>
-                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30">
+                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30 shrink-0">
                             3.0m - 3.2m Cut
                           </span>
                         </div>
@@ -638,7 +638,7 @@ export const ProductDetailPage: React.FC = () => {
                             ? 'Delicate resham needlework on front shirt panel, with matching back and full sleeves cut. Includes neck/gala & daman borders.'
                             : 'High-definition digital floral & geometric print on fine combed lawn, featuring separate front, back, and sleeves.'}
                         </p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#F7F4EE]/55">
+                        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px] text-[#F7F4EE]/55">
                           <span>Fabric: {product.fabric}</span>
                           <span>Width: 42"-44" Arz</span>
                         </div>
@@ -647,12 +647,12 @@ export const ProductDetailPage: React.FC = () => {
 
                     {(selectedPartTab === 'all' || selectedPartTab === 'dupatta') && (
                       <div className="p-3 bg-[#111115] border border-white/10 hover:border-[#C5A059]/45 transition-all">
-                        <div className="flex items-center justify-between pb-1 border-b border-white/10">
-                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE]">
-                            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-white/10">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE] min-w-0">
+                            <Sparkles className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                             <span>2. Dupatta (Draped Shawl)</span>
                           </div>
-                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30">
+                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30 shrink-0">
                             2.5m Standard Cut
                           </span>
                         </div>
@@ -663,7 +663,7 @@ export const ProductDetailPage: React.FC = () => {
                             ? 'Digital luxury silk dupatta with vibrant botanical borders and natural sheen.'
                             : 'Lightweight summer voile / lawn dupatta with coordinated border prints.'}
                         </p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#F7F4EE]/55">
+                        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px] text-[#F7F4EE]/55">
                           <span>Style: Draped Fluid Fall</span>
                           <span>Width: 40"-42" Standard</span>
                         </div>
@@ -672,19 +672,19 @@ export const ProductDetailPage: React.FC = () => {
 
                     {(selectedPartTab === 'all' || selectedPartTab === 'shalwar') && (
                       <div className="p-3 bg-[#111115] border border-white/10 hover:border-[#C5A059]/45 transition-all">
-                        <div className="flex items-center justify-between pb-1 border-b border-white/10">
-                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE]">
-                            <Ruler className="w-3.5 h-3.5 text-[#D4AF37]" />
+                        <div className="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-white/10">
+                          <div className="flex items-center gap-1.5 font-semibold text-[#F7F4EE] min-w-0">
+                            <Ruler className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                             <span>3. Shalwar (Trouser / Bottom)</span>
                           </div>
-                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30">
+                          <span className="font-mono text-[11px] font-semibold text-[#D4AF37] bg-[#060608] px-2 py-0.5 border border-[#C5A059]/30 shrink-0">
                             2.5m Dyed Cut
                           </span>
                         </div>
                         <p className="text-[11px] text-[#F7F4EE]/70 mt-1.5 leading-relaxed">
                           Solid dyed premium cambric cotton fabric matched to the ensemble palette. Pre-shrunk and suitable for classic shalwar, culottes, or tailored cigarette trousers.
                         </p>
-                        <div className="mt-1.5 flex items-center justify-between text-[10px] text-[#F7F4EE]/55">
+                        <div className="mt-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px] text-[#F7F4EE]/55">
                           <span>Fabric: Dyed Cambric Cotton</span>
                           <span>Width: 54" Double Width</span>
                         </div>
@@ -710,15 +710,15 @@ export const ProductDetailPage: React.FC = () => {
               <div className="space-y-5 pb-5 border-b border-white/10">
                 {product.colorOptions && product.colorOptions.length > 0 && (
                   <div className="space-y-3">
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                       <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#E8D5A7]">
-                        <Palette className="w-4 h-4 text-[#D4AF37]" />
+                        <Palette className="w-4 h-4 text-[#D4AF37] shrink-0" />
                         <span>Fabric Colour & Shade:</span>
                       </div>
                       <span className="font-semibold text-[#D4AF37] text-xs">{selectedColor}</span>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                    <div className="grid grid-cols-1 min-[360px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
                       {product.colorOptions.map((opt) => {
                         const isSelected = selectedColor === opt.name;
                         return (
@@ -729,7 +729,7 @@ export const ProductDetailPage: React.FC = () => {
                               setSelectedColor(opt.name);
                               setSelectedColorHex(opt.hex);
                             }}
-                            className={`flex items-center gap-2.5 p-2.5 border text-left transition-all ${
+                            className={`flex items-center gap-2.5 p-2.5 border text-left transition-all min-w-0 ${
                               isSelected
                                 ? 'border-[#D4AF37] bg-[#D4AF37]/15 ring-1 ring-[#D4AF37]'
                                 : 'border-white/15 bg-[#111115] hover:border-[#C5A059]/60'
@@ -742,11 +742,11 @@ export const ProductDetailPage: React.FC = () => {
                               {isSelected && <Check className="w-3 h-3 text-white drop-shadow-sm" />}
                             </span>
                             <div className="min-w-0 flex-1">
-                              <span className="block text-xs font-semibold text-[#F7F4EE] truncate leading-tight">
+                              <span className="block text-xs font-semibold text-[#F7F4EE] break-words leading-tight">
                                 {opt.name}
                               </span>
                               {opt.previewLabel && (
-                                <span className="block text-[10px] text-[#F7F4EE]/55 truncate">
+                                <span className="block text-[10px] text-[#F7F4EE]/55 break-words leading-tight mt-0.5">
                                   {opt.previewLabel}
                                 </span>
                               )}
@@ -761,8 +761,8 @@ export const ProductDetailPage: React.FC = () => {
                         className="w-8 h-8 rounded-full border-2 border-[#D4AF37]/40 shadow-md shrink-0"
                         style={{ backgroundColor: selectedColorHex }}
                       />
-                      <div className="text-xs text-[#F7F4EE]/80">
-                        <strong className="text-[#D4AF37] block">Selected Shade: {selectedColor}</strong>
+                      <div className="text-xs text-[#F7F4EE]/80 min-w-0">
+                        <strong className="text-[#D4AF37] block break-words">Selected Shade: {selectedColor}</strong>
                         <span className="text-[11px] text-[#F7F4EE]/60">
                           100% Vat-Dyed Reactive Color: Guaranteed zero color bleed and color fastness across washes.
                         </span>
@@ -772,30 +772,30 @@ export const ProductDetailPage: React.FC = () => {
                 )}
 
                 <div className="p-4 bg-[#111115] border border-white/10 space-y-2.5 text-xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#F7F4EE]">
-                      <Ruler className="w-4 h-4 text-[#D4AF37]" />
+                  <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-white/10">
+                    <div className="flex items-center gap-1.5 font-semibold uppercase tracking-wider text-[#F7F4EE] min-w-0">
+                      <Ruler className="w-4 h-4 text-[#D4AF37] shrink-0" />
                       <span>Men's Suiting Cut & Yardage:</span>
                     </div>
-                    <span className="font-mono text-xs font-semibold text-[#D4AF37]">{product.cutDetails.length}</span>
+                    <span className="font-mono text-xs font-semibold text-[#D4AF37] shrink-0">{product.cutDetails.length}</span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-[11px] pt-1">
-                    <div>
+                  <div className="grid grid-cols-1 min-[360px]:grid-cols-2 gap-3 text-[11px] pt-1">
+                    <div className="min-w-0">
                       <span className="text-[#F7F4EE]/55 block">Fabric Width (Bada Arz):</span>
-                      <strong className="text-[#F7F4EE] font-semibold">{product.cutDetails.width}</strong>
+                      <strong className="text-[#F7F4EE] font-semibold break-words block">{product.cutDetails.width}</strong>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-[#F7F4EE]/55 block">Weave & Texture:</span>
-                      <strong className="text-[#F7F4EE] font-semibold">{product.weaveType || product.fabric}</strong>
+                      <strong className="text-[#F7F4EE] font-semibold break-words block">{product.weaveType || product.fabric}</strong>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-[#F7F4EE]/55 block">Fabric Weight:</span>
-                      <strong className="text-[#F7F4EE] font-semibold">{product.fabricWeight || 'Medium Weight'}</strong>
+                      <strong className="text-[#F7F4EE] font-semibold break-words block">{product.fabricWeight || 'Medium Weight'}</strong>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <span className="text-[#F7F4EE]/55 block">Thread Quality:</span>
-                      <strong className="text-[#F7F4EE] font-semibold">{product.threadCount || 'High Count Master Grade'}</strong>
+                      <strong className="text-[#F7F4EE] font-semibold break-words block">{product.threadCount || 'High Count Master Grade'}</strong>
                     </div>
                   </div>
 
@@ -809,7 +809,7 @@ export const ProductDetailPage: React.FC = () => {
             {/* Design & Cut Style Options */}
             {product.designOptions && product.designOptions.length > 0 && (
               <div className="space-y-2.5 pb-4 border-b border-white/10">
-                <div className="flex items-center justify-between text-xs">
+                <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
                   <span className="font-semibold uppercase tracking-wider text-[#E8D5A7]">
                     Design & Cut Style:
                   </span>
@@ -832,16 +832,16 @@ export const ProductDetailPage: React.FC = () => {
                             : 'border-white/15 bg-[#111115] hover:border-[#C5A059]/60'
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-xs text-[#F7F4EE]">
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <span className="font-semibold text-xs text-[#F7F4EE] min-w-0 break-words">
                             {design.name}
                           </span>
                           {design.additionalPrice ? (
-                            <span className="text-[11px] font-mono font-semibold text-[#D4AF37]">
+                            <span className="text-[11px] font-mono font-semibold text-[#D4AF37] shrink-0">
                               +{formatPKR(design.additionalPrice)}
                             </span>
                           ) : (
-                            <span className="text-[10px] text-[#F7F4EE]/50 font-medium uppercase tracking-wider">
+                            <span className="text-[10px] text-[#F7F4EE]/50 font-medium uppercase tracking-wider shrink-0">
                               Included
                             </span>
                           )}
@@ -908,9 +908,9 @@ export const ProductDetailPage: React.FC = () => {
                 </button>
               </div>
 
-              <div className="pt-2 flex items-center justify-between text-[11px] text-[#F7F4EE]/60">
+              <div className="pt-2 flex flex-wrap items-center justify-between gap-2 text-[11px] text-[#F7F4EE]/60">
                 <div className="flex items-center gap-1.5">
-                  <Truck className="w-3.5 h-3.5 text-[#D4AF37]" />
+                  <Truck className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                   <span>Nationwide Express COD Dispatch</span>
                 </div>
                 <span>Free Shipping over {formatPKR(storeSettings?.freeShippingThreshold ?? 5000)}</span>
@@ -921,10 +921,10 @@ export const ProductDetailPage: React.FC = () => {
 
         {/* Tabbed Technical & Care Specifications */}
         <div id="product-tabs-section" className="mt-16 sm:mt-20 border-t border-white/10 pt-12">
-          <div className="flex border-b border-white/10 gap-4 sm:gap-8 overflow-x-auto scrollbar-none pb-0.5">
+          <div className="flex flex-wrap border-b border-white/10 gap-x-5 gap-y-2.5 pb-0.5">
             <button
               onClick={() => setActiveTab('care')}
-              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-colors border-b-2 ${
                 activeTab === 'care'
                   ? 'border-[#D4AF37] text-[#D4AF37]'
                   : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
@@ -934,7 +934,7 @@ export const ProductDetailPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('guide')}
-              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-colors border-b-2 ${
                 activeTab === 'guide'
                   ? 'border-[#D4AF37] text-[#D4AF37]'
                   : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
@@ -944,7 +944,7 @@ export const ProductDetailPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('heritage')}
-              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-colors border-b-2 ${
                 activeTab === 'heritage'
                   ? 'border-[#D4AF37] text-[#D4AF37]'
                   : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
@@ -954,7 +954,7 @@ export const ProductDetailPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
-              className={`pb-3 text-xs sm:text-sm font-semibold tracking-wider uppercase whitespace-nowrap shrink-0 transition-colors border-b-2 ${
+              className={`pb-2.5 text-xs sm:text-sm font-semibold tracking-wider uppercase transition-colors border-b-2 ${
                 activeTab === 'reviews'
                   ? 'border-[#D4AF37] text-[#D4AF37]'
                   : 'border-transparent text-[#F7F4EE]/55 hover:text-[#F7F4EE]'
