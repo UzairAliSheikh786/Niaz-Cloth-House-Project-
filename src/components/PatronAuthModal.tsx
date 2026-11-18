@@ -181,42 +181,6 @@ export const PatronAuthModal: React.FC = () => {
     }
   };
 
-  // 1-Click Quick Admin Sign In
-  const handleQuickAdminLogin = async () => {
-    setAdminUsername('admin');
-    setAdminPassword('Niaz1977#');
-    setAdminError('');
-    setAdminIsLoading(true);
-
-    try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          username: 'admin',
-          password: 'Niaz1977#',
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Invalid administrator credentials');
-      }
-
-      sessionStorage.setItem('niaz_admin_token', data.token);
-      localStorage.setItem('niaz_admin_token', data.token);
-      closeAuthModal();
-      showToast('Logged in as Store Administrator (Haji Niaz Ahmad). Opening Admin Panel...');
-      navigateTo('admin');
-    } catch (err: any) {
-      setAdminError(err.message || 'Quick login failed.');
-    } finally {
-      setAdminIsLoading(false);
-    }
-  };
-
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
@@ -880,21 +844,10 @@ export const PatronAuthModal: React.FC = () => {
                   </div>
 
                   <div>
-                    <div className="flex justify-between items-center mb-1">
+                    <div className="mb-1">
                       <label className="text-xs font-semibold text-[#1C1917]">
                         Admin Password *
                       </label>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAdminUsername('admin');
-                          setAdminPassword('Niaz1977#');
-                        }}
-                        className="text-[10px] text-[#0284C7] hover:underline font-semibold"
-                        title="Fill demo store credentials"
-                      >
-                        Auto-fill Credentials
-                      </button>
                     </div>
                     <div className="relative">
                       <KeyRound className="w-3.5 h-3.5 absolute left-3 top-2.5 text-[#1C1917]/40" />
@@ -931,27 +884,12 @@ export const PatronAuthModal: React.FC = () => {
                       </>
                     )}
                   </button>
-
-                  {/* Quick 1-Click Launch Button for Immediate Access */}
-                  <button
-                    type="button"
-                    onClick={handleQuickAdminLogin}
-                    disabled={adminIsLoading}
-                    className="w-full py-2 px-3 bg-[#F8FAFC] hover:bg-[#F2ECE5] border border-[#0284C7]/30 text-xs font-semibold text-[#0284C7] flex items-center justify-center gap-1.5 transition-colors"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-[#0284C7]" />
-                    <span>⚡ 1-Click Fast Admin Sign In (Demo)</span>
-                  </button>
                 </form>
 
-                {/* Default Credentials Notice */}
-                <div className="mt-4 p-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[11px] text-[#1C1917]/70 space-y-1">
-                  <div className="flex items-center justify-between font-mono text-[10px]">
-                    <span>Username: <strong>admin</strong></span>
-                    <span>Password: <strong>Niaz1977#</strong></span>
-                  </div>
-                  <p className="text-[10px] text-[#1C1917]/50 pt-0.5">
-                    Protected with SHA-256 server authentication and rate limiting.
+                {/* Security Notice */}
+                <div className="mt-4 p-2.5 bg-[#F8FAFC] border border-[#E2E8F0] text-[11px] text-[#1C1917]/70">
+                  <p className="text-[10px] text-[#1C1917]/60">
+                    Protected with HMAC-SHA256 server authentication and rate limiting. Sign in with your configured server administrator credentials.
                   </p>
                 </div>
               </div>

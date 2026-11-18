@@ -29,7 +29,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   isOpen,
   onClose,
 }) => {
-  const { products, addToCart, showToast, recordProductView } = useShop();
+  const { products, addToCart, showToast, recordProductView, currency, formatPrice } = useShop();
   const { navigateTo } = useNavigation();
 
   const fallbackImage = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
@@ -108,8 +108,12 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
   };
 
   const handleWhatsAppOrder = () => {
+    const priceNote =
+      currency === 'USD'
+        ? `${formatPKR(totalPrice)} (~${formatPrice(totalPrice)})`
+        : formatPKR(totalPrice);
     const waMessage = encodeURIComponent(
-      `Hello Niaz Cloth House! I would like to order this suit:\n*${product.title}*\nBrand: ${product.brand || product.gender}\nFabric: ${product.fabric}\nColor: ${selectedColor}\nCut: ${activeDesign?.name || 'Standard'}\nQuantity: ${quantity}\nPrice: ${formatPKR(totalPrice)}\nSKU: ${product.id}\nPlease confirm availability and shipping details.`
+      `Hello Niaz Cloth House! I would like to order this suit:\n*${product.title}*\nBrand: ${product.brand || product.gender}\nFabric: ${product.fabric}\nColor: ${selectedColor}\nCut: ${activeDesign?.name || 'Standard'}\nQuantity: ${quantity}\nPrice: ${priceNote}\nSKU: ${product.id}\nPlease confirm availability and shipping details.`
     );
     window.open(`https://wa.me/923346565636?text=${waMessage}`, '_blank', 'noopener,noreferrer');
   };
@@ -193,15 +197,15 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
           </div>
 
           {/* Right Column: Product Config & Purchase Options */}
-          <div className="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between space-y-5">
-            <div>
+          <div className="md:col-span-6 p-5 sm:p-7 flex flex-col justify-between space-y-5 min-w-0">
+            <div className="min-w-0">
               {/* Brand & Category Kicker */}
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#C5A059]">
+              <div className="flex items-center justify-between gap-2 mb-1.5 min-w-0">
+                <span className="text-[11px] font-semibold tracking-[0.2em] uppercase text-[#C5A059] min-w-0 break-words [overflow-wrap:anywhere]">
                   {product.brand || product.gender}
                 </span>
                 {product.rating && (
-                  <div className="flex items-center gap-1 text-xs font-semibold text-[#D4AF37]">
+                  <div className="flex items-center gap-1 text-xs font-semibold text-[#D4AF37] shrink-0">
                     <Star className="w-3.5 h-3.5 fill-[#D4AF37] text-[#D4AF37]" />
                     <span>{product.rating.toFixed(1)}</span>
                   </div>
@@ -211,24 +215,24 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
               {/* Title */}
               <h2
                 id="quickview-title"
-                className="font-serif text-xl sm:text-2xl text-[#F7F4EE] leading-snug"
+                className="font-serif text-xl sm:text-2xl text-[#F7F4EE] leading-snug break-words [overflow-wrap:anywhere] min-w-0"
               >
                 {product.title}
               </h2>
 
               {/* Subtitle / Fabric Grade */}
-              <p className="text-xs text-[#F7F4EE]/60 mt-1">
+              <p className="text-xs text-[#F7F4EE]/60 mt-1 break-words [overflow-wrap:anywhere] min-w-0">
                 {product.subtitle || `${product.fabric} · Unstitched Fabric`}
               </p>
 
               {/* Price Banner */}
               <div className="mt-3.5 pt-3 border-t border-white/10 flex flex-wrap items-baseline gap-2.5">
                 <span className="text-2xl font-semibold text-[#D4AF37] tabular-nums">
-                  {formatPKR(unitPrice)}
+                  {formatPrice(unitPrice)}
                 </span>
                 {product.originalPrice && product.originalPrice > product.price && (
                   <span className="text-sm text-[#F7F4EE]/40 line-through tabular-nums">
-                    {formatPKR(product.originalPrice + additionalPrice)}
+                    {formatPrice(product.originalPrice + additionalPrice)}
                   </span>
                 )}
                 <span className="text-[10px] font-semibold tracking-wider uppercase text-emerald-400 bg-emerald-500/10 px-2 py-0.5 sm:ml-auto border border-emerald-500/25">
@@ -310,7 +314,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                       >
                         <span className="min-w-0 break-words">{d.name}</span>
                         {d.additionalPrice ? (
-                          <span className="text-[#D4AF37] font-mono shrink-0">+{formatPKR(d.additionalPrice)}</span>
+                          <span className="text-[#D4AF37] font-mono shrink-0">+{formatPrice(d.additionalPrice)}</span>
                         ) : (
                           <span className="text-[10px] text-[#F7F4EE]/50 uppercase shrink-0">Included</span>
                         )}
@@ -361,7 +365,7 @@ export const QuickViewModal: React.FC<QuickViewModalProps> = ({
                 ) : (
                   <>
                     <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart · {formatPKR(totalPrice)}</span>
+                    <span>Add to Cart · {formatPrice(totalPrice)}</span>
                   </>
                 )}
               </button>

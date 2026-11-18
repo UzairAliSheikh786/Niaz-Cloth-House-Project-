@@ -7,7 +7,10 @@ import { Header } from './components/Header';
 import { Footer } from './components/Footer';
 import { HomePage } from './pages/HomePage';
 import { FloatingWhatsAppButton } from './components/FloatingWhatsAppButton';
+import { FloatingCurrencyDock } from './components/FloatingCurrencyDock';
 import { SEOHead } from './components/SEOHead';
+import { OfflineIndicator } from './components/OfflineIndicator';
+import { RouteLoadingFallback } from './components/RouteSkeletons';
 
 // Route-level code splitting (loaded on demand)
 const ShopPage = lazy(() => import('./pages/ShopPage').then((m) => ({ default: m.ShopPage })));
@@ -18,12 +21,6 @@ const LocationPage = lazy(() =>
   import('./pages/LocationPage').then((m) => ({ default: m.LocationPage }))
 );
 const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
-const ComparePage = lazy(() =>
-  import('./pages/ComparePage').then((m) => ({ default: m.ComparePage }))
-);
-const OrderTrackingPage = lazy(() =>
-  import('./pages/OrderTrackingPage').then((m) => ({ default: m.OrderTrackingPage }))
-);
 const LegalPage = lazy(() => import('./pages/LegalPage').then((m) => ({ default: m.LegalPage })));
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
@@ -63,17 +60,6 @@ const AtelierAmbient3DBackground = lazy(() =>
   import('./components/3d/AtelierAmbient3DBackground').then((m) => ({
     default: m.AtelierAmbient3DBackground,
   }))
-);
-
-const RouteLoadingFallback: React.FC = () => (
-  <div className="min-h-[60vh] w-full flex items-center justify-center bg-[#060608] text-[#D4AF37]">
-    <div className="flex flex-col items-center gap-3">
-      <div className="w-8 h-8 border-2 border-[#D4AF37]/30 border-t-[#D4AF37] rounded-full animate-spin" />
-      <span className="text-[11px] font-sans uppercase tracking-[0.25em] text-[#E8D5A7]/70">
-        Loading Collection
-      </span>
-    </div>
-  </div>
 );
 
 const AppContent: React.FC = () => {
@@ -160,7 +146,7 @@ const AppContent: React.FC = () => {
           {currentPage === 'home' ? (
             <HomePage />
           ) : (
-            <Suspense fallback={<RouteLoadingFallback />}>
+            <Suspense fallback={<RouteLoadingFallback currentPage={currentPage} />}>
               {(currentPage === 'men-summer' ||
                 currentPage === 'men-winter' ||
                 currentPage === 'women-summer' ||
@@ -168,8 +154,6 @@ const AppContent: React.FC = () => {
                 currentPage === 'shop') && <ShopPage />}
               {currentPage === 'location' && <LocationPage />}
               {currentPage === 'product-detail' && <ProductDetailPage />}
-              {currentPage === 'compare' && <ComparePage />}
-              {currentPage === 'track-order' && <OrderTrackingPage />}
               {currentPage === 'admin' && <AdminPage />}
               {(currentPage === 'privacy' ||
                 currentPage === 'terms' ||
@@ -211,8 +195,10 @@ const AppContent: React.FC = () => {
         </Suspense>
       )}
 
-      {/* Lightweight WhatsApp CTA */}
+      {/* Lightweight Side Currency Converter, WhatsApp CTA & Offline Mode Indicator */}
+      <FloatingCurrencyDock />
       <FloatingWhatsAppButton />
+      <OfflineIndicator />
 
       {/* Deferred Secondary Overlays (Loaded post-idle so LCP/TBT remain pristine) */}
       {idleReady && (

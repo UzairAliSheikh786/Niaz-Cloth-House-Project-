@@ -1,31 +1,27 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { 
-  X, 
-  Share2, 
-  Copy, 
-  Check, 
-  ExternalLink, 
-  Download, 
-  Layers, 
-  FileText, 
-  Sparkles, 
-  Send, 
-  RefreshCw, 
-  Smartphone, 
-  CheckCircle2, 
-  Filter, 
-  Package, 
-  ArrowRight, 
+import {
+  X,
+  Share2,
+  Copy,
+  Check,
+  ExternalLink,
+  Download,
+  Send,
+  Smartphone,
+  CheckCircle2,
+  ArrowRight,
   ArrowLeft,
-  ChevronRight,
   Clock,
-  ShieldCheck
+  ShieldCheck,
+  Link as LinkIcon,
+  FileSpreadsheet,
 } from 'lucide-react';
 import { Product } from '../types';
 import { formatPKR } from '../context/ShopContext';
 import {
   WhatsAppSyncFormat,
   STORE_WHATSAPP_NUMBER,
+  getStoreBaseUrl,
   generateFullCatalogMessage,
   generateWhatsAppBatches,
   formatSingleProductWhatsAppCard,
@@ -40,6 +36,7 @@ interface WhatsAppCatalogSyncModalProps {
   products: Product[];
   currentAdminName?: string;
   initialSelectedProductId?: string | null;
+  defaultWhatsAppNumber?: string;
 }
 
 interface SyncHistoryRecord {
@@ -57,10 +54,11 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
   products,
   currentAdminName = 'Haji Niaz Ahmad',
   initialSelectedProductId = null,
+  defaultWhatsAppNumber,
 }) => {
   // Sync view format state
   const [format, setFormat] = useState<WhatsAppSyncFormat>(
-    initialSelectedProductId ? 'single-card' : 'full-digest'
+    initialSelectedProductId ? 'single-card' : 'meta-csv'
   );
 
   // Selection filters
@@ -72,7 +70,9 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
   );
 
   // Configuration options
-  const [targetPhone, setTargetPhone] = useState<string>(STORE_WHATSAPP_NUMBER);
+  const [targetPhone, setTargetPhone] = useState<string>(
+    defaultWhatsAppNumber || STORE_WHATSAPP_NUMBER
+  );
   const [includeCare, setIncludeCare] = useState<boolean>(true);
   const [includeWebLinks, setIncludeWebLinks] = useState<boolean>(true);
   const [batchSize, setBatchSize] = useState<number>(4);
@@ -80,7 +80,11 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
 
   // Copy & Action Feedback
   const [copied, setCopied] = useState<boolean>(false);
+  const [copiedFeedUrl, setCopiedFeedUrl] = useState<boolean>(false);
   const [syncStatusMessage, setSyncStatusMessage] = useState<string | null>(null);
+
+  const liveBaseUrl = useMemo(() => getStoreBaseUrl(), []);
+  const liveFeedUrl = `${liveBaseUrl}/api/catalog/whatsapp.csv`;
 
   // Sync History
   const [syncHistory, setSyncHistory] = useState<SyncHistoryRecord[]>(() => {
@@ -88,25 +92,25 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
       const stored = localStorage.getItem('nch_whatsapp_sync_history');
       if (stored) return JSON.parse(stored);
     } catch {}
-    return [
-      {
-        id: 'sync-init-01',
-        timestamp: new Date(Date.now() - 3600000 * 4).toISOString(),
-        adminName: 'Haji Niaz Ahmad',
-        format: 'Full Catalog Digest',
-        itemCount: 24,
-        targetPhone: '0334-6565636',
-      },
-    ];
+    return [];
   });
 
-  // When initialSelectedProductId changes, update single selection
+  // Sync props when modal opens or product selection changes
   useEffect(() => {
+    if (!isOpen) return;
     if (initialSelectedProductId) {
       setSelectedSingleId(initialSelectedProductId);
       setFormat('single-card');
+    } else if (!selectedSingleId && products[0]?.id) {
+      setSelectedSingleId(products[0].id);
     }
-  }, [initialSelectedProductId]);
+  }, [isOpen, initialSelectedProductId, products, selectedSingleId]);
+
+  useEffect(() => {
+    if (defaultWhatsAppNumber) {
+      setTargetPhone(defaultWhatsAppNumber);
+    }
+  }, [defaultWhatsAppNumber]);
 
   // Filtered products list
   const activeProducts = useMemo(() => {
@@ -134,8 +138,12 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
 
   // Batches calculation
   const batches: SyncBatch[] = useMemo(() => {
-    return generateWhatsAppBatches(activeProducts, batchSize, targetPhone);
-  }, [activeProducts, batchSize, targetPhone]);
+    return generateWhatsAppBatches(activeProducts, batchSize, targetPhone, {
+      includeCareInstructions: includeCare,
+      includeWebLinks,
+      baseUrl: liveBaseUrl,
+    });
+  }, [activeProducts, batchSize, targetPhone, includeCare, includeWebLinks, liveBaseUrl]);
 
   // Ensure activeBatchIndex is within range
   const safeBatchIndex = Math.min(activeBatchIndex, Math.max(0, batches.length - 1));
@@ -147,19 +155,65 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
         return generateFullCatalogMessage(activeProducts, {
           includeCareInstructions: includeCare,
           includeWebLinks,
+          targetPhone,
+          baseUrl: liveBaseUrl,
         });
       case 'segmented-batches':
         return batches[safeBatchIndex]?.messageText || '';
       case 'single-card':
         return selectedSingleProduct
-          ? formatSingleProductWhatsAppCard(selectedSingleProduct, 1, includeCare)
+          ? formatSingleProductWhatsAppCard(
+              selectedSingleProduct,
+              1,
+              includeCare,
+              includeWebLinks,
+              liveBaseUrl
+            )
           : '';
       case 'meta-csv':
-        return generateMetaCommerceCatalogCsv(activeProducts);
+        return generateMetaCommerceCatalogCsv(activeProducts, liveBaseUrl);
       default:
         return '';
     }
-  }, [format, activeProducts, includeCare, includeWebLinks, batches, safeBatchIndex, selectedSingleProduct]);
+  }, [
+    format,
+    activeProducts,
+    includeCare,
+    includeWebLinks,
+    targetPhone,
+    liveBaseUrl,
+    batches,
+    safeBatchIndex,
+    selectedSingleProduct,
+  ]);
+
+  // Direct WhatsApp Web/App URL (always text-based so CSV doesn't dump raw commas into chat)
+  const whatsappDispatchUrl = useMemo(() => {
+    const cleanPhone = sanitizeWhatsAppPhone(targetPhone);
+    const textToSend =
+      format === 'meta-csv'
+        ? generateFullCatalogMessage(activeProducts, {
+            includeCareInstructions: includeCare,
+            includeWebLinks,
+            targetPhone,
+            baseUrl: liveBaseUrl,
+          })
+        : format === 'segmented-batches'
+        ? batches[safeBatchIndex]?.messageText || currentMessageText
+        : currentMessageText;
+
+    return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textToSend)}`;
+  }, [
+    targetPhone,
+    format,
+    activeProducts,
+    includeCare,
+    includeWebLinks,
+    liveBaseUrl,
+    batches,
+    safeBatchIndex,
+    currentMessageText,
+  ]);
 
   if (!isOpen) return null;
 
@@ -170,7 +224,7 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
       adminName: currentAdminName,
       format: actionLabel,
       itemCount: count,
-      targetPhone: targetPhone,
+      targetPhone,
     };
     const updated = [newRecord, ...syncHistory].slice(0, 15);
     setSyncHistory(updated);
@@ -178,21 +232,28 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
       localStorage.setItem('nch_whatsapp_sync_history', JSON.stringify(updated));
     } catch {}
 
-    // Also dispatch to backend sync log & telemetry
     try {
-      fetch('/api/admin/whatsapp-sync/log', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          adminName: currentAdminName,
-          format: actionLabel,
-          itemCount: count,
-          targetPhone,
-          status: 'Dispatched',
-        }),
-      }).catch(() => {});
+      const adminToken =
+        sessionStorage.getItem('niaz_admin_token') || localStorage.getItem('niaz_admin_token');
 
-      fetch('/api/analytics/event', {
+      if (adminToken) {
+        fetch('/api/admin/whatsapp-sync/log', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${adminToken}`,
+          },
+          body: JSON.stringify({
+            adminName: currentAdminName,
+            format: actionLabel,
+            itemCount: count,
+            targetPhone,
+            status: 'Dispatched',
+          }),
+        }).catch(() => {});
+      }
+
+      fetch('/api/telemetry/analytics', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -202,43 +263,56 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
             itemCount: count,
             format: actionLabel,
           },
+          url: typeof window !== 'undefined' ? window.location.href : '',
         }),
       }).catch(() => {});
     } catch {}
   };
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(currentMessageText);
-    setCopied(true);
-    setSyncStatusMessage('Predefined WhatsApp catalog message copied to clipboard!');
-    logSyncAction(format, format === 'single-card' ? 1 : activeProducts.length);
+  const setBanner = (msg: string) => {
+    setSyncStatusMessage(msg);
     setTimeout(() => {
-      setCopied(false);
-      setSyncStatusMessage(null);
-    }, 3000);
+      setSyncStatusMessage((prev) => (prev === msg ? null : prev));
+    }, 3500);
   };
 
-  const handleOpenWhatsApp = () => {
-    const cleanPhone = sanitizeWhatsAppPhone(targetPhone);
-    const textToSend = format === 'segmented-batches'
-      ? batches[safeBatchIndex]?.messageText || currentMessageText
-      : currentMessageText;
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(currentMessageText);
+      setCopied(true);
+      setBanner(
+        format === 'meta-csv'
+          ? 'WhatsApp Catalog CSV copied to clipboard!'
+          : 'Formatted WhatsApp catalog text copied to clipboard!'
+      );
+      logSyncAction(format, format === 'single-card' ? 1 : activeProducts.length);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      setBanner('Unable to access clipboard — use the Download button instead.');
+    }
+  };
 
-    const url = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textToSend)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-    logSyncAction(`Dispatched via WhatsApp (${format})`, format === 'single-card' ? 1 : activeProducts.length);
-    setSyncStatusMessage('Dispatched to WhatsApp Web / App!');
-    setTimeout(() => setSyncStatusMessage(null), 3500);
+  const handleCopyFeedUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(liveFeedUrl);
+      setCopiedFeedUrl(true);
+      setBanner('Live Meta Commerce CSV Feed URL copied!');
+      setTimeout(() => setCopiedFeedUrl(false), 2500);
+    } catch {
+      setBanner('Copy the feed URL manually from the input box.');
+    }
   };
 
   const handleDownloadFile = () => {
     const isCsv = format === 'meta-csv';
+    const dateStamp = new Date().toISOString().slice(0, 10);
     const filename = isCsv
-      ? `niaz_whatsapp_catalog_meta_feed_${new Date().toISOString().slice(0, 10)}.csv`
-      : `niaz_whatsapp_catalog_sync_${format}_${new Date().toISOString().slice(0, 10)}.txt`;
+      ? `niaz_whatsapp_catalog_meta_feed_${dateStamp}.csv`
+      : `niaz_whatsapp_catalog_${format}_${dateStamp}.txt`;
     const mimeType = isCsv ? 'text/csv;charset=utf-8;' : 'text/plain;charset=utf-8;';
+    const payload = isCsv ? `\uFEFF${currentMessageText}` : currentMessageText;
 
-    const blob = new Blob([currentMessageText], { type: mimeType });
+    const blob = new Blob([payload], { type: mimeType });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
@@ -248,9 +322,50 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    setSyncStatusMessage(`Downloaded ${filename} successfully!`);
-    logSyncAction(`Exported ${isCsv ? 'CSV Feed' : 'Text Message'}`, activeProducts.length);
-    setTimeout(() => setSyncStatusMessage(null), 3000);
+    setBanner(`Downloaded ${filename} (${isCsv ? activeProducts.length : format === 'single-card' ? 1 : activeProducts.length} items)!`);
+    logSyncAction(
+      `Exported ${isCsv ? 'Meta CSV Feed' : 'Formatted Catalog Text'}`,
+      format === 'single-card' ? 1 : activeProducts.length
+    );
+  };
+
+  const handleShareNative = async () => {
+    const isCsv = format === 'meta-csv';
+    const dateStamp = new Date().toISOString().slice(0, 10);
+    const filename = isCsv
+      ? `niaz_whatsapp_catalog_${dateStamp}.csv`
+      : `niaz_whatsapp_catalog_${dateStamp}.txt`;
+
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        const file = new File(
+          [isCsv ? `\uFEFF${currentMessageText}` : currentMessageText],
+          filename,
+          { type: isCsv ? 'text/csv' : 'text/plain' }
+        );
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            title: 'Niaz Cloth House — WhatsApp Business Catalog',
+            text: `Updated inventory catalog (${activeProducts.length} unstitched articles).`,
+            files: [file],
+          });
+        } else {
+          await navigator.share({
+            title: 'Niaz Cloth House — WhatsApp Business Catalog',
+            text: isCsv ? liveFeedUrl : currentMessageText,
+          });
+        }
+        logSyncAction(
+          `Shared ${isCsv ? 'CSV Catalog' : 'Text Catalog'}`,
+          format === 'single-card' ? 1 : activeProducts.length
+        );
+        setBanner('Catalog shared successfully!');
+        return;
+      } catch {
+        // User cancelled or file share unsupported in preview -> fall back cleanly
+      }
+    }
+    await handleCopy();
   };
 
   return (
@@ -260,31 +375,32 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
       aria-modal="true"
       aria-labelledby="whatsapp-sync-title"
     >
-      <div className="bg-[#F8FAFC] max-w-4xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh]">
-        {/* Header Ribbon with WhatsApp Brand Emerald Accent */}
-        <div className="bg-[#1C1917] text-[#F8FAFC] p-4 sm:p-5 border-b border-[#38332E] flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
+      <div className="bg-[#F8FAFC] max-w-4xl w-full border border-[#E2E8F0] shadow-2xl overflow-hidden relative my-6 animate-in zoom-in-95 duration-200 flex flex-col max-h-[92vh] min-w-0">
+        {/* Header Ribbon */}
+        <div className="bg-[#1C1917] text-[#F8FAFC] p-4 sm:p-5 border-b border-[#38332E] flex items-center justify-between gap-3 shrink-0 min-w-0">
+          <div className="flex items-center gap-3 min-w-0">
             <div className="w-10 h-10 rounded-full bg-[#25D366]/20 border border-[#25D366]/60 flex items-center justify-center text-[#25D366] shrink-0">
               <Share2 className="w-5 h-5" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[10px] uppercase font-mono tracking-widest text-[#25D366] font-bold">
-                  Official WhatsApp Business Integration
+                  WhatsApp Business Catalog Sync
                 </span>
                 <span className="text-[10px] bg-white/10 px-1.5 py-0.5 rounded text-white/70">
-                  Paris Bazaar Studio
+                  {products.length} Total Products
                 </span>
               </div>
-              <h2 id="whatsapp-sync-title" className="font-serif text-base sm:text-lg font-bold text-white mt-0.5">
+              <h2 id="whatsapp-sync-title" className="font-serif text-base sm:text-lg font-bold text-white mt-0.5 break-words">
                 Sync Inventory to WhatsApp Business Catalog
               </h2>
             </div>
           </div>
 
           <button
+            type="button"
             onClick={onClose}
-            className="p-1.5 text-white/60 hover:text-white hover:bg-white/10 transition-colors rounded-sm"
+            className="p-1.5 text-white/60 hover:text-white hover:bg-white/10 transition-colors rounded-sm shrink-0"
             aria-label="Close WhatsApp Catalog Sync"
           >
             <X className="w-5 h-5" />
@@ -295,166 +411,219 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
         {syncStatusMessage && (
           <div className="bg-emerald-50 border-b border-emerald-200 px-4 py-2.5 text-xs text-emerald-800 flex items-center gap-2 shrink-0 animate-in fade-in">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
-            <span className="font-medium">{syncStatusMessage}</span>
+            <span className="font-medium break-words">{syncStatusMessage}</span>
           </div>
         )}
 
         {/* Modal Body: Two-Column Workspace */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 min-w-0">
           {/* LEFT PANEL: Format & Filters Configuration (5 cols) */}
-          <div className="lg:col-span-5 space-y-5">
-            {/* 1. Predefined Message Structure Tabs */}
+          <div className="lg:col-span-5 space-y-5 min-w-0">
+            {/* 1. Export / Sync Format */}
             <div className="space-y-2">
               <label className="block text-xs font-bold uppercase tracking-wider text-[#1C1917]">
-                1. Select Predefined Structure
+                1. Choose Export / Sync Format
               </label>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <button
                   type="button"
+                  onClick={() => setFormat('meta-csv')}
+                  className={`p-2.5 text-left border transition-all min-w-0 ${
+                    format === 'meta-csv'
+                      ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
+                      : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
+                  }`}
+                >
+                  <div className="font-bold text-[#1C1917] flex items-center justify-between gap-1">
+                    <span className="flex items-center gap-1 min-w-0">
+                      <FileSpreadsheet className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
+                      <span className="truncate">Catalog CSV</span>
+                    </span>
+                    {format === 'meta-csv' && <Check className="w-3.5 h-3.5 text-[#25D366] shrink-0" />}
+                  </div>
+                  <p className="text-[11px] text-[#1C1917]/60 mt-1 leading-snug">
+                    Bulk CSV import for WhatsApp / Meta Catalog Manager.
+                  </p>
+                </button>
+
+                <button
+                  type="button"
                   onClick={() => setFormat('full-digest')}
-                  className={`p-2.5 text-left border transition-all ${
+                  className={`p-2.5 text-left border transition-all min-w-0 ${
                     format === 'full-digest'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
                       : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
-                  <div className="font-bold text-[#1C1917] flex items-center justify-between">
-                    <span>Full Digest</span>
-                    {format === 'full-digest' && <Check className="w-3.5 h-3.5 text-[#25D366]" />}
+                  <div className="font-bold text-[#1C1917] flex items-center justify-between gap-1">
+                    <span className="truncate">Full Text Catalog</span>
+                    {format === 'full-digest' && <Check className="w-3.5 h-3.5 text-[#25D366] shrink-0" />}
                   </div>
-                  <p className="text-[11px] text-[#1C1917]/60 mt-1">
-                    Complete catalog overview with specs & pricing.
+                  <p className="text-[11px] text-[#1C1917]/60 mt-1 leading-snug">
+                    Shareable formatted WhatsApp catalog message.
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setFormat('segmented-batches')}
-                  className={`p-2.5 text-left border transition-all ${
+                  className={`p-2.5 text-left border transition-all min-w-0 ${
                     format === 'segmented-batches'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
                       : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
-                  <div className="font-bold text-[#1C1917] flex items-center justify-between">
-                    <span>Batch Chunks</span>
-                    {format === 'segmented-batches' && <Check className="w-3.5 h-3.5 text-[#25D366]" />}
+                  <div className="font-bold text-[#1C1917] flex items-center justify-between gap-1">
+                    <span className="truncate">Batch Chunks</span>
+                    {format === 'segmented-batches' && <Check className="w-3.5 h-3.5 text-[#25D366] shrink-0" />}
                   </div>
-                  <p className="text-[11px] text-[#1C1917]/60 mt-1">
-                    Multi-part sync (3-5 items) avoiding length limits.
+                  <p className="text-[11px] text-[#1C1917]/60 mt-1 leading-snug">
+                    Split messages (3–6 items) avoiding chat limits.
                   </p>
                 </button>
 
                 <button
                   type="button"
                   onClick={() => setFormat('single-card')}
-                  className={`p-2.5 text-left border transition-all ${
+                  className={`p-2.5 text-left border transition-all min-w-0 ${
                     format === 'single-card'
                       ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
                       : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
                   }`}
                 >
-                  <div className="font-bold text-[#1C1917] flex items-center justify-between">
-                    <span>Single Fabric</span>
-                    {format === 'single-card' && <Check className="w-3.5 h-3.5 text-[#25D366]" />}
+                  <div className="font-bold text-[#1C1917] flex items-center justify-between gap-1">
+                    <span className="truncate">Single Fabric</span>
+                    {format === 'single-card' && <Check className="w-3.5 h-3.5 text-[#25D366] shrink-0" />}
                   </div>
-                  <p className="text-[11px] text-[#1C1917]/60 mt-1">
-                    Detailed card with care & yardage for 1 bolt.
-                  </p>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setFormat('meta-csv')}
-                  className={`p-2.5 text-left border transition-all ${
-                    format === 'meta-csv'
-                      ? 'border-[#25D366] bg-emerald-50/60 ring-1 ring-[#25D366]'
-                      : 'border-[#E2E8F0] bg-white hover:bg-[#F8FAFC]'
-                  }`}
-                >
-                  <div className="font-bold text-[#1C1917] flex items-center justify-between">
-                    <span>Meta CSV Feed</span>
-                    {format === 'meta-csv' && <Check className="w-3.5 h-3.5 text-[#25D366]" />}
-                  </div>
-                  <p className="text-[11px] text-[#1C1917]/60 mt-1">
-                    Standard import for WhatsApp Catalog Manager.
+                  <p className="text-[11px] text-[#1C1917]/60 mt-1 leading-snug">
+                    Shareable text card with specs for 1 product.
                   </p>
                 </button>
               </div>
             </div>
 
+            {/* Live Feed URL Helper for Meta CSV */}
+            {format === 'meta-csv' && (
+              <div className="p-3 bg-emerald-50/60 border border-[#25D366]/40 space-y-2 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="font-bold text-[#1C1917] flex items-center gap-1.5 text-[11px] uppercase tracking-wider">
+                    <LinkIcon className="w-3.5 h-3.5 text-[#25D366] shrink-0" />
+                    <span>Scheduled Feed URL (Auto-Sync)</span>
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#1C1917]/75 leading-snug">
+                  Download the CSV below or paste this live feed URL into <strong>Meta Commerce Manager → Catalog → Data Sources → Data Feed</strong>:
+                </p>
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <input
+                    type="text"
+                    readOnly
+                    value={liveFeedUrl}
+                    aria-label="Live WhatsApp Catalog CSV Feed URL"
+                    className="flex-1 min-w-0 text-[11px] py-1.5 px-2 bg-white border border-[#E2E8F0] text-[#1C1917] font-mono truncate"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleCopyFeedUrl}
+                    className="px-2.5 py-1.5 bg-[#1C1917] hover:bg-black text-white text-[11px] font-semibold shrink-0 flex items-center gap-1"
+                  >
+                    {copiedFeedUrl ? <Check className="w-3 h-3 text-[#25D366]" /> : <Copy className="w-3 h-3" />}
+                    <span>{copiedFeedUrl ? 'Copied' : 'Copy URL'}</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* 2. Inventory Scope Filter */}
             {format !== 'single-card' ? (
               <div className="space-y-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#1C1917]">
-                  2. Inventory Filter ({activeProducts.length} items)
+                  2. Products Included ({activeProducts.length} items)
                 </label>
                 <div className="flex flex-wrap gap-1.5 text-xs">
                   <button
                     type="button"
-                    onClick={() => setFilterMode('all')}
+                    onClick={() => {
+                      setFilterMode('all');
+                      setActiveBatchIndex(0);
+                    }}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'all'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
                         : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
-                    All Fabrics ({products.length})
+                    All Products ({products.length})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFilterMode('in-stock')}
+                    onClick={() => {
+                      setFilterMode('in-stock');
+                      setActiveBatchIndex(0);
+                    }}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'in-stock'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
                         : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
-                    In Stock Only ({products.filter((p) => p.inStock).length})
+                    In Stock ({products.filter((p) => p.inStock).length})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFilterMode('men')}
+                    onClick={() => {
+                      setFilterMode('men');
+                      setActiveBatchIndex(0);
+                    }}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'men'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
                         : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
-                    Men's Suiting ({products.filter((p) => p.gender === 'Men').length})
+                    Men's ({products.filter((p) => p.gender === 'Men').length})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFilterMode('women')}
+                    onClick={() => {
+                      setFilterMode('women');
+                      setActiveBatchIndex(0);
+                    }}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'women'
                         ? 'bg-[#1C1917] text-white border-[#1C1917]'
                         : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#1C1917]'
                     }`}
                   >
-                    Women's All ({products.filter((p) => p.gender === 'Women').length})
+                    Women's ({products.filter((p) => p.gender === 'Women').length})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFilterMode('women-embroidery')}
+                    onClick={() => {
+                      setFilterMode('women-embroidery');
+                      setActiveBatchIndex(0);
+                    }}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'women-embroidery'
                         ? 'bg-[#0284C7] text-white border-[#0284C7]'
                         : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#0284C7]'
                     }`}
                   >
-                    ★ Embroidery Brands ({products.filter((p) => p.gender === 'Women' && p.craftType === 'Embroidery').length})
+                    Embroidered ({products.filter((p) => p.gender === 'Women' && p.craftType === 'Embroidery').length})
                   </button>
                   <button
                     type="button"
-                    onClick={() => setFilterMode('women-printed')}
+                    onClick={() => {
+                      setFilterMode('women-printed');
+                      setActiveBatchIndex(0);
+                    }}
                     className={`px-3 py-1.5 border transition-colors ${
                       filterMode === 'women-printed'
                         ? 'bg-[#0284C7] text-white border-[#0284C7]'
                         : 'bg-white text-[#1C1917]/70 border-[#E2E8F0] hover:border-[#0284C7]'
                     }`}
                   >
-                    ★ Printed Brands ({products.filter((p) => p.gender === 'Women' && p.craftType === 'Printed').length})
+                    Printed ({products.filter((p) => p.gender === 'Women' && p.craftType === 'Printed').length})
                   </button>
                 </div>
               </div>
@@ -547,14 +716,14 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
               </div>
             )}
 
-            {/* 4. Target WhatsApp Recipient */}
+            {/* 4. Target WhatsApp Business Number */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <label className="block text-xs font-bold uppercase tracking-wider text-[#1C1917]">
-                  3. Target WhatsApp Number
+                  3. WhatsApp Business Number
                 </label>
                 <span className="text-[10px] text-[#1C1917]/50 font-mono">
-                  Default: Paris Bazaar Desk
+                  Store Desk
                 </span>
               </div>
               <div className="relative">
@@ -569,41 +738,45 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
               </div>
             </div>
 
-            {/* 5. Additional Options */}
-            <div className="p-3 bg-white border border-[#E2E8F0] space-y-2 text-xs">
-              <span className="font-semibold text-[#1C1917] block text-[11px] uppercase tracking-wider">
-                Message Content Options
-              </span>
-              <label className="flex items-center gap-2 cursor-pointer text-[#1C1917]/80">
-                <input
-                  type="checkbox"
-                  checked={includeCare}
-                  onChange={(e) => setIncludeCare(e.target.checked)}
-                  className="accent-[#25D366]"
-                />
-                <span>Include Pre-Shrinkage (Tarr-Karna) Instructions</span>
-              </label>
-              <label className="flex items-center gap-2 cursor-pointer text-[#1C1917]/80">
-                <input
-                  type="checkbox"
-                  checked={includeWebLinks}
-                  onChange={(e) => setIncludeWebLinks(e.target.checked)}
-                  className="accent-[#25D366]"
-                />
-                <span>Include Direct Web Ordering Hyperlinks</span>
-              </label>
-            </div>
+            {/* 5. Text Formatting Options */}
+            {format !== 'meta-csv' && (
+              <div className="p-3 bg-white border border-[#E2E8F0] space-y-2 text-xs">
+                <span className="font-semibold text-[#1C1917] block text-[11px] uppercase tracking-wider">
+                  Message Content Options
+                </span>
+                <label className="flex items-center gap-2 cursor-pointer text-[#1C1917]/80">
+                  <input
+                    type="checkbox"
+                    checked={includeCare}
+                    onChange={(e) => setIncludeCare(e.target.checked)}
+                    className="accent-[#25D366]"
+                  />
+                  <span>Include Pre-Shrinkage (Tarr-Karna) Care</span>
+                </label>
+                <label className="flex items-center gap-2 cursor-pointer text-[#1C1917]/80">
+                  <input
+                    type="checkbox"
+                    checked={includeWebLinks}
+                    onChange={(e) => setIncludeWebLinks(e.target.checked)}
+                    className="accent-[#25D366]"
+                  />
+                  <span>Include Direct Store Order Links</span>
+                </label>
+              </div>
+            )}
           </div>
 
-          {/* RIGHT PANEL: Live Predefined Message Preview (7 cols) */}
-          <div className="lg:col-span-7 flex flex-col space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+          {/* RIGHT PANEL: Live CSV / Text Catalog Preview (7 cols) */}
+          <div className="lg:col-span-7 flex flex-col space-y-3 min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2 min-w-0">
                 <span className="text-xs font-bold uppercase tracking-wider text-[#1C1917]">
-                  Predefined Structure Preview
+                  {format === 'meta-csv' ? 'WhatsApp Catalog CSV Preview' : 'WhatsApp Formatted Text Preview'}
                 </span>
                 <span className="text-[10px] px-2 py-0.5 bg-emerald-100 text-emerald-800 font-mono font-bold rounded">
-                  {format === 'meta-csv' ? 'CSV Format' : `${currentMessageText.length} chars`}
+                  {format === 'meta-csv'
+                    ? `${activeProducts.length} rows · CSV`
+                    : `${currentMessageText.length} chars`}
                 </span>
               </div>
 
@@ -612,54 +785,77 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
                   type="button"
                   onClick={handleCopy}
                   className="px-2.5 py-1 text-xs border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#1C1917] flex items-center gap-1.5 transition-colors font-medium shadow-2xs"
-                  title="Copy formatted message"
+                  title={format === 'meta-csv' ? 'Copy CSV data' : 'Copy formatted message'}
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? 'Copied!' : 'Copy Message'}</span>
+                  <span>{copied ? 'Copied!' : format === 'meta-csv' ? 'Copy CSV' : 'Copy Text'}</span>
                 </button>
 
                 <button
                   type="button"
                   onClick={handleDownloadFile}
-                  className="px-2.5 py-1 text-xs border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#1C1917] flex items-center gap-1.5 transition-colors font-medium shadow-2xs"
-                  title="Download catalog file"
+                  className="px-2.5 py-1 text-xs border border-[#25D366]/50 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 flex items-center gap-1.5 transition-colors font-semibold shadow-2xs"
+                  title={format === 'meta-csv' ? 'Download WhatsApp Catalog CSV' : 'Download formatted text catalog'}
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>{format === 'meta-csv' ? 'CSV' : 'TXT'}</span>
+                  <Download className="w-3.5 h-3.5 text-[#25D366]" />
+                  <span>{format === 'meta-csv' ? 'Download .CSV' : 'Download .TXT'}</span>
                 </button>
               </div>
             </div>
 
-            {/* Preview Box Styled to resemble WhatsApp Chat Bubble */}
-            <div className="flex-1 bg-[#EFEAE2] p-4 border border-[#D1D7DB] rounded overflow-y-auto max-h-[380px] shadow-inner font-sans text-xs">
-              <div className="bg-white p-3.5 rounded-lg shadow-sm border border-[#E1E7E9] space-y-2 whitespace-pre-wrap font-mono text-[11px] leading-relaxed text-[#111B21]">
+            {/* Preview Box */}
+            <div className="flex-1 bg-[#EFEAE2] p-4 border border-[#D1D7DB] rounded overflow-auto max-h-[380px] shadow-inner font-sans text-xs min-w-0">
+              <div
+                className={`bg-white p-3.5 rounded-lg shadow-sm border border-[#E1E7E9] font-mono text-[11px] leading-relaxed text-[#111B21] ${
+                  format === 'meta-csv' ? 'whitespace-pre overflow-x-auto' : 'whitespace-pre-wrap break-words'
+                }`}
+              >
                 {currentMessageText}
               </div>
             </div>
 
             {/* Primary Action Button Bar */}
-            <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
-              <button
-                type="button"
-                onClick={handleOpenWhatsApp}
-                className="w-full sm:flex-1 py-3 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 shadow-md rounded-sm"
-              >
-                <Send className="w-4 h-4" />
-                <span>
-                  {format === 'segmented-batches'
-                    ? `Send Batch ${safeBatchIndex + 1} to WhatsApp`
-                    : 'Dispatch Predefined Catalog to WhatsApp'}
-                </span>
-                <ExternalLink className="w-3.5 h-3.5 opacity-80" />
-              </button>
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              {format === 'meta-csv' ? (
+                <button
+                  type="button"
+                  onClick={handleDownloadFile}
+                  className="w-full sm:flex-1 py-3 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 shadow-md rounded-sm"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Download Catalog CSV ({activeProducts.length} Items)</span>
+                </button>
+              ) : (
+                <a
+                  href={whatsappDispatchUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => {
+                    logSyncAction(
+                      `Dispatched via WhatsApp (${format})`,
+                      format === 'single-card' ? 1 : activeProducts.length
+                    );
+                    setBanner('Opening WhatsApp with formatted catalog...');
+                  }}
+                  className="w-full sm:flex-1 py-3 px-4 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-bold tracking-wider uppercase transition-colors flex items-center justify-center gap-2 shadow-md rounded-sm"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>
+                    {format === 'segmented-batches'
+                      ? `Send Batch ${safeBatchIndex + 1} on WhatsApp`
+                      : 'Send Catalog to WhatsApp'}
+                  </span>
+                  <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                </a>
+              )}
 
               <button
                 type="button"
-                onClick={handleCopy}
-                className="w-full sm:w-auto py-3 px-4 bg-[#1C1917] hover:bg-black text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-xs"
+                onClick={handleShareNative}
+                className="w-full sm:w-auto py-3 px-4 bg-[#1C1917] hover:bg-black text-white text-xs font-semibold tracking-wide transition-colors flex items-center justify-center gap-2 shadow-xs rounded-sm"
               >
-                <Copy className="w-4 h-4" />
-                <span>Copy Text</span>
+                <Share2 className="w-4 h-4 text-[#25D366]" />
+                <span>Share {format === 'meta-csv' ? 'CSV' : 'Catalog'}</span>
               </button>
             </div>
           </div>
@@ -668,18 +864,29 @@ export const WhatsAppCatalogSyncModal: React.FC<WhatsAppCatalogSyncModalProps> =
         {/* Footer: Recent Sync Audit Strip */}
         <div className="bg-[#F5EFEB] p-3 px-4 sm:px-6 border-t border-[#E2E8F0] flex flex-col sm:flex-row items-center justify-between text-xs gap-2 shrink-0">
           <div className="flex items-center gap-2 text-[#1C1917]/70">
-            <Clock className="w-3.5 h-3.5 text-[#0284C7]" />
+            <Clock className="w-3.5 h-3.5 text-[#0284C7] shrink-0" />
             <span>
-              Recent Sync by <strong>{syncHistory[0]?.adminName || 'Haji Niaz Ahmad'}</strong>:{' '}
-              {syncHistory[0] ? new Date(syncHistory[0].timestamp).toLocaleDateString('en-PK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Ready'}
+              {syncHistory[0] ? (
+                <>
+                  Last Export by <strong>{syncHistory[0].adminName}</strong>:{' '}
+                  {new Date(syncHistory[0].timestamp).toLocaleDateString('en-PK', {
+                    day: 'numeric',
+                    month: 'short',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  })}{' '}
+                  ({syncHistory[0].itemCount} items)
+                </>
+              ) : (
+                <>Ready to export {products.length} catalog products to WhatsApp Business</>
+              )}
             </span>
-            <span className="hidden sm:inline">({syncHistory[0]?.itemCount || activeProducts.length} items)</span>
           </div>
 
           <div className="flex items-center gap-3 text-[11px] text-[#1C1917]/60">
             <span className="flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Verified WhatsApp Catalog Schema</span>
+              <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+              <span>Meta Commerce &amp; WhatsApp Catalog Schema</span>
             </span>
           </div>
         </div>

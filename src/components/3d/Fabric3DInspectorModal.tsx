@@ -35,7 +35,7 @@ export const Fabric3DInspectorModal: React.FC<Fabric3DInspectorModalProps> = ({
   product,
 }) => {
   const mountRef = useRef<HTMLDivElement>(null);
-  const { addToCart, showToast } = useShop();
+  const { addToCart, showToast, currency, formatPrice } = useShop();
 
   const [rotationAngle, setRotationAngle] = useState<number>(0);
   const [zoomLevel, setZoomLevel] = useState<number>(5.5);
@@ -451,8 +451,13 @@ export const Fabric3DInspectorModal: React.FC<Fabric3DInspectorModalProps> = ({
     }
   };
 
+  const waPriceText = product
+    ? currency === 'USD'
+      ? `${formatPKR(product.price)} (~${formatPrice(product.price)})`
+      : formatPKR(product.price)
+    : 'PKR';
   const waMessage = encodeURIComponent(
-    `Hello Niaz Cloth House! I just inspected *${product?.title || 'Unstitched Fabric'}* in your 3D Atelier.\nPrice: ${product ? formatPKR(product.price) : 'PKR'}\nPlease share live video demonstration from Paris Bazaar.`
+    `Hello Niaz Cloth House! I just inspected *${product?.title || 'Unstitched Fabric'}* in your 3D Atelier.\nPrice: ${waPriceText}\nPlease share live video demonstration from Paris Bazaar.`
   );
 
   return (
@@ -593,7 +598,7 @@ export const Fabric3DInspectorModal: React.FC<Fabric3DInspectorModalProps> = ({
 
             {product && (
               <div className="text-xl font-sans font-bold text-white tabular-nums">
-                {formatPKR(product.price)}
+                {formatPrice(product.price)}
               </div>
             )}
 

@@ -12,39 +12,45 @@
   "categories": ["shopping", "lifestyle", "business"],
   "icons": [
     {
-      "src": "/icon.svg",
-      "sizes": "192x192 512x512",
-      "type": "image/svg+xml",
+      "src": "/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon.svg",
+      "src": "/pwa-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/pwa-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ],
   "shortcuts": [
     {
       "name": "Men's Boski & Suiting",
-      "short_name": "Men's Collection",
+      "short_name": "Men's",
       "description": "Browse pure Chinese Boski and gents fabrics",
-      "url": "/?filter=Men",
-      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+      "url": "/shop?gender=Men",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Women's Luxury Lawn",
-      "short_name": "Women's Collection",
+      "short_name": "Women's",
       "description": "Explore embroidered lawn and chiffon cuts",
-      "url": "/?filter=Women",
-      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+      "url": "/shop?gender=Women",
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Store Management",
       "short_name": "Shop Admin",
       "description": "Manager order & inventory dashboard",
       "url": "/admin",
-      "icons": [{ "src": "/icon.svg", "sizes": "192x192" }]
+      "icons": [{ "src": "/pwa-192x192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }

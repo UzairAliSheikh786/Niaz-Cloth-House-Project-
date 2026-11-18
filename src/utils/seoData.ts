@@ -218,19 +218,6 @@ export const STATIC_ROUTE_SEO: Record<string, SEOPageMetadata> = {
       { name: 'Admin Portal', path: '/admin' },
     ],
   },
-  compare: {
-    title: 'Compare Unstitched Fabrics Side-by-Side | Niaz Cloth House',
-    description: 'Compare two Pakistani unstitched fabrics side-by-side. Inspect prices, seasonal usage, breathability, suit length, and weave details before ordering.',
-    canonicalPath: '/compare',
-    ogType: 'website',
-    ogImage: '/images/hero_niaz_luxury_fabric_1791569218384.jpg',
-    robots: 'index, follow',
-    keywords: ['compare fabrics Pakistan', 'Boski silk vs Latha cotton', 'Kamalia khaddar vs Karandi', 'unstitched suit comparison'],
-    breadcrumbs: [
-      { name: 'Home', path: '/' },
-      { name: 'Compare Fabrics', path: '/compare' },
-    ],
-  },
 };
 
 export function getProductSEOMetadata(product: Product): SEOPageMetadata {

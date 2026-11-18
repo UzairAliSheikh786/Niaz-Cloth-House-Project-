@@ -41,7 +41,16 @@ import {
 const REVIEWS_PAGE_SIZE = 6;
 
 export const ProductDetailPage: React.FC = () => {
-  const { products, addToCart, generateWhatsAppOrderUrl, showToast, recordProductView, storeSettings } = useShop();
+  const {
+    products,
+    addToCart,
+    generateWhatsAppOrderUrl,
+    showToast,
+    recordProductView,
+    storeSettings,
+    currency,
+    formatPrice,
+  } = useShop();
   const { productId, navigateTo } = useNavigation();
   const { getReviewsForProduct, getProductStats, loadProductReviewsPage, submitReview, isSubmittingReview } = useReviews();
   const { user } = useAuth();
@@ -248,7 +257,11 @@ export const ProductDetailPage: React.FC = () => {
       `*Selected Cut Style:* ${activeDesign?.name || 'Standard Cut'}`,
       `*Cut Length:* ${product.cutDetails.length}`,
       `*Quantity:* ${quantity} suit(s)`,
-      `*Total Price:* ${formatPKR(totalPrice)}`,
+      `*Total Price:* ${
+        currency === 'USD'
+          ? `${formatPKR(totalPrice)} (~${formatPrice(totalPrice)})`
+          : formatPKR(totalPrice)
+      }`,
       ``,
       `Please confirm stock availability and shipping details.`,
     ].join('\n');
@@ -431,42 +444,42 @@ export const ProductDetailPage: React.FC = () => {
           </div>
 
           {/* Contiguous Purchase Module (PDP Right Column) */}
-          <div className="lg:col-span-5 space-y-6">
-            <div className="border-b border-white/10 pb-6 space-y-3">
+          <div className="lg:col-span-5 space-y-6 min-w-0">
+            <div className="border-b border-white/10 pb-6 space-y-3 min-w-0">
               {/* Unboxed Metadata */}
-              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#C5A059] flex-wrap">
+              <div className="flex items-center gap-2 text-xs font-sans font-medium text-[#C5A059] flex-wrap min-w-0">
                 {product.brand ? (
-                  <span className="font-semibold uppercase tracking-wider text-[11px] bg-[#141419] border border-[#C5A059]/40 px-2.5 py-0.5 text-[#D4AF37]">
+                  <span className="font-semibold uppercase tracking-wider text-[11px] bg-[#141419] border border-[#C5A059]/40 px-2.5 py-0.5 text-[#D4AF37] max-w-full break-words [overflow-wrap:anywhere]">
                     {product.brand}
                   </span>
                 ) : (
-                  <span>{product.gender}'s Unstitched</span>
+                  <span className="break-words">{product.gender}'s Unstitched</span>
                 )}
                 {product.craftType && (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span className="text-[#F7F4EE]/80">{product.craftType}</span>
+                    <span className="text-[#F7F4EE]/80 break-words">{product.craftType}</span>
                   </>
                 )}
                 <span aria-hidden="true">·</span>
-                <span>{product.fabric}</span>
+                <span className="break-words">{product.fabric}</span>
                 <span aria-hidden="true">·</span>
-                <span>{product.collection}</span>
+                <span className="break-words">{product.collection}</span>
                 {product.season && (
                   <>
                     <span aria-hidden="true">·</span>
-                    <span className="text-[#F7F4EE]/60">{product.season} Edition</span>
+                    <span className="text-[#F7F4EE]/60 break-words">{product.season} Edition</span>
                   </>
                 )}
               </div>
 
               {/* Title */}
-              <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F7F4EE] leading-snug">
+              <h1 className="font-serif text-2xl sm:text-3xl font-normal text-[#F7F4EE] leading-snug break-words [overflow-wrap:anywhere] min-w-0">
                 {product.title}
               </h1>
 
               {/* Weave Subtitle */}
-              <p className="text-xs sm:text-sm text-[#F7F4EE]/65 font-sans">
+              <p className="text-xs sm:text-sm text-[#F7F4EE]/65 font-sans break-words [overflow-wrap:anywhere] min-w-0">
                 {product.subtitle}
               </p>
 
@@ -474,16 +487,21 @@ export const ProductDetailPage: React.FC = () => {
               <div className="pt-2 flex flex-col sm:flex-row sm:items-baseline justify-between gap-3">
                 <div className="flex flex-wrap items-baseline gap-2.5 sm:gap-3">
                   <span className="font-sans text-2xl sm:text-3xl font-semibold text-[#D4AF37] tabular-nums">
-                    {formatPKR(unitPrice)}
+                    {formatPrice(unitPrice)}
                   </span>
                   {product.originalPrice && (
                     <span className="font-sans text-sm text-[#F7F4EE]/40 line-through tabular-nums">
-                      {formatPKR(product.originalPrice + additionalPrice)}
+                      {formatPrice(product.originalPrice + additionalPrice)}
                     </span>
                   )}
                   {additionalPrice > 0 && (
                     <span className="text-[11px] font-mono text-[#E8D5A7]">
-                      (+{formatPKR(additionalPrice)} design upgrade)
+                      (+{formatPrice(additionalPrice)} design upgrade)
+                    </span>
+                  )}
+                  {currency === 'USD' && (
+                    <span className="text-[11px] font-mono text-[#F7F4EE]/55 tabular-nums">
+                      ({formatPKR(unitPrice)})
                     </span>
                   )}
                 </div>
@@ -838,7 +856,7 @@ export const ProductDetailPage: React.FC = () => {
                           </span>
                           {design.additionalPrice ? (
                             <span className="text-[11px] font-mono font-semibold text-[#D4AF37] shrink-0">
-                              +{formatPKR(design.additionalPrice)}
+                              +{formatPrice(design.additionalPrice)}
                             </span>
                           ) : (
                             <span className="text-[10px] text-[#F7F4EE]/50 font-medium uppercase tracking-wider shrink-0">
@@ -895,7 +913,7 @@ export const ProductDetailPage: React.FC = () => {
                 >
                   <ShoppingBag className="w-4 h-4" />
                   <span>
-                    Add to Cart · {formatPKR(totalPrice)}
+                    Add to Cart · {formatPrice(totalPrice)}
                   </span>
                 </button>
 
@@ -913,7 +931,7 @@ export const ProductDetailPage: React.FC = () => {
                   <Truck className="w-3.5 h-3.5 text-[#D4AF37] shrink-0" />
                   <span>Nationwide Express COD Dispatch</span>
                 </div>
-                <span>Free Shipping over {formatPKR(storeSettings?.freeShippingThreshold ?? 5000)}</span>
+                <span>Free Shipping over {formatPrice(storeSettings?.freeShippingThreshold ?? 5000)}</span>
               </div>
             </div>
           </div>

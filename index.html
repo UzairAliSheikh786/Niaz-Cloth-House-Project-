@@ -14,7 +14,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Niaz Cloth" />
     <link rel="icon" type="image/svg+xml" href="/icon.svg" />
-    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 
     <!-- Canonical URL -->
     <link rel="canonical" href="https://nch.com/" id="canonical-url" />
@@ -122,6 +122,22 @@
         }
       ]
     }
+    </script>
+
+    <!-- Early Global PWA Install Prompt Capture (prevents missing event before React/drawer mounts) -->
+    <script>
+      window.__nchDeferredInstallPrompt = null;
+      window.__nchAppInstalled = false;
+      window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        window.__nchDeferredInstallPrompt = e;
+        window.dispatchEvent(new CustomEvent('nch:install-prompt-ready'));
+      });
+      window.addEventListener('appinstalled', function () {
+        window.__nchDeferredInstallPrompt = null;
+        window.__nchAppInstalled = true;
+        window.dispatchEvent(new CustomEvent('nch:app-installed'));
+      });
     </script>
   </head>
   <body class="bg-[#050811] text-[#F8F6F0] antialiased selection:bg-[#D4AF37]/30 selection:text-[#D4AF37]">

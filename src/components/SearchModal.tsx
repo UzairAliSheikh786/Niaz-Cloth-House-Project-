@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, X, ArrowRight, Sparkles } from 'lucide-react';
-import { useShop, formatPKR } from '../context/ShopContext';
+import { useShop } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { OptimizedImage } from './OptimizedImage';
 
 export const SearchModal: React.FC = () => {
-  const { isSearchOpen, setIsSearchOpen, products } = useShop();
+  const { isSearchOpen, setIsSearchOpen, products, formatPrice } = useShop();
   const { navigateTo } = useNavigation();
   const [query, setQuery] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -152,19 +152,19 @@ export const SearchModal: React.FC = () => {
                     className="w-full h-full object-cover"
                   />
                   <div className="flex-1 min-w-0">
-                    <span className="text-[10px] font-bold tracking-wider uppercase text-neutral-500 block">
+                    <span className="text-[10px] font-bold tracking-wider uppercase text-neutral-500 block break-words [overflow-wrap:anywhere]">
                       {item.brand || item.gender}
                     </span>
-                    <h4 className="font-semibold text-xs text-black group-hover:underline truncate">
+                    <h4 className="font-semibold text-xs text-black group-hover:underline line-clamp-2 break-words [overflow-wrap:anywhere] leading-snug">
                       {item.title}
                     </h4>
-                    <p className="text-[11px] text-neutral-500 truncate">
+                    <p className="text-[11px] text-neutral-500 break-words [overflow-wrap:anywhere] leading-snug">
                       {item.fabric} · {item.cutDetails.length}
                     </p>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="text-xs font-black text-black">
-                      {formatPKR(item.price)}
+                    <div className="text-xs font-black text-black tabular-nums">
+                      {formatPrice(item.price)}
                     </div>
                     <span className="text-[10px] text-emerald-700 font-semibold uppercase">In Stock</span>
                   </div>

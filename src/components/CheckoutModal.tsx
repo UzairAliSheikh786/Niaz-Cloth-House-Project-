@@ -76,6 +76,8 @@ export const CheckoutModal: React.FC = () => {
     createOrder,
     generateWhatsAppOrderUrl,
     storeSettings,
+    currency,
+    formatPrice,
   } = useShop();
 
   const freeShippingThreshold = storeSettings?.freeShippingThreshold ?? 5000;
@@ -432,23 +434,14 @@ export const CheckoutModal: React.FC = () => {
               </div>
               <div className="flex justify-between font-bold text-sm pt-2.5 border-t border-[#E2E8F0] text-[#0284C7]">
                 <span>Total Amount:</span>
-                <span className="font-mono">{formatPKR(completedOrder.total)}</span>
+                <span className="font-mono">
+                  {formatPrice(completedOrder.total)}
+                  {currency === 'USD' ? ` (${formatPKR(completedOrder.total)})` : ''}
+                </span>
               </div>
             </div>
 
             <div className="pt-2 flex flex-col sm:flex-row flex-wrap items-center justify-center gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  const idToTrack = completedOrder.id;
-                  handleClose();
-                  navigateTo('track-order', { orderId: idToTrack });
-                }}
-                className="w-full sm:w-auto px-4 py-2.5 bg-[#D4AF37] hover:bg-[#E5C158] text-[#060608] text-xs font-bold tracking-wide transition-colors flex items-center justify-center gap-1.5 shadow-xs"
-              >
-                <Truck className="w-4 h-4" />
-                <span>Track Order Status</span>
-              </button>
               <button
                 type="button"
                 onClick={() => window.print()}
@@ -503,23 +496,28 @@ export const CheckoutModal: React.FC = () => {
                   Items ({cart.reduce((s, i) => s + i.quantity, 0)} Unstitched Ensemble{cart.reduce((s, i) => s + i.quantity, 0) === 1 ? '' : 's'})
                 </span>
                 <span className="font-mono font-bold text-[#1F1F1F]">
-                  {formatPKR(cartSubtotal)}
+                  {formatPrice(cartSubtotal)}
                 </span>
               </div>
               <div className="flex items-center justify-between text-[11px]">
                 <span className="text-[#8C827A] uppercase tracking-wider font-semibold">Shipping (Tracked Dispatch)</span>
                 <span className="font-semibold">
                   {effectiveShipping === 0 ? (
-                    <span className="text-[#2E7D32] font-bold">FREE (Unlocked over {formatPKR(freeShippingThreshold)})</span>
+                    <span className="text-[#2E7D32] font-bold">FREE (Unlocked over {formatPrice(freeShippingThreshold)})</span>
                   ) : (
-                    <span className="font-mono text-[#1F1F1F]">{formatPKR(standardShippingFee)}</span>
+                    <span className="font-mono text-[#1F1F1F]">{formatPrice(standardShippingFee)}</span>
                   )}
                 </span>
               </div>
               <div className="flex items-center justify-between pt-2 border-t border-[#F0EAE1]">
                 <span className="font-serif font-bold text-sm text-[#1F1F1F]">Total Payable</span>
                 <span className="font-mono font-bold text-lg text-[#D4AF37] tabular-nums">
-                  {formatPKR(totalPayable)}
+                  {formatPrice(totalPayable)}
+                  {currency === 'USD' && (
+                    <span className="ml-1.5 text-[11px] font-normal text-[#8C827A]">
+                      ({formatPKR(totalPayable)})
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
@@ -813,7 +811,10 @@ export const CheckoutModal: React.FC = () => {
                     <div>
                       <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Payable Amount:</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <strong className="text-sm font-mono text-[#009E49]">{formatPKR(cartSubtotal)}</strong>
+                        <strong className="text-sm font-mono text-[#009E49]">
+                          {formatPrice(cartSubtotal)}
+                          {currency === 'USD' ? ` (${formatPKR(cartSubtotal)})` : ''}
+                        </strong>
                         <button
                           type="button"
                           onClick={() => handleCopy(cartSubtotal.toString(), 'ep-amt')}
@@ -931,7 +932,10 @@ export const CheckoutModal: React.FC = () => {
                     <div>
                       <span className="text-[#1C1917]/60 block text-[10px] uppercase font-semibold">Payable Amount:</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
-                        <strong className="text-sm font-mono text-[#DE1F27]">{formatPKR(cartSubtotal)}</strong>
+                        <strong className="text-sm font-mono text-[#DE1F27]">
+                          {formatPrice(cartSubtotal)}
+                          {currency === 'USD' ? ` (${formatPKR(cartSubtotal)})` : ''}
+                        </strong>
                         <button
                           type="button"
                           onClick={() => handleCopy(cartSubtotal.toString(), 'jc-amt')}
@@ -1360,7 +1364,7 @@ export const CheckoutModal: React.FC = () => {
                   ) : paymentMethod === 'Online Payment Gateway (Debit/Credit Card)' ? (
                     <>
                       <Lock className="w-3.5 h-3.5" />
-                      <span>Pay {formatPKR(cartSubtotal)} via Secure Gateway</span>
+                      <span>Pay {formatPrice(cartSubtotal)} via Secure Gateway</span>
                       <ArrowRight className="w-4 h-4" />
                     </>
                   ) : (
@@ -1438,7 +1442,10 @@ export const CheckoutModal: React.FC = () => {
                 </div>
                 <div className="flex justify-between pt-1 border-t border-slate-200 text-sm font-bold text-blue-900">
                   <span>Payable Amount:</span>
-                  <span className="font-mono text-base">{formatPKR(cartSubtotal)}</span>
+                  <span className="font-mono text-base">
+                    {formatPrice(cartSubtotal)}
+                    {currency === 'USD' ? ` (${formatPKR(cartSubtotal)})` : ''}
+                  </span>
                 </div>
               </div>
 

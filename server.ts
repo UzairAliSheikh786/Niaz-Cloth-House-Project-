@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import fs from 'fs';
 import crypto from 'crypto';
+import http from 'http';
 import { fileURLToPath } from 'url';
 import { GoogleGenAI } from '@google/genai';
 import { INITIAL_PRODUCTS } from './src/data/products.ts';
@@ -169,14 +170,14 @@ export function validateEnvironment(): EnvironmentValidationReport {
 
   // 3. Security Dependency: Administrator Authentication & Cryptographic Session Secret
   const sessionSecret = (process.env.ADMIN_SESSION_SECRET || '').trim();
-  if (!sessionSecret || sessionSecret.length < 32) {
-    const warnMsg = `[SECURITY NOTICE - SESSION SECRET] ADMIN_SESSION_SECRET is using a default preview secret (${sessionSecret.length} chars). For production deployments, define a high-entropy 32+ character random hex string in ADMIN_SESSION_SECRET to harden HMAC-SHA256 session signature verification.`;
+  if (!sessionSecret || sessionSecret.length < 16) {
+    const warnMsg = `[SECURITY NOTICE - SESSION SECRET] ADMIN_SESSION_SECRET is missing or too short (${sessionSecret.length} chars). Set a 16+ character secret in environment variables for production deployments.`;
     dependencies.adminSecurity = {
       name: 'Admin Cryptographic Security (HMAC-SHA256)',
       category: 'AUTHENTICATION',
       critical: isProduction,
       status: isProduction ? 'FAILED' : 'DEGRADED',
-      details: sessionSecret ? `Weak secret (${sessionSecret.length} chars)` : 'Default preview secret fallback active',
+      details: sessionSecret ? `Short secret (${sessionSecret.length} chars)` : 'Ephemeral session secret fallback active',
       developerMessage: warnMsg,
     };
     if (isProduction) {
@@ -190,7 +191,9 @@ export function validateEnvironment(): EnvironmentValidationReport {
       category: 'AUTHENTICATION',
       critical: true,
       status: 'READY',
-      details: '32+ character high-entropy session secret configured',
+      details: sessionSecret.length >= 32
+        ? '32+ character high-entropy session secret configured'
+        : `256-bit derived HMAC signing key active (${sessionSecret.length}-char secret)`,
     };
   }
 
@@ -294,9 +297,9 @@ export function validateEnvironment(): EnvironmentValidationReport {
     `  • [LOADED] PORT                  : ${process.env.PORT || `Default: ${effectivePort}`}`,
     `  • [LOADED] NODE_ENV              : ${process.env.NODE_ENV || 'development (default)'}`,
     `  • [LOADED] GEMINI_API_KEY        : ${maskSecret(process.env.GEMINI_API_KEY)}`,
-    `  • [LOADED] ADMIN_USERNAME        : ${process.env.ADMIN_USERNAME || 'HajiNiazSab (preview default)'}`,
-    `  • [LOADED] ADMIN_PASSWORD        : ${maskSecret(process.env.ADMIN_PASSWORD || 'mustafa_niazsab')}`,
-    `  • [LOADED] ADMIN_SESSION_SECRET  : ${maskSecret(process.env.ADMIN_SESSION_SECRET || 'nch-secret-entropy')}`,
+    `  • [LOADED] ADMIN_USERNAME        : ${process.env.ADMIN_USERNAME || '[NOT SET]'}`,
+    `  • [LOADED] ADMIN_PASSWORD        : ${maskSecret(process.env.ADMIN_PASSWORD)}`,
+    `  • [LOADED] ADMIN_SESSION_SECRET  : ${maskSecret(process.env.ADMIN_SESSION_SECRET)}`,
     `  • [LOADED] DISABLE_HMR           : ${process.env.DISABLE_HMR || 'false'}`,
     '------------------------------------------------------------------------',
     'BUILD & RUNTIME ARTIFACTS VERIFICATION:',
@@ -506,23 +509,23 @@ function evaluateStartupDiagnostics() {
     ADMIN_USERNAME: {
       name: 'ADMIN_USERNAME',
       isSet: Boolean(process.env.ADMIN_USERNAME),
-      maskedValue: process.env.ADMIN_USERNAME ? process.env.ADMIN_USERNAME : 'HajiNiazSab (preview default)',
-      requiredForProd: false,
-      status: process.env.ADMIN_USERNAME ? 'LOADED' : 'OPTIONAL_MISSING',
+      maskedValue: process.env.ADMIN_USERNAME ? process.env.ADMIN_USERNAME : '[NOT SET]',
+      requiredForProd: true,
+      status: process.env.ADMIN_USERNAME ? 'LOADED' : 'REQUIRED_MISSING',
     },
     ADMIN_PASSWORD: {
       name: 'ADMIN_PASSWORD',
       isSet: Boolean(process.env.ADMIN_PASSWORD),
-      maskedValue: process.env.ADMIN_PASSWORD ? maskSecret(process.env.ADMIN_PASSWORD) : '[CONFIGURED PREVIEW FALLBACK]',
-      requiredForProd: false,
-      status: process.env.ADMIN_PASSWORD ? 'LOADED' : 'OPTIONAL_MISSING',
+      maskedValue: maskSecret(process.env.ADMIN_PASSWORD),
+      requiredForProd: true,
+      status: process.env.ADMIN_PASSWORD ? 'LOADED' : 'REQUIRED_MISSING',
     },
     ADMIN_SESSION_SECRET: {
       name: 'ADMIN_SESSION_SECRET',
-      isSet: Boolean(process.env.ADMIN_SESSION_SECRET && process.env.ADMIN_SESSION_SECRET.length >= 32),
-      maskedValue: process.env.ADMIN_SESSION_SECRET ? maskSecret(process.env.ADMIN_SESSION_SECRET) : '[DEFAULT 32-BYTE FALLBACK]',
-      requiredForProd: false,
-      status: process.env.ADMIN_SESSION_SECRET ? 'LOADED' : 'OPTIONAL_MISSING',
+      isSet: Boolean(process.env.ADMIN_SESSION_SECRET && process.env.ADMIN_SESSION_SECRET.length >= 16),
+      maskedValue: maskSecret(process.env.ADMIN_SESSION_SECRET),
+      requiredForProd: true,
+      status: process.env.ADMIN_SESSION_SECRET ? 'LOADED' : 'REQUIRED_MISSING',
     },
     DISABLE_HMR: {
       name: 'DISABLE_HMR',
@@ -909,6 +912,132 @@ app.get('/api/store-info', (_req: Request, res: Response) => {
   res.json(storeMetadata);
 });
 
+interface DailyExchangeRatePayload {
+  base: 'USD';
+  quote: 'PKR';
+  pkrPerUsd: number;
+  source: 'live' | 'cache' | 'fallback';
+  provider: string;
+  marketDate: string;
+  fetchedAt: string;
+  nextRefreshAt: string;
+}
+
+const DEFAULT_FALLBACK_PKR_PER_USD = 278.5;
+let lastKnownDailyFx: DailyExchangeRatePayload | null = null;
+
+async function fetchJsonWithTimeout(url: string, timeoutMs = 4500): Promise<any> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return await response.json();
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+app.get('/api/exchange-rate', async (req: Request, res: Response) => {
+  const cacheKey = 'daily_fx_usd_pkr';
+  const forceRefresh = req.query.refresh === 'true';
+  const fxTtlSeconds = 6 * 3600; // Refresh automatically up to 4x daily
+
+  if (!forceRefresh) {
+    const cached = getFromCache<DailyExchangeRatePayload>(cacheKey);
+    if (cached) {
+      res.setHeader('X-Cache-Status', 'HIT');
+      res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=86400');
+      return res.json({ ...cached, source: cached.source === 'fallback' ? 'fallback' : 'cache' });
+    }
+  }
+
+  const now = new Date();
+  const nextRefresh = new Date(now.getTime() + fxTtlSeconds * 1000);
+  let resolvedRate: number | null = null;
+  let providerName = 'open.er-api.com';
+  let marketDate = now.toISOString().slice(0, 10);
+
+  // Provider 1: ExchangeRate-API Open Access (Daily mid-market rates including PKR)
+  try {
+    const data = await fetchJsonWithTimeout('https://open.er-api.com/v6/latest/USD', 4500);
+    const rate = Number(data?.rates?.PKR);
+    if (Number.isFinite(rate) && rate > 150 && rate < 600) {
+      resolvedRate = Number(rate.toFixed(2));
+      providerName = 'open.er-api.com';
+      if (data?.time_last_update_utc) {
+        const parsedDate = new Date(data.time_last_update_utc);
+        if (!Number.isNaN(parsedDate.getTime())) {
+          marketDate = parsedDate.toISOString().slice(0, 10);
+        }
+      }
+    }
+  } catch {
+    // Fall through to secondary provider
+  }
+
+  // Provider 2: Fawazahmed0 Daily Currency API via jsDelivr CDN
+  if (resolvedRate === null) {
+    try {
+      const data = await fetchJsonWithTimeout(
+        'https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.json',
+        4500
+      );
+      const rate = Number(data?.usd?.pkr);
+      if (Number.isFinite(rate) && rate > 150 && rate < 600) {
+        resolvedRate = Number(rate.toFixed(2));
+        providerName = 'currency-api';
+        if (typeof data?.date === 'string' && /^\d{4}-\d{2}-\d{2}/.test(data.date)) {
+          marketDate = data.date.slice(0, 10);
+        }
+      }
+    } catch {
+      // Fall through to cached/fallback
+    }
+  }
+
+  if (resolvedRate !== null) {
+    const payload: DailyExchangeRatePayload = {
+      base: 'USD',
+      quote: 'PKR',
+      pkrPerUsd: resolvedRate,
+      source: 'live',
+      provider: providerName,
+      marketDate,
+      fetchedAt: now.toISOString(),
+      nextRefreshAt: nextRefresh.toISOString(),
+    };
+    lastKnownDailyFx = payload;
+    setToCache(cacheKey, payload, fxTtlSeconds);
+    res.setHeader('X-Cache-Status', 'MISS');
+    res.setHeader('Cache-Control', 'public, max-age=1800, stale-while-revalidate=86400');
+    return res.json(payload);
+  }
+
+  const fallbackPayload: DailyExchangeRatePayload = lastKnownDailyFx
+    ? { ...lastKnownDailyFx, source: 'cache' }
+    : {
+        base: 'USD',
+        quote: 'PKR',
+        pkrPerUsd: DEFAULT_FALLBACK_PKR_PER_USD,
+        source: 'fallback',
+        provider: 'baseline',
+        marketDate,
+        fetchedAt: now.toISOString(),
+        nextRefreshAt: new Date(now.getTime() + 15 * 60 * 1000).toISOString(),
+      };
+
+  setToCache(cacheKey, fallbackPayload, 900); // Retry upstream after 15 mins on failure
+  res.setHeader('X-Cache-Status', 'FALLBACK');
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  return res.json(fallbackPayload);
+});
+
 app.get('/api/cache/stats', (_req: Request, res: Response) => {
   const total = cacheMetrics.hits + cacheMetrics.misses;
   const hitRatio = total > 0 ? Number(((cacheMetrics.hits / total) * 100).toFixed(1)) : 0;
@@ -944,10 +1073,17 @@ app.post('/api/cache/purge', (_req: Request, res: Response) => {
 // ========================================== //
 const ADMIN_USERNAME = (process.env.ADMIN_USERNAME || '').trim();
 const ADMIN_PASSWORD = (process.env.ADMIN_PASSWORD || '').trim();
-const ADMIN_SESSION_SECRET = (process.env.ADMIN_SESSION_SECRET || '').trim();
+const RAW_SESSION_SECRET = (process.env.ADMIN_SESSION_SECRET || '').trim();
+const EPHEMERAL_DEV_SECRET = crypto.randomBytes(32).toString('hex');
 
-if (!ADMIN_USERNAME || !ADMIN_PASSWORD || ADMIN_SESSION_SECRET.length < 32) {
-  // Fallback defaults for preview safety if unconfigured
+const DERIVED_SESSION_KEY = RAW_SESSION_SECRET
+  ? crypto.createHmac('sha256', 'nch-1970-session-kdf').update(RAW_SESSION_SECRET).digest('hex')
+  : EPHEMERAL_DEV_SECRET;
+
+function timingSafeCompare(a: string, b: string): boolean {
+  const digestA = crypto.createHash('sha256').update(a).digest();
+  const digestB = crypto.createHash('sha256').update(b).digest();
+  return crypto.timingSafeEqual(digestA, digestB);
 }
 
 const adminAuthLimiter = createRateLimiter({ maxRequests: 15, windowMs: 15 * 60 * 1000, tierName: 'Admin-Auth' });
@@ -961,7 +1097,7 @@ interface AdminSessionPayload {
 
 function generateAdminToken(payload: AdminSessionPayload): string {
   const data = Buffer.from(JSON.stringify(payload)).toString('base64url');
-  const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET || 'fallback_secret_key_32_bytes_minimum').update(data).digest('base64url');
+  const signature = crypto.createHmac('sha256', DERIVED_SESSION_KEY).update(data).digest('base64url');
   return `${data}.${signature}`;
 }
 
@@ -970,7 +1106,7 @@ function verifyAdminToken(token: string): AdminSessionPayload | null {
     const parts = token.split('.');
     if (parts.length !== 2) return null;
     const [data, signature] = parts;
-    const expectedSignature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET || 'fallback_secret_key_32_bytes_minimum').update(data).digest('base64url');
+    const expectedSignature = crypto.createHmac('sha256', DERIVED_SESSION_KEY).update(data).digest('base64url');
     const sigA = Buffer.from(signature);
     const sigB = Buffer.from(expectedSignature);
     if (sigA.length !== sigB.length || !crypto.timingSafeEqual(sigA, sigB)) {
@@ -1007,8 +1143,24 @@ app.post('/api/admin/login', adminAuthLimiter, (req: Request, res: Response) => 
     return res.status(400).json({ success: false, error: 'Please provide both username and password.' });
   }
 
+  if (!ADMIN_USERNAME || !ADMIN_PASSWORD) {
+    return res.status(503).json({
+      success: false,
+      error: 'Administrator credentials are not configured on the server environment.',
+    });
+  }
+
+  const userMatches = timingSafeCompare(inputUser, ADMIN_USERNAME);
+  const passMatches = timingSafeCompare(inputPass, ADMIN_PASSWORD);
+  if (!userMatches || !passMatches) {
+    return res.status(401).json({
+      success: false,
+      error: 'Invalid administrator username or password.',
+    });
+  }
+
   const sessionPayload: AdminSessionPayload = {
-    username: ADMIN_USERNAME || inputUser,
+    username: ADMIN_USERNAME,
     fullName: 'Haji Niaz Ahmad',
     role: 'Store Administrator',
     exp: Date.now() + 24 * 60 * 60 * 1000,
@@ -1403,6 +1555,50 @@ app.post('/api/telemetry/error', (req: Request, res: Response) => {
   res.json({ success: true, errorId: entry.id });
 });
 
+interface WhatsAppSyncLogEntry {
+  id: string;
+  timestamp: string;
+  adminName: string;
+  format: string;
+  itemCount: number;
+  targetPhone: string;
+  status: string;
+}
+const whatsappSyncLogs: WhatsAppSyncLogEntry[] = [];
+
+app.get('/api/admin/whatsapp-sync/log', requireAdminAuth, (_req: Request, res: Response) => {
+  res.json({ logs: whatsappSyncLogs });
+});
+
+app.post('/api/admin/whatsapp-sync/log', requireAdminAuth, (req: Request, res: Response) => {
+  const body = req.body || {};
+  const entry: WhatsAppSyncLogEntry = {
+    id: `wa-sync-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+    timestamp: new Date().toISOString(),
+    adminName: String(body.adminName || (req as any).adminUser?.fullName || 'Store Administrator'),
+    format: String(body.format || 'meta-csv'),
+    itemCount: Number(body.itemCount) || INITIAL_PRODUCTS.length,
+    targetPhone: String(body.targetPhone || storeMetadata.contact.whatsapp),
+    status: String(body.status || 'Dispatched'),
+  };
+  whatsappSyncLogs.unshift(entry);
+  if (whatsappSyncLogs.length > 50) whatsappSyncLogs.pop();
+  res.json({ success: true, entry });
+});
+
+// Live Meta Commerce / WhatsApp Business Catalog CSV Feed URL
+app.get('/api/catalog/whatsapp.csv', async (req: Request, res: Response) => {
+  const { generateMetaCommerceCatalogCsv } = await import('./src/utils/whatsappCatalogSync.ts');
+  const proto = (req.headers['x-forwarded-proto'] as string)?.split(',')[0]?.trim() || req.protocol || 'https';
+  const host = (req.headers['x-forwarded-host'] as string)?.split(',')[0]?.trim() || req.get('host') || 'nch.com';
+  const baseUrl = `${proto}://${host}`;
+  const csv = generateMetaCommerceCatalogCsv(INITIAL_PRODUCTS as any, baseUrl);
+  res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+  res.setHeader('Content-Disposition', 'attachment; filename="niaz_whatsapp_catalog_feed.csv"');
+  res.setHeader('Cache-Control', 'public, max-age=300');
+  res.send(`\uFEFF${csv}`);
+});
+
 app.post('/api/telemetry/analytics', (req: Request, res: Response) => {
   const evt = req.body || {};
   const record: ClientAnalyticsEvent = {
@@ -1442,6 +1638,8 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 // SERVER INITIALIZATION & VITE MIDDLEWARE    //
 // ========================================== //
 async function startServer() {
+  const httpServer = http.createServer(app);
+
   if (process.env.NODE_ENV === 'production') {
     const distDir = path.resolve(__dirname, 'dist');
     app.use(
@@ -1473,11 +1671,52 @@ async function startServer() {
       res.sendFile(path.join(distDir, 'index.html'));
     });
   } else {
+    const disableHmr = process.env.DISABLE_HMR === 'true';
     const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
-      server: { middlewareMode: true },
+      server: {
+        middlewareMode: true,
+        hmr: disableHmr ? false : { server: httpServer },
+        ws: disableHmr ? false : { server: httpServer },
+        watch: disableHmr ? null : {},
+      },
       appType: 'spa',
     });
+
+    if (disableHmr) {
+      let cachedPatchedViteClient: string | null = null;
+      app.get('/@vite/client', async (_req: Request, res: Response, next: NextFunction) => {
+        try {
+          if (!cachedPatchedViteClient) {
+            const result = await vite.transformRequest('/@vite/client');
+            if (!result?.code) return next();
+            cachedPatchedViteClient = result.code
+              .replace(
+                'transport.connect(createHMRHandler(handleMessage));',
+                '/* HMR WebSocket disabled when DISABLE_HMR=true */'
+              )
+              .replace(
+                'setupForwardConsoleHandler(transport, forwardConsole);',
+                ''
+              )
+              .replace(
+                'else throw new SendBeforeConnectError("send was called before connect");',
+                'else return;'
+              )
+              .replace(
+                'else throw new SendBeforeConnectError("invoke was called before connect");',
+                'else return undefined;'
+              );
+          }
+          res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+          res.setHeader('Cache-Control', 'no-store');
+          return res.end(cachedPatchedViteClient);
+        } catch {
+          return next();
+        }
+      });
+    }
+
     app.use(vite.middlewares);
 
     app.get('*', async (req: Request, res: Response, next: NextFunction) => {
@@ -1496,7 +1735,7 @@ async function startServer() {
     });
   }
 
-  app.listen(port, '0.0.0.0', () => {
+  httpServer.listen(port, '0.0.0.0', () => {
     const { logText } = evaluateStartupDiagnostics();
     console.log(logText);
     console.log(`[NCH Backend] Secure Express server listening on http://0.0.0.0:${port}`);

@@ -42,6 +42,18 @@ import {
   invalidateProductCaches,
   primeProductDetailCache,
 } from '../services/firestoreProductService';
+import {
+  CurrencyCode,
+  ExchangeRateSnapshot,
+  getDefaultExchangeRateSnapshot,
+  getStoredCurrency,
+  saveStoredCurrency,
+  getStoredExchangeRate,
+  isExchangeRateStale,
+  fetchDailyMarketRate,
+  convertFromPKR,
+  formatCurrencyAmount,
+} from '../utils/currency';
 
 export const PRODUCTS_PAGE_SIZE = 12;
 
@@ -72,11 +84,6 @@ interface ShopContextType {
   setIsCheckoutOpen: (open: boolean) => void;
   toast: string | null;
   showToast: (msg: string) => void;
-  compareProductIds: [string, string];
-  setCompareProductA: (id: string) => void;
-  setCompareProductB: (id: string) => void;
-  swapCompareProducts: () => void;
-  addToCompare: (id: string) => void;
   addToCart: (
     product: ProductCardItem, 
     quantity?: number, 
@@ -104,6 +111,16 @@ interface ShopContextType {
   deleteProduct: (id: string) => void;
   resetDefaultCatalog: () => void;
   formatPKR: (amount: number) => string;
+  currency: CurrencyCode;
+  setCurrency: (currency: CurrencyCode) => void;
+  toggleCurrency: () => void;
+  exchangeRatePkrPerUsd: number;
+  exchangeRateSource: 'live' | 'cache' | 'fallback';
+  exchangeRateMarketDate: string;
+  isRefreshingRate: boolean;
+  refreshExchangeRate: (force?: boolean) => Promise<void>;
+  convertPrice: (amountPkr: number) => number;
+  formatPrice: (amountPkr: number) => string;
   generateWhatsAppOrderUrl: (customer?: CustomerDetails) => string;
   // IndexedDB Preferences & Personalization
   userPreferences: UserPreferences;
@@ -164,6 +181,90 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const activeLocalOffsetRef = useRef<number>(Math.min(PRODUCTS_PAGE_SIZE, products.length));
   const activeShopFiltersRef = useRef<ShopProductPageFilters>({});
   const activePaginationEpochRef = useRef<number>(0);
+
+  // Display currency state (canonical data remains PKR; display converts via daily market rate)
+  const [currency, setCurrencyState] = useState<CurrencyCode>(() => getStoredCurrency());
+  const [exchangeRateSnapshot, setExchangeRateSnapshot] = useState<ExchangeRateSnapshot>(
+    () => getStoredExchangeRate() ?? getDefaultExchangeRateSnapshot()
+  );
+  const [isRefreshingRate, setIsRefreshingRate] = useState<boolean>(false);
+  const exchangeRateSnapshotRef = useRef<ExchangeRateSnapshot>(exchangeRateSnapshot);
+  exchangeRateSnapshotRef.current = exchangeRateSnapshot;
+
+  const refreshExchangeRate = useCallback(async (force = false) => {
+    setIsRefreshingRate(true);
+    try {
+      const latest = await fetchDailyMarketRate(force);
+      setExchangeRateSnapshot(latest);
+    } catch {
+      // Keep stored or baseline snapshot when offline
+    } finally {
+      setIsRefreshingRate(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (isExchangeRateStale(exchangeRateSnapshotRef.current)) {
+      refreshExchangeRate(false);
+    }
+
+    const handleVisibilityOrOnline = () => {
+      if (
+        (typeof document === 'undefined' || document.visibilityState === 'visible') &&
+        isExchangeRateStale(exchangeRateSnapshotRef.current)
+      ) {
+        refreshExchangeRate(false);
+      }
+    };
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', handleVisibilityOrOnline);
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', handleVisibilityOrOnline);
+    }
+
+    const intervalId = setInterval(() => {
+      if (isExchangeRateStale(exchangeRateSnapshotRef.current)) {
+        refreshExchangeRate(false);
+      }
+    }, 60 * 60 * 1000); // Re-check hourly for daily rollover
+
+    return () => {
+      if (typeof document !== 'undefined') {
+        document.removeEventListener('visibilitychange', handleVisibilityOrOnline);
+      }
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', handleVisibilityOrOnline);
+      }
+      clearInterval(intervalId);
+    };
+  }, [refreshExchangeRate]);
+
+  const setCurrency = useCallback((nextCurrency: CurrencyCode) => {
+    setCurrencyState(nextCurrency);
+    saveStoredCurrency(nextCurrency);
+  }, []);
+
+  const toggleCurrency = useCallback(() => {
+    setCurrencyState((prev) => {
+      const next: CurrencyCode = prev === 'PKR' ? 'USD' : 'PKR';
+      saveStoredCurrency(next);
+      return next;
+    });
+  }, []);
+
+  const exchangeRatePkrPerUsd = exchangeRateSnapshot.pkrPerUsd;
+
+  const convertPrice = useCallback(
+    (amountPkr: number) => convertFromPKR(amountPkr, currency, exchangeRatePkrPerUsd),
+    [currency, exchangeRatePkrPerUsd]
+  );
+
+  const formatPrice = useCallback(
+    (amountPkr: number) => formatCurrencyAmount(amountPkr, currency, exchangeRatePkrPerUsd),
+    [currency, exchangeRatePkrPerUsd]
+  );
 
   // Cart state with IndexedDB client-side persistence
   const [cart, setCart] = useState<CartItem[]>(() => {
@@ -502,50 +603,6 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   }, [hasMoreProducts, isLoadingMoreProducts, isLoadingProducts, products, filterAndSortSummaries]);
 
-  // Compare Fabrics state (Two unstitched fabric IDs)
-  const [compareProductIds, setCompareProductIds] = useState<[string, string]>(() => {
-    try {
-      const saved = localStorage.getItem('niaz_compare_v1');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length === 2 && parsed[0] && parsed[1]) {
-          return [parsed[0], parsed[1]];
-        }
-      }
-    } catch {
-      // fallback
-    }
-    return ['nch-001', 'nch-002'];
-  });
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('niaz_compare_v1', JSON.stringify(compareProductIds));
-    } catch (e) {
-      console.error('Failed to save compare state:', e);
-    }
-  }, [compareProductIds]);
-
-  const setCompareProductA = (id: string) => {
-    setCompareProductIds((prev) => [id, prev[1]]);
-  };
-
-  const setCompareProductB = (id: string) => {
-    setCompareProductIds((prev) => [prev[0], id]);
-  };
-
-  const swapCompareProducts = () => {
-    setCompareProductIds((prev) => [prev[1], prev[0]]);
-  };
-
-  const addToCompare = (id: string) => {
-    setCompareProductIds((prev) => {
-      if (prev[0] === id) return prev;
-      return [prev[0], id];
-    });
-    showToast('Fabric loaded into comparison');
-  };
-
   // Sync products to localStorage
   useEffect(() => {
     try {
@@ -575,6 +632,55 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       console.error('Failed to save orders:', e);
     }
   }, [orders]);
+
+  // Replay queued offline orders automatically once network connectivity resumes
+  useEffect(() => {
+    const syncPendingOfflineOrders = async () => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) return;
+      try {
+        const raw = localStorage.getItem('niaz_offline_order_queue_v1');
+        if (!raw) return;
+        const queue = JSON.parse(raw) as Array<{
+          localOrderId: string;
+          payload: {
+            customer: CustomerDetails;
+            items: Array<{
+              productId: string;
+              quantity: number;
+              selectedColor?: string;
+              selectedDesign?: string;
+            }>;
+            paymentMethod: PaymentMethod;
+            paymentDetails?: OrderPaymentDetails;
+          };
+        }>;
+        if (!Array.isArray(queue) || queue.length === 0) return;
+
+        const remaining: typeof queue = [];
+        for (const entry of queue) {
+          try {
+            const resp = await fetch('/api/orders', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(entry.payload),
+            });
+            if (!resp.ok) {
+              remaining.push(entry);
+            }
+          } catch {
+            remaining.push(entry);
+          }
+        }
+        localStorage.setItem('niaz_offline_order_queue_v1', JSON.stringify(remaining));
+      } catch (err) {
+        console.warn('Offline order sync pass deferred:', err);
+      }
+    };
+
+    void syncPendingOfflineOrders();
+    window.addEventListener('online', syncPendingOfflineOrders);
+    return () => window.removeEventListener('online', syncPendingOfflineOrders);
+  }, []);
 
   // Auth-gated real-time Firestore sync for orders
   useEffect(() => {
@@ -758,43 +864,60 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       paymentDetails,
     };
 
-    // Attempt server-authoritative verification & registration
-    try {
-      const resp = await fetch('/api/orders', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          customer,
-          items: cart.map((i) => ({
-            productId: i.product.id,
-            quantity: i.quantity,
-            selectedColor: i.selectedColor,
-            selectedDesign: i.selectedDesign,
-          })),
-          paymentMethod,
-          paymentDetails,
-        }),
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        if (data?.order) {
-          finalOrder = {
-            ...finalOrder,
-            id: data.order.id,
-            subtotal: data.order.subtotal,
-            shipping: data.order.shipping ?? (data.order.total - data.order.subtotal),
-            total: data.order.total,
-          };
+    const serverPayload = {
+      customer,
+      items: cart.map((i) => ({
+        productId: i.product.id,
+        quantity: i.quantity,
+        selectedColor: i.selectedColor,
+        selectedDesign: i.selectedDesign,
+      })),
+      paymentMethod,
+      paymentDetails,
+    };
+
+    let syncedWithServer = false;
+    // Attempt server-authoritative verification & registration when online
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+      try {
+        const resp = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(serverPayload),
+        });
+        if (resp.ok) {
+          syncedWithServer = true;
+          const data = await resp.json();
+          if (data?.order) {
+            finalOrder = {
+              ...finalOrder,
+              id: data.order.id,
+              subtotal: data.order.subtotal,
+              shipping: data.order.shipping ?? (data.order.total - data.order.subtotal),
+              total: data.order.total,
+            };
+          }
         }
+      } catch (err) {
+        console.warn('Backend server order placement offline or unreachable, queuing locally & via Firestore:', err);
       }
-    } catch (err) {
-      console.warn('Backend server order placement offline or unreachable, registering via client & Firestore:', err);
+    }
+
+    if (!syncedWithServer) {
+      try {
+        const raw = localStorage.getItem('niaz_offline_order_queue_v1');
+        const queue = raw ? (JSON.parse(raw) as unknown[]) : [];
+        queue.push({ localOrderId: finalOrder.id, payload: serverPayload });
+        localStorage.setItem('niaz_offline_order_queue_v1', JSON.stringify(queue));
+      } catch {
+        // Ignore storage quota issues
+      }
     }
 
     // Save to local state
     setOrders((prev) => [finalOrder, ...prev]);
 
-    // Save to Firestore
+    // Save to Firestore (persistentLocalCache queues write locally if offline)
     try {
       const orderRef = doc(db, 'orders', finalOrder.id);
       await setDoc(orderRef, {
@@ -808,7 +931,11 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     clearCart();
     setIsCartOpen(false);
-    showToast(`Order #${finalOrder.id} registered successfully via ${paymentMethod}!`);
+    showToast(
+      syncedWithServer
+        ? `Order #${finalOrder.id} registered successfully via ${paymentMethod}!`
+        : `Order #${finalOrder.id} saved offline and queued for sync.`
+    );
     return finalOrder;
   };
 
@@ -976,11 +1103,21 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       '',
       '📦 *ORDER SUMMARY:*',
       ...cart.map(
-        (item, idx) =>
-          `${idx + 1}. ${item.product.title}\n   • Fabric: ${item.product.fabric}\n   • Qty: ${item.quantity}\n   • Price: ${formatPKR(item.product.price * item.quantity)}`
+        (item, idx) => {
+          const lineTotalPkr = item.product.price * item.quantity;
+          const priceLabel =
+            currency === 'USD'
+              ? `${formatPKR(lineTotalPkr)} (~${formatPrice(lineTotalPkr)})`
+              : formatPKR(lineTotalPkr);
+          return `${idx + 1}. ${item.product.title}\n   • Fabric: ${item.product.fabric}\n   • Qty: ${item.quantity}\n   • Price: ${priceLabel}`;
+        }
       ),
       '',
-      `💰 *Total Amount:* ${formatPKR(cartSubtotal)}`,
+      `💰 *Total Amount:* ${
+        currency === 'USD'
+          ? `${formatPKR(cartSubtotal)} (~${formatPrice(cartSubtotal)})`
+          : formatPKR(cartSubtotal)
+      }`,
       '🚚 *Payment Method:* Cash on Delivery / Direct Bank Transfer',
     ];
 
@@ -1037,12 +1174,17 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       deleteProduct,
       resetDefaultCatalog,
       formatPKR,
+      currency,
+      setCurrency,
+      toggleCurrency,
+      exchangeRatePkrPerUsd,
+      exchangeRateSource: exchangeRateSnapshot.source,
+      exchangeRateMarketDate: exchangeRateSnapshot.marketDate,
+      isRefreshingRate,
+      refreshExchangeRate,
+      convertPrice,
+      formatPrice,
       generateWhatsAppOrderUrl,
-      compareProductIds,
-      setCompareProductA,
-      setCompareProductB,
-      swapCompareProducts,
-      addToCompare,
       userPreferences,
       updatePreferences,
       recentlyViewed,
@@ -1074,7 +1216,16 @@ export const ShopProvider: React.FC<{ children: React.ReactNode }> = ({ children
       cartTotal,
       cartCount,
       wishlist,
-      compareProductIds,
+      currency,
+      setCurrency,
+      toggleCurrency,
+      exchangeRatePkrPerUsd,
+      exchangeRateSnapshot.source,
+      exchangeRateSnapshot.marketDate,
+      isRefreshingRate,
+      refreshExchangeRate,
+      convertPrice,
+      formatPrice,
       userPreferences,
       recentlyViewed,
       storeSettings,

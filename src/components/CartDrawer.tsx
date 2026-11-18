@@ -16,6 +16,9 @@ export const CartDrawer: React.FC = () => {
     setIsCheckoutOpen,
     generateWhatsAppOrderUrl,
     storeSettings,
+    currency,
+    exchangeRatePkrPerUsd,
+    formatPrice,
   } = useShop();
 
   const { navigateTo } = useNavigation();
@@ -101,7 +104,7 @@ export const CartDrawer: React.FC = () => {
                   </span>
                 ) : (
                   <span>
-                    Add <strong className="text-[#1F1F1F] font-mono">{formatPKR(amountNeeded)}</strong> for Free Shipping
+                    Add <strong className="text-[#1F1F1F] font-mono">{formatPrice(amountNeeded)}</strong> for Free Shipping
                   </span>
                 )}
               </div>
@@ -161,40 +164,40 @@ export const CartDrawer: React.FC = () => {
 
                   {/* Info */}
                   <div className="flex-1 flex flex-col justify-between min-w-0">
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <span className="text-[10px] font-bold tracking-wider uppercase text-[#D4AF37]">
+                    <div className="min-w-0">
+                      <div className="flex items-start justify-between gap-2 min-w-0">
+                        <span className="text-[10px] font-bold tracking-wider uppercase text-[#D4AF37] min-w-0 break-words [overflow-wrap:anywhere]">
                           {item.product.brand || item.product.gender}
                         </span>
                         <button
                           onClick={() => removeFromCart(item.product.id)}
-                          className="text-[#8C827A] hover:text-red-700 transition-colors p-1"
+                          className="text-[#8C827A] hover:text-red-700 transition-colors p-1 shrink-0"
                           title="Remove article"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      <h4 className="text-xs font-semibold text-[#1F1F1F] truncate mt-0.5" title={item.product.title}>
+                      <h4 className="text-xs font-semibold text-[#1F1F1F] line-clamp-2 break-words [overflow-wrap:anywhere] leading-snug mt-0.5" title={item.product.title}>
                         {item.product.title}
                       </h4>
 
-                      <div className="flex items-center gap-1.5 mt-1 text-[11px] text-[#8C827A]">
+                      <div className="flex items-start gap-1.5 mt-1 text-[11px] text-[#8C827A] min-w-0">
                         {item.selectedColorHex && (
                           <span
-                            className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block shrink-0"
+                            className="w-2.5 h-2.5 rounded-full border border-black/10 inline-block shrink-0 mt-0.5"
                             style={{ backgroundColor: item.selectedColorHex }}
                           />
                         )}
-                        <span className="truncate">
+                        <span className="min-w-0 break-words [overflow-wrap:anywhere] leading-snug">
                           {item.selectedColor || item.product.color} · {item.selectedDesign || 'Standard Cut'}
                         </span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t border-[#F0EAE1] mt-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[#F0EAE1] mt-2 min-w-0">
                       {/* Quantity Controller */}
-                      <div className="flex items-center border border-[#E8E0D2] bg-[#FAF8F5]">
+                      <div className="flex items-center border border-[#E8E0D2] bg-[#FAF8F5] shrink-0">
                         <button
                           onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
                           className="p-1 hover:bg-[#E8E0D2] text-[#1F1F1F] transition-colors"
@@ -215,8 +218,8 @@ export const CartDrawer: React.FC = () => {
                       </div>
 
                       {/* Price */}
-                      <span className="text-xs font-bold text-[#1F1F1F] font-mono">
-                        {formatPKR(getItemPrice(item))}
+                      <span className="text-xs font-bold text-[#1F1F1F] font-mono break-words">
+                        {formatPrice(getItemPrice(item))}
                       </span>
                     </div>
                   </div>
@@ -232,7 +235,7 @@ export const CartDrawer: React.FC = () => {
                 <div className="flex justify-between items-baseline">
                   <span className="text-[#8C827A] uppercase tracking-wider font-semibold text-[11px]">Subtotal</span>
                   <span className="text-sm font-bold text-[#1F1F1F] font-mono">
-                    {formatPKR(cartSubtotal)}
+                    {formatPrice(cartSubtotal)}
                   </span>
                 </div>
 
@@ -242,7 +245,7 @@ export const CartDrawer: React.FC = () => {
                     {isFreeShippingUnlocked ? (
                       <span className="text-[#2E7D32] font-bold">FREE DELIVERY</span>
                     ) : (
-                      <span className="text-[#1F1F1F] font-mono">{formatPKR(standardShippingFee)}</span>
+                      <span className="text-[#1F1F1F] font-mono">{formatPrice(standardShippingFee)}</span>
                     )}
                   </span>
                 </div>
@@ -250,9 +253,14 @@ export const CartDrawer: React.FC = () => {
                 <div className="flex justify-between items-baseline pt-2 border-t border-[#F0EAE1]">
                   <span className="text-[#1F1F1F] font-serif font-bold text-sm">Estimated Total</span>
                   <span className="text-base font-bold text-[#D4AF37] font-mono">
-                    {formatPKR(cartTotal)}
+                    {formatPrice(cartTotal)}
                   </span>
                 </div>
+                {currency === 'USD' && (
+                  <p className="text-[10px] text-[#8C827A] text-right font-mono">
+                    Market rate 1 USD = ₨ {exchangeRatePkrPerUsd.toFixed(2)} · Settled as {formatPKR(cartTotal)}
+                  </p>
+                )}
               </div>
 
               <div className="pt-2 space-y-2">

@@ -39,18 +39,18 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
   }, [items]);
 
   return (
-    <nav aria-label="Breadcrumb" className="w-full py-3 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#F7F4EE]/60 font-sans">
+    <nav aria-label="Breadcrumb" className="w-full py-3 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto min-w-0">
+      <ol className="flex items-center flex-wrap gap-1.5 text-xs text-[#F7F4EE]/60 font-sans min-w-0 max-w-full">
         {items.map((item, index) => {
           const isLast = index === items.length - 1;
 
           return (
-            <li key={item.path} className="flex items-center gap-1.5">
+            <li key={`${item.path}-${index}`} className="flex items-center gap-1.5 min-w-0 max-w-full">
               {index > 0 && <ChevronRight className="w-3.5 h-3.5 text-[#C5A059]/45 shrink-0" aria-hidden="true" />}
               {isLast ? (
                 <span
                   aria-current="page"
-                  className="font-semibold text-[#D4AF37] truncate max-w-[200px] sm:max-w-xs"
+                  className="font-semibold text-[#D4AF37] min-w-0 max-w-full break-words [overflow-wrap:anywhere] leading-snug"
                 >
                   {item.name}
                 </span>
@@ -77,10 +77,10 @@ export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ items }) => {
                       navigateTo('women-winter');
                     }
                   }}
-                  className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 hover:underline"
+                  className="hover:text-[#D4AF37] transition-colors flex items-center gap-1 hover:underline min-w-0 max-w-full break-words [overflow-wrap:anywhere]"
                 >
-                  {index === 0 && <Home className="w-3.5 h-3.5 text-[#C5A059]" aria-hidden="true" />}
-                  <span>{item.name}</span>
+                  {index === 0 && <Home className="w-3.5 h-3.5 text-[#C5A059] shrink-0" aria-hidden="true" />}
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">{item.name}</span>
                 </a>
               )}
             </li>

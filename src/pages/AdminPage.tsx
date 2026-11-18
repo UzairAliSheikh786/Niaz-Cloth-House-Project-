@@ -93,27 +93,7 @@ export const PRESET_FABRIC_IMAGES = [
   { label: "Niaz 1970 Heritage Master Fabric", url: '/images/hero_niaz_luxury_fabric_1791569218384.jpg' },
 ];
 
-interface AdminAccount {
-  id: string;
-  fullName: string;
-  email: string;
-  username: string;
-  passwordHash: string; // Plain/simple hash for local admin storage
-  role: 'Store Administrator' | 'Senior Fabric Lead' | 'Fulfillment Staff';
-  createdAt: string;
-}
 
-const DEFAULT_ADMIN_USERS: AdminAccount[] = [
-  {
-    id: 'admin-001',
-    fullName: 'Haji Niaz Ahmad',
-    email: 'admin@nch.com',
-    username: 'admin',
-    passwordHash: 'Niaz1977#',
-    role: 'Store Administrator',
-    createdAt: '1970-10-10',
-  },
-];
 
 export const AdminPage: React.FC = () => {
   const {
@@ -161,7 +141,7 @@ export const AdminPage: React.FC = () => {
   const [dbConnectionStatus, setDbConnectionStatus] = useState<'idle' | 'checking' | 'connected' | 'error'>('idle');
 
   // Login Form
-  const [loginEmailOrUser, setLoginEmailOrUser] = useState('admin');
+  const [loginEmailOrUser, setLoginEmailOrUser] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
 
   // 30-Minute Inactivity Auto-Timeout Security Enforcement
@@ -1076,27 +1056,9 @@ export const AdminPage: React.FC = () => {
               </div>
             </div>
 
-            {/* Development Environment Credential Helper */}
-            <div className="p-3 bg-[#070B16] border border-white/10 flex items-center justify-between text-[11px]">
-              <div>
-                <span className="text-neutral-400 block font-mono text-[10px]">
-                  Verified Admin Credentials:
-                </span>
-                <span className="font-mono text-[#D4AF37] font-semibold">
-                  admin / Niaz1977#
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setLoginEmailOrUser('admin');
-                  setLoginPassword('Niaz1977#');
-                  if (authError) setAuthError('');
-                }}
-                className="px-2.5 py-1 bg-[#0E1626] border border-[#D4AF37]/40 hover:border-[#D4AF37] text-[11px] font-mono font-semibold text-[#D4AF37] transition-colors"
-              >
-                Auto Fill
-              </button>
+            <div className="p-3 bg-[#070B16] border border-white/10 text-[11px] text-neutral-400">
+              Sign in using the <span className="font-mono text-[#D4AF37]">ADMIN_USERNAME</span> and{' '}
+              <span className="font-mono text-[#D4AF37]">ADMIN_PASSWORD</span> configured in your server environment.
             </div>
 
             <button
@@ -1178,6 +1140,19 @@ export const AdminPage: React.FC = () => {
             </div>
 
 
+
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedSyncProductId(null);
+                setIsWhatsAppSyncOpen(true);
+              }}
+              className="px-3 py-2 bg-[#25D366]/15 border border-[#25D366]/60 hover:bg-[#25D366] text-[#25D366] hover:text-white text-xs font-mono font-semibold flex items-center gap-1.5 transition-all"
+              title="Generate CSV or text-formatted catalog for WhatsApp Business import"
+            >
+              <Share2 className="w-3.5 h-3.5" />
+              <span>Sync to WhatsApp</span>
+            </button>
 
             <button
               onClick={() => setIsStaffModalOpen(true)}
@@ -1846,10 +1821,10 @@ export const AdminPage: React.FC = () => {
                     setIsWhatsAppSyncOpen(true);
                   }}
                   className="w-full sm:w-auto px-3.5 py-2 bg-[#25D366] hover:bg-[#20bd5a] text-white text-xs font-semibold tracking-wider uppercase transition-colors flex items-center justify-center gap-1.5 shadow-2xs"
-                  title="Generate predefined message structure for WhatsApp Business catalog"
+                  title="Generate shareable CSV or text-formatted catalog for WhatsApp Business Catalog"
                 >
                   <Share2 className="w-4 h-4" />
-                  <span>Sync WhatsApp Catalog</span>
+                  <span>Sync to WhatsApp</span>
                 </button>
 
                 {/* Add Product Button */}
@@ -5597,6 +5572,7 @@ export const AdminPage: React.FC = () => {
           products={products}
           currentAdminName={currentAdmin?.fullName || 'Haji Niaz Ahmad'}
           initialSelectedProductId={selectedSyncProductId}
+          defaultWhatsAppNumber={storeSettings?.whatsapp}
         />
 
 

@@ -1,7 +1,7 @@
 import React, { useState, memo } from 'react';
 import { Heart, Eye, Check } from 'lucide-react';
 import { ProductCardItem } from '../types';
-import { useShop, formatPKR } from '../context/ShopContext';
+import { useShop } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { OptimizedImage } from './OptimizedImage';
 
@@ -16,7 +16,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
   onQuickView,
   priority = false,
 }) => {
-  const { addToCart, wishlist, toggleWishlist } = useShop();
+  const { addToCart, wishlist, toggleWishlist, formatPrice } = useShop();
   const { navigateTo } = useNavigation();
 
   const fallbackImage = '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
@@ -39,7 +39,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
   };
 
   return (
-    <article className="group flex flex-col w-full min-w-0 h-full select-none transition-transform duration-200 hover:-translate-y-0.5">
+    <article className="group flex flex-col w-full min-w-0 max-w-full overflow-hidden h-full select-none transition-transform duration-200 hover:-translate-y-0.5">
       {/* 1. 3:4 Portrait Image Container */}
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-md bg-[#121216] border border-white/10 group-hover:border-[#C5A059]/45 transition-colors">
         <a
@@ -101,21 +101,26 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
       </div>
 
       {/* 2. Clean Editorial Product Info */}
-      <div className="pt-3 flex flex-col flex-grow justify-between text-left min-w-0">
-        <div className="min-w-0">
-          <h3 className="text-[13px] sm:text-[14px] font-medium text-[#F7F4EE] group-hover:text-[#D4AF37] line-clamp-2 break-words leading-snug min-h-[2.4em] transition-colors">
-            <a href={productUrl} onClick={handleCardClick} title={product.title}>
+      <div className="pt-3 flex flex-col flex-grow justify-between text-left min-w-0 w-full">
+        <div className="min-w-0 w-full">
+          <h3 className="text-[13px] sm:text-[14px] font-medium text-[#F7F4EE] group-hover:text-[#D4AF37] line-clamp-2 break-words [overflow-wrap:anywhere] leading-snug min-h-[2.4em] transition-colors min-w-0">
+            <a
+              href={productUrl}
+              onClick={handleCardClick}
+              title={product.title}
+              className="block w-full min-w-0 break-words [overflow-wrap:anywhere]"
+            >
               {product.title}
             </a>
           </h3>
 
-          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-            <span className="text-xs sm:text-[13px] font-medium text-[#D4AF37] tabular-nums whitespace-nowrap">
-              {formatPKR(product.price)}
+          <div className="mt-1 flex flex-wrap items-baseline gap-x-2 gap-y-0.5 min-w-0">
+            <span className="text-xs sm:text-[13px] font-medium text-[#D4AF37] tabular-nums break-words">
+              {formatPrice(product.price)}
             </span>
             {product.originalPrice && product.originalPrice > product.price && (
-              <span className="text-[11px] text-[#F7F4EE]/40 line-through tabular-nums whitespace-nowrap">
-                {formatPKR(product.originalPrice)}
+              <span className="text-[11px] text-[#F7F4EE]/40 line-through tabular-nums break-words">
+                {formatPrice(product.originalPrice)}
               </span>
             )}
           </div>
@@ -125,7 +130,7 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
         <button
           type="button"
           onClick={handleAddToCart}
-          className={`mt-2.5 w-full py-2 px-2.5 sm:px-4 text-[11px] sm:text-xs font-medium tracking-wide sm:tracking-wider transition-all duration-200 rounded-xs border flex items-center justify-center gap-1.5 text-center leading-tight ${
+          className={`mt-2.5 w-full min-w-0 max-w-full py-2 px-2.5 sm:px-4 text-[11px] sm:text-xs font-medium tracking-wide sm:tracking-wider transition-all duration-200 rounded-xs border flex items-center justify-center gap-1.5 text-center leading-tight break-words ${
             addedFeedback
               ? 'bg-[#D4AF37] border-[#D4AF37] text-[#060608] font-semibold'
               : 'bg-transparent border-[#C5A059]/45 hover:border-[#D4AF37] hover:bg-[#D4AF37] text-[#E8D5A7] hover:text-[#060608]'
@@ -134,10 +139,10 @@ const ProductCardComponent: React.FC<ProductCardProps> = ({
           {addedFeedback ? (
             <>
               <Check className="w-3.5 h-3.5 shrink-0" />
-              <span>Added to Cart</span>
+              <span className="min-w-0 break-words">Added to Cart</span>
             </>
           ) : (
-            <span>Add to Cart</span>
+            <span className="min-w-0 break-words">Add to Cart</span>
           )}
         </button>
       </div>

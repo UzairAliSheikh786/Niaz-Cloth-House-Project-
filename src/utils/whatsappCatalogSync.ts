@@ -9,6 +9,7 @@ export interface WhatsAppSyncOptions {
   targetPhone?: string; // e.g. "923346565636"
   includeCareInstructions?: boolean;
   includeWebLinks?: boolean;
+  baseUrl?: string;
   batchIndex?: number;
   batchSize?: number;
 }
@@ -26,11 +27,21 @@ export const STORE_ADDRESS = 'Shop # 166-C / # 170 Paris Bazaar, Moti Bazar, Com
 export const STORE_NAME = 'Niaz Cloth House (Since 1970)';
 export const STORE_BASE_URL = 'https://nch.com';
 
+export function getStoreBaseUrl(explicitBaseUrl?: string): string {
+  if (explicitBaseUrl && explicitBaseUrl.trim()) {
+    return explicitBaseUrl.trim().replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin.replace(/\/+$/, '');
+  }
+  return STORE_BASE_URL;
+}
+
 /**
  * Clean phone numbers to pure international digits without leading + or symbols
  */
 export function sanitizeWhatsAppPhone(phone: string): string {
-  let cleaned = phone.replace(/[^0-9]/g, '');
+  let cleaned = String(phone || '').replace(/[^0-9]/g, '');
   if (cleaned.startsWith('03')) {
     cleaned = '92' + cleaned.slice(1);
   }
@@ -40,10 +51,19 @@ export function sanitizeWhatsAppPhone(phone: string): string {
 /**
  * Format a single product into WhatsApp's predefined catalog card structure
  */
-export function formatSingleProductWhatsAppCard(product: Product, index?: number, includeCare = true): string {
+export function formatSingleProductWhatsAppCard(
+  product: Product,
+  index?: number,
+  includeCare = true,
+  includeWebLinks = true,
+  baseUrl?: string
+): string {
   const stockEmoji = product.inStock ? '✅ *In Stock*' : '⚠️ *Low / Out of Stock*';
   const prefix = index !== undefined ? `${index}. ` : '';
   const priceFormatted = `PKR ${product.price.toLocaleString('en-PK')}`;
+  const resolvedBaseUrl = getStoreBaseUrl(baseUrl);
+  const cutLength = product.cutDetails?.length || 'Standard Unstitched Cut';
+  const cutWidth = product.cutDetails?.width || 'Standard Width';
 
   const lines = [
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
@@ -53,15 +73,19 @@ export function formatSingleProductWhatsAppCard(product: Product, index?: number
     product.craftType ? `• *Craft / Technique:* ${product.craftType}` : null,
     `• *Category:* ${product.gender}'s Unstitched ${product.fabric}`,
     `• *Season:* ${product.season || 'All-Season Drape'}`,
-    `• *Price:* *${priceFormatted}* (Free Nationwide COD)`,
-    `• *Yardage / Cut:* ${product.cutDetails.length} (${product.cutDetails.width})`,
+    product.originalPrice && product.originalPrice > product.price
+      ? `• *Price:* *${priceFormatted}* ~(PKR ${product.originalPrice.toLocaleString('en-PK')})~ (Free Nationwide COD)`
+      : `• *Price:* *${priceFormatted}* (Free Nationwide COD)`,
+    `• *Yardage / Cut:* ${cutLength} (${cutWidth})`,
     product.weightGrade ? `• *Weight Grade:* ${product.weightGrade}` : null,
     product.fabricWeight ? `• *Fabric Density:* ${product.fabricWeight}` : null,
     product.threadCount ? `• *Thread Count:* ${product.threadCount}` : null,
     product.weaveType ? `• *Weave Structure:* ${product.weaveType}` : null,
     `• *Available Shades:* ${product.color}`,
     `• *Stock Status:* ${stockEmoji}`,
-    product.slug ? `• *Direct Order Link:* ${STORE_BASE_URL}/product/${product.slug}` : null,
+    includeWebLinks && (product.slug || product.id)
+      ? `• *Direct Order Link:* ${resolvedBaseUrl}/product/${product.slug || product.id}`
+      : null,
   ].filter(Boolean);
 
   if (includeCare && product.care) {
@@ -77,6 +101,11 @@ export function formatSingleProductWhatsAppCard(product: Product, index?: number
  * Generate full catalog message for WhatsApp Business
  */
 export function generateFullCatalogMessage(products: Product[], options?: Partial<WhatsAppSyncOptions>): string {
+  const resolvedBaseUrl = getStoreBaseUrl(options?.baseUrl);
+  const includeCare = options?.includeCareInstructions ?? false;
+  const includeLinks = options?.includeWebLinks ?? true;
+  const displayPhone = options?.targetPhone || '+92 334 6565636';
+
   const timestamp = new Date().toLocaleDateString('en-PK', {
     day: 'numeric',
     month: 'short',
@@ -87,20 +116,20 @@ export function generateFullCatalogMessage(products: Product[], options?: Partia
     minute: '2-digit',
   });
 
-  const header = [
+  const headerLines = [
     `📦 *${STORE_NAME.toUpperCase()}*`,
     `🏛️ *WHATSAPP BUSINESS CATALOG INVENTORY SYNC*`,
     `📅 *Updated:* ${timestamp} at ${time}`,
     `📍 *Store:* ${STORE_ADDRESS}`,
-    `📞 *Customer Desk:* +92 334 6565636`,
-    `🌐 *Web Portal:* ${STORE_BASE_URL}`,
+    `📞 *Customer Desk:* ${displayPhone}`,
+    includeLinks ? `🌐 *Web Portal:* ${resolvedBaseUrl}` : null,
     `━━━━━━━━━━━━━━━━━━━━━━━━`,
     `📊 *Total Unstitched Bolts Listed:* ${products.length} articles`,
     `🚚 *Delivery:* Cash on Delivery across Pakistan · Dispatch within 24h`,
-  ].join('\n');
+  ].filter(Boolean);
 
   const itemsText = products
-    .map((p, idx) => formatSingleProductWhatsAppCard(p, idx + 1, options?.includeCareInstructions ?? false))
+    .map((p, idx) => formatSingleProductWhatsAppCard(p, idx + 1, includeCare, includeLinks, resolvedBaseUrl))
     .join('\n');
 
   const footer = [
@@ -110,7 +139,7 @@ export function generateFullCatalogMessage(products: Product[], options?: Partia
     `✨ *Niaz Cloth House — Pure Chinese Boski Silk & Wash and Wear Suiting Since 1970.*`,
   ].join('\n');
 
-  return `${header}\n\n${itemsText}\n\n${footer}`;
+  return `${headerLines.join('\n')}\n\n${itemsText}\n\n${footer}`;
 }
 
 /**
@@ -119,8 +148,12 @@ export function generateFullCatalogMessage(products: Product[], options?: Partia
 export function generateWhatsAppBatches(
   products: Product[],
   batchSize = 4,
-  targetPhone = STORE_WHATSAPP_NUMBER
+  targetPhone = STORE_WHATSAPP_NUMBER,
+  options?: { includeCareInstructions?: boolean; includeWebLinks?: boolean; baseUrl?: string }
 ): SyncBatch[] {
+  const resolvedBaseUrl = getStoreBaseUrl(options?.baseUrl);
+  const includeCare = options?.includeCareInstructions ?? false;
+  const includeLinks = options?.includeWebLinks ?? true;
   const totalBatches = Math.ceil(products.length / batchSize) || 1;
   const batches: SyncBatch[] = [];
 
@@ -130,12 +163,14 @@ export function generateWhatsAppBatches(
 
     const header = [
       `📦 *${STORE_NAME} — CATALOG SYNC (PART ${batchNumber}/${totalBatches})*`,
-      `📍 Shop # 166-C Paris Bazaar, Rawalpindi · Hotline: 0334-6565636`,
-      `Showing items ${i * batchSize + 1} to ${Math.min((i + 1) * batchSize, products.length)} of ${products.length}`,
+      `📍 Shop # 166-C Paris Bazaar, Rawalpindi · Hotline: ${targetPhone}`,
+      `Showing items ${chunk.length > 0 ? i * batchSize + 1 : 0} to ${Math.min((i + 1) * batchSize, products.length)} of ${products.length}`,
     ].join('\n');
 
     const body = chunk
-      .map((p, idx) => formatSingleProductWhatsAppCard(p, i * batchSize + idx + 1, false))
+      .map((p, idx) =>
+        formatSingleProductWhatsAppCard(p, i * batchSize + idx + 1, includeCare, includeLinks, resolvedBaseUrl)
+      )
       .join('\n');
 
     const footer = `\n━━━━━━━━━━━━━━━━━━━━━━━━\n📲 *Part ${batchNumber} of ${totalBatches}* · Reply to order any suit cut.`;
@@ -158,8 +193,10 @@ export function generateWhatsAppBatches(
 
 /**
  * Generate Meta Commerce / WhatsApp Business Catalog standard CSV feed
+ * Spec: id,title,description,availability,condition,price,link,image_link,brand,google_product_category,fb_product_category,quantity_to_sell_on_facebook,sale_price
  */
-export function generateMetaCommerceCatalogCsv(products: Product[]): string {
+export function generateMetaCommerceCatalogCsv(products: Product[], baseUrl?: string): string {
+  const resolvedBaseUrl = getStoreBaseUrl(baseUrl);
   const headers = [
     'id',
     'title',
@@ -177,7 +214,7 @@ export function generateMetaCommerceCatalogCsv(products: Product[]): string {
   ];
 
   const escapeCsv = (val: string | number) => {
-    const str = String(val ?? '');
+    const str = String(val ?? '').replace(/\r?\n/g, ' ');
     if (str.includes(',') || str.includes('"') || str.includes('\n')) {
       return `"${str.replace(/"/g, '""')}"`;
     }
@@ -185,7 +222,16 @@ export function generateMetaCommerceCatalogCsv(products: Product[]): string {
   };
 
   const rows = products.map((p) => {
-    const fullDesc = `${p.subtitle}. Genuine unstitched ${p.gender.toLowerCase()}'s ${p.fabric} bolt (${p.cutDetails.length}, ${p.cutDetails.width}). ${p.weightGrade || ''} ${p.weaveType || ''}. Care: ${p.care?.shrinkage || 'Pre-shrink before tailoring'}. Available at Niaz Cloth House, Paris Bazaar, Rawalpindi.`;
+    const cutLen = p.cutDetails?.length || 'Standard Unstitched Cut';
+    const cutWidth = p.cutDetails?.width || 'Standard Width';
+    const fullDesc = `${p.subtitle || p.title}. Genuine unstitched ${(p.gender || 'Unisex').toLowerCase()}'s ${p.fabric} bolt (${cutLen}, ${cutWidth}). ${p.weightGrade || ''} ${p.weaveType || ''}. Care: ${p.care?.shrinkage || 'Pre-shrink before tailoring'}. Available at Niaz Cloth House, Paris Bazaar, Rawalpindi.`.replace(/\s+/g, ' ').trim();
+
+    const imagePath = p.primaryImage || '/images/hero_niaz_luxury_fabric_1791569218384.jpg';
+    const imageLink = imagePath.startsWith('http') ? imagePath : `${resolvedBaseUrl}${imagePath.startsWith('/') ? '' : '/'}${imagePath}`;
+
+    const hasDiscount = Boolean(p.originalPrice && p.originalPrice > p.price);
+    const regularPrice = hasDiscount ? `${p.originalPrice} PKR` : `${p.price} PKR`;
+    const salePrice = hasDiscount ? `${p.price} PKR` : '';
 
     const row = [
       escapeCsv(p.id),
@@ -193,14 +239,14 @@ export function generateMetaCommerceCatalogCsv(products: Product[]): string {
       escapeCsv(fullDesc),
       escapeCsv(p.inStock ? 'in stock' : 'out of stock'),
       escapeCsv('new'),
-      escapeCsv(`${p.price} PKR`),
-      escapeCsv(`${STORE_BASE_URL}/product/${p.slug || p.id}`),
-      escapeCsv(p.primaryImage.startsWith('http') ? p.primaryImage : `${STORE_BASE_URL}${p.primaryImage}`),
+      escapeCsv(regularPrice),
+      escapeCsv(`${resolvedBaseUrl}/product/${p.slug || p.id}`),
+      escapeCsv(imageLink),
       escapeCsv(p.brand || 'Niaz Cloth House'),
       escapeCsv('Apparel & Accessories > Clothing > Traditional & Ceremonial Clothing'),
       escapeCsv('clothing'),
       escapeCsv(p.inStock ? 25 : 0),
-      escapeCsv(p.originalPrice ? `${p.price} PKR` : ''),
+      escapeCsv(salePrice),
     ];
 
     return row.join(',');

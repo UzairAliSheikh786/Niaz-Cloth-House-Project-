@@ -1,12 +1,12 @@
 import React, { useState, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { useNavigation } from '../../context/NavigationContext';
-import { useShop, formatPKR } from '../../context/ShopContext';
+import { useShop } from '../../context/ShopContext';
 import { OptimizedImage } from '../OptimizedImage';
 
 export const Interactive3DStorefronts: React.FC = () => {
   const { navigateTo } = useNavigation();
-  const { products } = useShop();
+  const { products, formatPrice } = useShop();
 
   const sampleWomenProduct = products.find((p) => p.gender === 'Women' && p.inStock) || products[0];
   const sampleMenProduct = products.find((p) => p.gender === 'Men' && p.inStock) || products[1];
@@ -130,7 +130,7 @@ export const Interactive3DStorefronts: React.FC = () => {
                 {sampleWomenProduct && (
                   <div className="text-xs text-[#E8D5A7]/85 min-w-0 flex-1">
                     <span className="block line-clamp-1 font-medium text-[#F7F4EE]">{sampleWomenProduct.title}</span>
-                    <span className="text-[#D4AF37] tabular-nums">{formatPKR(sampleWomenProduct.price)}</span>
+                    <span className="text-[#D4AF37] tabular-nums">{formatPrice(sampleWomenProduct.price)}</span>
                   </div>
                 )}
 
@@ -203,7 +203,7 @@ export const Interactive3DStorefronts: React.FC = () => {
                 {sampleMenProduct && (
                   <div className="text-xs text-[#E8D5A7]/85 min-w-0 flex-1">
                     <span className="block line-clamp-1 font-medium text-[#F7F4EE]">{sampleMenProduct.title}</span>
-                    <span className="text-[#D4AF37] tabular-nums">{formatPKR(sampleMenProduct.price)}</span>
+                    <span className="text-[#D4AF37] tabular-nums">{formatPrice(sampleMenProduct.price)}</span>
                   </div>
                 )}
 

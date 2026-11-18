@@ -13,7 +13,6 @@ import { useShop } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import { ProductCard } from '../components/ProductCard';
 import { OptimizedImage } from '../components/OptimizedImage';
-import { OrderTracker } from '../components/OrderTracker';
 import { Interactive3DStorefronts } from '../components/3d/Interactive3DStorefronts';
 import { ProductCardItem } from '../types';
 import { ProductFactory } from '../core';
@@ -230,18 +229,18 @@ export const HomePage: React.FC = () => {
         </div>
 
         {/* Section Heading & Quiet Sub-Filter Controls (All Tags Always Visible) */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6">
-          <h2 className="font-sans text-xl sm:text-2xl font-semibold tracking-tight text-[#F7F4EE]">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 sm:gap-4 mb-6 min-w-0">
+          <h2 className="font-sans text-xl sm:text-2xl font-semibold tracking-tight text-[#F7F4EE] min-w-0 break-words">
             {sectionHeading}
           </h2>
 
-          <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs font-medium min-w-0">
+          <div className="flex items-center flex-wrap gap-x-4 gap-y-2 text-xs font-medium min-w-0 max-w-full">
             {showcaseMode === 'womens' ? (
               <>
                 <button
                   type="button"
                   onClick={() => setSubFilter('shahi')}
-                  className={`shrink-0 pb-1 border-b transition-colors ${
+                  className={`min-w-0 max-w-full break-words pb-1 border-b transition-colors ${
                     subFilter === 'shahi'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -252,7 +251,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('embroidery')}
-                  className={`shrink-0 pb-1 border-b transition-colors ${
+                  className={`min-w-0 max-w-full break-words pb-1 border-b transition-colors ${
                     subFilter === 'embroidery'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -263,7 +262,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('printed')}
-                  className={`shrink-0 pb-1 border-b transition-colors ${
+                  className={`min-w-0 max-w-full break-words pb-1 border-b transition-colors ${
                     subFilter === 'printed'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -277,7 +276,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('all')}
-                  className={`shrink-0 pb-1 border-b transition-colors ${
+                  className={`min-w-0 max-w-full break-words pb-1 border-b transition-colors ${
                     subFilter === 'all'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -288,7 +287,7 @@ export const HomePage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setSubFilter('boski')}
-                  className={`shrink-0 pb-1 border-b transition-colors ${
+                  className={`min-w-0 max-w-full break-words pb-1 border-b transition-colors ${
                     subFilter === 'boski'
                       ? 'text-[#D4AF37] border-[#D4AF37]'
                       : 'text-[#F7F4EE]/60 border-transparent hover:text-[#F7F4EE]'
@@ -306,16 +305,16 @@ export const HomePage: React.FC = () => {
                   gender: showcaseMode === 'mens' ? 'Men' : 'Women',
                 })
               }
-              className="shrink-0 text-[#D4AF37] hover:text-[#E8D5A7] flex items-center gap-1 pb-1 transition-colors"
+              className="min-w-0 text-[#D4AF37] hover:text-[#E8D5A7] flex items-center gap-1 pb-1 transition-colors"
             >
               <span>View All ({products.length})</span>
-              <ArrowRight className="w-3.5 h-3.5" />
+              <ArrowRight className="w-3.5 h-3.5 shrink-0" />
             </button>
           </div>
         </div>
 
         {/* 4-Column Editorial Product Grid */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+        <div className="grid grid-cols-1 min-[340px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 min-w-0">
           {displayedProducts.map((product) => (
             <ProductCard
               key={product.id}
@@ -328,13 +327,6 @@ export const HomePage: React.FC = () => {
 
       {/* 3. Interactive 3D Couture Storefronts */}
       <Interactive3DStorefronts />
-
-      {/* 4. Order Status Tracking */}
-      <section className="py-12 sm:py-16 bg-[#060608] border-t border-[#C5A059]/20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <OrderTracker compact />
-        </div>
-      </section>
 
       {/* 5. Heritage Flagship & Overseas Concierge */}
       <section className="py-14 sm:py-16 bg-[#09090D] border-t border-[#C5A059]/20">

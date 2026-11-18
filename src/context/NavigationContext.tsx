@@ -12,8 +12,6 @@ export type PageRoute =
   | 'location'
   | 'product-detail' 
   | 'admin'
-  | 'compare'
-  | 'track-order'
   | 'privacy'
   | 'terms'
   | 'cookies'
@@ -35,7 +33,6 @@ export interface NavFilterParams {
   favoritesOnly?: boolean;
   newArrivalsOnly?: boolean;
   saleOnly?: boolean;
-  orderId?: string;
 }
 
 interface NavigationContextType {
@@ -60,7 +57,6 @@ interface NavigationContextType {
       favoritesOnly?: boolean;
       newArrivalsOnly?: boolean;
       saleOnly?: boolean;
-      orderId?: string;
     }
   ) => void;
   filterParams: NavFilterParams;
@@ -93,11 +89,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
     const searchQuery = search.get('search') || search.get('q') || undefined;
 
     let page: PageRoute = 'home';
-    const orderIdParam = search.get('orderId') || (path.includes('track') ? search.get('id') || undefined : undefined);
 
-    if (path.includes('track')) {
-      page = 'track-order';
-    } else if (path.startsWith('/product/') || path.includes('/product-detail') || id || slugParam) {
+    if (path.startsWith('/product/') || path.includes('/product-detail') || id || slugParam) {
       page = 'product-detail';
       if (path.startsWith('/product/')) {
         const slug = path.replace('/product/', '').replace('.html', '').split('/')[0];
@@ -117,8 +110,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       page = 'refund';
     } else if (path.includes('admin')) {
       page = 'admin';
-    } else if (path.includes('compare')) {
-      page = 'compare';
     } else if (path.includes('location') || path.includes('map') || path.includes('directions')) {
       page = 'location';
     } else if (path.includes('studio') || path.includes('3d')) {
@@ -158,7 +149,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         craftType,
         collection: collectionParam,
         search: searchQuery,
-        orderId: orderIdParam
       } 
     };
   };
@@ -220,7 +210,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         favoritesOnly: params.favoritesOnly,
         newArrivalsOnly: params.newArrivalsOnly,
         saleOnly: params.saleOnly,
-        orderId: params.orderId,
       });
     } else {
       setFilterParams({});
@@ -259,11 +248,6 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       path = targetProduct ? `/product/${targetProduct.slug}` : `/product/${targetId}`;
     } else if (page === 'admin') {
       path = '/admin';
-    } else if (page === 'compare') {
-      path = '/compare';
-    } else if (page === 'track-order') {
-      path = '/track-order';
-      if (params?.orderId) query.set('id', params.orderId);
     } else if (page === 'privacy') {
       path = '/privacy-policy';
     } else if (page === 'terms') {

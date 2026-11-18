@@ -10,7 +10,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
-import { useShop, formatPKR, ShopProductPageFilters } from '../context/ShopContext';
+import { useShop, ShopProductPageFilters } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
 import {
   ProductCardItem,
@@ -19,6 +19,7 @@ import {
   MENS_FABRICS,
 } from '../types';
 import { ProductCard } from '../components/ProductCard';
+import { ProductCardSkeleton } from '../components/RouteSkeletons';
 import { Breadcrumbs, BreadcrumbItem } from '../components/Breadcrumbs';
 import { OptimizedImage } from '../components/OptimizedImage';
 
@@ -36,6 +37,8 @@ export const ShopPage: React.FC = () => {
     fetchInitialProductPage,
     fetchNextProductPage,
     recentlyViewed,
+    currency,
+    formatPrice,
   } = useShop();
   const { filterParams, navigateTo } = useNavigation();
 
@@ -179,28 +182,28 @@ export const ShopPage: React.FC = () => {
   }, [filterParams.collection, selectedGender, selectedBrand]);
 
   return (
-    <div className="w-full bg-[#060608] text-[#F7F4EE] min-h-screen select-none pb-16">
+    <div className="w-full bg-[#060608] text-[#F7F4EE] min-h-screen select-none pb-16 overflow-x-clip">
       {/* 1. Breadcrumbs Strip */}
       <div className="border-b border-[#C5A059]/20 bg-[#0A0A0E]">
         <Breadcrumbs items={breadcrumbItems} />
       </div>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 sm:pt-9">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 pt-6 sm:pt-9 min-w-0">
         {/* 2. Royal Noir Catalog Header */}
-        <div className="text-center mb-5 sm:mb-7 pb-5 sm:pb-6 border-b border-[#C5A059]/20 px-2">
-          <h1 className="font-serif text-2xl sm:text-3xl md:text-4xl tracking-[0.12em] sm:tracking-[0.18em] uppercase text-[#D4AF37] mb-2 break-words">
+        <div className="text-center mb-5 sm:mb-7 pb-5 sm:pb-6 border-b border-[#C5A059]/20 px-1 sm:px-2 min-w-0">
+          <h1 className="font-serif text-xl min-[380px]:text-2xl sm:text-3xl md:text-4xl tracking-[0.1em] sm:tracking-[0.18em] uppercase text-[#D4AF37] mb-2 break-words [overflow-wrap:anywhere] max-w-full">
             {getHeaderTitle()}
           </h1>
-          <p className="text-[11px] sm:text-xs text-[#E8D5A7]/65 uppercase tracking-[0.16em] sm:tracking-[0.2em] font-medium mb-4">
+          <p className="text-[11px] sm:text-xs text-[#E8D5A7]/65 uppercase tracking-[0.14em] sm:tracking-[0.2em] font-medium mb-4 break-words">
             Showing {filteredProducts.length} Loaded{hasMoreProducts ? '+' : ''} of {totalCatalogCount} Curated Articles
           </p>
 
           {/* Quick Wrapped Collection & Category Tags Strip (All options visible without clipping) */}
-          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 max-w-full min-w-0">
             <button
               type="button"
               onClick={resetFilters}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 !hasActiveFilters
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -211,7 +214,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { gender: 'Men' })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 selectedGender === 'Men' && !filterParams.collection
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -222,7 +225,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { gender: 'Women' })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 selectedGender === 'Women' && selectedCraft === 'All' && !filterParams.collection
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -233,7 +236,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { collection: 'The Shahi Collection' })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 filterParams.collection === 'The Shahi Collection'
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -244,7 +247,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { gender: 'Women', craftType: 'Embroidery' })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 selectedCraft === 'Embroidery'
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -255,7 +258,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { gender: 'Women', craftType: 'Printed' })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 selectedCraft === 'Printed'
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -266,7 +269,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { newArrivalsOnly: true })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 filterParams.newArrivalsOnly
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -277,7 +280,7 @@ export const ShopPage: React.FC = () => {
             <button
               type="button"
               onClick={() => navigateTo('shop', { saleOnly: true })}
-              className={`px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors ${
+              className={`max-w-full min-w-0 px-2.5 sm:px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider border transition-colors break-words [overflow-wrap:anywhere] text-center ${
                 filterParams.saleOnly
                   ? 'bg-[#D4AF37] text-[#060608] border-[#D4AF37]'
                   : 'bg-[#111115] text-[#E8D5A7]/85 border-[#C5A059]/30 hover:border-[#D4AF37]'
@@ -289,55 +292,55 @@ export const ShopPage: React.FC = () => {
 
           {/* Active Secondary Filter Chips */}
           {(selectedBrand !== 'All' || selectedFabric !== 'All' || priceRange !== 'All' || inStockOnly || searchQuery.trim().length > 0) && (
-            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3">
+            <div className="flex flex-wrap items-center justify-center gap-1.5 mt-3 max-w-full min-w-0">
               {selectedBrand !== 'All' && (
                 <button
                   type="button"
                   onClick={() => setSelectedBrand('All')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 max-w-full min-w-0 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider text-left"
                 >
-                  <span>Brand: {selectedBrand}</span>
-                  <X className="w-3 h-3" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">Brand: {selectedBrand}</span>
+                  <X className="w-3 h-3 shrink-0" />
                 </button>
               )}
               {selectedFabric !== 'All' && (
                 <button
                   type="button"
                   onClick={() => setSelectedFabric('All')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 max-w-full min-w-0 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider text-left"
                 >
-                  <span>Fabric: {selectedFabric}</span>
-                  <X className="w-3 h-3" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">Fabric: {selectedFabric}</span>
+                  <X className="w-3 h-3 shrink-0" />
                 </button>
               )}
               {priceRange !== 'All' && (
                 <button
                   type="button"
                   onClick={() => setPriceRange('All')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 max-w-full min-w-0 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider text-left"
                 >
-                  <span>Price: {priceRange}</span>
-                  <X className="w-3 h-3" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">Price: {priceRange}</span>
+                  <X className="w-3 h-3 shrink-0" />
                 </button>
               )}
               {inStockOnly && (
                 <button
                   type="button"
                   onClick={() => setInStockOnly(false)}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 max-w-full min-w-0 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider text-left"
                 >
-                  <span>In Stock Only</span>
-                  <X className="w-3 h-3" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">In Stock Only</span>
+                  <X className="w-3 h-3 shrink-0" />
                 </button>
               )}
               {searchQuery.trim().length > 0 && (
                 <button
                   type="button"
                   onClick={() => setSearchQuery('')}
-                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider"
+                  className="inline-flex items-center gap-1.5 max-w-full min-w-0 px-2.5 py-1 bg-[#D4AF37]/15 border border-[#D4AF37]/50 text-[#E8D5A7] text-[10px] uppercase tracking-wider text-left"
                 >
-                  <span>Search: {searchQuery}</span>
-                  <X className="w-3 h-3" />
+                  <span className="min-w-0 break-words [overflow-wrap:anywhere]">Search: {searchQuery}</span>
+                  <X className="w-3 h-3 shrink-0" />
                 </button>
               )}
             </div>
@@ -345,31 +348,31 @@ export const ShopPage: React.FC = () => {
         </div>
 
         {/* 3. Control Strip: Filters Toggle, Active Reset, Grid Switcher & Sort */}
-        <div className="flex flex-wrap items-center justify-between gap-2.5 pb-4 mb-6 border-b border-white/10 text-xs">
-          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pb-4 mb-6 border-b border-white/10 text-xs min-w-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 min-w-0 max-w-full">
             <button
               type="button"
               onClick={() => setMobileFiltersOpen(true)}
-              className="lg:hidden py-2 px-3 sm:py-2.5 sm:px-4 border border-[#D4AF37] bg-[#111115] text-[#D4AF37] font-semibold tracking-wider uppercase flex items-center gap-1.5 text-[11px] sm:text-xs shrink-0"
+              className="lg:hidden py-2 px-3 sm:py-2.5 sm:px-4 border border-[#D4AF37] bg-[#111115] text-[#D4AF37] font-semibold tracking-wider uppercase flex items-center gap-1.5 text-[11px] sm:text-xs min-w-0 max-w-full"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5" />
-              <span>Filters {hasActiveFilters ? '· Active' : ''}</span>
+              <SlidersHorizontal className="w-3.5 h-3.5 shrink-0" />
+              <span className="min-w-0 break-words">Filters {hasActiveFilters ? '· Active' : ''}</span>
             </button>
 
             {hasActiveFilters && (
               <button
                 type="button"
                 onClick={resetFilters}
-                className="text-[11px] sm:text-xs font-semibold text-[#D4AF37] hover:text-[#F7F4EE] flex items-center gap-1.5 uppercase tracking-wider shrink-0"
+                className="text-[11px] sm:text-xs font-semibold text-[#D4AF37] hover:text-[#F7F4EE] flex items-center gap-1.5 uppercase tracking-wider min-w-0 max-w-full"
               >
-                <RotateCcw className="w-3 h-3" />
-                <span>Clear Filters</span>
+                <RotateCcw className="w-3 h-3 shrink-0" />
+                <span className="min-w-0 break-words">Clear Filters</span>
               </button>
             )}
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 sm:gap-4 max-w-full">
-            <div className="flex items-center border border-[#C5A059]/30 bg-[#0E0E12] p-0.5 gap-0.5 shrink-0">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-4 min-w-0 max-w-full">
+            <div className="flex items-center border border-[#C5A059]/30 bg-[#0E0E12] p-0.5 gap-0.5 min-w-0 shrink-0">
               <button
                 type="button"
                 onClick={() => setGridCols(1)}
@@ -416,14 +419,14 @@ export const ShopPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="flex items-center gap-1 sm:gap-2 min-w-0">
-              <span className="text-[#E8D5A7]/60 uppercase tracking-wider text-[11px] font-medium hidden md:inline">
+            <div className="flex items-center gap-1 sm:gap-2 min-w-0 max-w-full flex-1 min-[420px]:flex-initial">
+              <span className="text-[#E8D5A7]/60 uppercase tracking-wider text-[11px] font-medium hidden md:inline shrink-0">
                 Sort:
               </span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="py-1.5 px-2.5 sm:py-2 sm:px-3 bg-[#111115] border border-[#C5A059]/35 text-[11px] sm:text-xs font-medium tracking-wider uppercase text-[#F7F4EE] focus:outline-none focus:border-[#D4AF37] cursor-pointer max-w-full"
+                className="min-w-0 w-full min-[420px]:w-auto max-w-full sm:max-w-xs truncate py-1.5 px-2.5 sm:py-2 sm:px-3 bg-[#111115] border border-[#C5A059]/35 text-[11px] sm:text-xs font-medium tracking-wider uppercase text-[#F7F4EE] focus:outline-none focus:border-[#D4AF37] cursor-pointer"
                 aria-label="Sort products"
               >
                 <option value="featured">Featured</option>
@@ -437,30 +440,30 @@ export const ShopPage: React.FC = () => {
         </div>
 
         {/* 4. Sidebar + Product Grid */}
-        <div className="flex items-start gap-8">
-          <aside className="hidden lg:block w-64 shrink-0 space-y-6 select-none pr-4">
+        <div className="flex items-start gap-8 min-w-0">
+          <aside className="hidden lg:block w-64 shrink-0 space-y-6 select-none pr-4 min-w-0 overflow-hidden">
             {/* Department */}
             <div className="border-b border-white/10 pb-5">
               <button
                 type="button"
                 onClick={() => toggleSection('gender')}
-                className="w-full flex items-center justify-between text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3"
+                className="w-full flex items-center justify-between gap-2 text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3 min-w-0"
               >
-                <span>Department</span>
-                {openSections.gender ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <span className="min-w-0 text-left break-words">Department</span>
+                {openSections.gender ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
               </button>
               {openSections.gender && (
-                <div className="space-y-2 text-xs text-[#F7F4EE]/75">
+                <div className="space-y-2 text-xs text-[#F7F4EE]/75 min-w-0">
                   {['All', 'Women', 'Men'].map((g) => (
-                    <label key={g} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                    <label key={g} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                       <input
                         type="radio"
                         name="gender"
                         checked={selectedGender === g}
                         onChange={() => setSelectedGender(g)}
-                        className="accent-[#D4AF37]"
+                        className="accent-[#D4AF37] shrink-0"
                       />
-                      <span>{g === 'All' ? 'All Collections' : g}</span>
+                      <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{g === 'All' ? 'All Collections' : g}</span>
                     </label>
                   ))}
                 </div>
@@ -472,27 +475,27 @@ export const ShopPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleSection('craft')}
-                className="w-full flex items-center justify-between text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3"
+                className="w-full flex items-center justify-between gap-2 text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3 min-w-0"
               >
-                <span>Collection Craft</span>
-                {openSections.craft ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <span className="min-w-0 text-left break-words">Collection Craft</span>
+                {openSections.craft ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
               </button>
               {openSections.craft && (
-                <div className="space-y-2 text-xs text-[#F7F4EE]/75">
+                <div className="space-y-2 text-xs text-[#F7F4EE]/75 min-w-0">
                   {[
                     { label: 'All Crafts', val: 'All' },
                     { label: 'Embroidered Collection', val: 'Embroidery' },
                     { label: 'Printed Collection', val: 'Printed' },
                   ].map((c) => (
-                    <label key={c.val} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                    <label key={c.val} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                       <input
                         type="radio"
                         name="craft"
                         checked={selectedCraft === c.val}
                         onChange={() => setSelectedCraft(c.val)}
-                        className="accent-[#D4AF37]"
+                        className="accent-[#D4AF37] shrink-0"
                       />
-                      <span>{c.label}</span>
+                      <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{c.label}</span>
                     </label>
                   ))}
                 </div>
@@ -504,33 +507,33 @@ export const ShopPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleSection('fabric')}
-                className="w-full flex items-center justify-between text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3"
+                className="w-full flex items-center justify-between gap-2 text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3 min-w-0"
               >
-                <span>Fabric Type</span>
-                {openSections.fabric ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <span className="min-w-0 text-left break-words">Fabric Type</span>
+                {openSections.fabric ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
               </button>
               {openSections.fabric && (
-                <div className="space-y-2 text-xs text-[#F7F4EE]/75 max-h-48 overflow-y-auto pr-1">
-                  <label className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                <div className="space-y-2 text-xs text-[#F7F4EE]/75 max-h-48 overflow-y-auto pr-1 min-w-0">
+                  <label className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                     <input
                       type="radio"
                       name="fabric"
                       checked={selectedFabric === 'All'}
                       onChange={() => setSelectedFabric('All')}
-                      className="accent-[#D4AF37]"
+                      className="accent-[#D4AF37] shrink-0"
                     />
-                    <span>All Fabrics</span>
+                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">All Fabrics</span>
                   </label>
                   {[...MENS_FABRICS, 'Luxury Lawn', 'Embroidered Chiffon', 'Silk Jacquard'].map((f) => (
-                    <label key={f} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                    <label key={f} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                       <input
                         type="radio"
                         name="fabric"
                         checked={selectedFabric === f}
                         onChange={() => setSelectedFabric(f)}
-                        className="accent-[#D4AF37]"
+                        className="accent-[#D4AF37] shrink-0"
                       />
-                      <span>{f}</span>
+                      <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{f}</span>
                     </label>
                   ))}
                 </div>
@@ -542,33 +545,33 @@ export const ShopPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleSection('brands')}
-                className="w-full flex items-center justify-between text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3"
+                className="w-full flex items-center justify-between gap-2 text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3 min-w-0"
               >
-                <span>Brand</span>
-                {openSections.brands ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <span className="min-w-0 text-left break-words">Brand</span>
+                {openSections.brands ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
               </button>
               {openSections.brands && (
-                <div className="space-y-2 text-xs text-[#F7F4EE]/75 max-h-56 overflow-y-auto pr-1">
-                  <label className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                <div className="space-y-2 text-xs text-[#F7F4EE]/75 max-h-56 overflow-y-auto pr-1 min-w-0">
+                  <label className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                     <input
                       type="radio"
                       name="brand"
                       checked={selectedBrand === 'All'}
                       onChange={() => setSelectedBrand('All')}
-                      className="accent-[#D4AF37]"
+                      className="accent-[#D4AF37] shrink-0"
                     />
-                    <span>All Brands</span>
+                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">All Brands</span>
                   </label>
                   {allBrands.map((b) => (
-                    <label key={b} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                    <label key={b} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                       <input
                         type="radio"
                         name="brand"
                         checked={selectedBrand === b}
                         onChange={() => setSelectedBrand(b)}
-                        className="accent-[#D4AF37]"
+                        className="accent-[#D4AF37] shrink-0"
                       />
-                      <span>{b}</span>
+                      <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{b}</span>
                     </label>
                   ))}
                 </div>
@@ -580,29 +583,29 @@ export const ShopPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => toggleSection('price')}
-                className="w-full flex items-center justify-between text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3"
+                className="w-full flex items-center justify-between gap-2 text-xs font-semibold tracking-widest uppercase text-[#D4AF37] mb-3 min-w-0"
               >
-                <span>Price (PKR)</span>
-                {openSections.price ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                <span className="min-w-0 text-left break-words">Price ({currency})</span>
+                {openSections.price ? <ChevronUp className="w-3.5 h-3.5 shrink-0" /> : <ChevronDown className="w-3.5 h-3.5 shrink-0" />}
               </button>
               {openSections.price && (
-                <div className="space-y-2 text-xs text-[#F7F4EE]/75">
+                <div className="space-y-2 text-xs text-[#F7F4EE]/75 min-w-0">
                   {[
                     { label: 'All Prices', val: 'All' },
-                    { label: 'Under PKR 4,000', val: 'under-4000' },
-                    { label: 'PKR 4,000 – PKR 7,000', val: '4000-7000' },
-                    { label: 'PKR 7,000 – PKR 12,000', val: '7000-12000' },
-                    { label: 'Above PKR 12,000', val: 'above-12000' },
+                    { label: `Under ${formatPrice(4000)}`, val: 'under-4000' },
+                    { label: `${formatPrice(4000)} – ${formatPrice(7000)}`, val: '4000-7000' },
+                    { label: `${formatPrice(7000)} – ${formatPrice(12000)}`, val: '7000-12000' },
+                    { label: `Above ${formatPrice(12000)}`, val: 'above-12000' },
                   ].map((p) => (
-                    <label key={p.val} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE]">
+                    <label key={p.val} className="flex items-center gap-2.5 cursor-pointer hover:text-[#F7F4EE] min-w-0">
                       <input
                         type="radio"
                         name="price"
                         checked={priceRange === p.val}
                         onChange={() => setPriceRange(p.val)}
-                        className="accent-[#D4AF37]"
+                        className="accent-[#D4AF37] shrink-0"
                       />
-                      <span>{p.label}</span>
+                      <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{p.label}</span>
                     </label>
                   ))}
                 </div>
@@ -611,14 +614,14 @@ export const ShopPage: React.FC = () => {
 
             {/* In Stock */}
             <div className="pt-1">
-              <label className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-[#E8D5A7] cursor-pointer">
+              <label className="flex items-center gap-2.5 text-xs font-semibold uppercase tracking-wider text-[#E8D5A7] cursor-pointer min-w-0">
                 <input
                   type="checkbox"
                   checked={inStockOnly}
                   onChange={(e) => setInStockOnly(e.target.checked)}
-                  className="w-4 h-4 accent-[#D4AF37]"
+                  className="w-4 h-4 accent-[#D4AF37] shrink-0"
                 />
-                <span>In Stock Only</span>
+                <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">In Stock Only</span>
               </label>
             </div>
           </aside>
@@ -626,17 +629,17 @@ export const ShopPage: React.FC = () => {
           {/* Product Grid */}
           <main className="flex-1 min-w-0">
             {isLoadingProducts && filteredProducts.length === 0 ? (
-              <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
+              <div className="grid gap-4 sm:gap-5 lg:gap-6 grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 min-w-0">
                 {Array.from({ length: 8 }).map((_, i) => (
-                  <div key={i} className="aspect-[3/4] bg-[#121216] border border-white/10 rounded-md animate-pulse" />
+                  <ProductCardSkeleton key={i} />
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="text-center py-20 border border-[#C5A059]/25 bg-[#0E0E12] p-8">
-                <h3 className="font-serif text-xl uppercase tracking-wider text-[#D4AF37] mb-2">
+              <div className="text-center py-20 border border-[#C5A059]/25 bg-[#0E0E12] p-6 sm:p-8 min-w-0">
+                <h3 className="font-serif text-xl uppercase tracking-wider text-[#D4AF37] mb-2 break-words">
                   No Fabrics Found
                 </h3>
-                <p className="text-xs text-[#F7F4EE]/65 mb-6 max-w-md mx-auto">
+                <p className="text-xs text-[#F7F4EE]/65 mb-6 max-w-md mx-auto break-words">
                   No unstitched articles matched your current filters. Reset filters to view the full Paris Bazaar catalog.
                 </p>
                 <button
@@ -650,14 +653,14 @@ export const ShopPage: React.FC = () => {
             ) : (
               <>
               <div
-                className={`grid gap-4 sm:gap-5 lg:gap-6 ${
+                className={`grid gap-4 sm:gap-5 lg:gap-6 min-w-0 ${
                   gridCols === 1
                     ? 'grid-cols-1 max-w-md mx-auto'
                     : gridCols === 2
                     ? 'grid-cols-1 min-[340px]:grid-cols-2'
                     : gridCols === 3
                     ? 'grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3'
-                    : 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
+                    : 'grid-cols-1 min-[340px]:grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
                 }`}
               >
                 {filteredProducts.map((product, index) => (
@@ -671,15 +674,15 @@ export const ShopPage: React.FC = () => {
               </div>
 
               {hasMoreProducts && (
-                <div className="mt-10 flex flex-col items-center gap-3">
-                  <p className="text-[11px] font-sans uppercase tracking-[0.2em] text-[#E8D5A7]/60 tabular-nums">
+                <div className="mt-10 flex flex-col items-center gap-3 min-w-0">
+                  <p className="text-[11px] font-sans uppercase tracking-[0.2em] text-[#E8D5A7]/60 tabular-nums text-center break-words max-w-full">
                     Loaded {filteredProducts.length} Articles · More Available
                   </p>
                   <button
                     type="button"
                     disabled={isLoadingMoreProducts}
                     onClick={() => void fetchNextProductPage()}
-                    className="py-3 px-8 bg-transparent border border-[#D4AF37] hover:bg-[#D4AF37] text-[#E8D5A7] hover:text-[#060608] text-xs font-semibold tracking-[0.2em] uppercase transition-colors rounded-xs disabled:opacity-50"
+                    className="max-w-full min-w-0 py-3 px-6 sm:px-8 bg-transparent border border-[#D4AF37] hover:bg-[#D4AF37] text-[#E8D5A7] hover:text-[#060608] text-xs font-semibold tracking-[0.16em] sm:tracking-[0.2em] uppercase transition-colors rounded-xs disabled:opacity-50 text-center break-words"
                   >
                     {isLoadingMoreProducts ? 'Loading Next 12 Articles...' : 'Load More Articles (12)'}
                   </button>
@@ -692,28 +695,28 @@ export const ShopPage: React.FC = () => {
 
         {/* Recently Viewed */}
         {recentlyViewed && recentlyViewed.length > 0 && (
-          <section className="mt-14 pt-10 border-t border-white/10">
-            <div className="flex items-center justify-between mb-6">
-              <div>
+          <section className="mt-14 pt-10 border-t border-white/10 min-w-0">
+            <div className="flex flex-wrap items-center justify-between gap-2 mb-6 min-w-0">
+              <div className="min-w-0">
                 <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37] block">
                   Personalized Selection
                 </span>
-                <h3 className="font-serif text-xl sm:text-2xl text-[#F7F4EE] mt-0.5">
+                <h3 className="font-serif text-xl sm:text-2xl text-[#F7F4EE] mt-0.5 break-words">
                   Recently Viewed Atelier Fabrics
                 </h3>
               </div>
-              <span className="text-xs text-[#F7F4EE]/55 font-mono tabular-nums">
+              <span className="text-xs text-[#F7F4EE]/55 font-mono tabular-nums shrink-0">
                 {recentlyViewed.length} items viewed
               </span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+            <div className="grid grid-cols-1 min-[340px]:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4 min-w-0">
               {recentlyViewed.slice(0, 6).map((item) => (
                 <div
                   key={item.id}
-                  className="group relative bg-[#111115] border border-[#C5A059]/20 p-2.5 text-left flex flex-col justify-between"
+                  className="group relative bg-[#111115] border border-[#C5A059]/20 p-2.5 text-left flex flex-col justify-between min-w-0 overflow-hidden"
                 >
-                  <div>
+                  <div className="min-w-0">
                     <div className="aspect-[3/4] overflow-hidden bg-[#18181D] relative mb-2.5">
                       <OptimizedImage
                         src={item.primaryImage}
@@ -727,21 +730,21 @@ export const ShopPage: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-1 text-xs min-w-0">
-                      <div className="text-[10px] text-[#C5A059] font-medium uppercase break-words leading-tight">
+                      <div className="text-[10px] text-[#C5A059] font-medium uppercase break-words [overflow-wrap:anywhere] leading-tight">
                         {item.brand || item.fabric}
                       </div>
-                      <div className="font-medium text-[#F7F4EE] line-clamp-2 break-words leading-snug min-h-[2.4em]">
+                      <div className="font-medium text-[#F7F4EE] line-clamp-2 break-words [overflow-wrap:anywhere] leading-snug min-h-[2.4em]">
                         {item.title}
                       </div>
-                      <div className="font-medium text-[#D4AF37] text-xs tabular-nums">
-                        {formatPKR(item.price)}
+                      <div className="font-medium text-[#D4AF37] text-xs tabular-nums break-words">
+                        {formatPrice(item.price)}
                       </div>
                     </div>
                   </div>
                   <button
                     type="button"
                     onClick={() => setQuickViewProduct(item)}
-                    className="mt-3 w-full py-1.5 border border-[#C5A059]/40 hover:bg-[#D4AF37] hover:text-[#060608] text-[#E8D5A7] text-[10px] font-medium uppercase tracking-wider transition-colors"
+                    className="mt-3 w-full py-1.5 px-2 border border-[#C5A059]/40 hover:bg-[#D4AF37] hover:text-[#060608] text-[#E8D5A7] text-[10px] font-medium uppercase tracking-wider transition-colors break-words"
                   >
                     Quick View
                   </button>
@@ -759,15 +762,15 @@ export const ShopPage: React.FC = () => {
             className="fixed inset-0 bg-black/75 backdrop-blur-xs"
             onClick={() => setMobileFiltersOpen(false)}
           />
-          <div className="fixed inset-y-0 right-0 w-full max-w-xs bg-[#0B0B0E] border-l border-[#C5A059]/30 text-[#F7F4EE] shadow-2xl flex flex-col z-50 p-6 overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
-              <span className="font-serif text-sm uppercase tracking-widest text-[#D4AF37]">
+          <div className="fixed inset-y-0 right-0 w-full max-w-[min(20rem,100vw)] bg-[#0B0B0E] border-l border-[#C5A059]/30 text-[#F7F4EE] shadow-2xl flex flex-col z-50 p-5 sm:p-6 overflow-y-auto overflow-x-hidden">
+            <div className="flex items-center justify-between gap-2 pb-4 border-b border-white/10 mb-6 min-w-0">
+              <span className="font-serif text-sm uppercase tracking-widest text-[#D4AF37] min-w-0 break-words">
                 Filters &amp; Refinements
               </span>
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
-                className="p-1 text-[#E8D5A7] hover:text-white"
+                className="p-1 text-[#E8D5A7] hover:text-white shrink-0"
                 aria-label="Close filters"
               >
                 <X className="w-5 h-5" />
@@ -775,87 +778,87 @@ export const ShopPage: React.FC = () => {
             </div>
 
             {/* Department */}
-            <div className="mb-6">
+            <div className="mb-6 min-w-0">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-[#D4AF37] mb-3">
                 Department
               </h4>
-              <div className="space-y-2 text-xs text-[#F7F4EE]/80">
+              <div className="space-y-2 text-xs text-[#F7F4EE]/80 min-w-0">
                 {['All', 'Women', 'Men'].map((g) => (
-                  <label key={g} className="flex items-center gap-2 cursor-pointer">
+                  <label key={g} className="flex items-center gap-2 cursor-pointer min-w-0">
                     <input
                       type="radio"
                       name="m-gender"
                       checked={selectedGender === g}
                       onChange={() => setSelectedGender(g)}
-                      className="accent-[#D4AF37]"
+                      className="accent-[#D4AF37] shrink-0"
                     />
-                    <span>{g === 'All' ? 'All Collections' : g}</span>
+                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{g === 'All' ? 'All Collections' : g}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Craft */}
-            <div className="mb-6">
+            <div className="mb-6 min-w-0">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-[#D4AF37] mb-3">
                 Craft Type
               </h4>
-              <div className="space-y-2 text-xs text-[#F7F4EE]/80">
+              <div className="space-y-2 text-xs text-[#F7F4EE]/80 min-w-0">
                 {[
                   { label: 'All Crafts', val: 'All' },
                   { label: 'Embroidered Collection', val: 'Embroidery' },
                   { label: 'Printed Collection', val: 'Printed' },
                 ].map((c) => (
-                  <label key={c.val} className="flex items-center gap-2 cursor-pointer">
+                  <label key={c.val} className="flex items-center gap-2 cursor-pointer min-w-0">
                     <input
                       type="radio"
                       name="m-craft"
                       checked={selectedCraft === c.val}
                       onChange={() => setSelectedCraft(c.val)}
-                      className="accent-[#D4AF37]"
+                      className="accent-[#D4AF37] shrink-0"
                     />
-                    <span>{c.label}</span>
+                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{c.label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Fabric */}
-            <div className="mb-6">
+            <div className="mb-6 min-w-0">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-[#D4AF37] mb-3">
                 Fabric Type
               </h4>
-              <div className="space-y-2 text-xs text-[#F7F4EE]/80 max-h-40 overflow-y-auto">
-                <label className="flex items-center gap-2 cursor-pointer">
+              <div className="space-y-2 text-xs text-[#F7F4EE]/80 max-h-40 overflow-y-auto min-w-0">
+                <label className="flex items-center gap-2 cursor-pointer min-w-0">
                   <input
                     type="radio"
                     name="m-fabric"
                     checked={selectedFabric === 'All'}
                     onChange={() => setSelectedFabric('All')}
-                    className="accent-[#D4AF37]"
+                    className="accent-[#D4AF37] shrink-0"
                   />
-                  <span>All Fabrics</span>
+                  <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">All Fabrics</span>
                 </label>
                 {[...MENS_FABRICS, 'Luxury Lawn', 'Embroidered Chiffon', 'Silk Jacquard'].map((f) => (
-                  <label key={f} className="flex items-center gap-2 cursor-pointer">
+                  <label key={f} className="flex items-center gap-2 cursor-pointer min-w-0">
                     <input
                       type="radio"
                       name="m-fabric"
                       checked={selectedFabric === f}
                       onChange={() => setSelectedFabric(f)}
-                      className="accent-[#D4AF37]"
+                      className="accent-[#D4AF37] shrink-0"
                     />
-                    <span>{f}</span>
+                    <span className="min-w-0 flex-1 break-words [overflow-wrap:anywhere]">{f}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="pt-6 border-t border-white/10 mt-auto space-y-3">
+            <div className="pt-6 border-t border-white/10 mt-auto space-y-3 min-w-0">
               <button
                 type="button"
                 onClick={() => setMobileFiltersOpen(false)}
-                className="w-full py-3 bg-[#D4AF37] text-[#060608] text-xs font-bold tracking-widest uppercase"
+                className="w-full py-3 px-3 bg-[#D4AF37] text-[#060608] text-xs font-bold tracking-widest uppercase break-words text-center"
               >
                 Apply Filters ({filteredProducts.length} Items)
               </button>
@@ -863,7 +866,7 @@ export const ShopPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={resetFilters}
-                  className="w-full py-2 border border-white/15 text-[#E8D5A7] text-xs font-medium tracking-wider uppercase hover:border-[#D4AF37]"
+                  className="w-full py-2 px-3 border border-white/15 text-[#E8D5A7] text-xs font-medium tracking-wider uppercase hover:border-[#D4AF37] break-words text-center"
                 >
                   Reset All Filters
                 </button>
