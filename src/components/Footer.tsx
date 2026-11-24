@@ -186,6 +186,11 @@ export const Footer: React.FC = () => {
                 </button>
               </li>
               <li className="min-w-0">
+                <button onClick={() => navigateTo('ux-reel')} className="hover:text-[#D4AF37] text-[#E8D5A7] transition-colors text-left max-w-full break-words">
+                  10 UX States Tutorial Reel
+                </button>
+              </li>
+              <li className="min-w-0">
                 <button onClick={() => navigateTo('admin')} className="hover:text-white transition-colors text-left max-w-full break-words">
                   Merchant Admin Portal
                 </button>

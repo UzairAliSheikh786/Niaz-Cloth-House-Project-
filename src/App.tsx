@@ -22,6 +22,9 @@ const LocationPage = lazy(() =>
 );
 const AdminPage = lazy(() => import('./pages/AdminPage').then((m) => ({ default: m.AdminPage })));
 const LegalPage = lazy(() => import('./pages/LegalPage').then((m) => ({ default: m.LegalPage })));
+const UXDesignReelPage = lazy(() =>
+  import('./pages/UXDesignReelPage').then((m) => ({ default: m.UXDesignReelPage }))
+);
 const NotFoundPage = lazy(() =>
   import('./pages/NotFoundPage').then((m) => ({ default: m.NotFoundPage }))
 );
@@ -159,6 +162,7 @@ const AppContent: React.FC = () => {
                 currentPage === 'terms' ||
                 currentPage === 'cookies' ||
                 currentPage === 'refund') && <LegalPage initialTab={currentPage} />}
+              {currentPage === 'ux-reel' && <UXDesignReelPage />}
               {currentPage === 'not-found' && <NotFoundPage />}
             </Suspense>
           )}

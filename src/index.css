@@ -148,3 +148,77 @@ h1, h2, h3, h4, .font-display {
 .animate-fadeIn3D {
   animation: fadeIn3D 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
+
+@keyframes nchShimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes nchGoldWipe {
+  0% {
+    transform: translateX(-110%) skewX(-12deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translateX(125%) skewX(-12deg);
+    opacity: 0;
+  }
+}
+
+@keyframes nchCameraDrift {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.06) translate3d(-0.8%, -0.8%, 0);
+  }
+}
+
+@keyframes nchConfettiFall {
+  0% {
+    transform: translate3d(0, -16px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  85% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate3d(14px, 210px, 0) rotate(260deg);
+    opacity: 0;
+  }
+}
+
+.animate-nch-shimmer {
+  animation: nchShimmer 1.5s infinite linear;
+}
+
+.animate-nch-gold-wipe {
+  animation: nchGoldWipe 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-nch-camera {
+  animation: nchCameraDrift 5.5s ease-out forwards;
+}
+
+.animate-nch-confetti {
+  animation: nchConfettiFall 2.8s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nch-shimmer,
+  .animate-nch-gold-wipe,
+  .animate-nch-camera,
+  .animate-nch-confetti {
+    animation: none !important;
+  }
+}

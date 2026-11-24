@@ -16,6 +16,7 @@ export type PageRoute =
   | 'terms'
   | 'cookies'
   | 'refund'
+  | 'ux-reel'
   | 'not-found';
 
 export interface NavFilterParams {
@@ -128,6 +129,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       page = 'men-winter';
     } else if (path.includes('shop') || path.includes('catalog')) {
       page = 'shop';
+    } else if (path.includes('ux-reel') || path.includes('ux-states') || path === '/reel') {
+      page = 'ux-reel';
     } else if (path === '/' || path === '' || path === '/index.html' || path === '/home') {
       page = 'home';
     } else {
@@ -256,6 +259,8 @@ export const NavigationProvider: React.FC<{ children: React.ReactNode }> = ({ ch
       path = '/cookie-policy';
     } else if (page === 'refund') {
       path = '/refund-policy';
+    } else if (page === 'ux-reel') {
+      path = '/ux-reel';
     }
 
     const queryString = query.toString();

@@ -218,6 +218,23 @@ export const STATIC_ROUTE_SEO: Record<string, SEOPageMetadata> = {
       { name: 'Admin Portal', path: '/admin' },
     ],
   },
+  'ux-reel': {
+    title: '10 Essential E-Commerce UX States Tutorial Reel | Niaz Cloth House',
+    description: 'Interactive 9:16 UX design tutorial reel demonstrating the 10 essential storefront interface states for Niaz Cloth House, Est. 1970.',
+    canonicalPath: '/ux-reel',
+    ogType: 'article',
+    ogImage: '/images/shahi_hero_banner.jpg',
+    robots: 'index, follow',
+    keywords: [
+      'Niaz Cloth House UX reel',
+      'ecommerce UX states tutorial',
+      'Pakistani fashion ecommerce UX',
+    ],
+    breadcrumbs: [
+      { name: 'Home', path: '/' },
+      { name: '10 Essential UX States', path: '/ux-reel' },
+    ],
+  },
 };
 
 export function getProductSEOMetadata(product: Product): SEOPageMetadata {

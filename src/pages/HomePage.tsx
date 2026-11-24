@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   MessageCircle,
   MapPin,
+  PlayCircle,
 } from 'lucide-react';
 import { useShop } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -380,6 +381,15 @@ export const HomePage: React.FC = () => {
               >
                 <MapPin className="w-4 h-4 text-[#D4AF37] shrink-0" />
                 <span>Visit Paris Bazaar Flagship</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigateTo('ux-reel')}
+                className="w-full sm:w-auto lg:min-w-[270px] max-w-full py-3.5 px-5 bg-transparent border border-[#C5A059]/45 hover:border-[#D4AF37] text-[#E8D5A7] hover:text-[#F7F4EE] text-xs font-medium tracking-[0.14em] sm:tracking-[0.18em] uppercase flex items-center justify-center gap-2 transition-colors rounded-xs text-center"
+              >
+                <PlayCircle className="w-4 h-4 text-[#D4AF37] shrink-0" />
+                <span>10 Essential UX States Reel</span>
               </button>
             </div>
           </div>

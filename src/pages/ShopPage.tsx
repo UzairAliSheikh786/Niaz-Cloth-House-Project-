@@ -9,6 +9,7 @@ import {
   Square,
   ChevronDown,
   ChevronUp,
+  Heart,
 } from 'lucide-react';
 import { useShop, ShopProductPageFilters } from '../context/ShopContext';
 import { useNavigation } from '../context/NavigationContext';
@@ -635,21 +636,42 @@ export const ShopPage: React.FC = () => {
                 ))}
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="text-center py-20 border border-[#C5A059]/25 bg-[#0E0E12] p-6 sm:p-8 min-w-0">
-                <h3 className="font-serif text-xl uppercase tracking-wider text-[#D4AF37] mb-2 break-words">
-                  No Fabrics Found
-                </h3>
-                <p className="text-xs text-[#F7F4EE]/65 mb-6 max-w-md mx-auto break-words">
-                  No unstitched articles matched your current filters. Reset filters to view the full Paris Bazaar catalog.
-                </p>
-                <button
-                  type="button"
-                  onClick={resetFilters}
-                  className="py-3 px-8 bg-[#D4AF37] text-[#060608] text-xs font-semibold tracking-widest uppercase hover:bg-[#E5C158] transition-colors"
-                >
-                  Reset All Filters
-                </button>
-              </div>
+              filterParams.favoritesOnly ? (
+                <div className="text-center py-20 border border-[#C5A059]/25 bg-[#0E0E12] p-6 sm:p-8 min-w-0">
+                  <div className="w-16 h-16 mx-auto mb-5 rounded-full bg-[#16161B] border border-[#D4AF37]/40 flex items-center justify-center">
+                    <Heart className="w-7 h-7 text-[#D4AF37] stroke-[1.5]" />
+                  </div>
+                  <h3 className="font-serif text-xl sm:text-2xl uppercase tracking-wider text-[#D4AF37] mb-2 break-words">
+                    Your Wishlist Is Empty
+                  </h3>
+                  <p className="text-xs sm:text-sm text-[#F7F4EE]/70 mb-6 max-w-md mx-auto break-words">
+                    You haven&apos;t saved any fabrics yet.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => navigateTo('shop')}
+                    className="py-3 px-8 bg-[#D4AF37] text-[#060608] text-xs font-semibold tracking-widest uppercase hover:bg-[#E5C158] transition-colors"
+                  >
+                    Explore Our Collection
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-20 border border-[#C5A059]/25 bg-[#0E0E12] p-6 sm:p-8 min-w-0">
+                  <h3 className="font-serif text-xl uppercase tracking-wider text-[#D4AF37] mb-2 break-words">
+                    No Fabrics Found
+                  </h3>
+                  <p className="text-xs text-[#F7F4EE]/65 mb-6 max-w-md mx-auto break-words">
+                    No unstitched articles matched your current filters. Reset filters to view the full Paris Bazaar catalog.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resetFilters}
+                    className="py-3 px-8 bg-[#D4AF37] text-[#060608] text-xs font-semibold tracking-widest uppercase hover:bg-[#E5C158] transition-colors"
+                  >
+                    Reset All Filters
+                  </button>
+                </div>
+              )
             ) : (
               <>
               <div
